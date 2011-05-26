@@ -1,0 +1,97 @@
+%\VignetteIndexEntry{An introduction to QuasR}
+%\VignetteDepends{}
+%\VignetteKeywords{XXXKexword}
+%\VignettePackage{QuasR}
+
+\documentclass[10pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsf{#1}}
+\newcommand{\R}{\software{R}}
+\newcommand{\QuasR}{\Rpackage{QuasR}}
+
+
+\title{An Introduction to \Rpackage{QuasR}}
+\author{xxx xxxx}
+\date{Modified: 4 May, 2011. Compiled: \today}
+
+\begin{document}
+
+\maketitle
+
+<<options,echo=FALSE>>=
+options(width=60)
+@ 
+
+
+
+\tableofcontents
+
+\section{Introduction}
+
+This document describes xxx
+
+<<preliminaries>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("QuasR")
+library(QuasR)
+@ 
+
+\section{Example Project with a BSgenome as genome}
+
+<<BSgenomeProject>>=
+biocLite("BSgenome.Dmelanogaster.UCSC.dm3")
+library("BSgenome.Dmelanogaster.UCSC.dm3")
+td <- tempdir()
+sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
+project <- ProjectInfo(sampleFile,
+                       genome=genomeName,
+                       annotationFile=annotationFile, 
+                       path=td)
+project <- align(project)
+projectFilename <- saveProjectInfo(project)
+project <- readProjectInfo(projectFilename)
+@
+
+\section{Example Project with fasta files as genome}
+
+<<fastaProject>>=
+td <- tempdir()
+sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+genomeName <- file.path(td, "sacCer2")
+url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
+destFile <- file.path(td, basename(url))
+download.file(url, destFile, "wget")
+untar(destFile, exdir=genomeName, verbose=T)
+project <- ProjectInfo(sampleFile,
+                       genome=genomeName,
+                       annotationFile=annotationFile, 
+                       path=td)
+project <- align(project)
+projectFilename <- saveProjectInfo(project)
+project <- readProjectInfo(projectFilename)
+@
+
+\section{Session information}
+
+The output in this vignette was produced under the following conditions:
+
+<<sessionInfo>>=
+sessionInfo()
+@
+
+\end{document}
+

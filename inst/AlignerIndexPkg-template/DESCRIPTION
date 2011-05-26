@@ -1,0 +1,19 @@
+Package: @PKGNAME@
+Type: Package
+Title: @PKGTITLE@
+Description: @PKGDESCRIPTION@
+Version: @PKGVERSION@
+Date: @DATE@
+Author: @AUTHOR@
+Maintainer: @MAINTAINER@
+Depends: @ALIGNER@ (>= @ALIGNERVERSION@)
+Imports: @ALIGNER@
+License: @LIC@
+LazyLoad: yes
+organism: @ORGANISM@
+provider: @PROVIDER@
+provider_version: @PROVIDERVERSION@
+release_date: @RELEASEDATE@
+release_name: @RELEASENAME@
+source: @SRCDATAFILES@
+biocViews: @ORGANISMBIOCVIEW@
