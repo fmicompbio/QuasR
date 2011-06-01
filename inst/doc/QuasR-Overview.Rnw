@@ -41,25 +41,22 @@ options(width=60)
 
 This document describes xxx
 
-<<preliminaries>>=
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("QuasR")
+<<preliminaries, eval=FALSE>>=
+##source("http://www.bioconductor.org/biocLite.R")
+##biocLite("QuasR")
 library(QuasR)
 @ 
 
 \section{Example Project with a BSgenome as genome}
 
-<<BSgenomeProject>>=
-biocLite("BSgenome.Dmelanogaster.UCSC.dm3")
+<<BSgenomeProject, eval=FALSE>>=
+##biocLite("BSgenome.Dmelanogaster.UCSC.dm3")
 library("BSgenome.Dmelanogaster.UCSC.dm3")
 td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
-project <- ProjectInfo(sampleFile,
-                       genome=genomeName,
-                       annotationFile=annotationFile, 
-                       path=td)
+project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
 project <- align(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)
@@ -67,19 +64,17 @@ project <- readProjectInfo(projectFilename)
 
 \section{Example Project with fasta files as genome}
 
-<<fastaProject>>=
+<<fastaProject, eval=FALSE>>=
 td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
-genomeName <- file.path(td, "sacCer2")
-url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
-destFile <- file.path(td, basename(url))
-download.file(url, destFile, "wget")
-untar(destFile, exdir=genomeName, verbose=T)
-project <- ProjectInfo(sampleFile,
-                       genome=genomeName,
-                       annotationFile=annotationFile, 
-                       path=td)
+#genomeName <- file.path(td, "sacCer2")
+#url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
+#destFile <- file.path(td, basename(url))
+#download.file(url, destFile, "curl")
+#untar(destFile, exdir=genomeName, verbose=T)
+genomeName <- "sacserv"
+project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
 project <- align(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)

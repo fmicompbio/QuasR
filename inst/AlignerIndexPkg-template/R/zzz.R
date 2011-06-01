@@ -17,7 +17,7 @@ loadIndex <- function(){
 
 .onLoad <- function(libname, pkgname)
 {
-    indexDir <- system.file("index", package=pkgname, lib.loc=libname)
+    indexDir <- system.file("alignerIndex", package=pkgname, lib.loc=libname)
     index <- list(
         name="@PROVIDERVERSION@-@ALIGNER@",
         path=file.path(indexDir, "@GENOMENAME@"),
