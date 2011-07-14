@@ -134,7 +134,7 @@ alignHierarchical <- function(projectInfo)
     projectInfo@alignments <- cbind(projectInfo@alignments, auxAlignment)
 
     #TODO calc weights
-    browser()
+    #browser()
     # TODO all alignments with same filename
     projectInfo@alignments[1,1] <- countAlignments(projectInfo@alignments[1,1], projectInfo@alignments[1,1], overwrite=T)
     ##Testcode

@@ -50,10 +50,9 @@ library(QuasR)
 \section{Example Project with a BSgenome as genome}
 
 <<BSgenomeProject, eval=FALSE>>=
-options(quasr.cores=8)
+options(quasr.cores=7)
 options(quasr.maxhits=90)
-#td <- tempdir()
-td <- "/tmp/RtmpQuasR"
+td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 #genomeName <- choseBSgenome()
