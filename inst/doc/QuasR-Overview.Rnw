@@ -50,14 +50,16 @@ library(QuasR)
 \section{Example Project with a BSgenome as genome}
 
 <<BSgenomeProject, eval=FALSE>>=
-##biocLite("BSgenome.Dmelanogaster.UCSC.dm3")
-library("BSgenome.Dmelanogaster.UCSC.dm3")
-td <- tempdir()
+options(quasr.cores=8)
+options(quasr.maxhits=90)
+#td <- tempdir()
+td <- "/tmp/RtmpQuasR"
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+#genomeName <- choseBSgenome()
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
 project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
-project <- align(project)
+project <- alignHierarchical(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)
 @
@@ -73,9 +75,9 @@ annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 #destFile <- file.path(td, basename(url))
 #download.file(url, destFile, "curl")
 #untar(destFile, exdir=genomeName, verbose=T)
-genomeName <- "sacserv"
+genomeName <- "data/sacCer2"
 project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
-project <- align(project)
+project <- alignHierarchical(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)
 @

@@ -20,19 +20,18 @@
 
 .baseFileName <- function(filename)
 {
-    fn <- unlist(strsplit(basename(filename),"\\."))
-    if(length(fn) == 1L)
-        return(fn)
-    else
-        return(paste(fn[-length(fn)], collapse="."))
+    names <- strsplit(basename(filename),"\\.[^.]*$")
+    names[filename == ""] <- "" # fix for empty filename
+    return(unlist(names))
 }
 
 .fileExtension <- function(filename)
 {
-    fn <- unlist(strsplit(basename(filename),"\\."))
-    return(fn[length(fn)])
+    pos <- regexpr("\\.[^.]*$", filename)
+    pos[pos==-1] <- nchar(filename[pos==-1])
+    ext <- substr(filename, pos+1, nchar(filename))
+    return(ext)
 }
-
 
 .progressReport <- function(msg, phase=0)
 {
@@ -45,6 +44,18 @@
     cat(msg)
     if(phase>0)
         cat("\n")
+}
+
+.multiToSingleFasta <- function(inFiles, outFile){
+  if(missing(outFile) || is.null(outFile))
+    outFile <- sprintf("%s.fa", tempfile())    
+  append <- FALSE
+  for(file in inFiles){
+    seq <- read.DNAStringSet(filepath=file)
+    write.XStringSet(seq, filepath=outFile, format="fasta", append=append)
+    append <- TRUE
+  }
+  return(outFile)
 }
     
    

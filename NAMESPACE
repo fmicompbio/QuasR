@@ -1,7 +1,8 @@
-#useDynLib("QuasR", .registration=TRUE)
+useDynLib("QuasR", .registration=TRUE)
 
 import(methods)
 import(BSgenome)
+import(Biobase)
 
 exportPattern("^[^\\.]")
 

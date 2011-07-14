@@ -1,0 +1,16 @@
+#ifndef _QUASR_H_
+#define _QUASR_H_
+
+//#include "samtools/bam.h"
+#include "samtools/sam.h"
+//#include <R.h>
+//#include <Rinternals.h>
+#include <Rdefines.h>
+
+//void _write_buffered_alignment(samfile_t *fout, bam1_t **buf, uint16_t n);
+//void _count_alignments(const char *fn_in, const char *fn_out, int max_hits, size_t max_mem);
+SEXP get_allowed_max_hits();
+SEXP count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits);
+
+
+#endif /* _QUASR_H_ */
