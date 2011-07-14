@@ -1,3 +1,2 @@
 FileName	Feature
-NC_008253.fna	Ecoli
 GenBank_dm_rRNA_190608.fa	rRNA
