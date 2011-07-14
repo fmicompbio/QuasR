@@ -26,13 +26,10 @@ _bam_tryopen(const char *filename, const char *filemode, void *aux)
 int
 _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, int32_t fifo_size, int32_t c)
 {
-Rprintf("\nWrite buffer r%i w%i c%i size%i",r_idx, w_idx, c, fifo_size); 
   while(w_idx != r_idx){
-    Rprintf("-qname %s w%i c%i-",bam1_qname(fifo[w_idx]), w_idx, c);
     bam_aux_append(fifo[w_idx], "IH", 'i', 4, (uint8_t*)&c);         
     samwrite(fout, fifo[w_idx]);
     w_idx = (w_idx + 1) % fifo_size;
-    
   }
   return w_idx;
 }
@@ -43,17 +40,20 @@ _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
   if (max_hits > MAXHITS){
     max_hits = MAXHITS;
   }
-  int fifo_size = max_hits+1;
-  int32_t k= 0;
-	int r, rd, w, count = 0;
-	const char *qname = "";
+  int fifo_size = max_hits+1; //fifo size is plus 1 that read and write index are never equal
+  int32_t k= 0; //counts of a query
+	int r = 0; //return value of samread
+	int rd = 0; //read index
+	int w = 0; //write index
+	int count = 0; //counter of samread
+	const char *qname = ""; //current query name
 	
 	bam1_t **fifo;
   fifo = (bam1_t**)calloc(fifo_size, sizeof(bam1_t*));
   for(int i = 0; i < fifo_size; i++)	
     fifo[i] = bam_init1();
 
-Rprintf("\nAfter alloc r%i w%i c%i size%i",rd, w, k, max_hits);  
+
   while (0 <= (r = samread(fin, fifo[rd]))) {
     //check if same query
     if(strcmp(qname, bam1_qname(fifo[rd]))!= 0){
@@ -65,13 +65,11 @@ Rprintf("\nAfter alloc r%i w%i c%i size%i",rd, w, k, max_hits);
       }
       k = 0;
       qname = bam1_qname(fifo[rd]);
-      Rprintf("\nQname %s",qname); 
     }
     //check if there are more alignments per query then max_hits
     if (k >= max_hits){
       //TODO
-//Rprintf("\nMax hits %s r%i w%i c%i size%i", qname, rd, w, k, max_hits); 
-Rprintf("\nError: Max Hits exceeded");
+      Rf_warning("Max Hits exceeded");
 	    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, max_hits);
 	    //return (-1 * count);
 	  } 
