@@ -6,8 +6,10 @@ countAlignments <- function(file, destination, maxHits=getOption("quasr.maxhits"
     d0 <- paste(destination, "bam", sep=".")
 
     allowedMaxHits <- .Call(.getAllowedMaxHits)
-    if(maxHits > allowedMaxHits) ## TODO error handling
-      warning("Maximal allowed hits is '", allowedMaxHits, "'.")
+    if(maxHits > allowedMaxHits){
+      maxHits <- allowedMaxHits
+      warning("Maximal hits is set to '", allowedMaxHits, " maximal allowed hits'.")
+    }
 
     cntFile <- tempfile()
     sortFile <- tempfile()

@@ -1,58 +1,44 @@
-# Aligner Class
-setClass("Aligner", representation(pkgname="character",
-                                   pkgversion="character"))
+# Aligner
 
-setMethod("initialize", "Aligner", function(.Object, pkgname)
-      {
-          .requirePkg(pkgname)
-          pkgname <- pkgname
-          pkgversion <- installed.packages()[pkgname, 'Version']
-          callNextMethod(.Object, pkgname=pkgname, pkgversion=pkgversion)
-      })
-
-Aligner <- function(aligner) new("Aligner", aligner)
+loadAligner <- function(pkgname, bisulfiteCoversion=FALSE){
+  .progressReport("Loading aligner")
+  .requirePkg(pkgname)
+  aligner <- list(pkgname=pkgname,
+                  pkgversion=installed.packages()[pkgname, 'Version'],
+                  bisulfiteCoversion=bisulfiteCoversion
+                  )
+  return(aligner)
+}
 
 
-setMethod("show","Aligner", function(object) cat(object@pkgname, "Aligner Version", object@pkgversion, "\n"))
-
-setGeneric("execute", function(object, callstr) standardGeneric("execute"))
-
-setMethod("execute", "Aligner", function(object, callstr)
-      {
-          .requirePkg(object@pkgname) 
-          fun <- sprintf("%s:::.execute('%s')", object@pkgname, callstr)
-          return(eval(parse(text=fun)))
-      })
-
-setMethod("execute", "character", function(object, callstr)
-      {
-          .requirePkg(object) 
-          fun <- sprintf("%s:::.execute('%s')", object, callstr)
-          return(eval(parse(text=fun)))
-      })
+.execute <- function(object, callstr){
+  .requirePkg(object) 
+  fun <- sprintf("%s:::.execute('%s')", object, callstr)
+  return(eval(parse(text=fun)))
+}
 
 ## TODO display the usage page of the aligner
 ##help <- function(alinger) return(character())
 
 .index <- function(aligner, fastaFilepath, indexName)
 {
-  outputpath <- switch(aligner@pkgname,
+  outputpath <- switch(aligner$pkgname,
                 Rbowtie = .indexBowtie(fastaFilepath, indexName),
                 Rbwa = .indexBWA(fastaFilepath, indexName),
-                stop("The '", aligner@pkgname, "' Aligner is not supported.")
+                stop("The '", aligner$pkgname, "' Aligner is not supported.")
                 )
   return(outputpath)
 }
 
 .indexBowtie <- function(references, outdir){
   references <- paste(references, collapse=",")
-  out <- execute("Rbowtie", sprintf("bowtie-build %s %s", references, outdir))
+  out <- .execute("Rbowtie", sprintf("bowtie-build %s %s", references, outdir))
   return(outdir)
 }
 
 .indexBWA <- function(references, outdir){
   references <- .multiToSingleFasta(references)
-  out <- execute("Rbwa", sprintf("bwa index -p %s %s", outdir, references))
+  out <- .execute("Rbwa", sprintf("bwa index -p %s %s", outdir, references))
   return(outdir)
 }
 
@@ -63,11 +49,11 @@ setMethod("execute", "character", function(object, callstr)
                                 sprintf("%s-%s",
                                         .baseFileName(readsFilepath),
                                         index$name))   
-    .progressReport(sprintf("\nAligning reads to index %s for sample '%s'", index$name, basename(readsFilepath)), phase=-1)
-    outputFilename <- switch(aligner@pkgname,
+    .progressReport(sprintf("Aligning reads to index %s for sample '%s'", index$name, basename(readsFilepath)))
+    outputFilename <- switch(aligner$pkgname,
            Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, force=overwrite),
            Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, force=overwrite),
-           stop("The '", aligner@pkgname, "' Aligner is not supported.")
+           stop("The '", aligner$pkgname, "' Aligner is not supported.")
            )
     return(outputFilename)
 }
@@ -78,17 +64,22 @@ setMethod("execute", "character", function(object, callstr)
   numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
   maxHits <- ifelse(getOption("quasr.maxhits") > 0 , sprintf("-k %s", getOption("quasr.maxhits")), "")
   samFilename <- sprintf("%s.sam", tempfile())
+  on.exit(unlink(samFilename))
   bamFilename <- unlist(strsplit(outfile, "\\.bam$")) 
-  out <- execute("Rbowtie", paste("bowtie", numThreads, maxHits, index, seqFormat, sequences, "-S", samFilename))
+  out <- .execute("Rbowtie", paste("bowtie", numThreads, maxHits, index, seqFormat, sequences, "-S", samFilename, "--quiet"))
   outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
   return(outfile)
 }
 
 .alignBWA <- function(sequences, index, outfile, ..., indexDestination=FALSE, force=FALSE){
   numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-t %s", getOption("quasr.cores")), "")
+  saiFilename <- sprintf("%s.sai", tempfile())
   samFilename <- sprintf("%s.sam", tempfile())
+  on.exit(unlink(samFilename))
   bamFilename <- unlist(strsplit(outfile, "\\.bam$"))  
-  out <- execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, ">", samFilename))
+  #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
+  out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
+  out <- .execute("Rbwa", paste("bwa samse", index, saiFilename, sequences, "-f", samFilename))
   outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
   return(outfile)
 }
@@ -97,11 +88,15 @@ setMethod("execute", "character", function(object, callstr)
 ### 
 ###
 
-alignHierarchical <- function(projectInfo)
+alignHierarchical <- function(projectInfo, lib=NULL)
 {
+    .progressReport("Starting alignments to genome", phase=-1)
     if(!is(projectInfo, "ProjectInfo"))
         stop("The object '", class(projectInfo), "' is not a 'ProjectInfo' object.")
-    .progressReport("Starting alignments to genome", phase=-1)
+    
+    ## load genome index
+    projectInfo@index <- loadIndex(projectInfo, lib=lib)
+        
     ## align to genome
     projectInfo@alignments$genome <- unlist(lapply(projectInfo@samples$filepath,
                                                .align,
@@ -111,6 +106,7 @@ alignHierarchical <- function(projectInfo)
     ## get unmapped reads
     genomeAlignmentUnmapped <- lapply(projectInfo@alignments$genome,
                                       .unmappedToFasta)
+    on.exit(unlink(genomeAlignmentUnmapped))
     ## TODO align to exon-junction-db
     ## projectInfo@alignments$exonjunction <- unlist(lapply(projectInfo@samples$filepath,
     #                                           .align,
@@ -123,6 +119,7 @@ alignHierarchical <- function(projectInfo)
     ## create index and align to annotation
     .progressReport("Creating index of auxiliaries")
     auxIndexes <- createAuxiliaryIndex(projectInfo)
+    #on.exit(unlink(auxIndexes$path))
     .progressReport("Starting alignments to auxiliaries")  
     auxAlignment <- lapply(auxIndexes, function(auxIndex){
       unlist(lapply(genomeAlignmentUnmapped,
@@ -133,10 +130,11 @@ alignHierarchical <- function(projectInfo)
     })
     projectInfo@alignments <- cbind(projectInfo@alignments, auxAlignment)
 
-    #TODO calc weights
-    #browser()
-    # TODO all alignments with same filename
-    projectInfo@alignments[1,1] <- countAlignments(projectInfo@alignments[1,1], projectInfo@alignments[1,1], overwrite=T)
+    .progressReport("Count alignments") 
+    lapply(t(projectInfo@alignments),
+           function(elem){
+             countAlignments(elem, elem, overwrite=TRUE)
+           })
     ##Testcode
     ##param <- ScanBamParam(what=c("qname","rname"), tag="IH")
     ##list <- scanBam(projectInfo@alignments[1,1], param=param)
@@ -144,7 +142,7 @@ alignHierarchical <- function(projectInfo)
     ##summary(list[[1]]$tag$IH)
     .progressReport("Successfully terminated the hierarchical alignment.", phase=1)
     return(projectInfo)
-p}
+}
 
 .unmappedToFasta <- function(bamFile, destFile){
     ## get unmapped # list of qname in fasta minus qname in bam
@@ -177,33 +175,38 @@ p}
 ### 
 ###
 
-loadIndex <- function(genome, aligner, lib=NULL)
-{
-    .progressReport("Loading aligner index")
-    if(is(genome,"BSgenome"))
+loadIndex <- function(projectInfo, lib=NULL)
+{ 
+    .progressReport("Loading genome index")
+    if(projectInfo@genome$bsgenome)
     {
-        pkgname <- paste(aligner@pkgname, bsgenomeName(genome), sep=".")
+        #Genome is BSgenome
+        pkgname <- paste(projectInfo@aligner$pkgname,
+                         projectInfo@genome$name,
+                         sep=".")
         if(suppressWarnings(require(pkgname, character.only=TRUE, quietly=TRUE)))
         {
             index <- eval(parse(text=ls(sprintf("package:%s", pkgname))))
         } else {
-            .progressReport("No index found. Creating one now")
-            srcPkgDir <- createIndexPackage(genome, aligner)
+            .progressReport("No index found. Create index now")
+            ## create and install index
+            srcPkgDir <- createIndexPackage(projectInfo)        
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
             require(pkgname, character.only=TRUE, quietly=TRUE)
             index <- get(ls(sprintf("package:%s", pkgname))[1]) 
         }
     } else {
-        indexDir <- file.path(genome$dir, sprintf("%sIndex", aligner@pkgname))
+        indexDir <- file.path(projectInfo@genome$dir, sprintf("%sIndex", projectInfo@aligner$pkgname))
         if(!file.exists(indexDir))
-          index <- createGenomeIndex(genome, aligner)
+          index <- createGenomeIndex(projectInfo)
         else{ #TODO what if the index is there, how to fix
-          name <- paste(aligner@pkgname, gsub("_", "", genome$name), sep=".") 
+          .progressReport("No index found. Create index now")
+          name <- paste(projectInfo@aligner$pkgname, gsub("_", "", projectInfo@genome$name), sep=".") 
           index <- list(name=name,
                         path=indexDir,
-                        aligner=aligner@pkgname,
-                        organism=genome$name)
+                        aligner=projectInfo@aligner$pkgname,
+                        organism=projectInfo@genome$name)
         }
     }
     return(index)
@@ -213,17 +216,13 @@ loadIndex <- function(genome, aligner, lib=NULL)
 ### Function to create the index
 ###
 
-createGenomeIndex <- function(genome, aligner, destDir)
+createGenomeIndex <- function(projectInfo, destDir)
 {
   if(missing(destDir))
-    destDir <- genome$dir
+    destDir <- projectInfo@genome$dir
   .progressReport("Creating index")
-  fastaFiles <- file.path(genome$dir, genome$files)
-  index <- createIndex(fastaFiles, aligner, genome$name, destDir)
-  #indexName <- file.path(destDir, sprintf("%sIndex", aligner@pkgname), genome$name)
-  #dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
-  #.index(aligner, fastaFiles, indexName)
-  #return(indexName)
+  fastaFiles <- file.path(projectInfo@genome$dir, projectInfo@genome$files)
+  index <- .createIndex(fastaFiles, projectInfo@aligner, projectInfo@genome$name, destDir)
   return(index)
 }
 
@@ -231,7 +230,7 @@ createAuxiliaryIndex <- function(projectInfo)
 {
   .progressReport("Creating auxiliary index")
   isFastaFormat <- .fileExtension(projectInfo@annotations$filepath) %in% c("fa","fna","mfa","fasta")
-  indexes <- mapply(createIndex,
+  indexes <- mapply(.createIndex,
                     fastaFiles=projectInfo@annotations[isFastaFormat,]$filepath,
                     name=as.character(projectInfo@annotations[isFastaFormat,]$feature),
                     MoreArgs=list(aligner=projectInfo@aligner),
@@ -241,27 +240,27 @@ createAuxiliaryIndex <- function(projectInfo)
   return(indexes)         
 }
 
-createIndex <- function(fastaFiles, aligner, name, destDir=tempfile())
+.createIndex <- function(fastaFiles, aligner, name, destDir=tempfile())
 {
   if(missing(name))
     name <- .baseFileName(fastaFiles)
-  indexName <- file.path(destDir, sprintf("%sIndex", aligner@pkgname), name)
+  indexName <- file.path(destDir, sprintf("%sIndex", aligner$pkgname), name)
   dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
   .index(aligner, fastaFiles, indexName)
   ## create index readme file
   logFile <- file(paste(indexName, "readme.txt", sep="."), "w")
   cat("Name:", name, "\n", file=logFile)
   cat("Index base path:", indexName, "\n", file=logFile)
-  cat("Aligner:", aligner@pkgname, "\n", file=logFile)
-  cat("Alinger version:", aligner@pkgversion, "\n", file=logFile)
+  cat("Aligner:", aligner$pkgname, "\n", file=logFile)
+  cat("Alinger version:", aligner$pkgversion, "\n", file=logFile)
   cat("Creation date:", date(), "\n", file=logFile)  
   cat("Organism:", name, "\n", file=logFile)
   cat("Source:", fastaFiles, file=logFile, sep="\n")  
   close(logFile)
-  index <- list(name=paste(name, aligner@pkgname, sep="-"),
+  index <- list(name=paste(name, aligner$pkgname, sep="-"),
                 path=indexName,
-                aligner=aligner@pkgname,
-                alignerversion=aligner@pkgversion,
+                aligner=aligner$pkgname,
+                alignerversion=aligner$pkgversion,
                 organism=name,
                 sourceurl=fastaFiles
                 )
@@ -274,39 +273,25 @@ createIndex <- function(fastaFiles, aligner, name, destDir=tempfile())
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-setGeneric("createIndexPackage", function(genome, aligner, ...) standardGeneric("createIndexPackage"))
-
-## From fasta file
-#' Description of Function
-#'
-#' @param xx xxx
-#' @return xxxx
-
-setMethod("createIndexPackage", c("list", "Aligner"), function(genome, aligner, sourcePackageFilepath=tempdir())
-      {
-          .progressReport("Creating index package")
-          fastaFilepath <- file.path(genome$dir, genome$files)
-          seedList <- .createSeedList(genome, aligner)
-          sourcePackageFilepath <- .createIndexPackage(aligner,
-                                                       fastaFilepath,
-                                                       seedList,
-                                                       sourcePackageFilepath)$pkgdir
-          return(sourcePackageFilepath)
-      })
-
-### From BSgenome
-setMethod("createIndexPackage", c("BSgenome", "Aligner"), function(genome, aligner, sourcePackageFilepath=tempdir())
-      {
-          .progressReport("Creating index package")
-          dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
-          fastaFilepath <- .BSgenomeSeqToFasta(genome)
-          seedList <- .createSeedList(genome, aligner)
-          sourcePackageFilepath <- .createIndexPackage(aligner,
-                                                       fastaFilepath,
-                                                       seedList,
-                                                       sourcePackageFilepath)
-          return(sourcePackageFilepath$pkgdir)
-      })
+createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
+{
+    .progressReport("Creating index package")
+    .requirePkg(projectInfo@aligner$pkgname)
+    suppressPackageStartupMessages(require(Biobase, quietly=TRUE))
+    genome <- loadBSgenome(projectInfo@genome$name)
+    dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
+    fastaFilepath <- .BSgenomeSeqToFasta(genome)
+    seedList <- .createSeedList(genome, projectInfo@aligner)
+    ## create package
+    pkgname <- seedList$ALIGNERINDEXNAME
+    destinationDir <- sourcePackageFilepath
+    templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
+    pkgDir <- createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE) 
+    ## create index files
+    indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
+    .index(projectInfo@aligner, fastaFilepath, indexDir)
+    return(pkgDir$pkgdir)                                              
+}
 
 .BSgenomeSeqToFasta <- function(bsGenome, outFile=NULL)
 {
@@ -325,22 +310,6 @@ setMethod("createIndexPackage", c("BSgenome", "Aligner"), function(genome, align
         append <- TRUE
     }
     return(outFile)
-}
-
-## Same here, unless you plan to re-use this I'd prefer to put it in the method body. One less function in the call stack to find back in the source code...
-.createIndexPackage <- function(aligner, fastaFilepath, seedList, sourcePackageFilepath=".")
-{
-    .requirePkg(aligner@pkgname)
-    require(Biobase, quietly=TRUE)
-    ## create package
-    pkgname <- seedList$ALIGNERINDEXNAME
-    destinationDir <- sourcePackageFilepath
-    templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
-    pkgDir <- createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE) 
-    ## create index files
-    indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
-    .index(aligner, fastaFilepath, indexDir)
-    return(pkgDir)
 }
 
 .installIndexPackage <- function(pkgdir, lib=NULL)
@@ -382,8 +351,8 @@ setMethod("createIndexPackage", c("BSgenome", "Aligner"), function(genome, align
                  SRCDATAFILES="",
                  ORGANISMBIOCVIEW="",
                  ##aligner seeds
-                 ALIGNER=aligner@pkgname,
-                 ALIGNERVERSION=aligner@pkgversion,
+                 ALIGNER=aligner$pkgname,
+                 ALIGNERVERSION=aligner$pkgversion,
                  ALIGNERINDEXNAME=""
                  #OBJECTNAME=""
                  )
