@@ -27,16 +27,15 @@ setClass("ProjectInfo",
                    )
 )
 
-setMethod("initialize", "ProjectInfo", function(.Object, name, path, ...)
-      {
-          if(missing(name))
-              name <- "projectinfo"
-          id <- paste(name, format(Sys.time(), "%Y%m%d_%H%M%S"), sep="_")
-          if(missing(path) || path == "."){
-              path <- getwd()
-          }
-          callNextMethod(.Object, name=name, id=id, path=path, ...)
-      })
+setMethod("initialize", "ProjectInfo", function(.Object, name, path, ...){
+    if(missing(name))
+        name <- "projectinfo"
+    id <- paste(name, format(Sys.time(), "%Y%m%d_%H%M%S"), sep="_")
+    if(missing(path) || path == "."){
+        path <- getwd()
+    }
+    callNextMethod(.Object, name=name, id=id, path=path, ...)
+})
 
 QuasRProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="projectinfo", path=".", bisulfiteCoversion=FALSE, lib.loc=NULL, ...)
 {
@@ -54,14 +53,15 @@ QuasRProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="An
     return(project)
 }
 
-##setMethod("show","ProjectInfo",
-##  function(object){
-##    cat("Project:" ,object@name, "(id:", object@id, ")\n")
-##    cat("Genome:\n", paste(object@genome, collapse="-"), "\n")
-##    cat("Samples:\n", paste(object@samples, collapse="\n"), "\n")
-##    cat("Reference:\n", paste(object@references, collapse="\n"), "\n")
-##  }
-##)
+setMethod("show","ProjectInfo", function(object){
+    cat("QuasRProject\n")
+    cat("Project: " , object@name, "\n", sep="")
+    cat("Genome:  ", object@genome$name, " is BSgenome=", object@genome$bsgenome, "\n", sep="")
+    cat("Aligner: ", object@aligner$pkgname, " Version ", object@aligner$pkgversion, "\n", sep="")
+    cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
+    cat("Annotations:\n", paste(object@annotations$feature, object@annotations$filepath, sep="\t", collapse="\n"), "\n", sep="")
+   cat("Alignments:\n", object@alignments, "\n")
+})
 
 saveProjectInfo <- function(project, filename)
 {

@@ -1,81 +1,81 @@
 loadAligner <- function(pkgname, bisulfiteCoversion=FALSE, ...){
-  .progressReport("Loading aligner")
-  .requirePkg(pkgname, ...)
-  aligner <- list(pkgname=pkgname,
-                  pkgversion=installed.packages()[pkgname, 'Version'],
-                  bisulfiteCoversion=bisulfiteCoversion
-                  )
-  return(aligner)
+    .progressReport("Loading aligner")
+    .requirePkg(pkgname, ...)
+    aligner <- list(pkgname=pkgname,
+                    pkgversion=installed.packages()[pkgname, 'Version'],
+                    bisulfiteCoversion=bisulfiteCoversion
+                    )
+    return(aligner)
 }
 
 .execute <- function(object, callstr){
-  .requirePkg(object)
-  fun <- sprintf("%s:::.execute('%s')", object, callstr)
-  return(eval(parse(text=fun)))
+    .requirePkg(object)
+    fun <- sprintf("%s:::.execute('%s')", object, callstr)
+    return(eval(parse(text=fun)))
 }
 
 .index <- function(aligner, fastaFilepath, indexName)
 {
-  outputpath <- switch(aligner$pkgname,
-                Rbowtie = .indexBowtie(fastaFilepath, indexName),
-                Rbwa = .indexBWA(fastaFilepath, indexName),
-                stop("The '", aligner$pkgname, "' Aligner is not supported.")
-                )
-  return(outputpath)
+    outputpath <- switch(aligner$pkgname,
+                         Rbowtie = .indexBowtie(fastaFilepath, indexName),
+                         Rbwa = .indexBWA(fastaFilepath, indexName),
+                         stop("The '", aligner$pkgname, "' Aligner is not supported.")
+                         )
+    return(outputpath)
 }
 
 .indexBowtie <- function(references, outdir){
-  references <- paste(references, collapse=",")
-  out <- .execute("Rbowtie", sprintf("bowtie-build %s %s", references, outdir))
-  return(outdir)
+    references <- paste(references, collapse=",")
+    out <- .execute("Rbowtie", sprintf("bowtie-build %s %s", references, outdir))
+    return(outdir)
 }
 
 .indexBWA <- function(references, outdir){
-  references <- .multiToSingleFasta(references)
-  out <- .execute("Rbwa", sprintf("bwa index -p %s %s", outdir, references))
-  return(outdir)
+    references <- .multiToSingleFasta(references)
+    out <- .execute("Rbwa", sprintf("bwa index -p %s %s", outdir, references))
+    return(outdir)
 }
 
 ## Again, we the separate function?
 .align <- function(readsFilepath, aligner, index, outpath, overwrite=TRUE)
 {
     bamFilename <- file.path(outpath,
-                                sprintf("%s-%s",
-                                        .baseFileName(readsFilepath),
-                                        index$name))
+                             sprintf("%s-%s",
+                                     .baseFileName(readsFilepath),
+                                     index$name))
     .progressReport(sprintf("Aligning reads to index %s for sample '%s'", index$name, basename(readsFilepath)))
     outputFilename <- switch(aligner$pkgname,
-           Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, force=overwrite),
-           Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, force=overwrite),
-           stop("The '", aligner$pkgname, "' Aligner is not supported.")
-           )
+                             Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, force=overwrite),
+                             Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, force=overwrite),
+                             stop("The '", aligner$pkgname, "' Aligner is not supported.")
+                             )
     return(outputFilename)
 }
 
 .alignBowtie <- function(sequences, index, outfile, ..., indexDestination=FALSE, force=FALSE){
-  seqFormat <- ifelse(.fileExtension(sequences) %in% c("fa","fna","mfa","fasta"),
-                      seqFormat <- "-f", "")
-  numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
-  maxHits <- ifelse(getOption("quasr.maxhits") > 0 , sprintf("-k %s", getOption("quasr.maxhits")), "")
-  samFilename <- sprintf("%s.sam", tempfile())
-  on.exit(unlink(samFilename))
-  bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
-  out <- .execute("Rbowtie", paste("bowtie", numThreads, maxHits, index, seqFormat, sequences, "-S", samFilename, "--quiet"))
-  outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
-  return(outfile)
+    seqFormat <- ifelse(.fileExtension(sequences) %in% c("fa","fna","mfa","fasta"),
+                        seqFormat <- "-f", "")
+    numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
+    maxHits <- ifelse(getOption("quasr.maxhits") > 0 , sprintf("-k %s", getOption("quasr.maxhits")), "")
+    samFilename <- sprintf("%s.sam", tempfile())
+    on.exit(unlink(samFilename))
+    bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
+    out <- .execute("Rbowtie", paste("bowtie", numThreads, maxHits, index, seqFormat, sequences, "-S", samFilename, "--quiet"))
+    outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
+    return(outfile)
 }
 
 .alignBWA <- function(sequences, index, outfile, ..., indexDestination=FALSE, force=FALSE){
-  numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-t %s", getOption("quasr.cores")), "")
-  saiFilename <- sprintf("%s.sai", tempfile())
-  samFilename <- sprintf("%s.sam", tempfile())
-  on.exit(unlink(samFilename))
-  bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
-  #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
-  out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
-  out <- .execute("Rbwa", paste("bwa samse", index, saiFilename, sequences, "-f", samFilename))
-  outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
-  return(outfile)
+    numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-t %s", getOption("quasr.cores")), "")
+    saiFilename <- sprintf("%s.sai", tempfile())
+    samFilename <- sprintf("%s.sam", tempfile())
+    on.exit(unlink(samFilename))
+    bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
+    #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
+    out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
+    out <- .execute("Rbwa", paste("bwa samse", index, saiFilename, sequences, "-f", samFilename))
+    outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
+    return(outfile)
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -93,10 +93,10 @@ quasrAlign <- function(projectInfo, lib=NULL, ...)
 
     ## align to genome
     projectInfo@alignments$genome <- unlist(lapply(projectInfo@samples$filepath,
-                                               .align,
-                                               projectInfo@aligner,
-                                               projectInfo@index,
-                                               projectInfo@path))
+                                                   .align,
+                                                   projectInfo@aligner,
+                                                   projectInfo@index,
+                                                   projectInfo@path))
     ## get unmapped reads
     genomeAlignmentUnmapped <- lapply(projectInfo@alignments$genome,
                                       .unmappedToFasta)
@@ -116,18 +116,18 @@ quasrAlign <- function(projectInfo, lib=NULL, ...)
     #on.exit(unlink(auxIndexes$path))
     .progressReport("Starting alignments to auxiliaries")
     auxAlignment <- lapply(auxIndexes, function(auxIndex){
-      unlist(lapply(genomeAlignmentUnmapped,
-                    .align,
-                    projectInfo@aligner,
-                    auxIndex,
-                    projectInfo@path))
+        unlist(lapply(genomeAlignmentUnmapped,
+                      .align,
+                      projectInfo@aligner,
+                      auxIndex,
+                      projectInfo@path))
     })
     projectInfo@alignments <- cbind(projectInfo@alignments, auxAlignment)
 
     .progressReport("Count alignments")
     lapply(t(projectInfo@alignments),
            function(elem){
-             countAlignments(elem, elem, overwrite=TRUE)
+               countAlignments(elem, elem, overwrite=TRUE)
            })
     .progressReport("Successfully terminated the hierarchical alignment.", phase=1)
     return(projectInfo)
@@ -135,7 +135,7 @@ quasrAlign <- function(projectInfo, lib=NULL, ...)
 
 .unmappedToFasta <- function(bamFile, destFile){
     param <- ScanBamParam(flag=scanBamFlag(isUnmappedQuery=TRUE),
-                        what=c("qname", "seq", "qual"))
+                          what=c("qname", "seq", "qual"))
     unmapped <- scanBam(bamFile, param=param)
     names(unmapped[[1]]$seq) <- unmapped[[1]]$qname
 
@@ -179,16 +179,11 @@ loadIndex <- function(projectInfo, lib=NULL, lib.loc=NULL, ...)
         }
     } else {
         indexDir <- file.path(projectInfo@genome$dir, sprintf("%sIndex", projectInfo@aligner$pkgname))
-        if(!file.exists(indexDir))
-          index <- createGenomeIndex(projectInfo)
-        else{ #TODO what if the index is there, how to fix
-          .progressReport("No index found. Create index now")
-          #name <- paste(projectInfo@aligner$pkgname, gsub("_", "", projectInfo@genome$name), sep=".")
-          #index <- list(name=name,
-          #              path=indexDir,
-          #              aligner=projectInfo@aligner$pkgname,
-          #              organism=projectInfo@genome$name)
-          index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
+        if(!file.exists(indexDir)){
+            .progressReport("No index found. Create index now")
+            index <- createGenomeIndex(projectInfo)
+        } else {
+            index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
         }
     }
     return(index)
@@ -200,44 +195,44 @@ loadIndex <- function(projectInfo, lib=NULL, lib.loc=NULL, ...)
 
 createGenomeIndex <- function(projectInfo, destDir)
 {
-  if(missing(destDir))
-    destDir <- projectInfo@genome$dir
-  .progressReport("Creating index")
-  fastaFiles <- file.path(projectInfo@genome$dir, projectInfo@genome$files)
-  index <- .createIndex(fastaFiles, projectInfo@aligner, projectInfo@genome$name, destDir)
-  return(index)
+    if(missing(destDir))
+        destDir <- projectInfo@genome$dir
+    .progressReport("Creating index")
+    fastaFiles <- file.path(projectInfo@genome$dir, projectInfo@genome$files)
+    index <- .createIndex(fastaFiles, projectInfo@aligner, projectInfo@genome$name, destDir)
+    return(index)
 }
 
 createAuxiliaryIndex <- function(projectInfo)
 {
-  .progressReport("Creating auxiliary index")
-  isFastaFormat <- .fileExtension(projectInfo@annotations$filepath) %in% c("fa","fna","mfa","fasta")
-  indexes <- mapply(.createIndex,
-                    fastaFiles=projectInfo@annotations[isFastaFormat,]$filepath,
-                    name=as.character(projectInfo@annotations[isFastaFormat,]$feature),
-                    MoreArgs=list(aligner=projectInfo@aligner),
-                    SIMPLIFY=FALSE,
-                    USE.NAMES = TRUE)
-  names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
-  return(indexes)
+    .progressReport("Creating auxiliary index")
+    isFastaFormat <- .fileExtension(projectInfo@annotations$filepath) %in% c("fa","fna","mfa","fasta")
+    indexes <- mapply(.createIndex,
+                      fastaFiles=projectInfo@annotations[isFastaFormat,]$filepath,
+                      name=as.character(projectInfo@annotations[isFastaFormat,]$feature),
+                      MoreArgs=list(aligner=projectInfo@aligner),
+                      SIMPLIFY=FALSE,
+                      USE.NAMES = TRUE)
+    names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
+    return(indexes)
 }
 
 .createIndex <- function(fastaFiles, aligner, name, destDir=tempfile())
 {
-  if(missing(name))
-    name <- .baseFileName(fastaFiles)
-  indexName <- file.path(destDir, sprintf("%sIndex", aligner$pkgname), name)
-  dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
-  .index(aligner, fastaFiles, indexName)
-  index <- list(name=paste(name, aligner$pkgname, sep="-"),
-                path=indexName,
-                aligner=aligner$pkgname,
-                alignerversion=aligner$pkgversion,
-                organism=name,
-                sourceurl=paste(fastaFiles, collapse=",")
-                )
-  write.table(index, file=file.path(destDir, sprintf("%sIndex", aligner$pkgname), "index.tab"), sep="\t", col.names=TRUE, row.names=FALSE)
-  return(index)
+    if(missing(name))
+        name <- .baseFileName(fastaFiles)
+    indexName <- file.path(destDir, sprintf("%sIndex", aligner$pkgname), name)
+    dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
+    .index(aligner, fastaFiles, indexName)
+    index <- list(name=paste(name, aligner$pkgname, sep="-"),
+                  path=indexName,
+                  aligner=aligner$pkgname,
+                  alignerversion=aligner$pkgversion,
+                  organism=name,
+                  sourceurl=paste(fastaFiles, collapse=",")
+                  )
+    write.table(index, file=file.path(destDir, sprintf("%sIndex", aligner$pkgname), "index.tab"), sep="\t", col.names=TRUE, row.names=FALSE)
+    return(index)
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -275,9 +270,9 @@ createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
     append <- FALSE
     for(chrT in seqnames(bsGenome)){
         if(is.null(masks(bsGenome[[chrT]])))
-           chrSeq <- DNAStringSet(bsGenome[[chrT]])
+            chrSeq <- DNAStringSet(bsGenome[[chrT]])
         else
-           chrSeq <- DNAStringSet(unmasked(bsGenome[[chrT]]))
+            chrSeq <- DNAStringSet(unmasked(bsGenome[[chrT]]))
         names(chrSeq) <- chrT
         ## FH: I wonder why filepath can't be a connection. Would have made this appending nightmare a lot cleaner...
         write.XStringSet(chrSeq, filepath=outFile, format="fasta", append=append)
@@ -372,3 +367,4 @@ createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
     ##    seed$ALIGNERINDEXNAME <- indexname
     return(seed)
 }
+
