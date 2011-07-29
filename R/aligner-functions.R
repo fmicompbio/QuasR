@@ -157,16 +157,15 @@ alignHierarchical <- function(projectInfo, lib=NULL)
                         what=c("qname", "seq", "qual"))
   unmapped <- scanBam(bamFile, param=param)
   names(unmapped[[1]]$seq) <- unmapped[[1]]$qname
-  #if(length(unique(unmapped[[1]]$qual)) == 1L){
+  if(length(IRanges::unique(unmapped[[1]]$qual)) == 1L){
     if(missing(destFile))
       destfile <- file.path(tempdir(), sprintf("%s-unmapped.fasta", .baseFileName(bamFile)))
     write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fasta")
-  # TODO
-  #} else {
-  #  if(missing(destFile))
-  #    destfile <- file.path(tempdir(), sprintf("%s-unmapped.fastq", .baseFileName(bamFile)))
-  #  write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual) 
-  #}
+  } else {
+    if(missing(destFile))
+      destfile <- file.path(tempdir(), sprintf("%s-unmapped.fastq", .baseFileName(bamFile)))
+    write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual) 
+  }
   return(destfile)
 }
 
