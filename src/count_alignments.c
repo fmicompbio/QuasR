@@ -3,13 +3,11 @@
 
 const int MAXHITS = 32766; // Allowed upper range for signed short int minus 1
 
-SEXP
-get_allowed_max_hits(){
+SEXP get_allowed_max_hits(){
   return ScalarInteger(MAXHITS);
 }
 
-samfile_t *
-_bam_tryopen(const char *filename, const char *filemode, void *aux)
+samfile_t * _bam_tryopen(const char *filename, const char *filemode, void *aux)
 {
     samfile_t *sfile = samopen(filename, filemode, aux);
     if (sfile == 0)
@@ -23,8 +21,7 @@ _bam_tryopen(const char *filename, const char *filemode, void *aux)
     return sfile;
 }
 
-int
-_write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, int32_t fifo_size, int32_t c)
+int _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, int32_t fifo_size, int32_t c)
 {
   while(w_idx != r_idx){
     bam_aux_append(fifo[w_idx], "IH", 'i', 4, (uint8_t*)&c);         
@@ -34,8 +31,7 @@ _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, 
   return w_idx;
 }
 
-int
-_count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
+int _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
 {
   if (max_hits > MAXHITS){
     max_hits = MAXHITS;
@@ -69,23 +65,26 @@ _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
     //check if there are more alignments per query then max_hits
     if (k >= max_hits){
       //TODO
-      Rf_warning("Max Hits exceeded");
+      Rf_warning("Max Hits %i exceeded", max_hits);
 	    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, max_hits);
-	    //return (-1 * count);
 	  } 
     rd = (rd + 1) % fifo_size;
     k++;  
 	  count++;	  
   }
-  w = _write_buffered_alignment(fout, fifo, rd, w, max_hits, k);
+  //to empty fifo queue
+  if((fifo[w]->core.flag & BAM_FUNMAP) != 0){
+    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0);
+  }else{    
+    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, k);
+  }  
   
   for(int i = 0; i < fifo_size; i++)	
     bam_destroy1(fifo[i]);
   return r >= -1 ? count : -1 * count;
 }
 
-SEXP
-count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
+SEXP count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
 {
   if (!IS_CHARACTER(bam_in) || 1 != LENGTH(bam_in))
       Rf_error("'bam_in' must be character(1)");
