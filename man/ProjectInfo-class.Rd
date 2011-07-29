@@ -121,11 +121,11 @@ readProjectInfo(filename)
   genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
   aligner <- "Rbowtie"
 
-  project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, aligner=aligner, path=td)
+  project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, aligner=aligner, path=td)
 
   show(project)
 
-  project <- alignHierarchical(project)
+  project <- quasrAlign(project)
 
   show(project)
   

@@ -43,5 +43,22 @@ Maintainer: Anita Lerch <anita.lerch@fmi.ch>
 }
 
 \examples{
-~~ simple examples of the most important functions ~~
+
+    ## Temporary directory, will be deleted after closing R 
+    td <- tempdir()
+    
+    ## Example data
+    sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+    annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+    
+    ## BSgenome name, a 'fasta' file or a directory containing 'fasta' files
+    genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
+    
+    ## Create a QuasR project object which contains all information needed for the alignment.
+    ## If the variable path is not defined, than output will be written to the working directory.
+    project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
+
+    ## Execute the whole alignment including calculating the weights
+    project <- quasrAlign(project)
+
 }

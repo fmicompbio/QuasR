@@ -1,13 +1,11 @@
 setClassUnion("data.frameOrNULL", c("data.frame", "NULL"))
 setClassUnion("listOrNULL", c("list", "NULL"))
-#setClassUnion("AlignerOrNULL", c("Aligner", "NULL"))
-setClassUnion("listOrNULL", c("list", "BSgenome", "NULL"))
 
-setClass("ProjectInfo", 
+setClass("ProjectInfo",
          representation(id="character",
                         name="character",
                         samples="data.frameOrNULL",
-                        alignments="data.frameOrNULL",                 
+                        alignments="data.frameOrNULL",
                         genome="listOrNULL",
                         aligner="listOrNULL",
                         index="listOrNULL",
@@ -40,17 +38,17 @@ setMethod("initialize", "ProjectInfo", function(.Object, name, path, ...)
           callNextMethod(.Object, name=name, id=id, path=path, ...)
       })
 
-ProjectInfo <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="projectinfo", path=".", bisulfiteCoversion=FALSE, lib=NULL, ...)
+QuasRProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="projectinfo", path=".", bisulfiteCoversion=FALSE, lib.loc=NULL, ...)
 {
     .progressReport("Gathering file path information", phase=-1)
     samples <- readSamples(sampleFile)
     annotations <- readAnnotations(annotationFile)
-    genome <- checkGenome(genome)
-    aligner <- loadAligner(aligner, bisulfiteCoversion)
+    genome <- checkGenome(genome, ...)
+    aligner <- loadAligner(aligner, bisulfiteCoversion, ...)
     alignments <- as.data.frame(matrix(0,
                                        nrow=nrow(samples),
                                        ncol=0,
-                                       dimnames=dimnames(samples)[1]))                  
+                                       dimnames=dimnames(samples)[1]))
     project <- new("ProjectInfo", projectName, path, samples=samples, annotations=annotations, genome=genome, aligner=aligner, alignments=alignments)
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
     return(project)
@@ -98,7 +96,7 @@ readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, qu
     .progressReport("Read annotation file")
     if(!file.exists(file))
         stop("File '", file, "'not found.")
-    tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)    
+    tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
     if(dirname(file) != ".")
         tab$FileName[dirname(tab$FileName) == "."] <- file.path(dirname(file), tab$FileName)
     checkFile <- file.exists(tab$FileName)
@@ -107,13 +105,17 @@ readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, qu
     return(data.frame(feature=tab$Feature, filepath=I(tab$FileName)))
 }
 
-loadBSgenome <- function(pkgname)
+loadBSgenome <- function(pkgname, ...)
 {
     if(!pkgname %in% installed.packages()[,'Package']){
+        ## download BSgenome
         source("http://www.bioconductor.org/biocLite.R")
         biocLite(pkgname)
     }
-    require(pkgname, character.only=TRUE, quietly=TRUE)
+    ## load BSgenome
+    require(pkgname, character.only=TRUE, quietly=TRUE, ...)
+    ## get BSgenome object
+    ## genome <- eval(parse(text=strsplit(pkgname,"\\.")[[1]][2]))
     genome <- eval(parse(text=ls(sprintf("package:%s", pkgname))))
     if(!is(genome,"BSgenome"))
         stop("'", pkgname, "' is not a BSgenome package")
@@ -130,25 +132,25 @@ loadFastaGenome <- function(dirname)
         ##dirname is a file
         dir <- dirname(dirname)
         files <- basename(dirname)
-      } 
+      }
     name <- .baseFileName(gsub("_", "",dirname))
     return(list(name=name, dir=dir, files=files, bsgenome=FALSE))
 }
 
-checkGenome <- function(genomeName)
+checkGenome <- function(genomeName, ...)
 {
     .progressReport("Check genome name")
     ## check if fasta file or directory
     if(file.exists(genomeName))
         return(loadFastaGenome(genomeName))
-    ## check for installed BSgenome    
+    ## check for installed BSgenome
     if(genomeName %in% installed.packages()[,'Package'])
         return(list(name=genomeName, bsgenome=TRUE))
     ## check if there is a BSgenome available with this name
-    require(BSgenome, quietly=TRUE)
+    require(BSgenome, quietly=TRUE, ...)
     if(genomeName %in% available.genomes()){
         warning("Genome '", genomeName, "' is not installed. It will be downloaded and installed during the alignment process.")
         return(list(name=genomeName, bsgenome=TRUE))
     } else
-        stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse="\n"), sep="")
+        stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse=""), sep="")
 }

@@ -31,7 +31,7 @@
 
 <<options,echo=FALSE>>=
 options(width=60)
-@ 
+@
 
 
 
@@ -45,20 +45,22 @@ This document describes xxx
 ##source("http://www.bioconductor.org/biocLite.R")
 ##biocLite("QuasR")
 library(QuasR)
-@ 
+@
 
 \section{Example Project with a BSgenome as genome}
 
 <<BSgenomeProject, eval=FALSE>>=
+library(QuasR)
 options(quasr.cores=7)
 options(quasr.maxhits=90)
-td <- tempdir()
+#td <- tempdir()
+td <- "/tmp/RtmpQuasR"
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
-#genomeName <- choseBSgenome()
+#available.genomes()
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
-project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
-project <- alignHierarchical(project)
+project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td, aligner="Rbowtie")
+project <- quasrAlign(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)
 @
@@ -75,8 +77,8 @@ annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 #download.file(url, destFile, "curl")
 #untar(destFile, exdir=genomeName, verbose=T)
 genomeName <- "data/sacCer2"
-project <- ProjectInfo(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
-project <- alignHierarchical(project)
+project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
+project <- quasrAlign(project)
 projectFilename <- saveProjectInfo(project)
 project <- readProjectInfo(projectFilename)
 @
