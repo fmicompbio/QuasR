@@ -252,7 +252,7 @@ createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
     pkgname <- seedList$ALIGNERINDEXNAME
     destinationDir <- sourcePackageFilepath
     templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
-    pkgDir <- createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
+    pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
     ## create index files
     indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
     .index(projectInfo@aligner, fastaFilepath, indexDir)
