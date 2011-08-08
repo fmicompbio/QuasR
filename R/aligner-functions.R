@@ -122,7 +122,7 @@ quasrAlign <- function(projectInfo, lib=NULL, ...)
                       auxIndex,
                       projectInfo@path))
     })
-    projectInfo@alignments <- cbind(projectInfo@alignments, auxAlignment)
+    projectInfo@alignments <- cbind.data.frame(projectInfo@alignments, auxAlignment, stringsAsFactors=FALSE)
 
     .progressReport("Count alignments")
     lapply(t(projectInfo@alignments),
