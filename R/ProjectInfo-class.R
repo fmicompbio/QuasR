@@ -60,7 +60,12 @@ setMethod("show","ProjectInfo", function(object){
     cat("Aligner: ", object@aligner$pkgname, " Version ", object@aligner$pkgversion, "\n", sep="")
     cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
     cat("Annotations:\n", paste(object@annotations$feature, object@annotations$filepath, sep="\t", collapse="\n"), "\n", sep="")
-   cat("Alignments:\n", object@alignments, "\n")
+    ## TODO write alignments in a nice way
+    cat("Alignments:\n")   
+    lapply(names(object@alignments), 
+           function(index){
+               cat(index, paste(as.matrix(object@alignments[index]), collapse="\n"), sep="\n")
+               })
 })
 
 saveProjectInfo <- function(project, filename)
