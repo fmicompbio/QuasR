@@ -82,55 +82,55 @@ loadAligner <- function(pkgname, bisulfiteCoversion=FALSE, ...){
 ###
 ###
 
-quasrAlign <- function(projectInfo, lib=NULL, ...)
+qAlign <- function(qProject, lib=NULL, ...)
 {
     .progressReport("Starting alignments to genome", phase=-1)
-    if(!is(projectInfo, "ProjectInfo"))
-        stop("The object '", class(projectInfo), "' is not a 'ProjectInfo' object.")
+    if(!is(qProject, "qProject"))
+        stop("The object '", class(qProject), "' is not a 'qProject' object.")
 
     ## load genome index
-    projectInfo@index <- loadIndex(projectInfo, lib=lib, ...)
+    qProject@index <- loadIndex(qProject, lib=lib, ...)
 
     ## align to genome
-    projectInfo@alignments$genome <- unlist(lapply(projectInfo@samples$filepath,
+    qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
                                                    .align,
-                                                   projectInfo@aligner,
-                                                   projectInfo@index,
-                                                   projectInfo@path))
+                                                   qProject@aligner,
+                                                   qProject@index,
+                                                   qProject@path))
     ## get unmapped reads
-    genomeAlignmentUnmapped <- lapply(projectInfo@alignments$genome,
+    genomeAlignmentUnmapped <- lapply(qProject@alignments$genome,
                                       .unmappedToFasta)
     on.exit(unlink(genomeAlignmentUnmapped))
     ## TODO align to exon-junction-db
-    ## projectInfo@alignments$exonjunction <- unlist(lapply(projectInfo@samples$filepath,
+    ## qProject@alignments$exonjunction <- unlist(lapply(qProject@samples$filepath,
     #                                           .align,
-    #                                           projectInfo@aligner,
+    #                                           qProject@aligner,
     #                                           exonjunctionIndex,
-    #                                           projectInfo@path))
+    #                                           qProject@path))
     ## TODO get unmapped reads
-    #exonjunctionAlignmentUnmapped <- lapply(projectInfo@alignments$exonjunction,
+    #exonjunctionAlignmentUnmapped <- lapply(qProject@alignments$exonjunction,
     #                                  .unmappedToFasta)
     ## create index and align to annotation
     .progressReport("Creating index of auxiliaries")
-    auxIndexes <- createAuxiliaryIndex(projectInfo)
+    auxIndexes <- createAuxiliaryIndex(qProject)
     #on.exit(unlink(auxIndexes$path))
     .progressReport("Starting alignments to auxiliaries")
     auxAlignment <- lapply(auxIndexes, function(auxIndex){
         unlist(lapply(genomeAlignmentUnmapped,
                       .align,
-                      projectInfo@aligner,
+                      qProject@aligner,
                       auxIndex,
-                      projectInfo@path))
+                      qProject@path))
     })
-    projectInfo@alignments <- cbind.data.frame(projectInfo@alignments, auxAlignment, stringsAsFactors=FALSE)
+    qProject@alignments <- cbind.data.frame(qProject@alignments, auxAlignment, stringsAsFactors=FALSE)
 
     .progressReport("Count alignments")
-    lapply(t(projectInfo@alignments),
+    lapply(t(qProject@alignments),
            function(elem){
                countAlignments(elem, elem, overwrite=TRUE)
            })
     .progressReport("Successfully terminated the hierarchical alignment.", phase=1)
-    return(projectInfo)
+    return(qProject)
 }
 
 .unmappedToFasta <- function(bamFile, destFile){
@@ -155,15 +155,15 @@ quasrAlign <- function(projectInfo, lib=NULL, ...)
 ###
 ###
 
-loadIndex <- function(projectInfo, lib=NULL, lib.loc=NULL, ...)
+loadIndex <- function(qProject, lib=NULL, lib.loc=NULL, ...)
 {
     .progressReport("Loading genome index")
     ## TODO check if genome and aligner is not NULL
-    if(projectInfo@genome$bsgenome)
+    if(qProject@genome$bsgenome)
     {
         #Genome is BSgenome
-        pkgname <- paste(projectInfo@aligner$pkgname,
-                         projectInfo@genome$name,
+        pkgname <- paste(qProject@aligner$pkgname,
+                         qProject@genome$name,
                          sep=".")
         if(suppressWarnings(require(pkgname, character.only=TRUE, quietly=TRUE)))
         {
@@ -171,17 +171,17 @@ loadIndex <- function(projectInfo, lib=NULL, lib.loc=NULL, ...)
         } else {
             .progressReport("No index found. Create index now")
             ## create and install index
-            srcPkgDir <- createIndexPackage(projectInfo)
+            srcPkgDir <- createIndexPackage(qProject)
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
             require(pkgname, character.only=TRUE, quietly=TRUE)
             index <- get(ls(sprintf("package:%s", pkgname))[1])
         }
     } else {
-        indexDir <- file.path(projectInfo@genome$dir, sprintf("%sIndex", projectInfo@aligner$pkgname))
+        indexDir <- file.path(qProject@genome$dir, sprintf("%sIndex", qProject@aligner$pkgname))
         if(!file.exists(indexDir)){
             .progressReport("No index found. Create index now")
-            index <- createGenomeIndex(projectInfo)
+            index <- createGenomeIndex(qProject)
         } else {
             index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
         }
@@ -193,24 +193,24 @@ loadIndex <- function(projectInfo, lib=NULL, lib.loc=NULL, ...)
 ### Function to create the index
 ###
 
-createGenomeIndex <- function(projectInfo, destDir)
+createGenomeIndex <- function(qProject, destDir)
 {
     if(missing(destDir))
-        destDir <- projectInfo@genome$dir
+        destDir <- qProject@genome$dir
     .progressReport("Creating index")
-    fastaFiles <- file.path(projectInfo@genome$dir, projectInfo@genome$files)
-    index <- .createIndex(fastaFiles, projectInfo@aligner, projectInfo@genome$name, destDir)
+    fastaFiles <- file.path(qProject@genome$dir, qProject@genome$files)
+    index <- .createIndex(fastaFiles, qProject@aligner, qProject@genome$name, destDir)
     return(index)
 }
 
-createAuxiliaryIndex <- function(projectInfo)
+createAuxiliaryIndex <- function(qProject)
 {
     .progressReport("Creating auxiliary index")
-    isFastaFormat <- .fileExtension(projectInfo@annotations$filepath) %in% c("fa","fna","mfa","fasta")
+    isFastaFormat <- .fileExtension(qProject@annotations$filepath) %in% c("fa","fna","mfa","fasta")
     indexes <- mapply(.createIndex,
-                      fastaFiles=projectInfo@annotations[isFastaFormat,]$filepath,
-                      name=as.character(projectInfo@annotations[isFastaFormat,]$feature),
-                      MoreArgs=list(aligner=projectInfo@aligner),
+                      fastaFiles=qProject@annotations[isFastaFormat,]$filepath,
+                      name=as.character(qProject@annotations[isFastaFormat,]$feature),
+                      MoreArgs=list(aligner=qProject@aligner),
                       SIMPLIFY=FALSE,
                       USE.NAMES = TRUE)
     names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
@@ -239,15 +239,15 @@ createAuxiliaryIndex <- function(projectInfo)
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
+createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir())
 {
     .progressReport("Creating index package")
-    .requirePkg(projectInfo@aligner$pkgname)
+    .requirePkg(qProject@aligner$pkgname)
     suppressPackageStartupMessages(require(Biobase, quietly=TRUE))
-    genome <- loadBSgenome(projectInfo@genome$name)
+    genome <- loadBSgenome(qProject@genome$name)
     dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
     fastaFilepath <- .BSgenomeSeqToFasta(genome)
-    seedList <- .createSeedList(genome, projectInfo@aligner)
+    seedList <- .createSeedList(genome, qProject@aligner)
     ## create package
     pkgname <- seedList$ALIGNERINDEXNAME
     destinationDir <- sourcePackageFilepath
@@ -255,7 +255,7 @@ createIndexPackage <- function(projectInfo, sourcePackageFilepath=tempdir())
     pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
     ## create index files
     indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
-    .index(projectInfo@aligner, fastaFilepath, indexDir)
+    .index(qProject@aligner, fastaFilepath, indexDir)
     return(pkgDir$pkgdir)
 }
 

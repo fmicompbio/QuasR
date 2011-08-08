@@ -59,10 +59,10 @@ sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 #available.genomes()
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
-project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td, aligner="Rbowtie")
-project <- quasrAlign(project)
-projectFilename <- saveProjectInfo(project)
-project <- readProjectInfo(projectFilename)
+project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td, aligner="Rbowtie")
+project <- qAlign(project)
+projectFilename <- saveqProject(project)
+project <- readqProjectI(projectFilename)
 @
 
 \section{Example Project with fasta files as genome}
@@ -77,10 +77,8 @@ annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 #download.file(url, destFile, "curl")
 #untar(destFile, exdir=genomeName, verbose=T)
 genomeName <- "data/sacCer2"
-project <- QuasRProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
-project <- quasrAlign(project)
-projectFilename <- saveProjectInfo(project)
-project <- readProjectInfo(projectFilename)
+project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
+project <- qAlign(project)
 @
 
 \section{Session information}

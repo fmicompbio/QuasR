@@ -1,7 +1,7 @@
 setClassUnion("data.frameOrNULL", c("data.frame", "NULL"))
 setClassUnion("listOrNULL", c("list", "NULL"))
 
-setClass("ProjectInfo",
+setClass("qProject",
          representation(id="character",
                         name="character",
                         samples="data.frameOrNULL",
@@ -27,9 +27,9 @@ setClass("ProjectInfo",
                    )
 )
 
-setMethod("initialize", "ProjectInfo", function(.Object, name, path, ...){
+setMethod("initialize", "qProject", function(.Object, name, path, ...){
     if(missing(name))
-        name <- "projectinfo"
+        name <- "qProject"
     id <- paste(name, format(Sys.time(), "%Y%m%d_%H%M%S"), sep="_")
     if(missing(path) || path == "."){
         path <- getwd()
@@ -37,7 +37,7 @@ setMethod("initialize", "ProjectInfo", function(.Object, name, path, ...){
     callNextMethod(.Object, name=name, id=id, path=path, ...)
 })
 
-QuasRProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="projectinfo", path=".", bisulfiteCoversion=FALSE, lib.loc=NULL, ...)
+qProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="qProject", path=".", bisulfiteCoversion=FALSE, lib.loc=NULL, ...)
 {
     .progressReport("Gathering file path information", phase=-1)
     samples <- readSamples(sampleFile)
@@ -48,12 +48,12 @@ QuasRProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="An
                                        nrow=nrow(samples),
                                        ncol=0,
                                        dimnames=dimnames(samples)[1]))
-    project <- new("ProjectInfo", projectName, path, samples=samples, annotations=annotations, genome=genome, aligner=aligner, alignments=alignments)
+    project <- new("qProject", projectName, path, samples=samples, annotations=annotations, genome=genome, aligner=aligner, alignments=alignments)
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
     return(project)
 }
 
-setMethod("show","ProjectInfo", function(object){
+setMethod("show","qProject", function(object){
     cat("QuasRProject\n")
     cat("Project: " , object@name, "\n", sep="")
     cat("Genome:  ", object@genome$name, " is BSgenome=", object@genome$bsgenome, "\n", sep="")
@@ -68,7 +68,7 @@ setMethod("show","ProjectInfo", function(object){
                })
 })
 
-saveProjectInfo <- function(project, filename)
+saveqProject <- function(project, filename)
 {
     if(missing(filename))
         filename <- file.path(project@path, paste(project@id, "rds", sep="."))
@@ -77,10 +77,10 @@ saveProjectInfo <- function(project, filename)
     return(filename)
 }
 
-readProjectInfo <- function(filename)
+readqProject <- function(filename)
 {
     project <- readRDS(file=filename)
-    ## TODO check projectInfo with checksum, path ...
+    ## TODO check qProject with checksum, path ...
     return(project)
 }
 
