@@ -13,7 +13,8 @@ setClass("qProject",
                         path="character",
                         paired="logical",
                         junction="logical",
-                        stranded="logical"
+                        stranded="logical",
+                        bisulfite="logical"
                         ),
          prototype(samples=NULL,
                    alignments=NULL,
@@ -23,7 +24,8 @@ setClass("qProject",
                    annotations=NULL,
                    paired=FALSE,
                    junction=FALSE,
-                   stranded=FALSE
+                   stranded=FALSE,
+                   bisulfite=FALSE
                    )
 )
 
@@ -37,13 +39,13 @@ setMethod("initialize", "qProject", function(.Object, name, path, ...){
     callNextMethod(.Object, name=name, id=id, path=path, ...)
 })
 
-qProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="qProject", path=".", bisulfiteCoversion=FALSE, lib.loc=NULL, ...)
+qProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annotation.txt", aligner="Rbowtie", projectName="qProject", path=".", lib.loc=NULL)
 {
     .progressReport("Gathering file path information", phase=-1)
     samples <- readSamples(sampleFile)
     annotations <- readAnnotations(annotationFile)
-    genome <- checkGenome(genome, ...)
-    aligner <- loadAligner(aligner, bisulfiteCoversion, ...)
+    genome <- checkGenome(genome, lib.loc=lib.loc)
+    aligner <- loadAligner(aligner, lib.loc=lib.loc)
     alignments <- as.data.frame(matrix(0,
                                        nrow=nrow(samples),
                                        ncol=0,
@@ -56,6 +58,10 @@ qProject <- function(sampleFile="Sample.txt", genome=".", annotationFile="Annota
 setMethod("show","qProject", function(object){
     cat("QuasRProject\n")
     cat("Project: " , object@name, "\n", sep="")
+    cat("Options: paired=", object@paired, 
+        "\n         junction=", object@junction,
+        "\n         stranded=", object@stranded,
+        "\n         bisulfite=", object@bisulfite, "\n", sep="")
     cat("Genome:  ", object@genome$name, " is BSgenome=", object@genome$bsgenome, "\n", sep="")
     cat("Aligner: ", object@aligner$pkgname, " Version ", object@aligner$pkgversion, "\n", sep="")
     cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
@@ -68,7 +74,7 @@ setMethod("show","qProject", function(object){
                })
 })
 
-saveqProject <- function(project, filename)
+qSaveProject <- function(project, filename)
 {
     if(missing(filename))
         filename <- file.path(project@path, paste(project@id, "rds", sep="."))
@@ -77,7 +83,7 @@ saveqProject <- function(project, filename)
     return(filename)
 }
 
-readqProject <- function(filename)
+qReadProject <- function(filename)
 {
     project <- readRDS(file=filename)
     ## TODO check qProject with checksum, path ...
@@ -110,15 +116,20 @@ readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, qu
     return(data.frame(feature=tab$Feature, filepath=I(tab$FileName)))
 }
 
-loadBSgenome <- function(pkgname, ...)
+loadBSgenome <- function(pkgname, lib.loc=NULL)
 {
     if(!pkgname %in% installed.packages()[,'Package']){
         ## download BSgenome
-        source("http://www.bioconductor.org/biocLite.R")
-        biocLite(pkgname)
+        if(require(BiocInstaller, lib.loc=lib.loc)){ 
+            ##source("http://bioconductor.org/scratch-repos/biocLite.R")
+            BiocInstaller::biocLite(pkgname)
+        } else {
+            source("http://www.bioconductor.org/biocLite.R")       
+            biocLite(pkgname)
+        }
     }
     ## load BSgenome
-    require(pkgname, character.only=TRUE, quietly=TRUE, ...)
+    require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
     ## get BSgenome object
     ## genome <- eval(parse(text=strsplit(pkgname,"\\.")[[1]][2]))
     genome <- eval(parse(text=ls(sprintf("package:%s", pkgname))))
@@ -142,7 +153,7 @@ loadFastaGenome <- function(dirname)
     return(list(name=name, dir=dir, files=files, bsgenome=FALSE))
 }
 
-checkGenome <- function(genomeName, ...)
+checkGenome <- function(genomeName, lib.loc=NULL)
 {
     .progressReport("Check genome name")
     ## check if fasta file or directory
@@ -152,7 +163,7 @@ checkGenome <- function(genomeName, ...)
     if(genomeName %in% installed.packages()[,'Package'])
         return(list(name=genomeName, bsgenome=TRUE))
     ## check if there is a BSgenome available with this name
-    require(BSgenome, quietly=TRUE, ...)
+    require(BSgenome, quietly=TRUE, lib.loc=lib.loc)
     if(genomeName %in% available.genomes()){
         warning("Genome '", genomeName, "' is not installed. It will be downloaded and installed during the alignment process.")
         return(list(name=genomeName, bsgenome=TRUE))

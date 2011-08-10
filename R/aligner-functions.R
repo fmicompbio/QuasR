@@ -1,9 +1,8 @@
-loadAligner <- function(pkgname, bisulfiteCoversion=FALSE, ...){
+loadAligner <- function(pkgname, lib.loc=NULL){
     .progressReport("Loading aligner")
-    .requirePkg(pkgname, ...)
+    .requirePkg(pkgname, lib.loc=lib.loc)
     aligner <- list(pkgname=pkgname,
-                    pkgversion=installed.packages()[pkgname, 'Version'],
-                    bisulfiteCoversion=bisulfiteCoversion
+                    pkgversion=installed.packages()[pkgname, 'Version']
                     )
     return(aligner)
 }
@@ -82,14 +81,14 @@ loadAligner <- function(pkgname, bisulfiteCoversion=FALSE, ...){
 ###
 ###
 
-qAlign <- function(qProject, lib=NULL, ...)
+qAlign <- function(qProject, ...)
 {
     .progressReport("Starting alignments to genome", phase=-1)
     if(!is(qProject, "qProject"))
         stop("The object '", class(qProject), "' is not a 'qProject' object.")
 
     ## load genome index
-    qProject@index <- loadIndex(qProject, lib=lib, ...)
+    qProject@index <- loadIndex(qProject, ...)
 
     ## align to genome
     qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
@@ -129,7 +128,7 @@ qAlign <- function(qProject, lib=NULL, ...)
            function(elem){
                countAlignments(elem, elem, overwrite=TRUE)
            })
-    .progressReport("Successfully terminated the hierarchical alignment.", phase=1)
+    .progressReport("Successfully terminated the quasr alignment.", phase=1)
     return(qProject)
 }
 
@@ -155,7 +154,7 @@ qAlign <- function(qProject, lib=NULL, ...)
 ###
 ###
 
-loadIndex <- function(qProject, lib=NULL, lib.loc=NULL, ...)
+loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
 {
     .progressReport("Loading genome index")
     ## TODO check if genome and aligner is not NULL
@@ -171,10 +170,10 @@ loadIndex <- function(qProject, lib=NULL, lib.loc=NULL, ...)
         } else {
             .progressReport("No index found. Create index now")
             ## create and install index
-            srcPkgDir <- createIndexPackage(qProject)
+            srcPkgDir <- createIndexPackage(qProject, lib.loc=lib.loc)
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
-            require(pkgname, character.only=TRUE, quietly=TRUE)
+            require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
             index <- get(ls(sprintf("package:%s", pkgname))[1])
         }
     } else {
@@ -239,12 +238,12 @@ createAuxiliaryIndex <- function(qProject)
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir())
+createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
 {
     .progressReport("Creating index package")
-    .requirePkg(qProject@aligner$pkgname)
-    suppressPackageStartupMessages(require(Biobase, quietly=TRUE))
-    genome <- loadBSgenome(qProject@genome$name)
+    .requirePkg(qProject@aligner$pkgname, lib.loc=NULL)
+    suppressPackageStartupMessages(require(Biobase, quietly=TRUE, lib.loc=lib.loc))
+    genome <- loadBSgenome(qProject@genome$name, lib.loc=lib.loc)
     dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
     fastaFilepath <- .BSgenomeSeqToFasta(genome)
     seedList <- .createSeedList(genome, qProject@aligner)
