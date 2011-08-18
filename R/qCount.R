@@ -15,10 +15,10 @@ qCount <- function(qProject, gRange, stranded=FALSE, ...)
         gRange <- gRange[seqnames(gRange)!="chrdmel_mitochondrion_genome"]
         ## subset GRAnges object with features from the annotation file
         levels <- levels(elementMetadata(gRange)[,"source"])
-        queryTarget <- unlist(strsplit(as.character(project@annotations[isGTFFormat,]$feature), ","))
+        queryTarget <- unlist(strsplit(as.character(qProject@annotations[isGTFFormat,]$feature), ","))
         #if(!queryTarget %in% levels)
         #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
-        gRange <- targets[elementMetadata(gRange)[,"source"] == queryTarget]
+        gRange <- gRange[elementMetadata(gRange)[,"source"] == queryTarget]
     }
     
     bamFiles <- unlist(qProject@alignments$genome)
