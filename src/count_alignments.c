@@ -1,37 +1,49 @@
+/*!
+  @header
+
+  TODO.
+ 
+  @author:    Anita Lerch
+  @date:      2011-08-17
+  @copyright: Friedrich Miescher Institute for Biomedical Research, Switzerland
+  @license: GPLv3
+ */
 
 #include "quasr.h"
 
-const int MAXHITS = 32766; // Allowed upper range for signed short int minus 1
+/*! @abstract maximal allowed alignments per read resp. the maximal inverse weight
+ */
+static const int MAXHITS = 32766; // Allowed upper range for signed short int minus 1
 
+/*! @function
+  @abstract  Get the maximal allowed alignments per read resp. the maximal inverse weight.
+  @return    the maximal inverse weight as integer
+ */
 SEXP get_allowed_max_hits(){
     return ScalarInteger(MAXHITS);
 }
 
-samfile_t * _bam_tryopen(const char *filename, const char *filemode, void *aux)
+/*! @function
+  @abstract  todo
+  @param  fout  todo
+  @param  todo  todo
+  @return    todo
+ */
+static int _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, int32_t fifo_size, int32_t c)
 {
-    samfile_t *sfile = samopen(filename, filemode, aux);
-    if (sfile == 0)
-        Rf_error("failed to open SAM/BAM file\n  file: '%s'", 
-		 filename);
-    if (sfile->header == 0 || sfile->header->n_targets == 0) {
-        samclose(sfile);
-        Rf_error("SAM/BAM header missing or empty\n  file: '%s'", 
-                 filename);
-    }
-    return sfile;
-}
-
-int _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, int w_idx, int32_t fifo_size, int32_t c)
-{
+    uint8_t *ih_ptr;
     while(w_idx != r_idx){
-	bam_aux_append(fifo[w_idx], "IH", 'i', 4, (uint8_t*)&c);         
-	samwrite(fout, fifo[w_idx]);
-	w_idx = (w_idx + 1) % fifo_size;
+        ih_ptr = bam_aux_get(fifo[w_idx],"IH");
+        if(ih_ptr != 0)
+            bam_aux_del(fifo[w_idx], ih_ptr);
+    	bam_aux_append(fifo[w_idx], "IH", 'i', 4, (uint8_t*)&c);         
+    	samwrite(fout, fifo[w_idx]);
+    	w_idx = (w_idx + 1) % fifo_size;
     }
     return w_idx;
 }
 
-int _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
+static int _weight_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
 {
     if (max_hits > MAXHITS){
 	max_hits = MAXHITS;
@@ -65,7 +77,7 @@ int _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
 	if (k >= max_hits){
 	    //TODO
 	    Rf_warning("Max Hits %i exceeded", max_hits);
-	    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, max_hits);
+	    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0); //TODO count is 0 or discart
 	} 
 	rd = (rd + 1) % fifo_size;
 	k++;  
@@ -83,7 +95,7 @@ int _count_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
     return r >= -1 ? count : -1 * count;
 }
 
-SEXP count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
+SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
 {
     if (!IS_CHARACTER(bam_in) || 1 != LENGTH(bam_in))
 	Rf_error("'bam_in' must be character(1)");
@@ -99,7 +111,7 @@ SEXP count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
     // TODO add manipulation to header
     samfile_t *fout = _bam_tryopen(translateChar(STRING_ELT(bam_out, 0)), "wb", fin->header); // f_in leaks if this fails 
     
-    int count = _count_alignments(fin, fout, asInteger(max_hits));
+    int count = _weight_alignments(fin, fout, asInteger(max_hits));
     
     samclose(fin);
     samclose(fout);
@@ -108,4 +120,3 @@ SEXP count_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
     
     return bam_out;
 }
-

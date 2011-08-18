@@ -2,7 +2,7 @@
 ### Function to create the index
 ###
 
-createGenomeIndex <- function(qProject, destDir)
+.createGenomeIndex <- function(qProject, destDir)
 {
     if(missing(destDir))
         destDir <- qProject@genome$dir
@@ -12,7 +12,7 @@ createGenomeIndex <- function(qProject, destDir)
     return(index)
 }
 
-createAuxiliaryIndex <- function(qProject)
+.createAuxiliaryIndex <- function(qProject)
 {
     .progressReport("Creating auxiliary index")
     isFastaFormat <- .fileExtension(qProject@annotations$filepath) %in% c("fa","fna","mfa","fasta")
@@ -48,17 +48,19 @@ createAuxiliaryIndex <- function(qProject)
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
+.createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
 {
-    .progressReport("Creating index package")
+    .progressReport("Load genome")
     .requirePkg(qProject@aligner$pkgname, lib.loc=NULL)
     suppressPackageStartupMessages(require(Biobase, quietly=TRUE, lib.loc=lib.loc))
-    genome <- loadBSgenome(qProject@genome$name, lib.loc=lib.loc)
-    dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
+    genome <- .loadBSgenome(qProject@genome$name, lib.loc=lib.loc)
+    .progressReport("Creating index package")
     fastaFilepath <- .BSgenomeSeqToFasta(genome)
+    on.exit(unlink(fastaFilepath))
     seedList <- .createSeedList(genome, qProject@aligner)
     ## create package
     pkgname <- seedList$ALIGNERINDEXNAME
+    dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
     destinationDir <- sourcePackageFilepath
     templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
     pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
@@ -68,14 +70,10 @@ createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.lo
     return(pkgDir$pkgdir)
 }
 
-.BSgenomeSeqToFasta <- function(bsGenome, outFile=NULL)
+.BSgenomeSeqToFasta <- function(bsGenome, outFile=tempfile(fileext=".fa"))
 {
     if(!is(bsGenome, "BSgenome"))
         stop("The variable bsGenome is not a BSgenome")
-    if(missing(outFile) || is.null(outFile)){
-        td <- tempdir()
-        outFile <- file.path(td, paste(bsgenomeName(bsGenome),"fa",sep="."))
-    }
     append <- FALSE
     for(chrT in seqnames(bsGenome)){
         if(is.null(masks(bsGenome[[chrT]])))

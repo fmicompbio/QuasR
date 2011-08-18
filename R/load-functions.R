@@ -1,4 +1,4 @@
-readSamples <- function(file="samples.txt", sep="\t", row.names=NULL,  quote="\"", ...)
+.readSamples <- function(file="samples.txt", sep="\t", row.names=NULL,  quote="\"", ...)
 {
     .progressReport("Read sample file")
     tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
@@ -10,7 +10,7 @@ readSamples <- function(file="samples.txt", sep="\t", row.names=NULL,  quote="\"
     return(data.frame(name=tab$SampleName, filepath=I(tab$FileName)))
 }
 
-readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, quote="\"", ...)
+.readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, quote="\"", ...)
 {
     .progressReport("Read annotation file")
     if(!file.exists(file))
@@ -24,16 +24,16 @@ readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, qu
     return(data.frame(feature=tab$Feature, filepath=I(tab$FileName)))
 }
 
-loadBSgenome <- function(pkgname, lib.loc=NULL)
+.loadBSgenome <- function(pkgname, lib.loc=NULL)
 {
     if(!pkgname %in% installed.packages()[,'Package']){
         ## download BSgenome
-        if(require(BiocInstaller, lib.loc=lib.loc)){ 
+        if(suppressWarnings(require(BiocInstaller, quietly=TRUE, lib.loc=lib.loc))){ 
             ##source("http://bioconductor.org/scratch-repos/biocLite.R")
-            BiocInstaller::biocLite(pkgname)
+            BiocInstaller::biocLite(pkgname, suppressUpdates=TRUE, lib=lib.loc)
         } else {
-            source("http://www.bioconductor.org/biocLite.R")       
-            biocLite(pkgname)
+            suppressWarnings(source("http://www.bioconductor.org/biocLite.R")) 
+            biocLite(pkgname, lib=lib.loc)
         }
     }
     ## load BSgenome
@@ -46,7 +46,7 @@ loadBSgenome <- function(pkgname, lib.loc=NULL)
     return(genome)
 }
 
-loadFastaGenome <- function(dirname)
+.loadFastaGenome <- function(dirname)
 {
     if(file.info(dirname)$isdir){
         ##dirname is a directory
@@ -61,25 +61,25 @@ loadFastaGenome <- function(dirname)
     return(list(name=name, dir=dir, files=files, bsgenome=FALSE))
 }
 
-checkGenome <- function(genomeName, lib.loc=NULL)
+.checkGenome <- function(genomeName, lib.loc=NULL)
 {
     .progressReport("Check genome name")
     ## check if fasta file or directory
     if(file.exists(genomeName))
-        return(loadFastaGenome(genomeName))
+        return(.loadFastaGenome(genomeName))
     ## check for installed BSgenome
     if(genomeName %in% installed.packages()[,'Package'])
         return(list(name=genomeName, bsgenome=TRUE))
     ## check if there is a BSgenome available with this name
     require(BSgenome, quietly=TRUE, lib.loc=lib.loc)
     if(genomeName %in% available.genomes()){
-        warning("Genome '", genomeName, "' is not installed. It will be downloaded and installed during the alignment process.")
+        message("WARNING: Genome '", genomeName, "' is not installed. It will be downloaded and installed during the alignment process.")
         return(list(name=genomeName, bsgenome=TRUE))
     } else
         stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse=""), sep="")
 }
 
-loadAligner <- function(pkgname, lib.loc=NULL){
+.loadAligner <- function(pkgname, lib.loc=NULL){
     .progressReport("Loading aligner")
     .requirePkg(pkgname, lib.loc=lib.loc)
     aligner <- list(pkgname=pkgname,
@@ -88,7 +88,7 @@ loadAligner <- function(pkgname, lib.loc=NULL){
     return(aligner)
 }
 
-loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
+.loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
 {
     .progressReport("Loading genome index")
     ## TODO check if genome and aligner is not NULL
@@ -104,7 +104,7 @@ loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
         } else {
             .progressReport("No index found. Create index now")
             ## create and install index
-            srcPkgDir <- createIndexPackage(qProject, lib.loc=lib.loc)
+            srcPkgDir <- .createIndexPackage(qProject, lib.loc=lib.loc)
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
             require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
@@ -114,7 +114,7 @@ loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
         indexDir <- file.path(qProject@genome$dir, sprintf("%sIndex", qProject@aligner$pkgname))
         if(!file.exists(indexDir)){
             .progressReport("No index found. Create index now")
-            index <- createGenomeIndex(qProject)
+            index <- .createGenomeIndex(qProject)
         } else {
             index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
         }

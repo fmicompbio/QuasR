@@ -4,16 +4,17 @@
 \title{QuasR Align}
 
 \description{
-    Align sequences from a \sQuote{qProject} hierarchical to a genome, exon-junction and auxiliary sequence.
+Align sequences from a \sQuote{qProject} hierarchical to a genome, exon-exon-junction and auxiliary sequence.
 }
 
 \usage{
-    qAlign(qProject, \dots)
+    qAlign(qProject, lib=NULL, lib.loc=NULL)
 }
 
 \arguments{
     \item{qProject}{A \sQuote{qProject} object containing all meta-data needed for the alignment.}    
-    \item{\dots}{Further arguments to be passed to TODO.}    
+    \item{lib}{A character() vector giving the library directories where to install the packages. Recycled as needed. If missing, defaults to the first element of \code{.libPaths()}.}
+    \item{lib.loc}{A character() vector describing the location of R library trees to search through, or \sQuote{NULL}.  The default value of \sQuote{NULL} corresponds to all libraries currently known. Non-existent library trees are silently ignored.}
 }
 
 \details{
@@ -27,7 +28,7 @@
 \author{Anita Lerch}
 
 \seealso{
-  \code{\linkS4class{qProject}},
+    \code{\linkS4class{qProject}}, \code{\link{qCount}}
 }
 
 \examples{

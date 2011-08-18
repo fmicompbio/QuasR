@@ -1,11 +1,11 @@
-qAlign <- function(qProject, ...)
+qAlign <- function(qProject, lib=NULL, lib.loc=NULL)
 {
     .progressReport("Starting alignments to genome", phase=-1)
     if(!is(qProject, "qProject"))
         stop("The object '", class(qProject), "' is not a 'qProject' object.")
 
     ## load genome index
-    qProject@index <- loadIndex(qProject, ...)
+    qProject@index <- .loadIndex(qProject, lib=lib, lib.loc=lib.loc)
 
     ## align to genome
     qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
@@ -28,7 +28,7 @@ qAlign <- function(qProject, ...)
     #                                  .unmappedToFasta)
     ## create index and align to annotation
     .progressReport("Creating index of auxiliaries")
-    auxIndexes <- createAuxiliaryIndex(qProject)
+    auxIndexes <- .createAuxiliaryIndex(qProject)
     #on.exit(unlink(auxIndexes$path))
     .progressReport("Starting alignments to auxiliaries")
     auxAlignment <- lapply(auxIndexes, function(auxIndex){
@@ -40,10 +40,10 @@ qAlign <- function(qProject, ...)
     })
     qProject@alignments <- cbind.data.frame(qProject@alignments, auxAlignment, stringsAsFactors=FALSE)
 
-    .progressReport("Count alignments")
+    .progressReport("Weight alignments")
     lapply(t(qProject@alignments),
            function(elem){
-               countAlignments(elem, elem, overwrite=TRUE)
+               .weightAlignments(elem, elem, overwrite=TRUE)
            })
     .progressReport("Successfully terminated the quasr alignment.", phase=1)
     return(qProject)

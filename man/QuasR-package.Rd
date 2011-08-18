@@ -13,6 +13,16 @@ This package provides a pipeline for the quantification and analysis of Short Re
 See packageDescription('QuasR') for package details.
 }
 
+\author{
+Anita Lerch
+
+Maintainer: Anita Lerch \email{anita.lerch@fmi.ch}
+}
+
+\seealso{
+  \code{\linkS4class{qProject}}, \code{\link{qAlign}}, \code{\link{qCount}}
+}
+
 \examples{
 \dontrun{
 ## Temporary directory, it will be deleted after closing the R session 
@@ -43,11 +53,5 @@ project <- qReadProject(projectFilename)
 }
 }
 
-\author{
-Anita Lerch
-
-Maintainer: Anita Lerch \email{anita.lerch@fmi.ch}
-}
-
-\keyword{ package }
+\keyword{package}
 

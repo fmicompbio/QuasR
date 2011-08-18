@@ -1,5 +1,5 @@
 
-countAlignments <- function(file, destination, maxHits=getOption("quasr.maxhits"), ..., overwrite=FALSE, indexDestination=TRUE)
+.weightAlignments <- function(file, destination, maxHits=getOption("quasr.maxhits"), ..., overwrite=FALSE, indexDestination=TRUE)
 {
     destination <- unlist(strsplit(file, "\\.bam$"))
     d0 <- paste(destination, "bam", sep=".")
@@ -21,7 +21,7 @@ countAlignments <- function(file, destination, maxHits=getOption("quasr.maxhits"
             stop(msg)
         }
         sortFile <- sortBam(file, sortFile, byQname=TRUE)
-        cntFile <- .Call(.countAlignments, sortFile, cntFile, maxHits)
+        cntFile <- .Call(.weight_alignments, sortFile, cntFile, maxHits)
         if (!file.exists(cntFile))
             stop("failed to create 'BAM' file")
         if(indexDestination) {
