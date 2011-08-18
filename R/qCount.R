@@ -1,6 +1,5 @@
 qCount <- function(qProject, gRange, stranded=FALSE, ...)
 {
-    browser()
     if(missing(gRange)){
         isGTFFormat <- .fileExtension(qProject@annotations$filepath) %in% c("gtf")
         gtfFiles <- qProject@annotations[isGTFFormat,]$filepath
