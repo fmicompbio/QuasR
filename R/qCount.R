@@ -1,7 +1,6 @@
 qCount <- function(qProject, gRange, stranded=FALSE, ...)
 {
-
-#     ## count of regions
+    browser()
     if(missing(gRange)){
         isGTFFormat <- .fileExtension(qProject@annotations$filepath) %in% c("gtf")
         gtfFiles <- qProject@annotations[isGTFFormat,]$filepath
@@ -9,21 +8,18 @@ qCount <- function(qProject, gRange, stranded=FALSE, ...)
             stop("There is more/less than one 'gtf' file in the annotation")
         require(rtracklayer)
         #targets <- import.gff2("data/Drosophila_melanogaster.BDGP5.25.62.gtf", asRangedData=FALSE)
-        targets <- import.gff2(gtfFiles, asRangedData=FALSE)
-        namesGTF <- paste("chr", seqlevels(targets), sep="")
-        seqlevels(targets) <- namesGTF
-        targets <- targets[seqnames(targets)!="chrdmel_mitochondrion_genome"]
-        #gRange <- targets
-    
-        levels <- levels(elementMetadata(targets)[,"source"])
-        snoRNA <- targets[elementMetadata(targets)[,"source"]=="snoRNA"]
-        snRNA <- targets[elementMetadata(targets)[,"source"]=="snRNA"]
-        tRNA <- targets[elementMetadata(targets)[,"source"]=="tRNA"]
-        miRNA <- targets[elementMetadata(targets)[,"source"]=="miRNA"]
-        rRNA <- targets[elementMetadata(targets)[,"source"]=="rRNA"]
-        ##protein <- targets[elementMetadata(targets)[,"source"]=="protein_coding"]
-        gRange <- c(snoRNA, snRNA, tRNA, miRNA, rRNA)
-        rm(targets)
+        #targets <- import.gff2(file(as.character(gtfFiles), "r"), asRangedData=FALSE)
+        gRange <- import.gff2(as.character(gtfFiles), asRangedData=FALSE)
+        ## HACK fix of wrong sequence name
+        namesGTF <- paste("chr", seqlevels(gRange), sep="")
+        seqlevels(gRange) <- namesGTF
+        gRange <- gRange[seqnames(gRange)!="chrdmel_mitochondrion_genome"]
+        ## subset GRAnges object with features from the annotation file
+        levels <- levels(elementMetadata(gRange)[,"source"])
+        queryTarget <- unlist(strsplit(as.character(project@annotations[isGTFFormat,]$feature), ","))
+        #if(!queryTarget %in% levels)
+        #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
+        gRange <- targets[elementMetadata(gRange)[,"source"] == queryTarget]
     }
     
     bamFiles <- unlist(qProject@alignments$genome)
@@ -35,5 +31,4 @@ qCount <- function(qProject, gRange, stranded=FALSE, ...)
     values(gRange) <- IRanges::cbind(values(gRange), counts)
     #values(gRange) <- cbind.data.frame(as.data.frame(val), counts)
     return(gRange)
-
 }
