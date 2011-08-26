@@ -1,5 +1,6 @@
 setClassUnion(".data.frameOrNULL", c("data.frame", "NULL"))
 setClassUnion(".listOrNULL", c("list", "NULL"))
+setClassUnion(".characterOrNULL", c("character", "NULL"))
 
 setClass("qProject",
          representation(id="character",
@@ -11,10 +12,11 @@ setClass("qProject",
                         index=".listOrNULL",
                         annotations=".data.frameOrNULL",
                         path="character",
-                        indexLocation="character",
+                        indexLocation=".characterOrNULL",
                         paired="logical",
                         junction="logical",
-                        bisulfite="logical"
+                        bisulfite="logical",
+                        maxHits="integer"
                         ),
          prototype(samples=NULL,
                    alignments=NULL,
@@ -22,10 +24,10 @@ setClass("qProject",
                    aligner=NULL,
                    index=NULL,
                    annotations=NULL,
+                   indexLocation=NULL,
                    paired=FALSE,
                    junction=FALSE,
-                   bisulfite=FALSE,
-                   indexLocation=character()
+                   bisulfite=FALSE
                    )
 )
 
@@ -43,7 +45,7 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
                      annotationFile="Annotation.txt", aligner="Rbowtie", 
                      projectName="qProject", path=".", paired=FALSE, 
                      junction=FALSE, bisulfite=FALSE, lib.loc=NULL, 
-                     indexLocation)
+                     indexLocation=NULL, maxHits=99L)
 {
     .progressReport("Gathering file path information", phase=-1)
     samples <- .readSamples(sampleFile)
@@ -57,7 +59,7 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
     project <- new("qProject", projectName, path, samples=samples, 
                    annotations=annotations, genome=genome, aligner=aligner, 
                    alignments=alignments, paired=paired, junction=junction, 
-                   bisulfite=bisulfite)
+                   bisulfite=bisulfite, indexLocation=indexLocation, maxHits=maxHits)
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
     return(project)
 }
@@ -67,7 +69,8 @@ setMethod("show","qProject", function(object){
     cat("Project: " , object@name, "\n", sep="")
     cat("Options: paired=", object@paired, 
         "\n         junction=", object@junction,
-        "\n         bisulfite=", object@bisulfite, "\n", sep="")
+        "\n         bisulfite=", object@bisulfite,
+        "\n         maxHits=", object@maxHits, "\n", sep="")
     cat("Genome:  ", object@genome$name, " is BSgenome=", object@genome$bsgenome, "\n", sep="")
     cat("Aligner: ", object@aligner$pkgname, " Version ", object@aligner$pkgversion, "\n", sep="")
     cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
@@ -98,3 +101,37 @@ qReadProject <- function(filename)
     return(project)
 }
 
+getGenomeInformation <- function(qProject, ...){
+    if(!is(qProject, "qProject"))
+        stop("The object '", class(qProject), "' is not a 'qProject' object.")
+    if(qProject@genome$bsgenome)
+        return(seqlengths(.loadBSgenome(qProject@genome$name, ...)))
+    else {
+        faList <- open(FaFileList(file.path(qProject@genome$dir, qProject@genome$files)))
+        return(seqlengths(IRanges::unlist(GRangesList(IRanges::lapply(faList, scanFaIndex)))))
+    }
+}
+
+getAlignments <- function(qProject){
+    if(!is(qProject, "qProject"))
+        stop("The object '", class(qProject), "' is not a 'qProject' object.")
+    return(qProject@alignments)
+}
+
+getSamples <- function(qProject){
+    if(!is(qProject, "qProject"))
+        stop("The object '", class(qProject), "' is not a 'qProject' object.")
+    return(qProject@samples)
+}
+
+paired <- function(qProject){
+    if(!is(qProject, "qProject"))
+        stop("The object '", class(qProject), "' is not a 'qProject' object.")
+    return(qProject@paired)
+}
+
+# path <- function(qProject){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+#     return(qProject@path)
+# }

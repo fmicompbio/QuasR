@@ -13,12 +13,12 @@
 //utilities.c
 samfile_t * _bam_tryopen(const char *filename, const char *filemode, void *aux);
 SEXP seqname(SEXP filename);
+SEXP getListElement(SEXP list, const char *str);
 
 //weight_alignments.c
 SEXP get_allowed_max_hits();
 SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits);
 
 //count_alignments.c
-SEXP count_alignments(SEXP bam_in, SEXP idx, SEXP tid, SEXP start, SEXP end);
-
+SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP type);
 #endif /* _QUASR_H_ */

@@ -35,13 +35,14 @@
 
 .progressReport <- function(msg, phase=0)
 {
+    qTag <- "[QuasR]"
     if(phase==0)
-        cat("done\n")
+        cat(qTag, "done\n")
     if(phase<=0)
         msg <- paste(msg, "...", sep="")
     if(phase>0)
         cat("done\n")
-    cat(msg)
+    cat(qTag, msg)
     if(phase>0)
         cat("\n")
 }
@@ -58,4 +59,15 @@
   return(outFile)
 }
     
-   
+.mapSeqnames <- function(genomeSeqnames, annotationSeqnames){
+    if(!all(annotationSeqnames %in% genomeSeqnames)){
+        ## try to map mitochondrion
+        annotationSeqnames[ annotationSeqnames=="dmel_mitochondrion_genome" ] <- "M"
+        annotationSeqnames[ annotationSeqnames=="MT" ] <- "M"
+        ## add "chr" string
+        annotationSeqnames <- paste("chr", annotationSeqnames, sep="")
+        if(!all(annotationSeqnames %in% genomeSeqnames))
+            error("Can't match sequence names")
+    }
+    return(annotationSeqnames)
+}   

@@ -1,7 +1,21 @@
+/*!
+  @header
+
+  TODO.
+ 
+  @author:    Anita Lerch
+  @date:      2011-08-17
+  @copyright: Friedrich Miescher Institute for Biomedical Research, Switzerland
+  @license: GPLv3
+ */
+
 #include "quasr.h"
 
-
-// callback for bam_fetch()
+/*! @function
+  @abstract  callback for bam_fetch()
+  @param  todo  todo
+  @return    todo
+ */
 static int fetch_func(const bam1_t *hit, void *data){
     //TODO check if whole alignment is in region hit->core.pos
     double *sum = (double*)data;
@@ -10,6 +24,11 @@ static int fetch_func(const bam1_t *hit, void *data){
     return 0;  
 } 
 
+/*! @function
+  @abstract  todo
+  @param  todo  todo
+  @return    todo
+ */
 double _count_alignments(samfile_t *fin, bam_index_t *idx, int tid, int start, int end)
 {
     double sum = 0.0;
@@ -17,40 +36,49 @@ double _count_alignments(samfile_t *fin, bam_index_t *idx, int tid, int start, i
     return sum;
 }
 
-SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP tid, SEXP start, SEXP end)
+/*! @function
+  @abstract  todo
+  @param  todo  todo
+  @return    todo
+ */
+SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP type)
 {
     if (!IS_CHARACTER(bam_in) || 1 != LENGTH(bam_in))
         Rf_error("'bam_in' must be character(1)");
 
     if (!IS_CHARACTER(idx_in) || 1 != LENGTH(idx_in))
         Rf_error("'idx_in' must be character(1)");
-    
-    if (!IS_INTEGER(tid))
-        Rf_error("'tid' must be of type integer");
-
-    if (!IS_INTEGER(start))
-        Rf_error("'start' must be of type integer");
-
-    if (!IS_INTEGER(end))
-        Rf_error("'end' must be of type integer");
-
-    if (!LENGTH(tid) == LENGTH(start) && LENGTH(tid) == LENGTH(end))
-        Rf_error("'tid', 'start', 'end' must be of equal length");
-
-    if (1 != LENGTH(tid))
-        Rf_error("Length of 'tid', 'start' or 'end' must be 1");
-
     samfile_t *fin = _bam_tryopen(translateChar(STRING_ELT(bam_in, 0)), "rb", NULL);    
     //TODO error handling. f_in leaks if this fails
     bam_index_t *idx = bam_index_load(translateChar(STRING_ELT(idx_in, 0))); // f_in leaks if this fails 
 
-    //int tid = 1;
-    //int start = 0;
-    //int end = fin->header->target_len[tid]-1;
-    double count = _count_alignments(fin, idx, asInteger(tid), asInteger(start), asInteger(end));
+    SEXP tid = getListElement(regions, "tid");
+    SEXP start = getListElement(regions, "start");
+    SEXP end = getListElement(regions, "end");
+    
+    if (!IS_INTEGER(tid))
+        Rf_error("Column 'tid' must be of type integer");
+
+    if (!IS_INTEGER(start))
+        Rf_error("Column 'start' must be of type integer");
+
+    if (!IS_INTEGER(end))
+        Rf_error("Column 'end' must be of type integer");
+
+    if (!LENGTH(tid) == LENGTH(start) && LENGTH(tid) == LENGTH(end))
+        Rf_error("Columns 'tid', 'start', 'end' must be of equal length");
+
+    int num_regions = LENGTH(tid);
+
+    SEXP count;
+    PROTECT(count = NEW_NUMERIC(num_regions));
+    for(int i = 0; i < num_regions; i++){
+        REAL(count)[i] = _count_alignments(fin, idx, INTEGER(tid)[i], INTEGER(start)[i], INTEGER(end)[i]);
+    }
     
     samclose(fin);
     bam_index_destroy(idx);
-    
-    return ScalarReal(count);
+    UNPROTECT(1);
+
+    return count;
 }
