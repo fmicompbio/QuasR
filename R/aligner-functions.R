@@ -29,10 +29,12 @@
 .align <- function(readsFilepath, aligner, index, outpath, maxHits=NULL, overwrite=TRUE)
 {
     bamFilename <- file.path(outpath,
-                             sprintf("%s-%s",
+                             sprintf("%s-%s-%s",
                                      .baseFileName(readsFilepath),
-                                     index$name))
-    .progressReport(sprintf("Aligning reads to index %s for sample '%s'", index$name, basename(readsFilepath)))
+                                     index$name,
+                                     aligner$pkgname))
+    .progressReport(sprintf("Aligning reads to index %s-%s for sample '%s'", 
+                            index$name, aligner$pkgname, basename(readsFilepath)))
     outputFilename <- switch(aligner$pkgname,
                              Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
                                                     maxHits=maxHits, force=overwrite),

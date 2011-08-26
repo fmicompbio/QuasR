@@ -28,13 +28,8 @@
 {
     if(!pkgname %in% installed.packages()[,'Package']){
         ## download BSgenome
-        if(suppressWarnings(require(BiocInstaller, quietly=TRUE, lib.loc=lib.loc))){ 
-            ##source("http://bioconductor.org/scratch-repos/biocLite.R")
+        if(suppressWarnings(require(BiocInstaller, quietly=TRUE, lib.loc=lib.loc)))
             BiocInstaller::biocLite(pkgname, suppressUpdates=TRUE, lib=lib.loc)
-        } else {
-            suppressWarnings(source("http://www.bioconductor.org/biocLite.R")) 
-            biocLite(pkgname, lib=lib.loc)
-        }
     }
     ## load BSgenome
     require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
@@ -111,12 +106,17 @@
             index <- get(ls(sprintf("package:%s", pkgname))[1])
         }
     } else {
-        indexDir <- file.path(qProject@genome$dir, sprintf("%sIndex", qProject@aligner$pkgname))
+        if(is.null(qProject@indexLocation))
+            indexDir <- file.path(qProject@genome$dir, sprintf("%sIndex", qProject@aligner$pkgname))
+        else
+            indexDir <- file.path(qProject@indexLocation, sprintf("%sIndex", qProject@aligner$pkgname))
         if(!file.exists(indexDir)){
             .progressReport("No index found. Create index now")
             index <- .createGenomeIndex(qProject)
         } else {
             index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
+            ## set index path relativ to working directory
+            index$path <- file.path(indexDir, index$name)
         }
     }
     return(index)

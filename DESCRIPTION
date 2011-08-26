@@ -5,8 +5,8 @@ Version: 0.1.1
 Date: 2011-03-23
 Author: Anita Lerch
 Maintainer: Anita Lerch <anita.lerch@fmi.ch>
-Depends: R (>= 2.12.0), methods, Biobase, Biostrings, Rsamtools (>= 1.4.0), BSgenome 
-Imports: IRanges
+Depends: R (>= 2.14.0), methods, BiocInstaller, Biobase, Biostrings, Rsamtools (>= 1.5.0), BSgenome, IRanges, rtracklayer 
+Imports: 
 Suggests: RUnit, Rbowtie (== 1.0), Rbwa (== 0.1.0)
 Enhances: 
 LinkingTo: Rsamtools

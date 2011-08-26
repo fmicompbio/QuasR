@@ -37,7 +37,7 @@
 {
     qTag <- "[QuasR]"
     if(phase==0)
-        cat(qTag, "done\n")
+        cat("done\n")
     if(phase<=0)
         msg <- paste(msg, "...", sep="")
     if(phase>0)

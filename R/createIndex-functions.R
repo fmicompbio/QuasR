@@ -2,10 +2,12 @@
 ### Function to create the index
 ###
 
-.createGenomeIndex <- function(qProject, destDir)
+.createGenomeIndex <- function(qProject)
 {
-    if(missing(destDir))
+    if(is.null(qProject@indexLocation))
         destDir <- qProject@genome$dir
+    else
+        destDir <- qProject@indexLocation
     .progressReport("Creating index")
     fastaFiles <- file.path(qProject@genome$dir, qProject@genome$files)
     index <- .createIndex(fastaFiles, qProject@aligner, qProject@genome$name, destDir)
@@ -33,14 +35,15 @@
     indexName <- file.path(destDir, sprintf("%sIndex", aligner$pkgname), name)
     dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
     .index(aligner, fastaFiles, indexName)
-    index <- list(name=paste(name, aligner$pkgname, sep="-"),
+    index <- list(name=name,
                   path=indexName,
                   aligner=aligner$pkgname,
                   alignerversion=aligner$pkgversion,
-                  organism=name,
+                  #organism=name,
                   sourceurl=paste(fastaFiles, collapse=",")
                   )
-    write.table(index, file=file.path(destDir, sprintf("%sIndex", aligner$pkgname), "index.tab"), sep="\t", col.names=TRUE, row.names=FALSE)
+    write.table(index, file=file.path(destDir, sprintf("%sIndex", aligner$pkgname), "index.tab"), 
+                sep="\t", col.names=TRUE, row.names=FALSE)
     return(index)
 }
 
