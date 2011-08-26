@@ -1,18 +1,18 @@
 
-.weightAlignments <- function(file, destination, maxHits=getOption("quasr.maxhits"), ..., overwrite=FALSE, indexDestination=TRUE)
+.weightAlignments <- function(file, destination, maxHits=NULL, ..., overwrite=FALSE, indexDestination=TRUE)
 {
+    # TODO check length(file) == 1L
     destination <- unlist(strsplit(file, "\\.bam$"))
     d0 <- paste(destination, "bam", sep=".")
 
     allowedMaxHits <- .Call(.getAllowedMaxHits)
-    if(maxHits > allowedMaxHits){
+    if(is.null(maxHits) || maxHits > allowedMaxHits){
         maxHits <- allowedMaxHits
         warning("Maximal hits is set to '", allowedMaxHits, " maximal allowed hits'.")
     }
 
     cntFile <- tempfile()
-    sortFile <- tempfile()
-    on.exit(unlink(c(cntFile, sortFile)))
+    on.exit(unlink(cntFile))
 
     tryCatch({
         if (!overwrite && file.exists(d0)) {
@@ -20,7 +20,15 @@
                 sprintf("'destination' exists, 'overwrite' is FALSE\n  destination.bam: %s", "destination", "overwrite", d0)
             stop(msg)
         }
-        sortFile <- sortBam(file, sortFile, byQname=TRUE)
+        ## sort bamfile by shortread name      
+        if(any(scanBamHeader(file)[[1]]$text$`@HD` == "SO:queryname")){
+            sortFile <- file
+        } else {
+            sortFile <- tempfile()
+            on.exit(unlink(sortFile))
+            sortFile <- sortBam(file, sortFile, byQname=TRUE)
+        }
+             
         cntFile <- .Call(.weight_alignments, sortFile, cntFile, maxHits)
         if (!file.exists(cntFile))
             stop("failed to create 'BAM' file")

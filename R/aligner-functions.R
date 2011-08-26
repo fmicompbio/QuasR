@@ -26,8 +26,7 @@
     return(outdir)
 }
 
-## Again, we the separate function?
-.align <- function(readsFilepath, aligner, index, outpath, overwrite=TRUE)
+.align <- function(readsFilepath, aligner, index, outpath, maxHits=NULL, overwrite=TRUE)
 {
     bamFilename <- file.path(outpath,
                              sprintf("%s-%s",
@@ -35,18 +34,20 @@
                                      index$name))
     .progressReport(sprintf("Aligning reads to index %s for sample '%s'", index$name, basename(readsFilepath)))
     outputFilename <- switch(aligner$pkgname,
-                             Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, force=overwrite),
-                             Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, force=overwrite),
+                             Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
+                                                    maxHits=maxHits, force=overwrite),
+                             Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, 
+                                              maxHits=maxHits, force=overwrite),
                              stop("The '", aligner$pkgname, "' Aligner is not supported.")
                              )
     return(outputFilename)
 }
 
-.alignBowtie <- function(sequences, index, outfile, ..., indexDestination=FALSE, force=FALSE){
+.alignBowtie <- function(sequences, index, outfile, maxHits=NULL, ..., indexDestination=FALSE, force=FALSE){
     seqFormat <- ifelse(.fileExtension(sequences) %in% c("fa","fna","mfa","fasta"),
                         seqFormat <- "-f", "")
     numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
-    maxHits <- ifelse(getOption("quasr.maxhits") > 0 , sprintf("-k %s", getOption("quasr.maxhits")), "")
+    maxHits <- ifelse(is.null(maxHits), "", sprintf("-k %s", maxHits))
     samFilename <- sprintf("%s.sam", tempfile())
     on.exit(unlink(samFilename))
     bamFilename <- unlist(strsplit(outfile, "\\.bam$"))

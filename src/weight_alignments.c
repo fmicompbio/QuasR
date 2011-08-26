@@ -43,10 +43,15 @@ static int _write_buffered_alignment(samfile_t *fout, bam1_t **fifo, int r_idx, 
     return w_idx;
 }
 
+/*! @function
+  @abstract  todo
+  @param  todo  todo
+  @return    todo
+ */
 static int _weight_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
 {
     if (max_hits > MAXHITS){
-	max_hits = MAXHITS;
+        max_hits = MAXHITS;
     }
     int fifo_size = max_hits+1; //fifo size is plus 1 that read and write index are never equal
     int32_t k= 0; //counts of a query
@@ -59,53 +64,57 @@ static int _weight_alignments(samfile_t *fin, samfile_t *fout, int max_hits)
     bam1_t **fifo;
     fifo = (bam1_t**)calloc(fifo_size, sizeof(bam1_t*));
     for(int i = 0; i < fifo_size; i++)	
-	fifo[i] = bam_init1();
+        fifo[i] = bam_init1();
     
     while (0 <= (r = samread(fin, fifo[rd]))) {
-	//check if same query
-	if(strcmp(qname, bam1_qname(fifo[rd]))!= 0){
-	    //check if unmapped 
-	    if((fifo[w]->core.flag & BAM_FUNMAP) != 0){
-		w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0);
-	    }else{    
-		w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, k);
+	    //check if same query
+	    if(strcmp(qname, bam1_qname(fifo[rd]))!= 0){
+	        //check if unmapped 
+	        if((fifo[w]->core.flag & BAM_FUNMAP) != 0){
+                w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0);
+	        }else{    
+                w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, k);
+	        }
+	        k = 0;
+	        qname = bam1_qname(fifo[rd]);
 	    }
-	    k = 0;
-	    qname = bam1_qname(fifo[rd]);
-	}
-	//check if there are more alignments per query then max_hits
-	if (k >= max_hits){
-	    //TODO
-	    Rf_warning("Max Hits %i exceeded", max_hits);
-	    w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0); //TODO count is 0 or discart
-	} 
-	rd = (rd + 1) % fifo_size;
-	k++;  
-	count++;	  
+	    //check if there are more alignments per query then max_hits
+	    if (k >= max_hits){
+	        Rf_warning("Max Hits %i exceeded", max_hits);
+	        w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, MAXHITS); // MAXHITS instead of zero because it is an inverse weight
+	    } 
+	    rd = (rd + 1) % fifo_size;
+	    k++;  
+	    count++;	  
     }
     //to empty fifo queue
     if((fifo[w]->core.flag & BAM_FUNMAP) != 0){
-	w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0);
-    }else{    
-	w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, k);
+        w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, 0); 
+    } else {   
+        w = _write_buffered_alignment(fout, fifo, rd, w, fifo_size, k);
     }  
     
     for(int i = 0; i < fifo_size; i++)	
-	bam_destroy1(fifo[i]);
+        bam_destroy1(fifo[i]);
     return r >= -1 ? count : -1 * count;
 }
 
+/*! @function
+  @abstract  todo
+  @param  todo  todo
+  @return    todo
+ */
 SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
 {
     if (!IS_CHARACTER(bam_in) || 1 != LENGTH(bam_in))
-	Rf_error("'bam_in' must be character(1)");
+        Rf_error("'bam_in' must be character(1)");
     if (!IS_CHARACTER(bam_out) || 1 != LENGTH(bam_out))
-	Rf_error("'bam_out' must be character(1)");
+        Rf_error("'bam_out' must be character(1)");
     
     samfile_t *fin = _bam_tryopen(translateChar(STRING_ELT(bam_in, 0)), "rb", NULL);
     if (fin->header == 0) {
-	samclose(fin);
-	Rf_error("invalid header");
+        samclose(fin);
+        Rf_error("invalid header");
     }
     
     // TODO add manipulation to header
@@ -116,7 +125,7 @@ SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
     samclose(fin);
     samclose(fout);
     if (count < 0)
-	Rf_error("truncated input file at record %d", -1 * count);
+        Rf_error("truncated input file at record %d", -1 * count);
     
     return bam_out;
 }
