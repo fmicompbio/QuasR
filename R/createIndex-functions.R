@@ -137,6 +137,7 @@
                  )
     if(is(genome,"BSgenome")){
         seed$GENOMENAME <- bsgenomeName(genome)
+        ## seed$GENOMEVERSION <- installed.packages()[seed$GENOMENAME,'Version']
         seed$PROVIDER <- provider(genome)
         seed$PROVIDERVERSION <- providerVersion(genome)
         seed$RELEASEDATE <- releaseDate(genome)
@@ -149,9 +150,9 @@
         seed$GENOMENAME <- genome$name #.baseFileName(genome)
         seed$SRCDATAFILES <- genome$dir
     }
-    seed$PKGTITLE <- paste(seed$ALIGNER, "Index of", seed$GENOME)
+    seed$PKGTITLE <- paste(seed$ALIGNER, "Index of", seed$GENOMENAME)
     seed$PKGDESCRIPTION <- seed$PKGTITLE
-    seed$ALIGNERINDEXNAME <- paste(seed$ALIGNER, gsub("_", "", seed$GENOME), sep=".")
+    seed$ALIGNERINDEXNAME <- paste(seed$ALIGNER, gsub("_", "", seed$GENOMENAME), sep=".")
     return(seed)
 }
 

@@ -6,7 +6,7 @@ Version: @PKGVERSION@
 Date: @DATE@
 Author: @AUTHOR@
 Maintainer: @MAINTAINER@
-Depends: @ALIGNER@ (>= @ALIGNERVERSION@)
+Depends: @ALIGNER@ (>= @ALIGNERVERSION@), @GENOMENAME@
 Imports: @ALIGNER@
 License: @LIC@
 LazyLoad: yes
