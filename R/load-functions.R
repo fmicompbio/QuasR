@@ -68,7 +68,6 @@
     ## check if there is a BSgenome available with this name
     require(BSgenome, quietly=TRUE, lib.loc=lib.loc)
     if(genomeName %in% available.genomes()){
-        message("WARNING: Genome '", genomeName, "' is not installed. It will be downloaded and installed during the alignment process.")
         return(list(name=genomeName, bsgenome=TRUE))
     } else
         stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse=""), sep="")
