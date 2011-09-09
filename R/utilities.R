@@ -33,6 +33,13 @@
     return(ext)
 }
 
+.fileType <- function(filename)
+{
+    type <- as.character(.fileExtension(filename))
+    #type[ type %in% c("fa", "fna", "fasta") ] <- "fasta"
+    return(type)
+}
+
 .progressReport <- function(msg, phase=0)
 {
     qTag <- "[QuasR]"

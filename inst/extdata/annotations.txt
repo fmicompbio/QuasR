@@ -1,2 +1,2 @@
-FileName	Feature
-GenBank_dm_rRNA_190608.fa	rRNA
+FileName	Class
+NC_001422.1.fa	phiX174

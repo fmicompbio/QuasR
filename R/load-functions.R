@@ -21,7 +21,7 @@
     checkFile <- file.exists(tab$FileName)
     if(any(!checkFile))
         stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
-    return(data.frame(feature=tab$Feature, filepath=I(tab$FileName)))
+    return(data.frame(feature=tab$Class, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
 }
 
 .loadBSgenome <- function(pkgname, lib.loc=NULL)
