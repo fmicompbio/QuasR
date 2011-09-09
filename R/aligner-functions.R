@@ -49,7 +49,7 @@
     seqFormat <- ifelse(.fileExtension(sequences) %in% c("fa","fna","mfa","fasta"),
                         seqFormat <- "-f", "")
     numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
-    maxHits <- ifelse(is.null(maxHits), "", sprintf("-k %s", maxHits))
+    maxHits <- ifelse(is.null(maxHits), "", sprintf("-k %s -m %s --best --strata", maxHits, maxHits))
     samFilename <- sprintf("%s.sam", tempfile())
     on.exit(unlink(samFilename))
     bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
@@ -58,15 +58,16 @@
     return(outfile)
 }
 
-.alignBWA <- function(sequences, index, outfile, ..., indexDestination=FALSE, force=FALSE){
+.alignBWA <- function(sequences, index, outfile, maxHits=NULL, ..., indexDestination=FALSE, force=FALSE){
     numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-t %s", getOption("quasr.cores")), "")
+    maxHits <- ifelse(is.null(maxHits), "", sprintf("-n %s", maxHits-1))
     saiFilename <- sprintf("%s.sai", tempfile())
     samFilename <- sprintf("%s.sam", tempfile())
     on.exit(unlink(samFilename))
     bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
     #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
     out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
-    out <- .execute("Rbwa", paste("bwa samse", index, saiFilename, sequences, "-f", samFilename))
+    out <- .execute("Rbwa", paste("bwa samse", maxHits, index, saiFilename, sequences, "-f", samFilename))
     outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
     return(outfile)
 }
