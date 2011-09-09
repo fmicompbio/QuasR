@@ -11,6 +11,7 @@ setClass("qProject",
                         aligner=".listOrNULL",
                         index=".listOrNULL",
                         annotations=".data.frameOrNULL",
+                        qc=".listOrNULL",
                         path="character",
                         indexLocation=".characterOrNULL",
                         paired="logical",
@@ -24,6 +25,7 @@ setClass("qProject",
                    aligner=NULL,
                    index=NULL,
                    annotations=NULL,
+                   qc=NULL,
                    indexLocation=NULL,
                    paired=FALSE,
                    junction=FALSE,
@@ -104,12 +106,16 @@ qReadProject <- function(filename)
 getGenomeInformation <- function(qProject, ...){
     if(!is(qProject, "qProject"))
         stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    if(qProject@genome$bsgenome)
-        return(seqlengths(.loadBSgenome(qProject@genome$name, ...)))
-    else {
-        faList <- open(FaFileList(file.path(qProject@genome$dir, qProject@genome$files)))
-        return(seqlengths(IRanges::unlist(GRangesList(IRanges::lapply(faList, scanFaIndex)))))
+    
+    if(is.null(qProject@genome$sequenceInfo)){
+        if(qProject@genome$bsgenome)
+            qProject@genome$sequenceInfo <- seqlengths(.loadBSgenome(qProject@genome$name, ...))
+        else {
+            faList <- open(FaFileList(file.path(qProject@genome$dir, qProject@genome$files)))
+            qProject@genome$sequenceInfo <- seqlengths(IRanges::unlist(GRangesList(IRanges::lapply(faList, scanFaIndex))))
+        }
     }
+    return(qProject@genome$sequenceInfo)
 }
 
 getAlignments <- function(qProject){

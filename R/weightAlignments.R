@@ -14,12 +14,11 @@
     cntFile <- tempfile()
     on.exit(unlink(cntFile))
 
+    if (!overwrite && file.exists(d0)) {                
+        stop(sprintf("Destination '%s' exists and parameter 'overwrite' is set to %s", d0, overwrite))
+    }
+    
     tryCatch({
-        if (!overwrite && file.exists(d0)) {
-            msg <-
-                sprintf("'destination' exists, 'overwrite' is FALSE\n  destination.bam: %s", "destination", "overwrite", d0)
-            stop(msg)
-        }
         ## sort bamfile by shortread name      
         if(any(scanBamHeader(file)[[1]]$text$`@HD` == "SO:queryname")){
             sortFile <- file
@@ -29,7 +28,7 @@
             sortFile <- sortBam(file, sortFile, byQname=TRUE)
         }
              
-        cntFile <- .Call(.weight_alignments, sortFile, cntFile, maxHits)
+        hitcount <- .Call(.weight_alignments, sortFile, cntFile, maxHits)
         if (!file.exists(cntFile))
             stop("failed to create 'BAM' file")
         if(indexDestination) {
@@ -40,9 +39,9 @@
             file.rename(cntFile, destination)
         }
     }, error=function(err) {
-        msg <- sprintf("'countAlignments' %s\n  SAM file: '%s'\n",
+        msg <- sprintf("'weightAlignments' %s\n  SAM file: '%s'\n",
                        conditionMessage(err), file)
         stop(msg)
     })
-    return(destination)
+    return(hitcount)
 }
