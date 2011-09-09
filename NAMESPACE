@@ -2,7 +2,7 @@ useDynLib("QuasR", .registration=TRUE)
 
 import(BSgenome)
 importFrom(BiocInstaller, biocLite)
-importFrom(IRanges)
+import(IRanges)
 importFrom(Biobase, createPackage)
 
 exportPattern("^[^\\.]")

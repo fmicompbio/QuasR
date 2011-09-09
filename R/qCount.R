@@ -1,33 +1,69 @@
-qCount <- function(qProject, gRange, stranded=FALSE, ...)
-{
-    .progressReport("Starting count alignments", phase=-1)
-    if(missing(gRange)){
-        isGTFFormat <- .fileExtension(qProject@annotations$filepath) %in% c("gtf")
-        gtfFiles <- qProject@annotations[isGTFFormat,]$filepath
-        if(length(gtfFiles) != 1)
-            stop("There is more or less than one 'gtf' file in the annotation")
-        require(rtracklayer)
-        #targets <- import.gff2("data/Drosophila_melanogaster.BDGP5.25.62.gtf", asRangedData=FALSE)
-        #targets <- import.gff2(file(as.character(gtfFiles), "r"), asRangedData=FALSE)
-        gRange <- import.gff2(as.character(gtfFiles), asRangedData=FALSE)
-        ## try to fix wrong sequence name
-        seqlevels(gRange) <- .mapSeqnames(names(getGenomeInformation(qProject)), seqlevels(gRange))
-        ## subset GRAnges object with features from the annotation file
-        levels <- levels(elementMetadata(gRange)[,"source"])
-        queryTarget <- unlist(strsplit(as.character(qProject@annotations[isGTFFormat,]$feature), ","))
-        #if(!queryTarget %in% levels)
-        #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
-        gRange <- gRange[ elementMetadata(gRange)[,"source"] %in% queryTarget ]
-    }
+setGeneric("qCount", function(qproject, query, stranded=FALSE, collapseSamples=TRUE) standardGeneric("qCount"))
+
+setMethod("qCount",
+          signature(qproject="qProject", query="missing"),
+          function(qproject, query, stranded, collapseSamples)
+      {
+          qCount(qproject, "summary", stranded, collapseSamples)
+      })
+
+setMethod("qCount",
+          signature(qproject="qProject", query="character"),
+          function(qproject, query, stranded, collapseSamples)
+      {
+
+          if(query != "summary" && !query %in% qproject@annotations$feature)
+              error("Wrong query statment")
+
+          .progressReport(sprintf("Load annotation for %s", query), phase=-1)
+
+          if(query == "summary")
+              query <- unique(qproject@annotations$feature)
+
+          annotations <- qproject@annotations$feature %in% query
+
+          #isGTFFormat <- .fileExtension(qproject@annotations$filepath) %in% c("gtf")
+          #gtfFiles <- qproject@annotations[isGTFFormat,]$filepath
+          gtfFiles <- annotations[ annotations$filetype %in% "gtf", "filepath" ]
+          gtfFiles <- unique(gtfFiles)
+          if(length(gtfFiles) != 1)
+              stop("There is more or less than one 'gtf' file in the annotation")
+          require(rtracklayer)
+          gRange <- import.gff2(as.character(gtfFiles), asRangedData=FALSE,
+                                colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
+
+          gRange <- gRange[values(gRange)[, "type"] == "exon"]
+          seqlevels(gRange) <- .mapSeqnames(names(getGenomeInformation(qproject)), seqlevels(gRange))
+          ## subset GRAnges object with features from the annotation file
+          levels <- levels(elementMetadata(gRange)[,"source"])
+          #queryTarget <- unlist(strsplit(as.character(qproject@annotations[isGTFFormat,]$feature), ","))
+          #if(!queryTarget %in% levels)
+          #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
+          gRange <- gRange[ elementMetadata(gRange)[,"source"] %in% query ]
+          .progressReport("Successfully loaded the annotation.", phase=1)
+          qCount(qproject, gRange, stranded, collapse)
+      })
+
+setMethod("qCount",
+          signature(qproject="qProject", query="GRanges"),
+          function(qproject, query, stranded, collapseSamples)
+      {
+          .progressReport("Starting count alignments", phase=-1)
+          bamFiles <- unlist(qproject@alignments$genome)
+
+          if(collapseSamples == TRUE){
+              counts <- lapply(split(bamFiles, qproject@samples$name), .countAlignments, query)
+              #names(counts) <- as.character(qproject@samples$name)
+          }else{
+              counts <- lapply(bamFiles, .countAlignments, query)
+              names(counts) <- basename(qproject@samples$filepath)
+          }
     
-    bamFiles <- unlist(qProject@alignments$genome)
-    counts <- lapply(bamFiles, .countAlignments, gRange)
-    counts <- as(counts,"DataFrame") 
-    #counts <- as.data.frame(counts)
-    colnames(counts) <- as.character(qProject@samples$name)
-    rownames(counts) <- NULL
-    values(gRange) <- IRanges::cbind(values(gRange), counts)
-    #values(gRange) <- cbind.data.frame(as.data.frame(val), counts)
-    .progressReport("Successfully terminated the quasr counting.", phase=1)
-    return(gRange)
-}
+          #counts <- as(counts,"DataFrame")
+          counts <- as.data.frame(counts)
+          rownames(counts) <- names(query)
+          #values(query) <- IRanges::cbind(values(query), counts)
+          #values(gRange) <- cbind.data.frame(as.data.frame(val), counts)
+          .progressReport("Successfully terminated the quasr counting.", phase=1)
+          return(counts)
+      })
