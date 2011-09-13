@@ -24,8 +24,15 @@ setMethod("qCount",
 
           if(query == "summary")
               query <- unique(qproject@annotations$feature)
-
-          annotations <- qproject@annotations$feature %in% query
+          else{
+              if(!all(query %in% qproject@annotations$feature))
+                  stop("Paramater 'query'='", 
+                      paste(query[!query %in% qproject@annotations$feature], collapse=","), 
+                      "' not found as a 'Class'='", 
+                       paste(unique(qproject@annotations$feature), collapse=","), 
+                      "' in the annotation file.")
+          }
+          annotations <- qproject@annotations[qproject@annotations$feature %in% query,]
 
           #isGTFFormat <- .fileExtension(qproject@annotations$filepath) %in% c("gtf")
           #gtfFiles <- qproject@annotations[isGTFFormat,]$filepath
@@ -45,8 +52,11 @@ setMethod("qCount",
           #if(!queryTarget %in% levels)
           #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
           gRange <- gRange[ elementMetadata(gRange)[,"source"] %in% query ]
+          names(gRange) <- paste(elementMetadata(gRange)[,"gene_id"],
+                                 elementMetadata(gRange)[,"transcript_id"],
+                                 elementMetadata(gRange)[,"exon_number"], sep="-")
           .progressReport("Successfully loaded the annotation.", phase=1)
-          qCount(qproject, gRange, stranded, collapse, collapseQuery, overlap, maxHits)
+          cnt <- qCount(qproject, gRange, stranded, collapseSamples, collapseQuery, overlap, maxHits)
       })
 
 setMethod("qCount",
@@ -58,7 +68,7 @@ setMethod("qCount",
           bamFiles <- unlist(qproject@alignments$genome)
 
           if(collapseSamples == TRUE){
-              counts <- lapply(split(bamFiles, qproject@samples$name), .countAlignments, query)
+              counts <- lapply(split(bamFiles, qproject@samples$name), .countAlignments, query, stranded, overlap)
               #names(counts) <- as.character(qproject@samples$name)
           }else{
               counts <- lapply(bamFiles, .countAlignments, query, stranded, overlap)

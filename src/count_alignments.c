@@ -35,7 +35,7 @@ static int fetch_func(const bam1_t *hit, void *data){
     int check_strand = 1;
     int check_within = 1;
     // check if whole alignment is in region
-    if(strcmp(fparam->overlap, "within")){
+    if(strcmp(fparam->overlap, "within") == 0){
 	if(!(fparam->start <= hit->core.pos) 
 	   || !(bam_calend(&hit->core, bam1_cigar(hit)) <= fparam->end)){
 	    check_within = 0;
