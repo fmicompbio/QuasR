@@ -20,5 +20,5 @@ SEXP get_allowed_max_hits();
 SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits);
 
 //count_alignments.c
-SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP type);
+SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP stranded, SEXP overlap);
 #endif /* _QUASR_H_ */

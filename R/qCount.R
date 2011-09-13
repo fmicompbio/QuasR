@@ -1,15 +1,20 @@
-setGeneric("qCount", function(qproject, query, stranded=FALSE, collapseSamples=TRUE) standardGeneric("qCount"))
+setGeneric("qCount", function(qproject, query, 
+                              stranded=FALSE, collapseSamples=TRUE, 
+                              collapseQuery=c("gene", "transcript", "exon"),
+                              overlap=c("any", "within"),
+                              maxHits=NULL
+                              ) standardGeneric("qCount"))
 
 setMethod("qCount",
           signature(qproject="qProject", query="missing"),
-          function(qproject, query, stranded, collapseSamples)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
       {
-          qCount(qproject, "summary", stranded, collapseSamples)
+          qCount(qproject, "summary", stranded, collapseSamples, collapseQuery, overlap, maxHits)
       })
 
 setMethod("qCount",
           signature(qproject="qProject", query="character"),
-          function(qproject, query, stranded, collapseSamples)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
       {
 
           if(query != "summary" && !query %in% qproject@annotations$feature)
@@ -41,13 +46,14 @@ setMethod("qCount",
           #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
           gRange <- gRange[ elementMetadata(gRange)[,"source"] %in% query ]
           .progressReport("Successfully loaded the annotation.", phase=1)
-          qCount(qproject, gRange, stranded, collapse)
+          qCount(qproject, gRange, stranded, collapse, collapseQuery, overlap, maxHits)
       })
 
 setMethod("qCount",
           signature(qproject="qProject", query="GRanges"),
-          function(qproject, query, stranded, collapseSamples)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
       {
+          overlap <- match.arg(overlap)
           .progressReport("Starting count alignments", phase=-1)
           bamFiles <- unlist(qproject@alignments$genome)
 
@@ -55,7 +61,7 @@ setMethod("qCount",
               counts <- lapply(split(bamFiles, qproject@samples$name), .countAlignments, query)
               #names(counts) <- as.character(qproject@samples$name)
           }else{
-              counts <- lapply(bamFiles, .countAlignments, query)
+              counts <- lapply(bamFiles, .countAlignments, query, stranded, overlap)
               names(counts) <- basename(qproject@samples$filepath)
           }
     

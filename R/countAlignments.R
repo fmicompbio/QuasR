@@ -1,19 +1,19 @@
 
-.countAlignments <- function(file, grange, type=c("any"))
+.countAlignments <- function(file, grange, stranded=FALSE, overlap=c("any", "within"))
 {
-    ## TODO check if single filename
-#     if(length(file) != 1L)
-#        stop("collapse TODO")
+    ## check arguments, TODO more
+    overlap <- match.arg(overlap)
 
     ## translate seqname to tid
     seqnamemap <- .Call(.seqname, file[1])
     regions <- data.frame(tid=seqnamemap$tid[ IRanges::as.vector(IRanges::match(seqnames(grange), seqnamemap$seqnames)) ],
-                          start=as.integer(start(ranges(grange))),
-                          end=as.integer(end(ranges(grange)))
+                          start=as.integer(start(grange)),
+                          end=as.integer(end(grange)),
+                          strand=as.character(strand(grange)),
+                          stringsAsFactors=FALSE
                           )
     ## get counts
-    #cat(file, class(file), mode(file), sep="-")
-    count <- .Call(.count_alignments, file, file, regions, type)
+    count <- .Call(.count_alignments, file, file, regions, stranded, overlap)
 
     return(count)
 }
