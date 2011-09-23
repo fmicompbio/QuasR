@@ -29,14 +29,15 @@
 {
     pos <- regexpr("\\.[^.]*$", filename)
     pos[pos==-1] <- nchar(filename[pos==-1])
-    ext <- substr(filename, pos+1, nchar(filename))
-    return(ext)
+    extension <- substr(filename, pos+1, nchar(filename))
+    return(extension)
 }
 
 .fileType <- function(filename)
 {
     type <- as.character(.fileExtension(filename))
-    #type[ type %in% c("fa", "fna", "fasta") ] <- "fasta"
+    type[ type %in% c("fa", "fna", "fasta") ] <- "fasta"
+    type[ type %in% c("fq", "fastq") ] <- "fastq"
     return(type)
 }
 
@@ -74,7 +75,7 @@
         ## add "chr" string
         annotationSeqnames <- paste("chr", annotationSeqnames, sep="")
         if(!all(annotationSeqnames %in% genomeSeqnames))
-            error("Can't match sequence names")
+            stop("Can't match sequence names")
     }
     return(annotationSeqnames)
 }   
