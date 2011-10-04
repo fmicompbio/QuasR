@@ -1,4 +1,4 @@
-qAlign <- function(qProject, lib=NULL, lib.loc=NULL)
+qAlign <- function(qProject, lib=NULL, lib.loc=NULL, skipFilter=FALSE)
 {
     .progressReport("Starting alignments to genome", phase=-1)
     if(!is(qProject, "qProject"))
@@ -8,12 +8,22 @@ qAlign <- function(qProject, lib=NULL, lib.loc=NULL)
     qProject@index <- .loadIndex(qProject, lib=lib, lib.loc=lib.loc)
 
     ## align to genome
-    qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
+    if(skipFilter){
+        qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
                                                 .align,
                                                 qProject@aligner,
                                                 qProject@index,
                                                 qProject@path,
                                                 maxHits=qProject@maxHits))
+    }else{
+        qProject <- qFilter(qProject)
+        qProject@alignments$genome <- unlist(lapply(qProject@samples$filtered,
+                                                .align,
+                                                qProject@aligner,
+                                                qProject@index,
+                                                qProject@path,
+                                                maxHits=qProject@maxHits))
+    }
     ## get unmapped reads
     genomeAlignmentUnmapped <- lapply(qProject@alignments$genome,
                                       .unmappedToFasta)
@@ -29,20 +39,22 @@ qAlign <- function(qProject, lib=NULL, lib.loc=NULL)
     #                                  .unmappedToFasta)
     
     ## create index and align to annotation
-    .progressReport("Creating index of auxiliaries")
-    auxIndexes <- .createAuxiliaryIndex(qProject)
-    on.exit(unlink(auxIndexes$path))
-    
-    .progressReport("Starting alignments to auxiliaries")
-    auxAlignment <- lapply(auxIndexes, function(auxIndex){
-        unlist(lapply(genomeAlignmentUnmapped,
-                      .align,
-                      qProject@aligner,
-                      auxIndex,
-                      qProject@path,
-                      maxHits=qProject@maxHits))
-    })
-    qProject@alignments <- cbind.data.frame(qProject@alignments, auxAlignment, stringsAsFactors=FALSE)
+    if(!is.null(qProject@annotations)){
+        .progressReport("Creating index of auxiliaries")
+        auxIndexes <- .createAuxiliaryIndex(qProject)
+        on.exit(unlink(auxIndexes$path))
+        
+        .progressReport("Starting alignments to auxiliaries")
+        auxAlignment <- lapply(auxIndexes, function(auxIndex){
+            unlist(lapply(genomeAlignmentUnmapped,
+                          .align,
+                          qProject@aligner,
+                          auxIndex,
+                          qProject@path,
+                          maxHits=qProject@maxHits))
+        })
+        qProject@alignments <- cbind.data.frame(qProject@alignments, auxAlignment, stringsAsFactors=FALSE)
+    }
 
     .progressReport("Weight alignments")
     lapply(t(qProject@alignments),

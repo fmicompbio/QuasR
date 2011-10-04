@@ -10,11 +10,15 @@ setGeneric("qFilter", function(subject,
 setMethod("qFilter",
           signature(subject="qProject"),
           function(subject, ...){
-
-              if(subject@paired)
-                  stop("not implemented")
-              else
+              if(subject@paired){
+                  browser()
+                  stop("not implemented") #TODO
+                  files <- project@samples[c("filepath1", "filepath2")]
+                  files <- unlist(lapply(seq(length(files)), function(i) qFilter(as.character(files[i,]))))
+                  names(files) <- c("filtered1","filtered2")
+              }else{
                   subject@samples$filtered <- unlist(lapply(subject@samples$filepath, qFilter))
+              }
               return(subject)
           })
 
@@ -25,6 +29,8 @@ setMethod("qFilter",
                    minLength, nBases, complexity,
                    nrec, ...){
 
+              .progressReport("Start filtering", phase=-1)
+              
               if(length(subject) > 2)
                   stop("More then two 'subject' filename.")
 
@@ -34,11 +40,14 @@ setMethod("qFilter",
               if(length(format) != 1)
                   stop("'subject' must have equal filetype.")
 
-              outputFilenames <- sprintf("%s/%s_filtered.%s",
+              #if(missing(outputFilenames))
+                outputFilenames <- sprintf("%s/%s_filtered.%s",
                                          dirname(subject),
                                          .baseFileName(subject),
                                          .fileExtension(subject)
                                          )
+#               if(length(outputFilenames) != length(subject))
+#                 error("'outputFilenames' must have equal length as 'subject'")
 
               ## define filters
               nFilt <- nFilter(nBases) ## number of N bases allowed
@@ -103,6 +112,7 @@ setMethod("qFilter",
                       rm(chunksMate, rangesMate, fs2)
                   }
               }
+              .progressReport("Successfully terminated the filtering.", phase=1)
               return(outputFilenames)
           })
 

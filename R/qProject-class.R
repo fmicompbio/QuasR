@@ -44,14 +44,15 @@ setMethod("initialize", "qProject", function(.Object, name, path, ...){
 })
 
 qProject <- function(sampleFile="Sample.txt", genome=".", 
-                     annotationFile="Annotation.txt", aligner="Rbowtie", 
+                     annotationFile=NULL, aligner="Rbowtie", 
                      projectName="qProject", path=".", paired=FALSE, 
                      junction=FALSE, bisulfite=FALSE, lib.loc=NULL, 
                      indexLocation=NULL, maxHits=99L)
 {
     .progressReport("Gathering file path information", phase=-1)
     samples <- .readSamples(sampleFile)
-    annotations <- .readAnnotations(annotationFile)
+    if(!is.null(annotationFile))
+        annotations <- .readAnnotations(annotationFile)
     genome <- .checkGenome(genome, lib.loc=lib.loc)
     aligner <- .loadAligner(aligner, lib.loc=lib.loc)
     alignments <- as.data.frame(matrix(0,
