@@ -110,7 +110,6 @@ filterLength <- function(threshold=0L, .name = "LengthFilter"){
     #.check_type_and_length(threshold, "numeric", 1)
     srFilter(function(x) {
         width(x) >= threshold
-
     }, name = .name)
 }
 
@@ -130,8 +129,4 @@ filterLowComplexity <- function(threshold=0.5, referenceEntropy=0.9770337, .name
         }
         H/referenceEntropy >= threshold
     }, name = .name)
-}
-
-entropy <- function(sequence){
-    .Call(.entropy, sequence)
 }
