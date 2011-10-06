@@ -69,13 +69,13 @@ setMethod("qFilter",
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           chunksMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks) & filt(chunksMate)
-                          write.XStringSet(chunks[filter], outputFilenames[1], append=append, "fasta")
-                          write.XStringSet(chunksMate[filter], outputFilenames[2], append=append, "fasta")
+                          writeFasta(chunks[filter], outputFilenames[1], mode=mode)
+                          writeFasta(chunksMate[filter], outputFilenames[2], mode=mode)
                       }else{
                           chunks <- read.DNAStringSet(subject, format, nrec=nrec, skip=(cycle-1)*nrec)
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks)
-                          write.XStringSet(chunks[filter], outputFilenames, append=append, "fasta")
+                          writeFasta(chunks[filter], outputFilenames, mode=mode)
                       }
                       mode <- 'a'
                       cycle <- cycle + 1
