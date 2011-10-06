@@ -11,11 +11,13 @@ setMethod("qFilter",
           signature(subject="qProject"),
           function(subject, ...){
               if(subject@paired){
-                  browser()
-                  stop("not implemented") #TODO
-                  files <- project@samples[c("filepath1", "filepath2")]
-                  files <- unlist(lapply(seq(length(files)), function(i) qFilter(as.character(files[i,]))))
-                  names(files) <- c("filtered1","filtered2")
+                  files <- subject@samples[c("filepath1", "filepath2")]
+                  files <- lapply(seq(nrow(files)), function(i) {
+                      qFilter(as.character(files[i,]))
+                  })
+                  files <- do.call(rbind,files)
+                  colnames(files) <- c("filtered1","filtered2")
+                  subject@samples <- cbind.data.frame(subject@samples, files, stringsAsFactors=F)
               }else{
                   subject@samples$filtered <- unlist(lapply(subject@samples$filepath, qFilter))
               }
@@ -30,7 +32,7 @@ setMethod("qFilter",
                    nrec, ...){
 
               .progressReport("Start filtering", phase=-1)
-              
+
               if(length(subject) > 2)
                   stop("More then two 'subject' filename.")
 
@@ -57,7 +59,6 @@ setMethod("qFilter",
 
               eof <- FALSE
               if(format=="fasta"){
-                  cat("FASTA")
                   mode <- 'w'
                   cycle <- 1L
                   while(!eof){
@@ -82,7 +83,6 @@ setMethod("qFilter",
                           eof <- TRUE
                   }
               }else{
-                  cat("FASTQ")
                   fs1 <- FastqStreamer(subject[1], n=nrec)
                   if(pairedSample == TRUE)
                       fs2 <- FastqStreamer(subject[2], n=nrec)
@@ -105,10 +105,8 @@ setMethod("qFilter",
                       }
                       mode <- 'a'
                   }
-                  fs1$reset()
                   rm(chunks, ranges, filter, fs1)
                   if(pairedSample == TRUE){
-                      fs2$reset()
                       rm(chunksMate, rangesMate, fs2)
                   }
               }

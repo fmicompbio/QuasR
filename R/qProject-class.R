@@ -50,8 +50,10 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
                      indexLocation=NULL, maxHits=99L)
 {
     .progressReport("Gathering file path information", phase=-1)
-    samples <- .readSamples(sampleFile)
-    if(!is.null(annotationFile))
+    samples <- .readSamples(sampleFile, paired=paired)
+    if(is.null(annotationFile))
+        annotations <- NULL
+    else
         annotations <- .readAnnotations(annotationFile)
     genome <- .checkGenome(genome, lib.loc=lib.loc)
     aligner <- .loadAligner(aligner, lib.loc=lib.loc)

@@ -1,13 +1,28 @@
-.readSamples <- function(file="samples.txt", sep="\t", row.names=NULL,  quote="\"", ...)
+.readSamples <- function(file="samples.txt", paired=FALSE, sep="\t", row.names=NULL,  quote="\"", ...)
 {
     .progressReport("Read sample file")
     tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
-    if(dirname(file) != ".")
-        tab$FileName[dirname(tab$FileName) == "."] <- file.path(dirname(file), tab$FileName)
-    checkFile <- file.exists(tab$FileName)
-    if(any(!checkFile))
-        stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
-    return(data.frame(name=tab$SampleName, filepath=I(tab$FileName)))
+    if(!paired){
+        if(dirname(file) != ".")
+            tab$FileName[dirname(tab$FileName) == "."] <- file.path(dirname(file), tab$FileName)
+        checkFile <- file.exists(tab$FileName)
+        if(any(!checkFile))
+            stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
+        return(data.frame(name=tab$SampleName, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
+    }else{
+        if(dirname(file) != "."){
+            tab$FileName[dirname(tab$FileName) == "."] <- file.path(dirname(file), tab$FileName)
+            tab$FileNameMate[dirname(tab$FileNameMate) == "."] <- file.path(dirname(file), tab$FileNameMate)
+        }
+        checkFile <- file.exists(tab$FileName)
+        if(any(!checkFile))
+            stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
+        checkFile <- file.exists(tab$FileNameMate)
+        if(any(!checkFile))
+            stop("File not found: ", paste(tab$FileNameMate[!checkFile], collapse=", "))
+        return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName), 
+                          filepath2=I(tab$FileNameMate), filetype=.fileType(tab$FileName)))
+    }    
 }
 
 .readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, quote="\"", ...)
