@@ -61,26 +61,26 @@ setMethod("qFilter",
               if(format=="fasta"){
                   mode <- 'w'
                   cycle <- 1L
-                  while(!eof){
+                  while(length(chunks <- readFasta(subject, nrec=nrec, skip=(cycle-1)*nrec)) != 0L){
                       ## trim adaptor, filter and write short reads
                       if(pairedSample == TRUE){
-                          chunks <- readFasta(subject[1], format, nrec=nrec, skip=(cycle-1)*nrec)
-                          chunksMate <- readFasta(subject[2], format, nrec=nrec, skip=(cycle-1)*nrec)
+                          #chunks <- readFasta(subject[1], nrec=nrec, skip=(cycle-1)*nrec)
+                          chunksMate <- readFasta(subject[2], nrec=nrec, skip=(cycle-1)*nrec)
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           chunksMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks) & filt(chunksMate)
                           writeFasta(chunks[filter], outputFilenames[1], mode=mode)
                           writeFasta(chunksMate[filter], outputFilenames[2], mode=mode)
                       }else{
-                          chunks <- readFasta(subject, format, nrec=nrec, skip=(cycle-1)*nrec)
+#                           chunks <- readFasta(subject, nrec=nrec, skip=(cycle-1)*nrec)
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks)
                           writeFasta(chunks[filter], outputFilenames, mode=mode)
                       }
                       mode <- 'a'
                       cycle <- cycle + 1
-                      if(length(chunks) == 0L)
-                          eof <- TRUE
+#                       if(length(chunks) == 0L)
+#                           eof <- TRUE
                   }
               }else{
                   fs1 <- FastqStreamer(subject[1], n=nrec)
