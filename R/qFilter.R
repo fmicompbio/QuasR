@@ -64,15 +64,15 @@ setMethod("qFilter",
                   while(!eof){
                       ## trim adaptor, filter and write short reads
                       if(pairedSample == TRUE){
-                          chunks <- read.DNAStringSet(subject[1], format, nrec=nrec, skip=(cycle-1)*nrec)
-                          chunksMate <- read.DNAStringSet(subject[2], format, nrec=nrec, skip=(cycle-1)*nrec)
+                          chunks <- readFasta(subject[1], format, nrec=nrec, skip=(cycle-1)*nrec)
+                          chunksMate <- readFasta(subject[2], format, nrec=nrec, skip=(cycle-1)*nrec)
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           chunksMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks) & filt(chunksMate)
                           writeFasta(chunks[filter], outputFilenames[1], mode=mode)
                           writeFasta(chunksMate[filter], outputFilenames[2], mode=mode)
                       }else{
-                          chunks <- read.DNAStringSet(subject, format, nrec=nrec, skip=(cycle-1)*nrec)
+                          chunks <- readFasta(subject, format, nrec=nrec, skip=(cycle-1)*nrec)
                           chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern)
                           filter <- filt(chunks)
                           writeFasta(chunks[filter], outputFilenames, mode=mode)
