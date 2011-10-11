@@ -36,14 +36,14 @@ setMethod("qFilter",
               if(nchar(Lpattern) > 0){
                   max.Lmismatch <- max.Lmismatch[1:nchar(Lpattern)]
                   max.Lmismatch <- c(max.Lmismatch, 1:numNs+max(max.Lmismatch))
-                  Lpattern <- paste(c(Lpattern, rep("N",numNs)), collapse="")
+                  Lpattern <- paste(c(Lpattern, rep("N", numNs)), collapse="")
               }
               if(nchar(Rpattern) > 0){
                   max.Rmismatch <- max.Rmismatch[1:nchar(Rpattern)]
                   max.Rmismatch <- c(max.Rmismatch, 1:numNs+max(max.Rmismatch))
-                  Rpattern <- paste(c(Rpattern, rep("N",numNs)), collapse="")
+                  Rpattern <- paste(c(Rpattern, rep("N", numNs)), collapse="")
               }
-              
+
               .progressReport("Start filtering", phase=-1)
 
               if(length(subject) > 2)
@@ -77,23 +77,25 @@ setMethod("qFilter",
                   while(length(chunks <- readFasta(subject, nrec=nrec, skip=(cycle-1)*nrec)) != 0L){
                       ## trim adaptor, filter and write short reads
                       if(pairedSample == TRUE){
-                          #chunks <- readFasta(subject[1], nrec=nrec, skip=(cycle-1)*nrec)
                           chunksMate <- readFasta(subject[2], nrec=nrec, skip=(cycle-1)*nrec)
-                          chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels)
-                          chunksMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels)
+                          ranges <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=TRUE)
+                          rangesMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=TRUE)
+                          ranges[start(ranges) == 0] <- IRanges(1,0)
+                          rangesMate[start(rangesMate) == 0] <- IRanges(1,0)
+                          chunks <- narrow(chunks, start(ranges), end(ranges))
+                          chunksMate <- narrow(chunksMate,start(rangesMate), end(rangesMate))
                           filter <- filt(chunks) & filt(chunksMate)
                           writeFasta(chunks[filter], outputFilenames[1], mode=mode)
                           writeFasta(chunksMate[filter], outputFilenames[2], mode=mode)
                       }else{
-#                           chunks <- readFasta(subject, nrec=nrec, skip=(cycle-1)*nrec)
-                          chunks <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels)
+                          ranges <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=T)
+                          ranges[start(ranges)==0] <- IRanges(1,0)
+                          chunks <- narrow(chunks, start(ranges), end(ranges))
                           filter <- filt(chunks)
                           writeFasta(chunks[filter], outputFilenames, mode=mode)
                       }
                       mode <- 'a'
                       cycle <- cycle + 1
-#                       if(length(chunks) == 0L)
-#                           eof <- TRUE
                   }
               }else{
                   fs1 <- FastqStreamer(subject[1], n=nrec)
@@ -105,13 +107,16 @@ setMethod("qFilter",
                           chunksMate <- yield(fs2)
                           ranges <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=TRUE)
                           rangesMate <- trimLRPatterns(subject=chunksMate, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=TRUE)
+                          ranges[start(ranges) == 0] <- IRanges(1,0)
+                          rangesMate[start(rangesMate) == 0] <- IRanges(1,0)
                           chunks <- narrow(chunks, start(ranges), end(ranges))
-                          chunksMate <- narrow(chunksMate,start(rangesMate),end(rangesMate))
+                          chunksMate <- narrow(chunksMate, start(rangesMate), end(rangesMate))
                           filter <- filt(chunks) & filt(chunksMate)
                           writeFastq(chunks[filter], outputFilenames[1], mode=mode, qualityType=Auto)
                           writeFastq(chunksMate[filter], outputFilenames[2], mode=mode, qualityType=Auto)
                       }else{
                           ranges <- trimLRPatterns(subject=chunks, Lpattern=Lpattern, Rpattern=Rpattern, max.Lmismatch=max.Lmismatch, max.Rmismatch=max.Rmismatch, with.Lindels=with.Lindels, with.Rindels=with.Rindels, ranges=TRUE)
+                          ranges[start(ranges) == 0] <- IRanges(1,0)
                           chunks <- narrow(chunks, start(ranges), end(ranges))
                           filter <- filt(chunks)
                           writeFastq(chunks[filter], outputFilenames, mode=mode, qualityType=Auto)
