@@ -31,6 +31,19 @@ setMethod("qFilter",
                    minLength, nBases, complexity,
                    nrec, ...){
 
+              ## extend R/Lpattern by Ns
+              numNs <- 20
+              if(nchar(Lpattern) > 0){
+                  max.Lmismatch <- max.Lmismatch[1:nchar(Lpattern)]
+                  max.Lmismatch <- c(max.Lmismatch, 1:numNs+max(max.Lmismatch))
+                  Lpattern <- paste(c(Lpattern, rep("N",numNs)), collapse="")
+              }
+              if(nchar(Rpattern) > 0){
+                  max.Rmismatch <- max.Rmismatch[1:nchar(Rpattern)]
+                  max.Rmismatch <- c(max.Rmismatch, 1:numNs+max(max.Rmismatch))
+                  Rpattern <- paste(c(Rpattern, rep("N",numNs)), collapse="")
+              }
+              
               .progressReport("Start filtering", phase=-1)
 
               if(length(subject) > 2)
