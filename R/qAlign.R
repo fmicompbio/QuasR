@@ -1,68 +1,58 @@
-qAlign <- function(qProject, lib=NULL, lib.loc=NULL, skipFilter=FALSE)
+qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
 {
     .progressReport("Starting alignments to genome", phase=-1)
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
+    if(!is(qproject, "qProject"))
+        stop("The object '", class(qproject), "' is not a 'qProject' object.")
 
     ## load genome index
-    qProject@index <- .loadIndex(qProject, lib=lib, lib.loc=lib.loc)
-
-    ## align to genome
-    if(skipFilter){
-        qProject@alignments$genome <- unlist(lapply(qProject@samples$filepath,
-                                                .align,
-                                                qProject@aligner,
-                                                qProject@index,
-                                                qProject@path,
-                                                maxHits=qProject@maxHits))
-    }else{
-        qProject <- qFilter(qProject)
-        qProject@alignments$genome <- unlist(lapply(qProject@samples$filtered,
-                                                .align,
-                                                qProject@aligner,
-                                                qProject@index,
-                                                qProject@path,
-                                                maxHits=qProject@maxHits))
-    }
-    ## get unmapped reads
-    genomeAlignmentUnmapped <- lapply(qProject@alignments$genome,
-                                      .unmappedToFasta)
-    on.exit(unlink(genomeAlignmentUnmapped))
-    ## TODO align to exon-junction-db
-    ## qProject@alignments$exonjunction <- unlist(lapply(qProject@samples$filepath,
-    #                                           .align,
-    #                                           qProject@aligner,
-    #                                           exonjunctionIndex,
-    #                                           qProject@path))
-    ## TODO get unmapped reads
-    #exonjunctionAlignmentUnmapped <- lapply(qProject@alignments$exonjunction,
-    #                                  .unmappedToFasta)
+    qproject@index <- .loadIndex(qproject, lib=lib, lib.loc=lib.loc)
     
+    ## filter short reads and align them to the genome
+    idx <- is.na(qproject@alignments$genome)
+    qproject@alignments$genome[idx] <- unlist(lapply(qproject@samples$filepath[idx],
+                                            .align,
+                                            index=qproject@index,
+                                            qproject=qproject))
+    ## get unmapped reads
+    unmapped <- unlist(lapply(qproject@alignments$genome,
+                                      .unmappedToFasta))
+    on.exit(unlink(unmapped))
+    ## TODO align to exon-junction-db
+    ## qproject@alignments$exonjunction <- unlist(lapply(qproject@samples$filepath,
+    #                                           .align,
+    #                                           qproject@aligner,
+    #                                           exonjunctionIndex,
+    #                                           qproject@path))
+    ## TODO get unmapped reads
+    #exonjunctionAlignmentUnmapped <- lapply(qproject@alignments$exonjunction,
+    #                                  .unmappedToFasta)
+
     ## create index and align to annotation
-    if(!is.null(qProject@annotations)){
+    if(!is.null(qproject@annotations) && any(is.na(qproject@alignments))){
         .progressReport("Creating index of auxiliaries")
-        auxIndexes <- .createAuxiliaryIndex(qProject)
+#         aux <- .baseFileName(qproject@annotations$filepath[qproject@annotations$filetype == "fasta"])
+        auxIndexes <- .createAuxiliaryIndex(qproject)
+        names(auxIndexes) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
         on.exit(unlink(auxIndexes$path))
-        
         .progressReport("Starting alignments to auxiliaries")
-        auxAlignment <- lapply(auxIndexes, function(auxIndex){
-            unlist(lapply(genomeAlignmentUnmapped,
+        auxAlignment <- lapply(auxIndexes, function(auxIndex){ # TODO why index creation not in this loop
+            idx <- is.na(qproject@alignments[auxIndex$shortname])
+            qproject@alignments[idx, auxIndex$shortname] <- unlist(lapply(unmapped[idx],
                           .align,
-                          qProject@aligner,
-                          auxIndex,
-                          qProject@path,
-                          maxHits=qProject@maxHits))
+                          index=auxIndex,
+                          qproject=qproject))
+            return(qproject@alignments[, auxIndex$shortname])
         })
-        qProject@alignments <- cbind.data.frame(qProject@alignments, auxAlignment, stringsAsFactors=FALSE)
+        qproject@alignments <- cbind.data.frame(genome=qproject@alignments$genome, auxAlignment, stringsAsFactors=FALSE)
     }
 
-    .progressReport("Weight alignments")
-    lapply(t(qProject@alignments),
-           function(elem){
-               .weightAlignments(elem, elem, qProject@maxHits, overwrite=TRUE)
-           })
+#     .progressReport("Weight alignments")
+#     lapply(t(qproject@alignments),
+#            function(elem){
+#                .weightAlignments(elem, elem, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
+#            })
     .progressReport("Successfully terminated the quasr alignment.", phase=1)
-    return(qProject)
+    return(qproject)
 }
 
 .unmappedToFasta <- function(bamFile, destFile){
@@ -73,11 +63,11 @@ qAlign <- function(qProject, lib=NULL, lib.loc=NULL, skipFilter=FALSE)
 
     if(length(IRanges::unique(unmapped[[1]]$qual)) <= 1L){
         if(missing(destFile))
-            destfile <- file.path(tempdir(), sprintf("%s-unmapped.fasta", .baseFileName(bamFile)))
+            destfile <- file.path(tempdir(), sprintf("%s.fasta", .baseFileName(bamFile)))
         write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fasta")
     } else {
         if(missing(destFile))
-            destfile <- file.path(tempdir(), sprintf("%s-unmapped.fastq", .baseFileName(bamFile)))
+            destfile <- file.path(tempdir(), sprintf("%s.fastq", .baseFileName(bamFile)))
         write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual)
     }
     return(destfile)

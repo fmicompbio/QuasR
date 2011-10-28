@@ -26,48 +26,77 @@
     return(outdir)
 }
 
-.align <- function(readsFilepath, aligner, index, outpath, maxHits=NULL, overwrite=TRUE)
-{
-    bamFilename <- file.path(outpath,
-                             sprintf("%s-%s-%s",
-                                     .baseFileName(readsFilepath),
-                                     index$name,
-                                     aligner$pkgname))
-    .progressReport(sprintf("Aligning reads to index %s-%s for sample '%s'", 
-                            index$name, aligner$pkgname, basename(readsFilepath)))
-    outputFilename <- switch(aligner$pkgname,
-                             Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
-                                                    maxHits=maxHits, force=overwrite),
-                             Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, 
-                                              maxHits=maxHits, force=overwrite),
+.createAlignmentParameters <- function(qproject){
+    alignmentParameters <- switch(qproject@aligner$pkgname,
+                             Rbowtie = .createBowtieAlignmentParameters(qproject),
+                             Rbwa = .createBwaAlignmentParameters(qproject),
                              stop("The '", aligner$pkgname, "' Aligner is not supported.")
                              )
+    return(alignmentParameters)
+}
+
+.createBowtieAlignmentParameters <- function(qproject){
+    seqFormat <- ifelse(all(qproject@samples$filetype %in% c("fasta", "bam")), seqFormat <- "-f", "-q")
+    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-k %s -m %s --best --strata", qproject@maxHits, qproject@maxHits))
+    #samFilename <- sprintf("-S %s", tempfile(pattern=.baseFileName(qproject@samples$filepath), fileext=".sam"))
+    alignmentParameters <- paste("bowtie", maxHits, seqFormat)
+    return(alignmentParameters)
+}
+
+.createBwaAlignmentParameters <- function(qproject){
+    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-n %s", qproject@maxHits-1))
+    #saiFilename <- sprintf("%s.sai", tempfile())
+    #samFilename <- sprintf("%s.sam", tempfile())
+    #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
+    alignmentParameters <- c(paste("bwa aln"),
+                             paste("bwa samse", maxHits))
+    return(alignmentParameters)
+}
+
+.align <- function(readsFilepath, index, qproject)
+{
+#     bamFilename <- file.path(outpath,
+#                              sprintf("%s-%s-%s",
+#                                      .baseFileName(readsFilepath),
+#                                      index$name,
+#                                      aligner$pkgname))
+    bamFilename <- .createBamFilename(qproject@path, readsFilepath, index$shortname)
+    .progressReport(sprintf("Aligning reads to index %s-%s for sample '%s'", 
+                            index$name, qproject@aligner$pkgname, basename(readsFilepath)))
+    outputFilename <- switch(qproject@aligner$pkgname,
+                             Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
+                                                    alignmentParameter=qproject@alignmentParameter),
+                             Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, 
+                                              alignmentParameter=qproject@alignmentParameter),
+                             stop("The '", qproject@aligner$pkgname, "' Aligner is not supported.")
+                             )
+    .weightAlignments(outputFilename, outputFilename, index=index, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
     return(outputFilename)
 }
 
-.alignBowtie <- function(sequences, index, outfile, maxHits=NULL, ..., indexDestination=FALSE, force=FALSE){
-    seqFormat <- ifelse(.fileExtension(sequences) %in% c("fa","fna","mfa","fasta"),
-                        seqFormat <- "-f", "")
+.alignBowtie <- function(sequences, index, outfile, alignmentParameter, ..., indexDestination=FALSE){
     numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-p %s", getOption("quasr.cores")), "")
-    maxHits <- ifelse(is.null(maxHits), "", sprintf("-k %s -m %s --best --strata", maxHits, maxHits))
     samFilename <- sprintf("%s.sam", tempfile())
     on.exit(unlink(samFilename))
     bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
-    out <- .execute("Rbowtie", paste("bowtie", numThreads, maxHits, index, seqFormat, sequences, "-S", samFilename, "--quiet"))
-    outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
+#     out <- .execute("Rbowtie", paste("bowtie -k 99 -m 99 --best --strata -f", numThreads, "--quiet", index, sequences, "-S", samFilename))
+    out <- .execute("Rbowtie", paste(alignmentParameter, numThreads, "--quiet", index, sequences, "-S", samFilename))
+    outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination)
     return(outfile)
 }
 
-.alignBWA <- function(sequences, index, outfile, maxHits=NULL, ..., indexDestination=FALSE, force=FALSE){
+.alignBWA <- function(sequences, index, outfile, alignmentParameter, ..., indexDestination=FALSE, force=FALSE){
     numThreads <- ifelse(getOption("quasr.cores") > 1 , sprintf("-t %s", getOption("quasr.cores")), "")
-    maxHits <- ifelse(is.null(maxHits), "", sprintf("-n %s", maxHits-1))
+#     maxHits <- ifelse(is.null(maxHits), "", sprintf("-n %s", maxHits-1))
     saiFilename <- sprintf("%s.sai", tempfile())
     samFilename <- sprintf("%s.sam", tempfile())
     on.exit(unlink(samFilename))
     bamFilename <- unlist(strsplit(outfile, "\\.bam$"))
     #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
-    out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
-    out <- .execute("Rbwa", paste("bwa samse", maxHits, index, saiFilename, sequences, "-f", samFilename))
+#     out <- .execute("Rbwa", paste("bwa aln", numThreads, index, sequences, "-f", saiFilename))
+#     out <- .execute("Rbwa", paste("bwa samse", maxHits, index, saiFilename, sequences, "-f", samFilename))
+    out <- .execute("Rbwa", paste( alignmentParameter[1], numThreads, index, sequences, "-f", saiFilename))
+    out <- .execute("Rbwa", paste( alignmentParameter[2], index, saiFilename, sequences, "-f", samFilename))
     outfile <- asBam(samFilename, bamFilename, indexDestination=indexDestination, overwrite=force)
     return(outfile)
 }

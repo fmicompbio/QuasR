@@ -20,9 +20,48 @@
         checkFile <- file.exists(tab$FileNameMate)
         if(any(!checkFile))
             stop("File not found: ", paste(tab$FileNameMate[!checkFile], collapse=", "))
-        return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName), 
+        return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName),
                           filepath2=I(tab$FileNameMate), filetype=.fileType(tab$FileName)))
-    }    
+    }
+}
+
+.loadAlignments <- function(qproject){
+    ## emtpy alignment data.frame
+    alignments <- as.data.frame(matrix(NA,
+                                       nrow=nrow(qproject@samples),
+                                       ncol=0,
+                                       dimnames=dimnames(qproject@samples)[1]))
+    ## load genomic alignment
+    alignments$genome <- unlist(lapply(.baseFileName(qproject@samples$filepath), 
+           function(f){
+               lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
+               ifelse(length(lst),
+                      .getBamFile(lst, qproject@genome$name, qproject@alignmentParameter),
+                      NA)
+           }))
+           #TODO what when more than one results
+    ## load auxiliary alignment
+    aux <- qproject@annotations$filepath[qproject@annotations$filetype == "fasta"]
+    names(aux) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
+    auxAlignment <- lapply(aux, function(a){
+        unlist(lapply(.baseFileName(qproject@samples$filepath), 
+                  function(f){
+                      lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
+                      ifelse(length(lst),
+                             .getBamFile(lst, a, qproject@alignmentParameter),
+                             NA)
+                        }))
+     })
+     #names(auxAlignment) <- name(aux)
+     alignments <- cbind.data.frame(alignments, 
+                                    as.data.frame(auxAlignment, stringsAsFactors=FALSE), 
+                                    stringsAsFactors=FALSE)
+    ## set external bamfiles
+    if(any(idx <- qproject@samples$filetype == "bam")){
+        alignments[idx,] <- ""
+        alignments$genome[idx] <- qproject@samples$filepath[idx]
+    }
+    return(alignments)
 }
 
 .readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, quote="\"", ...)
@@ -67,16 +106,19 @@
         dir <- dirname(dirname)
         files <- basename(dirname)
       }
-    name <- .baseFileName(gsub("_", "",dirname))
-    return(list(name=name, dir=dir, files=files, bsgenome=FALSE))
+    name <- gsub("_", "", dirname) # TODO maybe remove gsub
+    shortname <- gsub("_", "", basename(name))
+    return(list(name=name, shortname=shortname, dir=dir, files=files, bsgenome=FALSE))
 }
 
 .checkGenome <- function(genomeName, lib.loc=NULL)
 {
     .progressReport("Check genome name")
     ## check if fasta file or directory
-    if(file.exists(genomeName))
+    if(file.exists(genomeName)){
+        genomeName <- tools::file_path_as_absolute(genomeName)
         return(.loadFastaGenome(genomeName))
+    }
     ## check for installed BSgenome
     if(genomeName %in% installed.packages()[,'Package'])
         return(list(name=genomeName, bsgenome=TRUE))
@@ -129,8 +171,8 @@
             index <- .createGenomeIndex(qProject)
         } else {
             index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
-            ## set index path relativ to working directory
-            index$path <- file.path(indexDir, index$name)
+            ## set index path
+            index$path <- file.path(indexDir, index$shortname) # TODO or from index.tab file
         }
     }
     return(index)

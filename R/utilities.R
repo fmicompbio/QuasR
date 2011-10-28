@@ -16,7 +16,7 @@
             warning(gettextf("package '%s' %s was found, but '%s' is required by 'QuasR'",
                              pkgname, current, targetpkg))
     }
-} 
+}
 
 .baseFileName <- function(filename)
 {
@@ -41,6 +41,40 @@
     return(type)
 }
 
+.createBamFilename <- function(path, sampleFilename, genomeName)
+{
+    if(is.null(path))
+#         fn <- file.path(dirname(sampleFilename), sprintf("%s-%s.bam", .baseFileName(sampleFilename), genomeName))
+        fn <- tempfile(tmpdir=dirname(sampleFilename),
+                   pattern=sprintf("%s-%s-", .baseFileName(sampleFilename), genomeName), 
+                   fileext=".bam")
+    else 
+#         fn <- file.path(path, sprintf("%s-%s.bam", .baseFileName(sampleFilename), genomeName))
+        fn <- tempfile(tmpdir=path,
+                   pattern=sprintf("%s-%s-", .baseFileName(sampleFilename), genomeName), 
+                   fileext=".bam")
+    return(fn)
+}
+
+.getBamFile <- function(listBamFilenames, genomeName, alignerParameter)
+{
+    # TODO qproject parameter  
+    bfh <- scanBamHeader(listBamFilenames)
+    bfhIdx <- unlist(lapply(bfh, function(x){
+        idx <- grep("ID:QuasR", x$text)
+        qTag <- x$text[[idx]]
+        at <- unlist(strsplit(qTag[grep("at:", qTag)], ":"))[2]
+        ap <- unlist(strsplit(qTag[grep("ap:", qTag)], ":"))[2]
+        all(at == genomeName,  ap == paste(alignerParameter, collapse=","))
+    }))
+    if(sum(bfhIdx) > 1L)
+        stop("More than one bamfile found '", paste(listBamFilenames[bfhIdx], collapse="', '"), "'.")
+    if(sum(bfhIdx) < 1L)
+        return(NA)
+    else
+        return(listBamFilenames[bfhIdx])
+}
+
 .progressReport <- function(msg, phase=0)
 {
     qTag <- "[QuasR]"
@@ -57,7 +91,7 @@
 
 .multiToSingleFasta <- function(inFiles, outFile){
   if(missing(outFile) || is.null(outFile))
-    outFile <- sprintf("%s.fa", tempfile())    
+    outFile <- sprintf("%s.fa", tempfile())
   append <- FALSE
   for(file in inFiles){
     seq <- read.DNAStringSet(filepath=file)
@@ -66,7 +100,7 @@
   }
   return(outFile)
 }
-    
+
 .mapSeqnames <- function(genomeSeqnames, annotationSeqnames){
     if(!all(annotationSeqnames %in% genomeSeqnames)){
         ## try to map mitochondrion
@@ -78,4 +112,4 @@
             stop("Can't match sequence names")
     }
     return(annotationSeqnames)
-}   
+}

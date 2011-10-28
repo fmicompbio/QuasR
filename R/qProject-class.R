@@ -11,8 +11,10 @@ setClass("qProject",
                         aligner=".listOrNULL",
                         index=".listOrNULL",
                         annotations=".data.frameOrNULL",
+                        alignmentParameter="character",
                         qc=".listOrNULL",
                         path="character",
+                        cacheDir="character",
                         indexLocation=".characterOrNULL",
                         paired="logical",
                         junction="logical",
@@ -43,36 +45,46 @@ setMethod("initialize", "qProject", function(.Object, name, path, ...){
     callNextMethod(.Object, name=name, id=id, path=path, ...)
 })
 
-qProject <- function(sampleFile="Sample.txt", genome=".", 
-                     annotationFile=NULL, aligner="Rbowtie", 
-                     projectName="qProject", path=".", paired=FALSE, 
-                     junction=FALSE, bisulfite=FALSE, lib.loc=NULL, 
-                     indexLocation=NULL, maxHits=99L)
+qProject <- function(sampleFile="Sample.txt", genome=".",
+                     annotationFile=NULL, aligner="Rbowtie",
+                     projectName="qProject", path=".", paired=FALSE,
+                     junction=FALSE, bisulfite=FALSE, lib.loc=NULL,
+                     indexLocation=NULL, maxHits=99L,
+                     cacheDir=NULL,
+                     alignmentParameter)
 {
     .progressReport("Gathering file path information", phase=-1)
+    sampleFile <- tools::file_path_as_absolute(sampleFile)
     samples <- .readSamples(sampleFile, paired=paired)
     if(is.null(annotationFile))
         annotations <- NULL
-    else
+    else{
+        annotationFile <- tools::file_path_as_absolute(annotationFile)
         annotations <- .readAnnotations(annotationFile)
+    }
     genome <- .checkGenome(genome, lib.loc=lib.loc)
     aligner <- .loadAligner(aligner, lib.loc=lib.loc)
-    alignments <- as.data.frame(matrix(0,
-                                       nrow=nrow(samples),
-                                       ncol=0,
-                                       dimnames=dimnames(samples)[1]))
-    project <- new("qProject", projectName, path, samples=samples, 
-                   annotations=annotations, genome=genome, aligner=aligner, 
-                   alignments=alignments, paired=paired, junction=junction, 
-                   bisulfite=bisulfite, indexLocation=indexLocation, maxHits=maxHits)
+    if(!is.null(indexLocation))
+        indexLocation <- tools::file_path_as_absolute(indexLocation)
+    if(is.null(cacheDir))
+        cacheDir <- tempdir()
+    else
+        cacheDir <- tools::file_path_as_absolute(cacheDir)
+    qproject <- new("qProject", projectName, path, samples=samples,
+                   annotations=annotations, genome=genome, aligner=aligner,
+                   paired=paired, junction=junction,
+                   bisulfite=bisulfite, indexLocation=indexLocation, maxHits=maxHits, cacheDir=cacheDir)
+    if(missing(alignmentParameter) || is.null(alignmentParameter) || alignmentParameter == "" )
+        qproject@alignmentParameter <- .createAlignmentParameters(qproject)
+    qproject@alignments <- .loadAlignments(qproject)
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
-    return(project)
+    return(qproject)
 }
 
 setMethod("show","qProject", function(object){
     cat("QuasRProject\n")
     cat("Project: " , object@name, "\n", sep="")
-    cat("Options: paired=", object@paired, 
+    cat("Options: paired=", object@paired,
         "\n         junction=", object@junction,
         "\n         bisulfite=", object@bisulfite,
         "\n         maxHits=", object@maxHits, "\n", sep="")
@@ -81,8 +93,8 @@ setMethod("show","qProject", function(object){
     cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
     cat("Annotations:\n", paste(object@annotations$feature, object@annotations$filepath, sep="\t", collapse="\n"), "\n", sep="")
     ## TODO write alignments in a nice way
-    cat("Alignments:\n")   
-    lapply(names(object@alignments), 
+    cat("Alignments:\n")
+    lapply(names(object@alignments),
            function(index){
                cat(index, paste(as.matrix(object@alignments[index]), collapse="\n"), sep="\n")
            })
@@ -109,7 +121,7 @@ qReadProject <- function(filename)
 getGenomeInformation <- function(qProject, ...){
     if(!is(qProject, "qProject"))
         stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    
+
     if(is.null(qProject@genome$sequenceInfo)){
         if(qProject@genome$bsgenome)
             qProject@genome$sequenceInfo <- seqlengths(.loadBSgenome(qProject@genome$name, ...))
