@@ -4,8 +4,8 @@
     if(!require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc))
         stop("Can not find the '", pkgname, "' package.")
     ## check package version
-    current <- installed.packages()[pkgname, 'Version']
-    pkgs <- unlist(strsplit(installed.packages()['QuasR','Suggests'], ","))
+    current <- installed.packages(lib.loc=lib.loc)[pkgname, 'Version']
+    pkgs <- unlist(strsplit(installed.packages(lib.loc=lib.loc)['QuasR','Suggests'], ","))
     targetpkg <- grep(pkgname, pkgs, value=T)
     ## check if target is equal current version
     if(length(grep(paste("\\(== ", current, "\\)", sep=""), targetpkg)) == 0){
