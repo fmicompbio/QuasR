@@ -61,23 +61,26 @@ setMethod("qCount",
 
 setMethod("qCount",
           signature(qproject="qProject", query="GRanges"),
-          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
       {
           overlap <- match.arg(overlap)
           .progressReport("Starting count alignments", phase=-1)
           bamFiles <- unlist(qproject@alignments$genome)
 
           if(collapseSamples == TRUE){
-              counts <- lapply(split(bamFiles, qproject@samples$name), .countAlignments, query, stranded, overlap)
+              counts <- lapply(split(bamFiles, qproject@samples$name), 
+                               .countAlignments, 
+                               query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
               #names(counts) <- as.character(qproject@samples$name)
           }else{
-              counts <- lapply(bamFiles, .countAlignments, query, stranded, overlap)
+              counts <- lapply(bamFiles, 
+                               .countAlignments, 
+                               query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
               names(counts) <- basename(qproject@samples$filepath)
           }
-    
           #counts <- as(counts,"DataFrame")
           counts <- as.data.frame(counts)
-          rownames(counts) <- names(query)
+          #rownames(counts) <- names(query)
           #values(query) <- IRanges::cbind(values(query), counts)
           #values(gRange) <- cbind.data.frame(as.data.frame(val), counts)
           .progressReport("Successfully terminated the quasr counting.", phase=1)
