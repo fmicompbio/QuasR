@@ -17,7 +17,7 @@ SEXP getListElement(SEXP list, const char *str);
 
 //weight_alignments.c
 SEXP get_allowed_max_hits();
-SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits);
+SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP header, SEXP max_hits);
 
 //count_alignments.c
 SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP stranded, SEXP overlap);

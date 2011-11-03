@@ -127,21 +127,27 @@ static int* _weight_alignments(samfile_t *fin, samfile_t *fout, int max_hits, in
   @param  todo  todo
   @return    todo
  */
-SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
+SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP header, SEXP max_hits)
 {
     if (!IS_CHARACTER(bam_in) || 1 != LENGTH(bam_in))
         Rf_error("'bam_in' must be character(1)");
     if (!IS_CHARACTER(bam_out) || 1 != LENGTH(bam_out))
         Rf_error("'bam_out' must be character(1)");
+   if (!IS_CHARACTER(header) || 1 != LENGTH(header))
+        Rf_error("'header' must be character(1)");
     
     samfile_t *fin = _bam_tryopen(translateChar(STRING_ELT(bam_in, 0)), "rb", NULL);
     if (fin->header == 0) {
         samclose(fin);
         Rf_error("invalid header");
     }
-    
-    // TODO add manipulation to header
-    samfile_t *fout = _bam_tryopen(translateChar(STRING_ELT(bam_out, 0)), "wb", fin->header); // f_in leaks if this fails 
+    samfile_t *hout = _bam_tryopen(translateChar(STRING_ELT(header, 0)), "r", NULL);
+    if (hout->header == 0) {
+        samclose(hout);
+        Rf_error("invalid header");
+    }  
+    samfile_t *fout = _bam_tryopen(translateChar(STRING_ELT(bam_out, 0)), "wb", hout->header); // f_in leaks if this fails 
+
     //int hitcout[asInteger(max_hits)+2];
     SEXP hitcount;
     PROTECT(hitcount = NEW_INTEGER(asInteger(max_hits)+2));
@@ -149,6 +155,7 @@ SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP max_hits)
     
     samclose(fin);
     samclose(fout);
+    samclose(hout);
     UNPROTECT(1);
 
     return hitcount;
