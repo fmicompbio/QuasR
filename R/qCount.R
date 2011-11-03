@@ -1,20 +1,22 @@
 setGeneric("qCount", function(qproject, query, 
                               stranded=FALSE, collapseSamples=TRUE, 
                               collapseQuery=c("gene", "transcript", "exon"),
-                              overlap=c("any", "within"),
-                              maxHits=NULL
+                              overlap=c("any", "within", "startwithin", "endwithin"),
+                              maxHits=NULL,
+                              shift=0L,
+                              minoverlap=1L
                               ) standardGeneric("qCount"))
 
 setMethod("qCount",
           signature(qproject="qProject", query="missing"),
-          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
       {
-          qCount(qproject, "summary", stranded, collapseSamples, collapseQuery, overlap, maxHits)
+          qCount(qproject, "summary", stranded=T, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
       })
 
 setMethod("qCount",
           signature(qproject="qProject", query="character"),
-          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits)
+          function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
       {
 
           if(query != "summary" && !query %in% qproject@annotations$feature)
