@@ -46,6 +46,12 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
         qproject@alignments <- cbind.data.frame(genome=qproject@alignments$genome, auxAlignment, stringsAsFactors=FALSE)
     }
 
+    # sort and index external bamfile
+    if(any(idx <- qproject@samples$filetype == "bam")){
+        bamfile <- sortBam(as.character(qproject@samples$filepath[idx]), tempfile(tmpdir=qproject@cacheDir))
+        file.rename(bamfile, qproject@samples$filepath[idx])
+        indexBam(as.character(qproject@samples$filepath[idx]))
+    }
 #     .progressReport("Weight alignments")
 #     lapply(t(qproject@alignments),
 #            function(elem){
