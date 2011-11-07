@@ -21,12 +21,6 @@
     bamview <- BamViews(bamPaths=bamfile)
 
     count <- unlist(lapply(split(grange), function(range){
-        # TODO work only for singel grange
-        minusStrand <- NA
-        if(stranded && strand(range) ==  "+")
-            minusStrand <- FALSE
-        if(stranded && strand(range) ==  "-")
-            minusStrand <- TRUE
             
         ## TODO reduce resize(range,)
         nameRange <- names(range)
@@ -42,7 +36,7 @@
         
         param <- ScanBamParam(what=c("qname","pos","cigar", "strand", "rname"),
                               tag="IH",
-                              flag=scanBamFlag(isMinusStrand=minusStrand, isUnmappedQuery=FALSE))
+                              flag=scanBamFlag(isUnmappedQuery=FALSE))
         scanBamRes <- suppressWarnings(scanBam(bamview, param=param))
         reads <- GRangesList(lapply(names(scanBamRes[[1]]), function(region){
             reads <- GRangesList(lapply(scanBamRes, function(bf){
@@ -51,7 +45,11 @@
                             strand=bf[[region]]$strand,
                             seqnames=bf[[region]]$rname,
                             names=bf[[region]]$qname,
-                            IH=ifelse(is.null(bf[[region]]$tag$IH), 1, bf[[region]]$tag$IH))
+                            IH=if(is.null(bf[[region]]$tag$IH))
+                                      1
+                                else
+                                      bf[[region]]$tag$IH      
+                            )
                 } else
                     GRanges()
                 }))
@@ -60,7 +58,7 @@
         names(reads) <- names(scanBamRes[[1]])
            
         cnt <- unlist(lapply(names(range), function(region){
-            if(shift > 0){
+            if(shift > 0 && length(reads[[region]])){
                 reads[[region]] <- shift(reads[[region]],
                                          ifelse(as.vector(strand(reads[[region]]) == "+"), shift, -shift))
             }
@@ -83,6 +81,8 @@
                    )
             if(!is.null(maxHits))
                 idx <- idx & values(reads[[region]])$IH <= maxHits
+            if(stranded && as.vector(strand(range[region]) != "*"))
+                idx <- idx & as.vector(strand(range[region]) == strand(reads[[region]]))                          
             sum(1/values(reads[[region]][idx,])$IH)
         }))
         return(cnt)
@@ -95,7 +95,7 @@
     }
     return(count)
 }
-
+            
 .isWithin <- function(grange, reads, minoverlap){
     start(grange) <= start(reads) &
         end(reads) <= end(grange) &

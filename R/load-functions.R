@@ -26,13 +26,14 @@
 }
 
 .loadAlignments <- function(qproject){
+    .progressReport("Read annotation file")
     ## emtpy alignment data.frame
     alignments <- as.data.frame(matrix(NA,
                                        nrow=nrow(qproject@samples),
                                        ncol=0,
                                        dimnames=dimnames(qproject@samples)[1]))
     ## load genomic alignment
-    alignments$genome <- unlist(lapply(.baseFileName(qproject@samples$filepath), 
+    alignments$genome[qproject@samples$filetype != "bam"] <- unlist(lapply(.baseFileName(qproject@samples$filepath[qproject@samples$filetype != "bam"]), 
            function(f){
                lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
                ifelse(length(lst),
@@ -41,21 +42,24 @@
            }))
            #TODO what when more than one results
     ## load auxiliary alignment
-    aux <- qproject@annotations$filepath[qproject@annotations$filetype == "fasta"]
-    names(aux) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
-    auxAlignment <- lapply(aux, function(a){
-        unlist(lapply(.baseFileName(qproject@samples$filepath), 
-                  function(f){
-                      lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
-                      ifelse(length(lst),
-                             .getBamFile(lst, a, qproject@alignmentParameter),
-                             NA)
-                        }))
-     })
-     #names(auxAlignment) <- name(aux)
-     alignments <- cbind.data.frame(alignments, 
+    if(!is.null(qproject@annotations)){
+        aux <- qproject@annotations$filepath[qproject@annotations$filetype == "fasta"]
+        names(aux) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
+        auxAlignment <- lapply(aux, function(a){
+            unlist(lapply(.baseFileName(qproject@samples$filepath), 
+                      function(f){
+                          lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
+                          ifelse(length(lst),
+                                 .getBamFile(lst, a, qproject@alignmentParameter),
+                                 NA)
+                            }))
+        })
+        #names(auxAlignment) <- name(aux)
+        alignments <- cbind.data.frame(alignments, 
                                     as.data.frame(auxAlignment, stringsAsFactors=FALSE), 
                                     stringsAsFactors=FALSE)
+    }
+
     ## set external bamfiles
     if(any(idx <- qproject@samples$filetype == "bam")){
         alignments[idx,] <- ""
