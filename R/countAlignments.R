@@ -21,7 +21,6 @@
     bamview <- BamViews(bamPaths=bamfile)
 
     count <- unlist(lapply(split(grange), function(range){
-            
         ## TODO reduce resize(range,)
         nameRange <- names(range)
         if(shift > 0){
@@ -109,8 +108,9 @@
         minoverlap <= width(reads)
 }
 
-
-.countAlignmentsC <- function(bamfile, grange, stranded=FALSE, overlap=c("any", "within", "startwithin", "endwithin"), shift=0L, minoverlap=1L, maxHits=NULL)
+.countAlignmentsC <- function(bamfile, grange, stranded=FALSE, 
+                              overlap=c("any", "within", "startwithin", "endwithin"), 
+                              shift=0L, minoverlap=1L, maxHits=NULL)
 {
     ## check arguments
     if(!is.character(bamfile))
@@ -134,18 +134,18 @@
     ## translate seqname to tid
     seqnamemap <- .Call(.seqname, bamfile[1])
     regions <- data.frame(tid=seqnamemap$tid[ IRanges::as.vector(IRanges::match(seqnames(grange), seqnamemap$seqnames)) ],
-                          start=as.integer(start(grange)),
+                          start=as.integer(start(grange)-1), ## samtool sw has 0-based start
                           end=as.integer(end(grange)),
                           strand=as.character(strand(grange)),
                           stringsAsFactors=FALSE
                           )
     ## get counts
-    ## TODO shift(grange, shift)
     count <- .Call(.count_alignments, bamfile, bamfile, regions, stranded, overlap, minoverlap, shift, maxHits)
+    names(count) <- names(grange)
+    
+    ## collapse counts
     if("collapseQuery" %in% names(elementMetadata(grange))){
         count <- unlist(lapply(split(count, elementMetadata(grange)[,"collapseQuery"]), sum))
     }
-    #rownames(counts) <- names(query)
-
     return(count)
 }
