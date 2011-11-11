@@ -71,12 +71,12 @@ setMethod("qCount",
 
           if(collapseSamples == TRUE){
               counts <- lapply(split(bamFiles, qproject@samples$name), 
-                               .countAlignmentsC, 
+                               .countAlignments, 
                                query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
               #names(counts) <- as.character(qproject@samples$name)
           }else{
               counts <- lapply(bamFiles, 
-                               .countAlignmentsC, 
+                               .countAlignments, 
                                query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
               names(counts) <- basename(qproject@samples$filepath)
           }

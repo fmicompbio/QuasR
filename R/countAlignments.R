@@ -1,8 +1,18 @@
 .countAlignments <- function(bamfile, grange, stranded=FALSE,
                              overlap=c("any", "within", "startwithin", "endwithin"),
+                             shift=0L, minoverlap=1L, maxHits=NULL){
+    if(getOption("quasr.countApp") == "R")
+        return(.countAlignmentsR(bamfile=bamfile, grange=grange, stranded=stranded,
+                                 overlap=overlap,  shift=shift, minoverlap=minoverlap, maxHits=maxHits))
+    else
+        return(.countAlignmentsC(bamfile=bamfile, grange=grange, stranded=stranded,
+                                 overlap=overlap,  shift=shift, minoverlap=minoverlap, maxHits=maxHits))
+}
+
+.countAlignmentsR <- function(bamfile, grange, stranded=FALSE,
+                             overlap=c("any", "within", "startwithin", "endwithin"),
                              shift=0L, minoverlap=1L, maxHits=NULL)
 {
-
     ## check arguments
     if(!is.character(bamfile))
         stop("The parameter 'bamfile' must be of type character.")
@@ -20,72 +30,81 @@
 
     bamview <- BamViews(bamPaths=bamfile)
 
-    count <- unlist(lapply(split(grange), function(range){
-        ## TODO reduce resize(range,)
+    count <- unlist(lapply(split(grange,1), function(range){
         nameRange <- names(range)
         if(shift > 0){
             expandedRange <- GRanges(ranges=IRanges(start=start(range)-max(shift), end=end(range)+max(shift)),
-                                seqnames=seqnames(range), strand=strand(range))
+                                     seqnames=seqnames(range), strand=strand(range))
             bamRanges(bamview) <- expandedRange
             names(range) <- sprintf("%s:%s-%s", seqnames(expandedRange), start(expandedRange), end(expandedRange))
         } else {
             bamRanges(bamview) <- range
             names(range) <- sprintf("%s:%s-%s", seqnames(range), start(range), end(range))
         }
-        
+
         param <- ScanBamParam(what=c("qname","pos","cigar", "strand", "rname"),
                               tag="IH",
                               flag=scanBamFlag(isUnmappedQuery=FALSE))
         scanBamRes <- suppressWarnings(scanBam(bamview, param=param))
-        reads <- GRangesList(lapply(names(scanBamRes[[1]]), function(region){
-            reads <- GRangesList(lapply(scanBamRes, function(bf){
-                if(length(bf[[region]]$pos)){
-                    GRanges(ranges=IRanges(start=bf[[region]]$pos, width=cigarToWidth(bf[[region]]$cigar)),
-                            strand=bf[[region]]$strand,
-                            seqnames=bf[[region]]$rname,
-                            names=bf[[region]]$qname,
-                            IH=if(is.null(bf[[region]]$tag$IH))
-                                      1
-                                else
-                                      bf[[region]]$tag$IH      
-                            )
-                } else
-                    GRanges()
-                }))
-            reads <- unlist(reads, use.names=F)
-        }))
-        names(reads) <- names(scanBamRes[[1]])
-           
-        cnt <- unlist(lapply(names(range), function(region){
-            if(shift > 0 && length(reads[[region]])){
-                reads[[region]] <- shift(reads[[region]],
-                                         ifelse(as.vector(strand(reads[[region]]) == "+"), shift, -shift))
-            }
 
-            idx <- switch(overlap,
-                   startwithin = {
-                       start(reads[[region]]) <- ifelse(as.vector(strand(reads[[region]]) == "+"), 
-                                                   start(reads[[region]]), end(reads[[region]]))
-                       width(reads[[region]]) <- 1
-                       .isWithin(range[region], reads[[region]], 1L)
-                   }, 
-                   endwithin = {
-                       start(reads[[region]]) <- ifelse(as.vector(strand(reads[[region]]) == "-"), 
-                                                   start(reads[[region]]), end(reads[[region]]))
-                       width(reads[[region]]) <- 1
-                       .isWithin(range[region], reads[[region]], 1L)
-                   },
-                   within = .isWithin(range[region], reads[[region]], minoverlap),
-                   any = .isAny(range[region], reads[[region]], minoverlap)
-                   )
-            if(!is.null(maxHits))
-                idx <- idx & values(reads[[region]])$IH <= maxHits
-            if(stranded && as.vector(strand(range[region]) != "*"))
-                idx <- idx & as.vector(strand(range[region]) == strand(reads[[region]]))                          
-            sum(1/values(reads[[region]][idx,])$IH)
+        count <- unlist(lapply(seq(scanBamRes[[1]]), function(iRegion){
+            cnt <- unlist(lapply(seq(scanBamRes), function(iBamfile){
+                ## name of current region
+                regionName <- names(scanBamRes[[iBamfile]])[iRegion]
+                ## calculate width
+                readWidth <- cigarToWidth(scanBamRes[[iBamfile]][[iRegion]]$cigar)
+                ## shift
+                readIsPlusStrand <- scanBamRes[[iBamfile]][[iRegion]]$strand == "+"
+                if(shift > 0){ # TODO check if length(shift) > 1
+                    scanBamRes[[iBamfile]][[iRegion]]$pos <-
+                        scanBamRes[[iBamfile]][[iRegion]]$pos +
+                            ifelse(readIsPlusStrand, shift, -shift)
+                }
+                ## in region
+                idx <- switch(overlap,
+                              startwithin = {
+                                  scanBamRes[[iBamfile]][[iRegion]]$pos <-
+                                      ifelse(readIsPlusStrand,
+                                             scanBamRes[[iBamfile]][[iRegion]]$pos,
+                                             scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth)
+                                  start(range[regionName]) <= scanBamRes[[iBamfile]][[iRegion]]$pos &
+                                  scanBamRes[[iBamfile]][[iRegion]]$pos <= end(range[regionName])
+                              },
+                              endwithin = {
+                                  scanBamRes[[iBamfile]][[iRegion]]$pos <-
+                                      ifelse(readIsPlusStrand,
+                                             scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth,
+                                             scanBamRes[[iBamfile]][[iRegion]]$pos)
+                                  start(range[regionName]) <= scanBamRes[[iBamfile]][[iRegion]]$pos &
+                                  scanBamRes[[iBamfile]][[iRegion]]$pos <= end(range[regionName])
+                              },
+                              within = {
+                                  start(range[regionName]) <=
+                                      scanBamRes[[iBamfile]][[iRegion]]$pos &
+                                  scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth <= end(range[regionName]) &
+                                  minoverlap <= readWidth
+                              },
+                              any = {
+                                  mo <- minoverlap - 1L
+                                  (scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth) - start(range[regionName]) >= mo &
+                                  end(range[regionName]) - scanBamRes[[iBamfile]][[iRegion]]$pos >= mo &
+                                  minoverlap <= readWidth
+                              }
+                              )
+                ## check maxhits
+                if(!is.null(maxHits) && !is.null(scanBamRes[[iBamfile]][[iRegion]]$tag$IH))
+                    idx <- idx & scanBamRes[[iBamfile]][[iRegion]]$tag$IH <= maxHits
+                ## check stranded
+                if(stranded && as.vector(strand(range[regionName]) != "*"))
+                    idx <- idx & as.vector(strand(range[regionName]) == scanBamRes[[iBamfile]][[iRegion]]$strand)
+                ## sum weigths
+                if(is.null(scanBamRes[[iBamfile]][[iRegion]]$tag$IH)) ## set IH tag to 1 if missing
+                    sum(idx)
+                else
+                    sum(1/scanBamRes[[iBamfile]][[iRegion]]$tag$IH[idx])
+            }))
+            sum(cnt)
         }))
-        return(cnt)
-                    
     }))
     names(count) <- names(grange)
 
@@ -94,22 +113,9 @@
     }
     return(count)
 }
-            
-.isWithin <- function(grange, reads, minoverlap){
-    start(grange) <= start(reads) &
-        end(reads) <= end(grange) &
-        minoverlap <= width(reads)
-}
 
-.isAny <- function(grange, reads, minoverlap){
-    mo <- minoverlap - 1L
-    end(reads) - start(grange) >= mo &
-        end(grange) - start(reads) >= mo &
-        minoverlap <= width(reads)
-}
-
-.countAlignmentsC <- function(bamfile, grange, stranded=FALSE, 
-                              overlap=c("any", "within", "startwithin", "endwithin"), 
+.countAlignmentsC <- function(bamfile, grange, stranded=FALSE,
+                              overlap=c("any", "within", "startwithin", "endwithin"),
                               shift=0L, minoverlap=1L, maxHits=NULL)
 {
     ## check arguments
@@ -141,8 +147,13 @@
                           )
     ## get counts
     count <- .Call(.count_alignments, bamfile, bamfile, regions, stranded, overlap, minoverlap, shift, maxHits)
+#     system.time(count <- .Call(.count_alignments, bamfile, bamfile, regions, stranded, overlap, minoverlap, shift, maxHits))
+#     browser()
+#     system.time(countt <- unlist(mclapply(1:dim(regions)[1], function(idx){
+#         .Call(.count_alignments, bamfile, bamfile, regions[idx,], stranded, overlap, minoverlap, shift, maxHits)
+#         }, mc.cores=getOption("quasr.cores"))))
     names(count) <- names(grange)
-    
+
     ## collapse counts
     if("collapseQuery" %in% names(elementMetadata(grange))){
         count <- unlist(lapply(split(count, elementMetadata(grange)[,"collapseQuery"]), sum))
