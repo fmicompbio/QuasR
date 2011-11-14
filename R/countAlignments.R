@@ -42,7 +42,7 @@
             names(range) <- sprintf("%s:%s-%s", seqnames(range), start(range), end(range))
         }
 
-        param <- ScanBamParam(what=c("qname","pos","cigar", "strand", "rname"),
+        param <- ScanBamParam(what=c("pos","cigar", "strand"),
                               tag="IH",
                               flag=scanBamFlag(isUnmappedQuery=FALSE))
         scanBamRes <- suppressWarnings(scanBam(bamview, param=param))
@@ -56,38 +56,37 @@
                 ## shift
                 readIsPlusStrand <- scanBamRes[[iBamfile]][[iRegion]]$strand == "+"
                 if(shift > 0){ # TODO check if length(shift) > 1
-                    scanBamRes[[iBamfile]][[iRegion]]$pos <-
-                        scanBamRes[[iBamfile]][[iRegion]]$pos +
-                            ifelse(readIsPlusStrand, shift, -shift)
-                }
+                    readLeftPos <- scanBamRes[[iBamfile]][[iRegion]]$pos + ifelse(readIsPlusStrand, shift, -shift)
+                }else
+                    readLeftPos <- scanBamRes[[iBamfile]][[iRegion]]$pos
                 ## in region
                 idx <- switch(overlap,
                               startwithin = {
-                                  scanBamRes[[iBamfile]][[iRegion]]$pos <-
+                                  readLeftPos <-
                                       ifelse(readIsPlusStrand,
-                                             scanBamRes[[iBamfile]][[iRegion]]$pos,
-                                             scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth)
-                                  start(range[regionName]) <= scanBamRes[[iBamfile]][[iRegion]]$pos &
-                                  scanBamRes[[iBamfile]][[iRegion]]$pos <= end(range[regionName])
+                                             readLeftPos,
+                                             readLeftPos + readWidth - 1)
+                                  start(range[regionName]) <= readLeftPos &
+                                  readLeftPos <= end(range[regionName])
                               },
                               endwithin = {
                                   scanBamRes[[iBamfile]][[iRegion]]$pos <-
                                       ifelse(readIsPlusStrand,
-                                             scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth,
-                                             scanBamRes[[iBamfile]][[iRegion]]$pos)
-                                  start(range[regionName]) <= scanBamRes[[iBamfile]][[iRegion]]$pos &
-                                  scanBamRes[[iBamfile]][[iRegion]]$pos <= end(range[regionName])
+                                             readLeftPos + readWidth - 1,
+                                             readLeftPos)
+                                  start(range[regionName]) <= readLeftPos &
+                                  readLeftPos <= end(range[regionName])
                               },
                               within = {
                                   start(range[regionName]) <=
-                                      scanBamRes[[iBamfile]][[iRegion]]$pos &
-                                  scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth <= end(range[regionName]) &
+                                      readLeftPos &
+                                  (readLeftPos + readWidth - 1) <= end(range[regionName]) &
                                   minoverlap <= readWidth
                               },
                               any = {
                                   mo <- minoverlap - 1L
-                                  (scanBamRes[[iBamfile]][[iRegion]]$pos + readWidth) - start(range[regionName]) >= mo &
-                                  end(range[regionName]) - scanBamRes[[iBamfile]][[iRegion]]$pos >= mo &
+                                  (readLeftPos + readWidth - 1) - start(range[regionName]) >= mo &
+                                  end(range[regionName]) - readLeftPos >= mo &
                                   minoverlap <= readWidth
                               }
                               )
