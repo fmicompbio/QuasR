@@ -13,7 +13,7 @@ setClass("qProject",
                         annotations=".data.frameOrNULL",
                         alignmentParameter="character",
                         qc=".listOrNULL",
-                        path="character",
+                        path=".characterOrNULL",
                         cacheDir="character",
                         indexLocation=".characterOrNULL",
                         paired="logical",
@@ -28,6 +28,7 @@ setClass("qProject",
                    index=NULL,
                    annotations=NULL,
                    qc=NULL,
+                   path=NULL,
                    indexLocation=NULL,
                    paired=FALSE,
                    junction=FALSE,
@@ -39,7 +40,7 @@ setMethod("initialize", "qProject", function(.Object, name, path, ...){
     if(missing(name))
         name <- "qProject"
     id <- paste(name, format(Sys.time(), "%Y%m%d_%H%M%S"), sep="_")
-    if(missing(path) || path == "."){
+    if(!is.null(path) && path == "."){
         path <- getwd()
     }
     callNextMethod(.Object, name=name, id=id, path=path, ...)
@@ -47,7 +48,7 @@ setMethod("initialize", "qProject", function(.Object, name, path, ...){
 
 qProject <- function(sampleFile="Sample.txt", genome=".",
                      annotationFile=NULL, aligner="Rbowtie",
-                     projectName="qProject", path=".", paired=FALSE,
+                     projectName="qProject", path=NULL, paired=FALSE,
                      junction=FALSE, bisulfite=FALSE, lib.loc=NULL,
                      indexLocation=NULL, maxHits=99L,
                      cacheDir=NULL,
@@ -56,9 +57,9 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
     .progressReport("Gathering file path information", phase=-1)
     sampleFile <- tools::file_path_as_absolute(sampleFile)
     samples <- .readSamples(sampleFile, paired=paired)
-    if(is.null(annotationFile))
+    if(is.null(annotationFile)){
         annotations <- NULL
-    else{
+    }else{
         annotationFile <- tools::file_path_as_absolute(annotationFile)
         annotations <- .readAnnotations(annotationFile)
     }

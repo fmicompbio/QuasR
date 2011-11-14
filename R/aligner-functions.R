@@ -62,7 +62,7 @@
 #                                      aligner$pkgname))
     bamFilename <- .createBamFilename(qproject@path, readsFilepath, index$shortname)
     .progressReport(sprintf("Aligning reads to index %s-%s for sample '%s'", 
-                            index$name, qproject@aligner$pkgname, basename(readsFilepath)))
+                            index$shortname, qproject@aligner$pkgname, basename(readsFilepath)))
     outputFilename <- switch(qproject@aligner$pkgname,
                              Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
                                                     alignmentParameter=qproject@alignmentParameter),

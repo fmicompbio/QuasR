@@ -20,6 +20,8 @@
         checkFile <- file.exists(tab$FileNameMate)
         if(any(!checkFile))
             stop("File not found: ", paste(tab$FileNameMate[!checkFile], collapse=", "))
+        if(any(checkFile <- duplicated(basename(tab$FileName))))
+            stop("Filename ", paste(tab$FileName[checkFile], collapse=", "), "is duplicated.")
         return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName),
                           filepath2=I(tab$FileNameMate), filetype=.fileType(tab$FileName)))
     }
@@ -33,9 +35,15 @@
                                        ncol=0,
                                        dimnames=dimnames(qproject@samples)[1]))
     ## load genomic alignment
-    alignments$genome[qproject@samples$filetype != "bam"] <- unlist(lapply(.baseFileName(qproject@samples$filepath[qproject@samples$filetype != "bam"]), 
-           function(f){
-               lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
+    isBamfile <- qproject@samples$filetype == "bam"
+    alignments$genome[!isBamfile] <- unlist(lapply(qproject@samples$filepath[!isBamfile], 
+           function(filepath){
+               if(is.null(qproject@path))
+                   lst <- list.files(dirname(filepath), 
+                                     pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), full.names=TRUE) #TODO exacter regex
+               else
+                   lst <- list.files(qproject@path, 
+                                     pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), full.names=TRUE)
                ifelse(length(lst),
                       .getBamFile(lst, qproject@genome$name, qproject@alignmentParameter),
                       NA)
@@ -46,13 +54,20 @@
         aux <- qproject@annotations$filepath[qproject@annotations$filetype == "fasta"]
         names(aux) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
         auxAlignment <- lapply(aux, function(a){
-            unlist(lapply(.baseFileName(qproject@samples$filepath), 
-                      function(f){
-                          lst <- list.files(qproject@path, pattern=sprintf("%s.*\\.bam$", f), full.names=TRUE)
-                          ifelse(length(lst),
-                                 .getBamFile(lst, a, qproject@alignmentParameter),
-                                 NA)
-                            }))
+            unlist(lapply(qproject@samples$filepath, 
+                      function(filepath){
+                              if(is.null(qproject@path))
+                                  lst <- list.files(dirname(filepath), 
+                                                    pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), 
+                                                    full.names=TRUE) #TODO exacter regex
+                              else
+                                  lst <- list.files(qproject@path, 
+                                                    pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), 
+                                                    full.names=TRUE)
+                              ifelse(length(lst),
+                                     .getBamFile(lst, a, qproject@alignmentParameter),
+                                     NA)
+                          }))
         })
         #names(auxAlignment) <- name(aux)
         alignments <- cbind.data.frame(alignments, 

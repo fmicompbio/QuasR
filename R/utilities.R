@@ -58,10 +58,12 @@
 
 .getBamFile <- function(listBamFilenames, genomeName, alignerParameter)
 {
-    # TODO qproject parameter  
+    # TODO qproject parameter 
     bfh <- scanBamHeader(listBamFilenames)
     bfhIdx <- unlist(lapply(bfh, function(x){
         idx <- grep("ID:QuasR", x$text)
+        if(length(idx) == 0)
+            return(FALSE)
         qTag <- x$text[[idx]]
         at <- unlist(strsplit(qTag[grep("at:", qTag)], ":"))[2]
         ap <- unlist(strsplit(qTag[grep("ap:", qTag)], ":"))[2]
