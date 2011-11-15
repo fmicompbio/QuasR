@@ -47,18 +47,20 @@
                               flag=scanBamFlag(isUnmappedQuery=FALSE))
         scanBamRes <- suppressWarnings(scanBam(bamview, param=param))
 
-        count <- unlist(lapply(seq(scanBamRes[[1]]), function(iRegion){
+        count <- unlist(lapply(seq(names(range)), function(iRegion){
+            regionName <- names(range)[iRegion]
+            #regionName <- names(scanBamRes[[iBamfile]])[iRegion]         
             cnt <- unlist(lapply(seq(scanBamRes), function(iBamfile){
                 ## name of current region
-                regionName <- names(scanBamRes[[iBamfile]])[iRegion]
+                
                 ## calculate width
-                readWidth <- cigarToWidth(scanBamRes[[iBamfile]][[iRegion]]$cigar)
+                readWidth <- cigarToWidth(scanBamRes[[iBamfile]][[regionName]]$cigar)
                 ## shift
-                readIsPlusStrand <- scanBamRes[[iBamfile]][[iRegion]]$strand == "+"
+                readIsPlusStrand <- scanBamRes[[iBamfile]][[regionName]]$strand == "+"
                 if(shift > 0){ # TODO check if length(shift) > 1
-                    readLeftPos <- scanBamRes[[iBamfile]][[iRegion]]$pos + ifelse(readIsPlusStrand, shift, -shift)
+                    readLeftPos <- scanBamRes[[iBamfile]][[regionName]]$pos + ifelse(readIsPlusStrand, shift, -shift)
                 }else
-                    readLeftPos <- scanBamRes[[iBamfile]][[iRegion]]$pos
+                    readLeftPos <- scanBamRes[[iBamfile]][[regionName]]$pos
                 ## in region
                 idx <- switch(overlap,
                               startwithin = {
@@ -88,16 +90,16 @@
                               }
                               )
                 ## check maxhits
-                if(!is.null(maxHits) && !is.null(scanBamRes[[iBamfile]][[iRegion]]$tag$IH))
-                    idx <- idx & scanBamRes[[iBamfile]][[iRegion]]$tag$IH <= maxHits
+                if(!is.null(maxHits) && !is.null(scanBamRes[[iBamfile]][[regionName]]$tag$IH))
+                    idx <- idx & scanBamRes[[iBamfile]][[regionName]]$tag$IH <= maxHits
                 ## check stranded
                 if(stranded && as.vector(strand(range[regionName]) != "*"))
-                    idx <- idx & as.vector(strand(range[regionName]) == scanBamRes[[iBamfile]][[iRegion]]$strand)
+                    idx <- idx & as.vector(strand(range[regionName]) == scanBamRes[[iBamfile]][[regionName]]$strand)
                 ## sum weigths
-                if(is.null(scanBamRes[[iBamfile]][[iRegion]]$tag$IH)) ## set IH tag to 1 if missing
+                if(is.null(scanBamRes[[iBamfile]][[regionName]]$tag$IH)) ## set IH tag to 1 if missing
                     sum(idx)
                 else
-                    sum(1/scanBamRes[[iBamfile]][[iRegion]]$tag$IH[idx])
+                    sum(1/scanBamRes[[iBamfile]][[regionName]]$tag$IH[idx])
             }))
             sum(cnt)
         }))
