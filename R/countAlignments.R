@@ -30,7 +30,7 @@
 
     bamview <- BamViews(bamPaths=bamfile)
 
-    count <- unlist(lapply(split(grange,1), function(range){
+    count <- unlist(lapply(split(grange, 1), function(range){
         nameRange <- names(range)
         if(shift > 0){
             expandedRange <- GRanges(ranges=IRanges(start=start(range)-max(shift), end=end(range)+max(shift)),
@@ -62,24 +62,21 @@
                 ## in region
                 idx <- switch(overlap,
                               startwithin = {
-                                  readLeftPos <-
-                                      ifelse(readIsPlusStrand,
-                                             readLeftPos,
-                                             readLeftPos + readWidth - 1)
+                                  readLeftPos <- ifelse(readIsPlusStrand,
+                                                        readLeftPos,
+                                                        readLeftPos + readWidth - 1)
                                   start(range[regionName]) <= readLeftPos &
                                   readLeftPos <= end(range[regionName])
                               },
                               endwithin = {
-                                  scanBamRes[[iBamfile]][[iRegion]]$pos <-
-                                      ifelse(readIsPlusStrand,
-                                             readLeftPos + readWidth - 1,
-                                             readLeftPos)
+                                  readLeftPos <- ifelse(readIsPlusStrand,
+                                                        readLeftPos + readWidth - 1,
+                                                        readLeftPos)
                                   start(range[regionName]) <= readLeftPos &
                                   readLeftPos <= end(range[regionName])
                               },
                               within = {
-                                  start(range[regionName]) <=
-                                      readLeftPos &
+                                  start(range[regionName]) <= readLeftPos &
                                   (readLeftPos + readWidth - 1) <= end(range[regionName]) &
                                   minoverlap <= readWidth
                               },
