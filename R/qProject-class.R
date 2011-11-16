@@ -77,6 +77,8 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
                    bisulfite=bisulfite, indexLocation=indexLocation, maxHits=maxHits, cacheDir=cacheDir)
     if(missing(alignmentParameter) || is.null(alignmentParameter) || alignmentParameter == "" )
         qproject@alignmentParameter <- .createAlignmentParameters(qproject)
+    else
+        qproject@alignmentParameter <- alignmentParameter
     qproject@alignments <- .loadAlignments(qproject)
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
     return(qproject)
