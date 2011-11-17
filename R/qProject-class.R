@@ -90,7 +90,8 @@ setMethod("show","qProject", function(object){
     cat("Options: paired=", object@paired,
         "\n         junction=", object@junction,
         "\n         bisulfite=", object@bisulfite,
-        "\n         maxHits=", object@maxHits, "\n", sep="")
+        "\n         maxHits=", object@maxHits,
+        "\n         alignmentParameter=", object@alignmentParameter, "\n", sep="")
     cat("Genome:  ", object@genome$name, " is BSgenome=", object@genome$bsgenome, "\n", sep="")
     cat("Aligner: ", object@aligner$pkgname, " Version ", object@aligner$pkgversion, "\n", sep="")
     cat("Samples:\n", paste(object@samples$name, object@samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
