@@ -37,7 +37,7 @@
 
 .createBowtieAlignmentParameters <- function(qproject){
     seqFormat <- ifelse(all(qproject@samples$filetype %in% c("fasta", "bam")), seqFormat <- "-f", "-q")
-    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-k %s -m %s --best --strata", qproject@maxHits, qproject@maxHits))
+    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-v 2 -k %s -m %s --best --strata", qproject@maxHits, qproject@maxHits))
     #samFilename <- sprintf("-S %s", tempfile(pattern=.baseFileName(qproject@samples$filepath), fileext=".sam"))
     alignmentParameters <- paste("bowtie", maxHits, seqFormat)
     return(alignmentParameters)
