@@ -7,10 +7,10 @@ Author: Anita Lerch
 Maintainer: Anita Lerch <anita.lerch@fmi.ch>
 Depends: R (>= 2.14.0), methods, BiocInstaller, Biobase, Biostrings, Rsamtools (>= 1.5.0), BSgenome, IRanges, rtracklayer, ShortRead 
 Imports: 
-Suggests: RUnit, Rbowtie (== 1.0), Rbwa (== 0.1.0)
+Suggests: RUnit, Rbowtie (== 1.0), Rbwa (== 0.1.0), parallel
 Enhances: 
 LinkingTo: Rsamtools
 Description: This package provides a pipeline for the quantification and analysis of Short Reads.
 License: GPL (>= 2)
 LazyLoad: yes
-Collate: qProject-class.R aligner-functions.R countAlignments.R createIndex-functions.R load-functions.R qAlign.R qCount.R preprocessReads.R utilities.R weightAlignments.R zzz.R
+Collate: qProject-class.R aligner-functions.R countAlignments.R createIndex-functions.R load-functions.R qAlign.R qCount.R qQCReport.R preprocessReads.R utilities.R weightAlignments.R zzz.R
