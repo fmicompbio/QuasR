@@ -32,7 +32,7 @@ td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
 
-## BSgenome name (see \code{available.genomes()}), a 'fasta' file 
+## BSgenome name (see available.genomes()), a 'fasta' file 
 ## or a directory containing 'fasta' files
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
 
@@ -44,6 +44,14 @@ project <- qProject(sampleFile, genome=genomeName,
 
 ## Execute the whole alignment including calculating the weights.
 project <- qAlign(project)
+
+## Get full report
+qCount(project, "summary")
+
+## Get count of a GenomicRange
+gr <- GRanges(seq="chr2L", IRanges(1000, width=100000000), strand="+")
+names(gr) <- "Example"
+qCount(project, gr)
 
 ## Save the QuasR project object.
 projectFilename <- qSaveProject(project)
