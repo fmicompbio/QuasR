@@ -79,7 +79,7 @@ preprocessReads <- function(filename, filenameMate=NULL,
                             nrec=nrec))
         colnames(report) <- basename(filename)
     }
-    .progressReport("Successfully terminated the filtering.", phase=1)
+    .progressReport("Successfully finished the filtering.", phase=1)
     return(as.data.frame(report))
 }
 

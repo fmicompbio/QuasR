@@ -34,7 +34,8 @@
         on.exit(unlink(headerFile), add=T)
 
         hitcount <- .Call(.weight_alignments, sortFile, cntFile, headerFile, maxHits)
-        
+        names(hitcount) <- c(0:maxHits, paste(">", maxHits,sep=""))
+    
         if(!file.exists(cntFile))
             stop("failed to create 'BAM' file")
         
@@ -50,6 +51,7 @@
                        conditionMessage(err), file)
         stop(msg)
     })
+
     return(hitcount)
 }
 

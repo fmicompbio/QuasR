@@ -85,6 +85,6 @@ setMethod("qCount",
           #rownames(counts) <- names(query)
           #values(query) <- IRanges::cbind(values(query), counts)
           #values(gRange) <- cbind.data.frame(as.data.frame(val), counts)
-          .progressReport("Successfully terminated the quasr counting.", phase=1)
+          .progressReport("Successfully finished the quasr counting.", phase=1)
           return(counts)
       })

@@ -50,7 +50,7 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
                      annotationFile=NULL, aligner="Rbowtie",
                      projectName="qProject", path=NULL, paired=FALSE,
                      junction=FALSE, bisulfite=FALSE, lib.loc=NULL,
-                     indexLocation=NULL, maxHits=99L,
+                     indexLocation=NULL, maxHits=100L,
                      cacheDir=NULL,
                      alignmentParameter)
 {

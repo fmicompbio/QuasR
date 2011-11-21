@@ -70,8 +70,8 @@
                                               alignmentParameter=qproject@alignmentParameter),
                              stop("The '", qproject@aligner$pkgname, "' Aligner is not supported.")
                              )
-    .weightAlignments(outputFilename, outputFilename, index=index, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
-    return(outputFilename)
+    hitcounts <- .weightAlignments(outputFilename, outputFilename, index=index, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
+    return(list(bamfile=outputFilename, mappingStats=hitcounts))
 }
 
 .alignBowtie <- function(sequences, index, outfile, alignmentParameter, ..., indexDestination=FALSE){

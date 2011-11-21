@@ -48,8 +48,6 @@ Remove adaptors, truncate bases and filter short reads from 'fasta' or 'fastq' f
 
 \author{Anita Lerch}
 
-}
-
 \examples{
 \dontrun{
 #TODO
