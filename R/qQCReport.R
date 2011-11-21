@@ -73,12 +73,14 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
     ns <- nrow(qtiles)
 
     qtilesL <- lapply(1:ns, function(i) {
-        list(stats=do.call(cbind,lapply(qtiles[i,], "[[", 'stats')),
-             n=sapply(qtiles[i,], "[[", 'n'),
-             conf=do.call(cbind,lapply(qtiles[i,], "[[", 'conf')),
-             out=numeric(0), #sapply(qtiles[i,], "[[", 'out'),
+        tmpconf <- do.call(cbind,lapply(qtiles[i,], "[[", 'conf'))
+        tmpxn <- ncol(tmpconf)
+        list(stats=do.call(cbind,lapply(qtiles[i,][1:tmpxn], "[[", 'stats')),
+             n=sapply(qtiles[i,][1:tmpxn], "[[", 'n'),
+             conf=tmpconf,
+             out=numeric(0), #sapply(qtiles[i,][1:tmpxn], "[[", 'out'),
              group=numeric(0), #rep(1:ncol(qtiles), sapply(qtiles[i,], function(x) length(x$out))),
-             names=colnames(qtiles))
+             names=colnames(tmpconf))
     })
     names(qtilesL) <- rownames(qtiles)
 
