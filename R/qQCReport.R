@@ -1,10 +1,10 @@
 qQCReport <- function(qproject, pdfFilename=NULL, ...)
 {
-    if(!is.null(pdfFilename))
+    if(!is.null(pdfFilename)){
         pdf(pdfFilename)
-    else
-        x11()
-    browser()
+        on.exit(dev.off())
+    }
+
 #     if(require(parallel))
 #         cl <- makeCluster(2)
 #     #stopCluster(cl)
@@ -24,30 +24,33 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
                           },
                           seqChunkSize, fnames.fastq)
         qproject@qc$qa <- do.call(rbind, qc1L)
-    }    
-    qL <- .plotQualByCycle(qproject@qc$qa)
-#     qL <- plotQualByCycle(qc1, lmat=rbind(1:2))
-#     qL <- plotQualByCycle(qc1, lmat=matrix(1:25,ncol=5))
-    nL <- .plotNuclByCycle(qproject@qc$qa)
-#         nL <- plotNuclByCycle(qc1, lmat=rbind(1:2))
-    dL <- .plotDuplicated(qproject@qc$qa)
-#         dL <- plotDuplicated(qc1, lmat=matrix(1:18, ncol=3))
-#         dL <- plotDuplicated(qc1, lmat=rbind(1:2))
-#         dL <- plotDuplicated(qc1, lmat=rbind(1:4))
+    }
+  
+    if(is.null(pdfFilename))
+        dev.new()
+    qL <- .plotQualByCycle(qproject@qc$qa, ...)
+    
+    if(is.null(pdfFilename))
+        dev.new()
+    nL <- .plotNuclByCycle(qproject@qc$qa, ...)
+    
+    if(is.null(pdfFilename))
+        dev.new()
+    dL <- .plotDuplicated(qproject@qc$qa, ...)
 
     if(!is.null(qproject@qc$mappingStats)){
-#         mapdata <- matrix(sort(round(runif(202,0,1000)),T),nrow=2,ncol=102,
-#                           dimnames=list(c("mirna","mirna2"),c(0:100,">100")))
-        mL <- .plotMappings(qproject@qc$mappingStats$genome)
-#         mL <- plotMappings(mapdata, breaks=c(0,1,20,50))
+        if(is.null(pdfFilename))
+            dev.new()
+        mL <- .plotMappings(qproject@qc$mappingStats$genome, ...)
     }
 
     if(!is.null(qproject@alignments$genome)){
         fnames.bam <- qproject@alignments$genome
         names(fnames.bam) <- basename(qproject@alignments$genome)
-        eL <- .plotErrorsByCycle(fnames.bam)
+        if(is.null(pdfFilename))
+            dev.new()
+        eL <- .plotErrorsByCycle(fnames.bam, ...)
     }
-    dev.off()
 }
 
 .plotQualByCycle <- function(qcdata, lmat=matrix(1:18, nrow=6, byrow=TRUE)) {
@@ -174,7 +177,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         #if(xleft > lgd$rect$left + lgd$rect$w) {
         if(xleft >= 1 && frqseqW > 5) {
             ytop <- par('usr')[4] - 2.0*par('cxy')[2]
-            yoff <- ytop - 1.8*cumsum(strheight(frqseq, cex=frqseqcex, family="mono"))
+            yoff <- ytop - 1.8*cumsum(strheight(frqseqS, cex=frqseqcex, family="mono"))
             ii <- yoff+diff(yoff[1:2]) > max(bocc[i, 1:xn > floor(xleft)])
             text(x=xleft, y=ytop,     adj=c(0,0), label=paste(nm,"frequent sequences (ppm):",sep="\n"))
             text(x=xleft, y=yoff[ii], adj=c(0,1), label=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
@@ -277,157 +280,3 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
 
     invisible(data)
 }
-
-
-#
-# #dimnames(lst)
-# #lst['mirna2','36']
-# #
-# #boxplot.default
-# #boxplot.stats(c(rnorm(100),runif(100)))
-# #
-# #zL <- lapply(1:nrow(lst), function(i) {
-# #  list(stats=do.call(cbind,lapply(lst[i,], "[[", 'stats')),
-# #       n=sapply(lst[i,], "[[", 'n'),
-# #       conf=do.call(cbind,lapply(lst[i,], "[[", 'conf')),
-# #       out=numeric(0), #sapply(lst[i,], "[[", 'out'),
-# #       group=numeric(0), #rep(1:ncol(lst), sapply(lst[i,], function(x) length(x$out))),
-# #       names=colnames(lst))
-# #})
-# #
-# #boxplot.default
-# #
-# #x11(type="Xlib")
-# ##par(mfrow=c(length(zL),1))
-# #for(i in 1:length(zL)) {
-# #  xn <- length(zL[[i]]$names)
-# #  ym <- max(35,max(zL[[i]]$stats))
-# #  plot(0:1,0:1,type="n", xlab="Position in read (bp)", ylab="Quality score", xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym))
-# #  rect(xleft=seq.int(xn)-0.5, ybottom=-10, xright=seq.int(xn)+0.5, ytop=20,    col=c("#e6afaf","#e6c3c3"), border=NA)
-# #  rect(xleft=seq.int(xn)-0.5, ybottom=20,  xright=seq.int(xn)+0.5, ytop=28,    col=c("#e6d7af","#e6dcc3"), border=NA)
-# #  rect(xleft=seq.int(xn)-0.5, ybottom=28,  xright=seq.int(xn)+0.5, ytop=ym+10, col=c("#afe6af","#c3e6c3"), border=NA)
-# #  do.call("bxp", c(list(zL[[i]], notch=FALSE, width=NULL, varwidth=FALSE, log="", border=par('fg'),
-# #                        pars=list(boxwex=0.8, staplewex=0.5,  outwex=0.5, boxfill="#99999944"),
-# #                        outline=FALSE, horizontal=FALSE, add=TRUE, at=1:xn, axes=FALSE)))
-# #  box()
-# #}
-#
-#
-# # unique/duplicated sequences
-# # measure A: pick random subset of size seqChunkSize and calculate frequencies exhaustively using ShortRead::tables()
-# # measure B: pck random subset of size seqUniqueChunkSize and count their occurrences in ALL sequences using ShortRead::FastqStreamer
-# seqUniuqeChunkSize <- 2e5
-#
-# system.time({
-# frqL <- parLapply(cl, seq_along(fnames.fastq),
-#                   function(i, sChunkSize, sUniqueChunkSize, fnames) {
-#                     #debug: i<-2;sChunkSize<-seqChunkSize;sUniqueChunkSize<-seqUniuqeChunkSize;fnames<-fnames.fastq
-#                     #message(paste("worker",i))
-#                     f <- FastqSampler(fnames[i], n=sUniqueChunkSize)
-#                     testSeqs <- sread(yield(f))
-#                     ## make sure testSeqs don't contain any Ns
-#                     #while(length(i <- which(vcountPattern("N",testSeqs)>0))) {
-#                     #  tmp <- unique(sread(yield(f)))
-#                     #  ii <- which(vcountPattern("N",tmp)==0)
-#                     #  testSeqs[i[1:min(length(i),length(ii))]] <- as.character(tmp[ii[1:min(length(i),length(ii))]])
-#                     #}
-#                     #--> forget this, may never work for low complexity samples
-#                     testSeqs <- unique(as.character(testSeqs))
-#                     testSeqsCount <- integer(length(testSeqs))
-#
-#                     f <- FastqStreamer(fnames[i], n=sChunkSize)
-#                     #ShortRead:::.FastqSampler_g$methods()
-#                     #f$status()
-#                     while (length(s <- as.character(sread(yield(f))))) {
-#                       # check if testSeqs are in s, update counts in restSeqsCount
-#                       # approach A: from ShortRead, very fast: tables(s)
-#
-#                       # approach B, try one: use vcountPDict (only works for constant length patterns)
-#                       #testSeqsDict <- PDict(testSeqs) # this is done outside of the loop
-#                       #cnt <- vcountPDict(testSeqsDict, s, collapse=1) # takes forever :-(
-#                       #system.time({ cnt <- vcountPDict(testSeqsDict, s[1:1000], collapse=1) })
-#                       #   user  system elapsed
-#                       #  3.300   0.023   3.325
-#
-#                       # approach B, try two: use match on character vectors
-#                       tmp <- table(s)
-#                       j <- match(testSeqs, names(tmp))
-#                       jj <- which(!is.na(j))
-#                       testSeqsCount[jj] <- testSeqsCount[jj] + tmp[j[jj]]
-#                     }
-#                     #frq <- table(testSeqsCount)
-#                     names(testSeqsCount) <- testSeqs
-#                     testSeqsCount
-#                   },
-#                   seqChunkSize, seqUniuqeChunkSize, fnames.fastq)
-# }) # ~110s per ~6Mio. reads, vs. ~8s (dupSeqs.cc)
-#
-# #frqL[[i]] <- testSeqsCount
-# #saveRDS(frqL, file="frqL.rds")
-# #frqL <- readRDS("frqL.rds")
-# str(frqL)
-# lapply(frqL,head)
-# lapply(frqL, function(frq) {
-#   # frq <- frqL[[1]]
-#   tab <- table(frq)
-#   plot(c(1,as.numeric(names(tab))), c(0,cumsum(tab))/sum(tab), log="x", type="l")
-# })
-#
-#
-# # BAM quality control
-# #library(ShortRead)
-# fnames.bam <- c(mirna="/work/gbioinfo/stadler/development/QuasR_test_mirna_files/mirna_filtered-bowtieIndex-5bc8ec0d.bam",
-#                 mirna2="/work/gbioinfo/stadler/development/QuasR_test_mirna_files/mirna2_filtered-bowtieIndex-1c2529c7.bam")
-#
-# #showMethods(qa)
-# qc2L <- parLapply(cl, seq <- along(fnames.bam),
-#                   function(i, fnames) {
-#                     qa(fnames[i], type="BAM")
-#                   },
-#                   fnames.bam)
-# qc2 <- do.call(rbind, qc2L)
-#
-# save(qc2, file="qc2.rda")
-# #print(load("qc2.rda"))
-# browseURL(report(qc2, dest="report_bam"))
-#
-#
-# clusterCall(cl, ls)
-# clusterCall(cl, gc)
-#
-# stopCluster(cl)
-#
-#
-#
-#
-# # call specific report-functions:
-# #The report includes R code that can be used to understand how SolexaExportQA-
-# #class objects can be processed; reports are generated as HTML suitable for
-# #browser viewing.
-# #The functions that produce the report tables and graphics are internal to
-# #the package. They can be accessed through calling ShortRead:::functionName
-# #where functionName is one of the functions listed below, organized by report
-# #section.
-# #
-# #Run Summary : .ppnCount, .df2a, .laneLbl, .plotReadQuality
-# #
-# #Read Distribution : .plotReadOccurrences, .freqSequences
-# #
-# #Cycle Specific : .plotCycleBaseCall, .plotCycleQuality
-# #
-# #Tile Performance : .atQuantile, .colorkeyNames, .plotTileLocalCoords, .tile-
-# #
-# #Geometry, .plotTileCounts, .plotTileQualityScore
-# #
-# #Alignment : .plotAlignQuality
-# #
-# #Multiple Alignment : .plotMultipleAlignmentCount
-# #
-# #Depth of Coverage : .plotDepthOfCoverage
-# #
-# #Adapter Contamination : .ppnCount
-#
-#
-# ### see also: http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/
-#
-
