@@ -96,7 +96,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         do.call("bxp", c(list(qtilesL[[i]], notch=FALSE, width=NULL, varwidth=FALSE, log="", border=par('fg'),
                               pars=list(boxwex=0.8, staplewex=0.5,  outwex=0.5, boxfill="#99999944"),
                               outline=FALSE, horizontal=FALSE, add=TRUE, at=1:xn, axes=FALSE)))
-        legend(x="bottomleft", bty="n", legend=rownames(qtiles)[i])
+        text(x=par('usr')[1]+par('cxy')[1]/4, y=par('usr')[3]+par('cxy')[2]/4, adj=c(0,0), label=rownames(qtiles)[i])
         box()
     }
 
@@ -127,9 +127,9 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         matplot(1:xn, t(nfreqL[[i]]), type="o", xlab="Position in read (bp)", ylab="Nucleotide frequency (%)",
                 xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6)
-        legend(x="topleft", bty="n", legend=rownames(nfreq)[i])
-        #legend(x="topright", bty="n", ncol=3, lwd=2, lty=1, pch=20, pt.cex=0.6, col=1:5, legend=rownames(nfreqL[[i]]))
-        legend(x="topright", bty="n", ncol=3, text.col=1:5, legend=rownames(nfreqL[[i]]))
+        cxy <- par('cxy')
+        text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1), label=rownames(nfreq)[i])
+        text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=1:5, label=rownames(nfreqL[[i]]))
     }
 
     invisible(nfreqL)
