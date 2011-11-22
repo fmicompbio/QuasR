@@ -165,9 +165,8 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         axis(1, at=1:xn, label=breakNames)
         axis(2)
         box()
-        #lgd <- legend(x="topleft", bty="n", legend=nm)
         frqseqcex <- 0.8
-        frqseqS <- sprintf("%s",fs[,'sequence'])
+        frqseqS <- sprintf("%-*s",max(nchar(as.character(fs[,'sequence']))),fs[,'sequence'])
         frqseqF <- sprintf("(%6.0f)",fs[,'count']/sum(runValue(nocc[[i]])*as.numeric(runLength(nocc[[i]])))*1e6)
         frqseqJ <- " "
         frqseqW <- max(nchar(as.character(fs[,'sequence'])))
@@ -178,13 +177,16 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
             frqseqS <- strtrim(frqseqS,frqseqW)
             xleft <- par('usr')[2] - max(strwidth(paste(frqseqS,frqseqJ,frqseqF,sep=""), cex=frqseqcex, family="mono"))
         }
-        #if(xleft > lgd$rect$left + lgd$rect$w) {
         if(xleft >= 1 && frqseqW > 5) {
             ytop <- par('usr')[4] - 2.0*par('cxy')[2]
             yoff <- ytop - 1.8*cumsum(strheight(frqseqS, cex=frqseqcex, family="mono"))
             ii <- yoff+diff(yoff[1:2]) > max(bocc[i, 1:xn > floor(xleft)])
-            text(x=xleft, y=ytop,     adj=c(0,0), label=paste(nm,"frequent sequences (ppm):",sep="\n"))
-            text(x=xleft, y=yoff[ii], adj=c(0,1), label=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
+            if(any(ii)) {
+                text(x=xleft, y=ytop,     adj=c(0,0), label=paste(nm,"frequent sequences (ppm):",sep="\n"))
+                text(x=xleft, y=yoff[ii], adj=c(0,1), label=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
+            } else {
+                text(x=xleft, y=ytop,     adj=c(0,0), label=nm)
+            }
         }
     }
 
