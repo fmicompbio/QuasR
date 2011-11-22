@@ -127,6 +127,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         matplot(1:xn, t(nfreqL[[i]]), type="o", xlab="Position in read (bp)", ylab="Nucleotide frequency (%)",
                 xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6)
+        abline(h=0,lty=2,col="gray")
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1), label=rownames(nfreq)[i])
         text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=1:5, label=rownames(nfreqL[[i]]))
@@ -159,7 +160,8 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         ym <- max(50,ceiling(max(bocc[i,]) /5) *5)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         plot(1:xn, bocc[i,], type="o", xlab="Sequence duplication level", ylab="Percent of unique sequences",
-             xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6, axes=FALSE, panel.first=abline(h=0, col="gray"))
+             xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6, axes=FALSE,
+             panel.first=abline(h=0, lty=2, col="gray"))
         axis(1, at=1:xn, label=breakNames)
         axis(2)
         box()
