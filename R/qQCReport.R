@@ -194,6 +194,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
 }
 
 .plotMappings <- function(mapdata, breaks=c(0,1,5,10,50,100), cols=c("#E41A1C","#006D2C","#31A354","#74C476","#BAE4B3","#EDF8E9","#BDBDBD")) {
+    mapdata <- mapdata[nrow(mapdata):1,]
     if(breaks[length(breaks)]<Inf)
         breaks <- c(breaks,breaks[length(breaks)]+1,Inf)
     breakNames <- c(as.character(breaks[1:(length(breaks)-2)]),paste(">",breaks[length(breaks)-2],sep=""))
@@ -216,13 +217,13 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
     }
 
     par(las=1, mar=c(5,4+7,4,1)+.1, mfrow=c(2,1))
-    mp <- barplot(t(mapdataBinned), horiz=TRUE, beside=FALSE, col=cols, border=NA, ylim=c(0,nrow(mapdata)+1),
-                  main='', xlab='No. of sequences', ylab='', names.arg=rownames(mapdata))
-    legend(x=sum(par('usr')[1:2])/2, y=par('usr')[4], xjust=.5, yjust=0, bty='n',
+    mp <- barplot(t(mapdataBinned)/1e6, horiz=TRUE, beside=FALSE, col=cols, border=NA, ylim=c(0,nrow(mapdata)+1),
+                  main='', xlab='Number of sequences (Mio.)', ylab='', names.arg=rownames(mapdata))
+    legend(x=sum(par('usr')[1:2])/2, y=par('usr')[4], xjust=.5, yjust=0, bty='n', x.intersp=0.25,
            title='No. of hits:', fill=cols, ncol=length(cols), legend=breakNames, xpd=NA)
     mp <- barplot(t(mapdataBinned/rowSums(mapdata))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA, ylim=c(0,nrow(mapdata)+1),
                   main='', xlab='Percent of sequences', ylab='', names.arg=rownames(mapdata))
-    legend(x=sum(par('usr')[1:2])/2, y=par('usr')[4], xjust=.5, yjust=0, bty='n',
+    legend(x=sum(par('usr')[1:2])/2, y=par('usr')[4], xjust=.5, yjust=0, bty='n', x.intersp=0.25,
            title='No. of hits:', fill=cols, ncol=length(cols), legend=breakNames, xpd=NA)
 
     invisible(mapdataBinned)
