@@ -145,9 +145,13 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
                function(x) Rle(values=x[[1]], lengths=x[[2]]), simplify=FALSE)
     ns <- nrow(nocc)
 
+    nbin <- length(breaks)-1
     bocc <- do.call(rbind, lapply(1:ns, function(i) {
         bin <- findInterval(runValue(nocc[[i]]), breaks)
-        tapply(runLength(nocc[[i]]),bin,sum) /length(nocc[[i]]) *100
+        tmp <- tapply(runLength(nocc[[i]]),bin,sum) /length(nocc[[i]]) *100
+        tmp2 <- numeric(nbin)
+        tmp2[ as.integer(names(tmp)) ] <- tmp
+        tmp2
     }))
     dimnames(bocc) <- list(sampleName=rownames(nocc), duplicationLevel=breakNames)
 
