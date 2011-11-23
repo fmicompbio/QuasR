@@ -260,7 +260,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         ac <- file.info(fname)$size /50 /sum(as.numeric(trg))
         # select chromosomes to load
         chunksize <- round(N/ac)
-        selChr <- c(names(trg)[1], names(trg[-1])[cumsum(as.numeric(trg[-1]))+trg[1]<chunksize])
+        selChr <- names(trg)[c(TRUE, cumsum(as.numeric(trg[-length(trg)]))<=chunksize)]
         reg <- GRanges(selChr, IRanges(start=1, end=trg[selChr]))
         # select subset of the last chromosome
         end(reg)[length(reg)] <- min(trg[selChr[length(selChr)]], chunksize - sum(as.numeric(width(reg[-length(reg)]))))
@@ -274,7 +274,10 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         nErr[as.integer(names(tmp))] <- tmp
         list(cumcvg=cumcvg, nErr=nErr)
     })
-    names(data) <- names(fnames)
+    if(is.null(names(fnames)))
+        names(data) <- sub(".bam$","",basename(fnames))
+    else
+        names(data) <- names(fnames)
 
     layout(lmat)
     for(i in 1:ns) {
@@ -283,7 +286,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
         ym <- max(5,ceiling(max(frq)))
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         plot(1:xn, frq, type='l', lwd=2, col="#E41A1C", ylim=c(0,ym), xaxs="i", xlim=c(0,xn)+.5, lty=1, pch=20, cex=0.6,
-             main="", xlab='Position in read (bp)', ylab='Mismatche bases (% of aligned)')
+             main="", xlab='Position in read (bp)', ylab='Mismatche bases (%)')
         abline(h=0, lty=2, col='gray')
         #abline(v=c(12,25), lty=3, col='red')
         legend(x="topleft", bty="n", legend=names(data)[i])
