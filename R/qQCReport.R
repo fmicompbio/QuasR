@@ -289,7 +289,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
              main="", xlab='Position in read (bp)', ylab='Mismatche bases (%)')
         abline(h=0, lty=2, col='gray')
         #abline(v=c(12,25), lty=3, col='red')
-        legend(x="topleft", bty="n", legend=names(data)[i])
+        text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1), label=names(data)[i])
     }
 
     invisible(data)
