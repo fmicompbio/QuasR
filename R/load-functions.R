@@ -2,7 +2,6 @@
 {
     .progressReport("Read sample file")
     tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
-    browser()
     if(!paired){
         ## convert to absolut filename
         tab$FileName[dirname(tab$FileName) == "."] <- 
@@ -19,26 +18,26 @@
         return(data.frame(name=tab$SampleName, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
     }else{
         ## convert to absolut filename
-        tab$FileName[dirname(tab$FileName) == "."] <-
-            file.path(dirname(file), tab$FileName[dirname(tab$FileName) == "."])        
-        tab$FileName[substr(tab$FileName, 1, 1) != "/"]  <-
-            file.path(dirname(file), tab$FileName[substr(tab$FileName, 1, 1) != "/"])
-        tab$FileNameMate[dirname(tab$FileNameMate) == "."] <-
-            file.path(dirname(file), tab$FileNameMate[dirname(tab$FileNameMate) == "."])        
-        tab$FileNameMate[substr(tab$FileNameMate, 1, 1) != "/"]  <-
-            file.path(dirname(file), tab$FileNameMate[substr(tab$FileNameMate, 1, 1) != "/"])
+        tab$FileName1[dirname(tab$FileName1) == "."] <-
+            file.path(dirname(file), tab$FileName1[dirname(tab$FileName1) == "."])        
+        tab$FileName1[substr(tab$FileName1, 1, 1) != "/"]  <-
+            file.path(dirname(file), tab$FileName1[substr(tab$FileName1, 1, 1) != "/"])
+        tab$FileName2[dirname(tab$FileName2) == "."] <-
+            file.path(dirname(file), tab$FileName2[dirname(tab$FileName2) == "."])        
+        tab$FileName2[substr(tab$FileName2, 1, 1) != "/"]  <-
+            file.path(dirname(file), tab$FileName2[substr(tab$FileName2, 1, 1) != "/"])
         ## check if files exits
-        checkFile <- file.exists(tab$FileName)
+        checkFile <- file.exists(tab$FileName1)
         if(any(!checkFile))
-            stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
-        checkFile <- file.exists(tab$FileNameMate)
+            stop("File not found: ", paste(tab$FileName1[!checkFile], collapse=", "))
+        checkFile <- file.exists(tab$FileName2)
         if(any(!checkFile))
-            stop("File not found: ", paste(tab$FileNameMate[!checkFile], collapse=", "))
+            stop("File not found: ", paste(tab$FileName2[!checkFile], collapse=", "))
         ## check if filename is duplicated
-        if(any(checkFile <- duplicated(basename(tab$FileName))))
-            stop("Filename ", paste(tab$FileName[checkFile], collapse=", "), "is duplicated.") #TODO for mate too
-        return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName),
-                          filepath2=I(tab$FileNameMate), filetype=.fileType(tab$FileName)))
+        if(any(checkFile <- duplicated(basename(tab$FileName1))))
+            stop("Filename ", paste(tab$FileName1[checkFile], collapse=", "), "is duplicated.") #TODO for mate too
+        return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName1),
+                          filepath2=I(tab$FileName2), filetype=.fileType(tab$FileName1)))
     }
 }
 
