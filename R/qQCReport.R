@@ -1,39 +1,48 @@
-qQCReport <- function(qproject, pdfFilename=NULL, ...)
+qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 {
     if(!is.null(pdfFilename)){
-        pdf(pdfFilename)
+        pdf(pdfFilename, paper="default", onefile=TRUE, width=0, height=0)
         on.exit(dev.off())
     }
 
-#     if(require(parallel))
-#         cl <- makeCluster(2)
-#     #stopCluster(cl)
-#     clusterCall(cl, function() library("ShortRead"))
+    label <- as.character(qproject@samples$name)
+    for(x in as.character(unique(label))){
+        idx <- label == x
+        if(sum(idx) > 1)
+            label[idx] <- paste(label[idx], ".", 1:sum(idx), sep="")
+    }
 
-    # FASTQ quality control
-    seqChunkSize <- 1e6
-    fnames.fastq <- qproject@samples$filepath[qproject@samples$filetype == "fastq"] # TODO allow also non fastq files
-    names(fnames.fastq) <- basename(fnames.fastq)
-
+    # FASTQ/A quality control
     if(is.null(qproject@qc$qa)){
-#         qc1L <- parLapply(cl, seq_along(fnames.fastq),
-        qc1L <- lapply(seq_along(fnames.fastq),
-                          function(i, sChunkSize, fnames){
-                              f <- FastqSampler(fnames[i], sChunkSize)
-                              qa(yield(f), names(fnames)[i], type="fastq")
-                          },
-                          seqChunkSize, fnames.fastq)
+#         qc1L <- parLapply(qproject@cluster, seq_along(qproject@samples$name),
+        qc1L <- lapply(seq_along(qproject@samples$name),
+                       function(i, sChunkSize, fnames){
+                           switch(as.character(qproject@samples$filetype[i]),
+                                  fastq = {
+                                      f <- FastqSampler(qproject@samples$filepath[i], n=sChunkSize)
+                                      qa(yield(f), label[i]) # TODO qproject@samples$name[i]
+                                  },
+                                  fasta = {
+                                      reads <- readFasta(as.character(qproject@samples$filepath[i]), nrec=sChunkSize)
+                                      qa(reads, label[i])
+                                  },
+                                  bam = {
+                                      ShortRead:::.ShortReadQQA(lst <- qa(as.character(qproject@samples$filepath[i]),
+                                                                   type="BAM")@.srlist)
+                                  })
+                       },
+                       chunkSize)
         qproject@qc$qa <- do.call(rbind, qc1L)
     }
-  
+
     if(is.null(pdfFilename))
         dev.new()
     qL <- .plotQualByCycle(qproject@qc$qa, ...)
-    
+
     if(is.null(pdfFilename))
         dev.new()
     nL <- .plotNuclByCycle(qproject@qc$qa, ...)
-    
+
     if(is.null(pdfFilename))
         dev.new()
     dL <- .plotDuplicated(qproject@qc$qa, ...)
@@ -41,15 +50,16 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
     if(!is.null(qproject@qc$mappingStats)){
         if(is.null(pdfFilename))
             dev.new()
+        rownames(qproject@qc$mappingStats$genome) <- label
         mL <- .plotMappings(qproject@qc$mappingStats$genome, ...)
     }
 
-    if(!is.null(qproject@alignments$genome)){
-        fnames.bam <- qproject@alignments$genome
-        names(fnames.bam) <- basename(qproject@alignments$genome)
+    if(!any(is.na(qproject@alignments$genome))){
+        bamfilename <- qproject@alignments$genome
+        names(bamfilename) <- label
         if(is.null(pdfFilename))
             dev.new()
-        eL <- .plotErrorsByCycle(fnames.bam, ...)
+        eL <- .plotErrorsByCycle(bamfilename, ...)
     }
 }
 
@@ -295,3 +305,69 @@ qQCReport <- function(qproject, pdfFilename=NULL, ...)
 
     invisible(data)
 }
+
+
+.qa_ShortRead <-
+    function(dirPath, lane, ..., verbose=FALSE)
+{
+    if (missing(lane))
+        .throw(SRError("UserArgumentMismatch",
+                       "'%s' must be '%s'", "lane", "character(1)"))
+    obj <- dirPath
+    alf <- alphabetFrequency(sread(obj), baseOnly=TRUE, collapse=TRUE)
+#     bqtbl <- alphabetFrequency(quality(obj), collapse=TRUE)
+#     rqs <- .qa_qdensity(quality(obj))
+    freqtbl <- tables(sread(obj))
+    abc <- alphabetByCycle(obj)
+    ac <- ShortRead:::.qa_adapterContamination(obj, lane, ...)
+##    perCycleBaseCall <- ShortRead:::.qa_perCycleBaseCall(abc, lane)
+#     perCycleQuality <- .qa_perCycleQuality(abc, quality(obj), lane)
+    lst <- list(readCounts=data.frame(
+           read=length(obj), filter=NA, aligned=NA,
+           row.names=lane),
+         baseCalls=data.frame(
+           A=alf[["A"]], C=alf[["C"]], G=alf[["G"]], T=alf[["T"]],
+           N=alf[["other"]], row.names=lane),
+          readQualityScore=data.frame(
+           quality=NULL, #rqs$x,
+           density=NULL, #rqs$y,
+           lane=NULL, #lane,
+           type=NULL #"read"
+           ),
+          baseQuality=data.frame(
+           score=NULL, #names(bqtbl),
+           count=NULL, #as.vector(bqtbl),
+           lane=NULL #lane
+           ),
+         alignQuality=data.frame(
+           score=as.numeric(NA),
+           count=as.numeric(NA),
+           lane=lane, row.names=NULL),
+         frequentSequences=data.frame(
+           sequence=names(freqtbl$top),
+           count=as.integer(freqtbl$top),
+           type="read",
+           lane=lane),
+         sequenceDistribution=cbind(
+           freqtbl$distribution,
+           type="read",
+           lane=lane),
+          perCycle=list(
+            baseCall=NULL, #perCycleBaseCall,
+            quality=NULL #perCycleQuality
+              ),
+         perTile=list(
+           readCounts=data.frame(
+             count=integer(0), type=character(0),
+             tile=integer(0), lane=character(0)),
+           medianReadQualityScore=data.frame(
+             score=integer(), type=character(), tile=integer(),
+             lane=integer(), row.names=NULL)),
+         adapterContamination=ac
+
+         )
+
+    ShortRead:::.ShortReadQQA(lst)
+}
+
+setMethod(qa, "ShortRead", .qa_ShortRead)

@@ -54,8 +54,8 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
     }
 
     # sort and index external bamfile
-    .progressReport("Sort and index external bamfile")
     if(any(idx <- qproject@samples$filetype == "bam")){
+        .progressReport("Sort and index external bamfile")
         bamfile <- sortBam(as.character(qproject@samples$filepath[idx]), tempfile(tmpdir=qproject@cacheDir))
         file.rename(bamfile, qproject@samples$filepath[idx])
         indexBam(as.character(qproject@samples$filepath[idx]))
