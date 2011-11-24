@@ -16,7 +16,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
     if(is.null(qproject@qc$qa)){
 #         qc1L <- parLapply(qproject@cluster, seq_along(qproject@samples$name),
         qc1L <- lapply(seq_along(qproject@samples$name),
-                       function(i, sChunkSize, fnames){
+                       function(i, sChunkSize, qproject){
                            switch(as.character(qproject@samples$filetype[i]),
                                   fastq = {
                                       f <- FastqSampler(qproject@samples$filepath[i], n=sChunkSize)
@@ -31,7 +31,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
                                                                    type="BAM")@.srlist)
                                   })
                        },
-                       chunkSize)
+                       chunkSize, qproject)
         qproject@qc$qa <- do.call(rbind, qc1L)
     }
 
@@ -278,8 +278,13 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
         param <- ScanBamParam(tag="MD", what=c("cigar"), which=reg, flag=scanBamFlag(isUnmappedQuery=FALSE))
         aln <- scanBam(fname, param=param)
         cvg <- table(unlist(lapply(aln, function(x) cigarToWidth(x$cigar))))
-        cumcvg <- rep(sum(cvg),as.integer(names(cvg)[length(cvg)])) - c(rep(0,as.integer(names(cvg)[1])),cumsum(as.numeric(cvg))[-length(cvg)])
-        tmp <- table(unlist(lapply(aln, function(x) .localMDtoErrPos(x$tag$MD))))
+        cumcvg <- rep(sum(cvg), as.integer(names(cvg)[length(cvg)])) - c(rep(0,as.integer(names(cvg)[1])),cumsum(as.numeric(cvg))[-length(cvg)])
+        tmp <- table(unlist(lapply(aln, function(x){
+            if(length(x$cigar))
+             .localMDtoErrPos(x$tag$MD)
+            else
+                integer(0)
+            })))
         nErr <- rep(0,length(cumcvg))
         nErr[as.integer(names(tmp))] <- tmp
         list(cumcvg=cumcvg, nErr=nErr)
@@ -319,8 +324,14 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 #     rqs <- .qa_qdensity(quality(obj))
     freqtbl <- tables(sread(obj))
     abc <- alphabetByCycle(obj)
+    names(dimnames(abc)) <- c("base", "cycle")
+    dimnames(abc)$cycle <- as.character(1:dim(abc)[2])
     ac <- ShortRead:::.qa_adapterContamination(obj, lane, ...)
-##    perCycleBaseCall <- ShortRead:::.qa_perCycleBaseCall(abc, lane)
+    perCycleBaseCall <- data.frame(Cycle = as.integer(colnames(abc)[col(abc)]), 
+        Base = factor(rownames(abc)[row(abc)]), Count = as.vector(abc), 
+        lane = lane, row.names = NULL)
+    perCycleBaseCall <- perCycleBaseCall[perCycleBaseCall$Count != 0, ]
+#     perCycleBaseCall <- ShortRead:::.qa_perCycleBaseCall(abc, lane)
 #     perCycleQuality <- .qa_perCycleQuality(abc, quality(obj), lane)
     lst <- list(readCounts=data.frame(
            read=length(obj), filter=NA, aligned=NA,
@@ -353,7 +364,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
            type="read",
            lane=lane),
           perCycle=list(
-            baseCall=NULL, #perCycleBaseCall,
+            baseCall=perCycleBaseCall,
             quality=NULL #perCycleQuality
               ),
          perTile=list(
