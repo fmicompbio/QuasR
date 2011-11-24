@@ -8,7 +8,7 @@ bamfileToWig <- function(bamFname, wigFname=NULL, width=100L) {
     wigFname <- paste(sub(".bam$","",bamFname),".wig")
 
   .progressReport(paste("converting",bamFname,"to wig"), phase=-1)
-  res <- .Call(.bamfile_to_wig, bamFname, wigFname, width)
+  res <- .Call(.bamfile_to_wig, bamFname, wigFname, as.integer(width))
   .progressReport(paste("successfully created",wigFname), phase=1)
 
   return(res)

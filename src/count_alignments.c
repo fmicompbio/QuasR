@@ -33,7 +33,7 @@ typedef struct {
   @param  todo  todo
   @return    todo
  */
-int32_t _get_inverse_weight(const bam1_t *b){
+int32_t get_inverse_weight(const bam1_t *b){
     uint8_t *w = bam_aux_get(b, "IH");
     //Rprintf("Ptr-%p ", w);
     if(w != 0)
@@ -52,7 +52,7 @@ static int _fetch_any(const bam1_t *hit, void *data){
     fetch_param *fparam = (fetch_param*)data;
     //int32_t w = bam_aux2i(bam_aux_get(hit,"IH"));
     //fparam->sum += 1.0/w;
-    fparam->sum += 1.0/_get_inverse_weight(hit);
+    fparam->sum += 1.0/get_inverse_weight(hit);
     return 0;
 }
 
@@ -64,7 +64,7 @@ static int _fetch_any_shift(const bam1_t *hit, void *data){
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) - (fparam->start - fparam->shift) >= fparam->minoverlap
 	   && (fparam->end - fparam->shift) - hit->core.pos >= fparam->minoverlap)
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit) //TODO length(hit) if minoverlap filterout also to short reads
 		fparam->sum += 1.0/w;
 	}
@@ -74,7 +74,7 @@ static int _fetch_any_shift(const bam1_t *hit, void *data){
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) - (fparam->start + fparam->shift) >= fparam->minoverlap
 	   && (fparam->end + fparam->shift) - hit->core.pos >= fparam->minoverlap)
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -93,7 +93,7 @@ static int _fetch_within_shift(const bam1_t *hit, void *data){
 	   && (fparam->start - fparam->shift) <= hit->core.pos
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) <= (fparam->end - fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -103,7 +103,7 @@ static int _fetch_within_shift(const bam1_t *hit, void *data){
 	   && (fparam->start + fparam->shift) <= hit->core.pos 
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) <= (fparam->end + fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -121,7 +121,7 @@ static int _fetch_startwithin_shift(const bam1_t *hit, void *data){
 	   && (fparam->start - fparam->shift) <= hit->core.pos
 	   && hit->core.pos <= (fparam->end - fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -131,7 +131,7 @@ static int _fetch_startwithin_shift(const bam1_t *hit, void *data){
 	   && (fparam->start + fparam->shift) <= (int)bam_calend(&hit->core, bam1_cigar(hit)) 
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) <= (fparam->end + fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -149,7 +149,7 @@ static int _fetch_endwithin_shift(const bam1_t *hit, void *data){
 	   && (fparam->start - fparam->shift) <= (int)bam_calend(&hit->core, bam1_cigar(hit))
 	   && (int)bam_calend(&hit->core, bam1_cigar(hit)) <= (fparam->end - fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}
@@ -159,7 +159,7 @@ static int _fetch_endwithin_shift(const bam1_t *hit, void *data){
 	   && (fparam->start + fparam->shift) <= hit->core.pos 
 	   && hit->core.pos <= (fparam->end + fparam->shift))
 	{
-	    int32_t w = _get_inverse_weight(hit);
+	    int32_t w = get_inverse_weight(hit);
 	    if(fparam->maxhit == 0 || w <= fparam->maxhit)
 		fparam->sum += 1.0/w;
 	}

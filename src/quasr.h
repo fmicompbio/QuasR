@@ -21,6 +21,7 @@ SEXP weight_alignments(SEXP bam_in, SEXP bam_out, SEXP header, SEXP max_hits);
 
 //count_alignments.c
 SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP stranded, SEXP overlap_type, SEXP min_overlap, SEXP shift, SEXP maxhit);
+int32_t get_inverse_weight(const bam1_t *b);
 
 //export_wig.c
 SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP w);

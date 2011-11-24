@@ -40,7 +40,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width) {
     if (idx == 0) // index is unavailable
         error("BAM index unavailable");
 
-    FILE *fout = fopen(translateChar(asChar(wig_out), "w");
+    FILE *fout = fopen(translateChar(asChar(wig_out)), "w");
     if (fout == NULL)
 	error("could not create outfile: %s\n", wig_out);
 
@@ -55,7 +55,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width) {
 	    continue;
 
 	// get alignment inverse weight (aux tag "IH")
-	ih = _get_inverse_weight(hit);
+	ih = get_inverse_weight(hit);
 	/*
 	  int32_t hit->core.pos : 0-based leftmost coordinate
 	  int32_t hit->core.tid : chromosome ID, defined by bam_header_t
