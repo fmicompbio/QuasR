@@ -36,11 +36,11 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width) {
         error("invalid header");
     }
 
-    bam_index_t *idx = bam_index_load(bam_in); // load BAM index
+    bam_index_t *idx = bam_index_load(translateChar(asChar(bam_in))); // load BAM index
     if (idx == 0) // index is unavailable
         error("BAM index unavailable");
 
-    FILE *fout = fopen(wig_out, "w");
+    FILE *fout = fopen(translateChar(asChar(wig_out), "w");
     if (fout == NULL)
 	error("could not create outfile: %s\n", wig_out);
 
