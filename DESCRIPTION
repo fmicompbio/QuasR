@@ -13,4 +13,4 @@ LinkingTo: Rsamtools
 Description: This package provides a pipeline for the quantification and analysis of Short Reads.
 License: GPL (>= 2)
 LazyLoad: yes
-Collate: qProject-class.R aligner-functions.R countAlignments.R createIndex-functions.R load-functions.R qAlign.R qCount.R qQCReport.R preprocessReads.R utilities.R weightAlignments.R zzz.R
+Collate: qProject-class.R aligner-functions.R countAlignments.R createIndex-functions.R load-functions.R qAlign.R qCount.R qQCReport.R preprocessReads.R utilities.R weightAlignments.R export-functions.R zzz.R
