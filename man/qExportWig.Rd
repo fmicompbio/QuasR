@@ -21,9 +21,9 @@ files of the \sQuote{QuasR} project.
     be generated. Either \sQuote{NULL}, a single file name for
     \sQuote{combined=TRUE}, or a vector of the same length as the number
     of samples (bam files) in \sQuote{qproject} for
-    \sQuote{combined=FALSE}. If \sQuote{NULL}, the wig file names are
-    generated from the name of the bam files with genomic alignments with
-    ".wig" replacing the ".bam" extension.}
+    \sQuote{combined=FALSE}. If \sQuote{NULL} (only possible if
+    \sQuote{combinded=FALSE}), the wig file names are generated from the
+    names of the genomic bam files with ".wig" replacing the ".bam" extension.}
   \item{combined}{If TRUE, a single multi-track wig file will be
     generated containing a track for each of the samples (genomic bam
     files) in \sQuote{qproject}.}
