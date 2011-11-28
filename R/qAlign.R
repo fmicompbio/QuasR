@@ -3,68 +3,60 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
     .progressReport("Starting alignments to genome", phase=-1)
     if(!is(qproject, "qProject"))
         stop("The object '", class(qproject), "' is not a 'qProject' object.")
-    if(any(idx <- is.na(qproject@alignments$genome))){
+    if(any(idx <- is.na(qproject@env$alignments$genome))){ 
         ## load genome index
-        qproject@index <- .loadIndex(qproject, lib=lib, lib.loc=lib.loc)
+        qproject@env$index$genome <- .loadIndex(qproject, lib=lib, lib.loc=lib.loc)
         ## align reads to genome
-        genomeAlignments <- lapply(qproject@samples$filepath[idx],
+        genomeAlignments <- lapply(qproject@env$samples$filepath[idx],
                                                 .align,
-                                                index=qproject@index,
+                                                index=qproject@env$index$genome,
                                                 qproject=qproject)
-        names(genomeAlignments) <- basename(qproject@samples$filepath[idx])
-        qproject@alignments$genome[idx] <- unlist(lapply(genomeAlignments, "[[", "bamfile"))
-        qproject@qc$mappingStats$genome <- t(as.data.frame(lapply(genomeAlignments, "[[", "mappingStats")))
-#         qproject@alignments$genome[idx] <- unlist(lapply(qproject@samples$filepath[idx],
-#                                                 .align,
-#                                                 index=qproject@index,
-#                                                 qproject=qproject))
+        names(genomeAlignments) <- basename(qproject@env$samples$filepath[idx])
+        qproject@env$alignments$genome[idx] <- unlist(lapply(genomeAlignments, "[[", "bamfile"))
+        qproject@env$qc$mappingStats$genome <- t(as.data.frame(lapply(genomeAlignments, "[[", "mappingStats")))
         ## TODO get unmapped reads
         ## TODO align to exon-junction-db 
     }
 
     ## create index and align unmapped reads to annotation
-    if(!is.null(qproject@annotations) && any(is.na(qproject@alignments))){
+    if(!is.null(qproject@env$annotations) && any(is.na(qproject@env$alignments))){
         ## get unmapped reads
         .progressReport("Get unmapped reads")
-        unmapped <- unlist(lapply(qproject@alignments$genome, .unmappedToFasta))
+        unmapped <- unlist(lapply(qproject@env$alignments$genome, .unmappedToFasta))
         on.exit(unlink(unmapped))        
         ## create auxiliary index
         .progressReport("Creating index of auxiliaries")
         auxIndexes <- .createAuxiliaryIndex(qproject)
-        names(auxIndexes) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
-        on.exit(unlink(auxIndexes$path))
+#         on.exit(unlink(auxIndexes$path)) ## TODO delete aux index file in the end
+        qproject@env$index[names(auxIndexes)] <- auxIndexes
+        auxIndexes <- names(auxIndexes)
         ## align unmapped reads auxiliary index
         .progressReport("Starting alignments to auxiliaries")
-        auxAlignment <- lapply(auxIndexes, function(auxIndex){ # TODO why index creation not in this loop
-            idx <- is.na(qproject@alignments[auxIndex$shortname])
+        lapply(auxIndexes, function(auxIndex){
+            idx <- is.na(qproject@env$alignments[auxIndex])
             auxAlign <- lapply(unmapped[idx],
                                   .align,
-                                  index=auxIndex,
+                                  index=qproject@env$index[[auxIndex]],
                                   qproject=qproject)
-            names(auxAlign) <- basename(qproject@samples$filepath[idx])
-            qproject@alignments[idx, auxIndex$shortname] <- unlist(lapply(auxAlign, "[[", "bamfile"))
-            qproject@qc$mappingStats[[auxIndex$shortname]] <- t(as.data.frame(lapply(auxAlign, "[[", "mappingStats")))         
-#             qproject@alignments[idx, auxIndex$shortname] <- unlist(lapply(unmapped[idx],
-#                           .align,
-#                           index=auxIndex,
-#                           qproject=qproject))
-            return(qproject@alignments[, auxIndex$shortname])
+            names(auxAlign) <- basename(qproject@env$samples$filepath[idx])
+            qproject@env$alignments[idx, auxIndex] <- unlist(lapply(auxAlign, "[[", "bamfile"))
+            qproject@env$qc$mappingStats[[auxIndex]] <- t(as.data.frame(lapply(auxAlign, "[[", "mappingStats")))
         })
-        qproject@alignments <- cbind.data.frame(genome=qproject@alignments$genome, auxAlignment, stringsAsFactors=FALSE)
     }
 
     # sort and index external bamfile
-    if(any(idx <- qproject@samples$filetype == "bam")){
+    if(any(idx <- qproject@env$samples$filetype == "bam")){
         .progressReport("Sort and index external bamfile")
-        bamfile <- sortBam(as.character(qproject@samples$filepath[idx]), tempfile(tmpdir=qproject@cacheDir))
-        file.rename(bamfile, qproject@samples$filepath[idx])
-        indexBam(as.character(qproject@samples$filepath[idx]))
+        bamfile <- sortBam(as.character(qproject@env$samples$filepath[idx]), tempfile(tmpdir=qproject@env$cacheDir))
+        file.rename(bamfile, qproject@env$samples$filepath[idx])
+        indexBam(as.character(qproject@env$samples$filepath[idx]))
     }
 #     .progressReport("Weight alignments")
-#     lapply(t(qproject@alignments),
+#     lapply(t(qproject@env$alignments$genome),
 #            function(elem){
 #                .weightAlignments(elem, elem, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
 #            })
+    qproject@env$index <- qproject@env$index["genome"] ## remove aux indexes
     .progressReport("Successfully finished the quasr alignment.", phase=1)
     return(qproject)
 }

@@ -41,16 +41,16 @@
     return(type)
 }
 
-.createBamFilename <- function(path, sampleFilename, genomeName)
+.createBamFilename <- function(bamfileDir, sampleFilename, genomeName)
 {
-    if(is.null(path))
+    if(is.null(bamfileDir))
 #         fn <- file.path(dirname(sampleFilename), sprintf("%s-%s.bam", .baseFileName(sampleFilename), genomeName))
         fn <- tempfile(tmpdir=dirname(sampleFilename),
                    pattern=sprintf("%s-%s-", .baseFileName(sampleFilename), genomeName), 
                    fileext=".bam")
     else 
 #         fn <- file.path(path, sprintf("%s-%s.bam", .baseFileName(sampleFilename), genomeName))
-        fn <- tempfile(tmpdir=path,
+        fn <- tempfile(tmpdir=bamfileDir,
                    pattern=sprintf("%s-%s-", .baseFileName(sampleFilename), genomeName), 
                    fileext=".bam")
     return(fn)

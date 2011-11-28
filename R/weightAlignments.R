@@ -5,9 +5,9 @@
     destination <- unlist(strsplit(file, "\\.bam$"))
     d0 <- paste(destination, "bam", sep=".")
 
-    maxHits <- qproject@maxHits
+    maxHits <- qproject@env$maxHits
     allowedMaxHits <- .Call(.getAllowedMaxHits)
-    if(is.null(qproject@maxHits) || qproject@maxHits > allowedMaxHits){
+    if(is.null(qproject@env$maxHits) || qproject@env$maxHits > allowedMaxHits){
         maxHits <- allowedMaxHits
         warning("Maximal hits is set to '", allowedMaxHits, " maximal allowed hits'.")
     }
@@ -64,9 +64,9 @@
     ## create new pg tag for quasr
     quasrVersion <- installed.packages()['QuasR', 'Version']
     # TODO alignmentParameter is never null
-    alignmentParameter <- ifelse(is.null(qproject@alignmentParameter), # TODO alignmentParameter is never null
+    alignmentParameter <- ifelse(is.null(qproject@env$alignmentParameter), # TODO alignmentParameter is never null
                                  "", 
-                                 sprintf("\tap:%s", paste(qproject@alignmentParameter, collapse=",")))
+                                 sprintf("\tap:%s", paste(qproject@env$alignmentParameter, collapse=",")))
     alignmentTarget <- sprintf("\tat:%s", index$name)
     #alignmentTarget <- sprintf("\tat:%s-%s", index$name, index$md5sum)
     pgLine <- paste("@PG\tID:QuasR\tPN:QuasR\tVN:",

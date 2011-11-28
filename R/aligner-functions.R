@@ -27,7 +27,7 @@
 }
 
 .createAlignmentParameters <- function(qproject){
-    alignmentParameters <- switch(qproject@aligner$pkgname,
+    alignmentParameters <- switch(qproject@env$aligner$pkgname,
                              Rbowtie = .createBowtieAlignmentParameters(qproject),
                              Rbwa = .createBwaAlignmentParameters(qproject),
                              stop("The '", aligner$pkgname, "' Aligner is not supported.")
@@ -36,15 +36,15 @@
 }
 
 .createBowtieAlignmentParameters <- function(qproject){
-    seqFormat <- ifelse(all(qproject@samples$filetype %in% c("fasta", "bam")), seqFormat <- "-f", "-q")
-    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-v 2 -k %s -m %s --best --strata", qproject@maxHits, qproject@maxHits))
-    #samFilename <- sprintf("-S %s", tempfile(pattern=.baseFileName(qproject@samples$filepath), fileext=".sam"))
+    seqFormat <- ifelse(all(qproject@env$samples$filetype %in% c("fasta", "bam")), seqFormat <- "-f", "-q")
+    maxHits <- ifelse(is.null(qproject@env$maxHits), "", sprintf("-v 2 -k %s -m %s --best --strata", qproject@env$maxHits, qproject@env$maxHits))
+    #samFilename <- sprintf("-S %s", tempfile(pattern=.baseFileName(qproject@env$samples$filepath), fileext=".sam"))
     alignmentParameters <- paste("bowtie", maxHits, seqFormat)
     return(alignmentParameters)
 }
 
 .createBwaAlignmentParameters <- function(qproject){
-    maxHits <- ifelse(is.null(qproject@maxHits), "", sprintf("-n %s", qproject@maxHits-1))
+    maxHits <- ifelse(is.null(qproject@env$maxHits), "", sprintf("-n %s", qproject@env$maxHits-1))
     #saiFilename <- sprintf("%s.sai", tempfile())
     #samFilename <- sprintf("%s.sam", tempfile())
     #out <- .execute("Rbwa", paste("bwa bwasw", numThreads, index, sequences, "-f", samFilename))
@@ -60,15 +60,15 @@
 #                                      .baseFileName(readsFilepath),
 #                                      index$name,
 #                                      aligner$pkgname))
-    bamFilename <- .createBamFilename(qproject@path, readsFilepath, index$shortname)
+    bamFilename <- .createBamFilename(qproject@env$bamfileDir, readsFilepath, index$shortname)
     .progressReport(sprintf("Aligning reads to index %s-%s for sample '%s'", 
-                            index$shortname, qproject@aligner$pkgname, basename(readsFilepath)))
-    outputFilename <- switch(qproject@aligner$pkgname,
+                            index$shortname, qproject@env$aligner$pkgname, basename(readsFilepath)))
+    outputFilename <- switch(qproject@env$aligner$pkgname,
                              Rbowtie = .alignBowtie(readsFilepath, index$path, bamFilename, 
-                                                    alignmentParameter=qproject@alignmentParameter),
+                                                    alignmentParameter=qproject@env$alignmentParameter),
                              Rbwa = .alignBWA(readsFilepath, index$path, bamFilename, 
-                                              alignmentParameter=qproject@alignmentParameter),
-                             stop("The '", qproject@aligner$pkgname, "' Aligner is not supported.")
+                                              alignmentParameter=qproject@env$alignmentParameter),
+                             stop("The '", qproject@env$aligner$pkgname, "' Aligner is not supported.")
                              )
     hitcounts <- .weightAlignments(outputFilename, outputFilename, index=index, qproject=qproject, overwrite=TRUE) #TODO overwrite as qproject parameter
     return(list(bamfile=outputFilename, mappingStats=hitcounts))

@@ -4,28 +4,29 @@
 
 .createGenomeIndex <- function(qProject)
 {
-    if(is.null(qProject@indexLocation))
-        destDir <- tools::file_path_as_absolute(qProject@genome$dir)
+    if(is.null(qproject@env$indexLocation))
+        destDir <- tools::file_path_as_absolute(qproject@env$genome$dir)
     else
-        destDir <- qProject@indexLocation
+        destDir <- qproject@env$indexLocation
     .progressReport("Creating index")
-    fastaFiles <- file.path(qProject@genome$dir, qProject@genome$files)
-    index <- .createIndex(fastaFiles, qProject@aligner, qProject@genome$name, qProject@genome$shortname, destDir)
+    fastaFiles <- file.path(qproject@env$genome$dir, qproject@env$genome$files)
+    index <- .createIndex(fastaFiles, qproject@env$aligner, qproject@env$genome$name, qproject@env$genome$shortname, destDir)
     return(index)
 }
 
 .createAuxiliaryIndex <- function(qproject)
 {
     .progressReport("Creating auxiliary index")
-    isFastaFormat <- .fileExtension(qproject@annotations$filepath) %in% c("fa","fna","mfa","fasta")
+    isFastaFormat <- qproject@env$annotations$filetype == "fasta"
     indexes <- mapply(.createIndex,
-                      fastaFiles=qproject@annotations[isFastaFormat,]$filepath,
-                      name=qproject@annotations[isFastaFormat,]$filepath,
-                      shortname=as.character(qproject@annotations[isFastaFormat,]$feature),
-                      MoreArgs=list(aligner=qproject@aligner),
+                      fastaFiles=qproject@env$annotations[isFastaFormat,]$filepath,
+                      name=qproject@env$annotations[isFastaFormat,]$filepath,
+                      shortname=as.character(qproject@env$annotations[isFastaFormat,]$feature),
+                      MoreArgs=list(aligner=qproject@env$aligner),
                       SIMPLIFY=FALSE,
                       USE.NAMES = TRUE)
-    names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
+#     names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
+    names(indexes) <- as.character(qproject@env$annotations[isFastaFormat,]$feature)
     return(indexes)
 }
 
@@ -55,13 +56,13 @@
 .createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
 {
     .progressReport("Load genome")
-    .requirePkg(qProject@aligner$pkgname, lib.loc=NULL)
+    .requirePkg(qproject@env$aligner$pkgname, lib.loc=NULL)
     suppressPackageStartupMessages(require(Biobase, quietly=TRUE, lib.loc=lib.loc))
-    genome <- .loadBSgenome(qProject@genome$name, lib.loc=lib.loc)
+    genome <- .loadBSgenome(qproject@env$genome$name, lib.loc=lib.loc)
     .progressReport("Creating index package")
     fastaFilepath <- .BSgenomeSeqToFasta(genome)
     on.exit(unlink(fastaFilepath))
-    seedList <- .createSeedList(genome, qProject@aligner)
+    seedList <- .createSeedList(genome, qproject@env$aligner)
     seedList$MD5SUM <- tools::md5sum(fastaFilepath)
     ## create package
     pkgname <- seedList$ALIGNERINDEXNAME
@@ -71,7 +72,7 @@
     pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
     ## create index files
     indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
-    .index(qProject@aligner, fastaFilepath, indexDir)
+    .index(qproject@env$aligner, fastaFilepath, indexDir)
     return(pkgDir$pkgdir)
 }
 

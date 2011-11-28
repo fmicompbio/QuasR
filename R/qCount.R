@@ -19,25 +19,25 @@ setMethod("qCount",
           function(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
       {
 
-          if(query != "summary" && !query %in% qproject@annotations$feature)
+          if(query != "summary" && !query %in% qproject@env$annotations$feature)
               error("Wrong query statment")
 
           .progressReport(sprintf("Load annotation for %s", query), phase=-1)
 
           if(query == "summary")
-              query <- unique(qproject@annotations$feature)
+              query <- unique(qproject@env$annotations$feature)
           else{
-              if(!all(query %in% qproject@annotations$feature))
+              if(!all(query %in% qproject@env$annotations$feature))
                   stop("Paramater 'query'='", 
-                      paste(query[!query %in% qproject@annotations$feature], collapse=","), 
+                      paste(query[!query %in% qproject@env$annotations$feature], collapse=","), 
                       "' not found as a 'Class'='", 
-                       paste(unique(qproject@annotations$feature), collapse=","), 
+                       paste(unique(qproject@env$annotations$feature), collapse=","), 
                       "' in the annotation file.")
           }
-          annotations <- qproject@annotations[qproject@annotations$feature %in% query,]
+          annotations <- qproject@env$annotations[qproject@env$annotations$feature %in% query,]
 
-          #isGTFFormat <- .fileExtension(qproject@annotations$filepath) %in% c("gtf")
-          #gtfFiles <- qproject@annotations[isGTFFormat,]$filepath
+          #isGTFFormat <- .fileExtension(qproject@env$annotations$filepath) %in% c("gtf")
+          #gtfFiles <- qproject@env$annotations[isGTFFormat,]$filepath
           gtfFiles <- annotations[ annotations$filetype %in% "gtf", "filepath" ]
           gtfFiles <- unique(gtfFiles)
           if(length(gtfFiles) != 1)
@@ -50,7 +50,7 @@ setMethod("qCount",
           seqlevels(gRange) <- .mapSeqnames(names(getGenomeInformation(qproject)), seqlevels(gRange))
           ## subset GRAnges object with features from the annotation file
           levels <- levels(elementMetadata(gRange)[,"source"])
-          #queryTarget <- unlist(strsplit(as.character(qproject@annotations[isGTFFormat,]$feature), ","))
+          #queryTarget <- unlist(strsplit(as.character(qproject@env$annotations[isGTFFormat,]$feature), ","))
           #if(!queryTarget %in% levels)
           #    stop("The source column of the 'gtf' files contains '", levels, "' but you query for '", queryTarget, "'.")
           gRange <- gRange[ elementMetadata(gRange)[,"source"] %in% query ]
@@ -67,18 +67,18 @@ setMethod("qCount",
       {
           overlap <- match.arg(overlap)
           .progressReport("Starting count alignments", phase=-1)
-          bamFiles <- unlist(qproject@alignments$genome)
+          bamFiles <- unlist(qproject@env$alignments$genome)
 
           if(collapseSamples == TRUE){
-              counts <- lapply(split(bamFiles, qproject@samples$name), 
+              counts <- lapply(split(bamFiles, qproject@env$samples$name), 
                                .countAlignments, 
                                query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
-              #names(counts) <- as.character(qproject@samples$name)
+              #names(counts) <- as.character(qproject@env$samples$name)
           }else{
               counts <- lapply(bamFiles, 
                                .countAlignments, 
                                query, stranded, overlap=overlap, shift=shift, maxHits=maxHits, minoverlap=minoverlap)
-              names(counts) <- basename(qproject@samples$filepath)
+              names(counts) <- basename(qproject@env$samples$filepath)
           }
           #counts <- as(counts,"DataFrame")
           counts <- as.data.frame(counts)

@@ -45,41 +45,41 @@
     .progressReport("Read annotation file")
     ## emtpy alignment data.frame
     alignments <- as.data.frame(matrix(NA,
-                                       nrow=nrow(qproject@samples),
+                                       nrow=nrow(qproject@env$samples),
                                        ncol=0,
-                                       dimnames=dimnames(qproject@samples)[1]))
+                                       dimnames=dimnames(qproject@env$samples)[1]))
     ## load genomic alignment
-    isBamfile <- qproject@samples$filetype == "bam"
-    alignments$genome[!isBamfile] <- unlist(lapply(qproject@samples$filepath[!isBamfile], 
+    isBamfile <- qproject@env$samples$filetype == "bam"
+    alignments$genome[!isBamfile] <- unlist(lapply(qproject@env$samples$filepath[!isBamfile], 
            function(filepath){
-               if(is.null(qproject@path))
+               if(is.null(qproject@env$bamfileDir))
                    lst <- list.files(dirname(filepath), 
                                      pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), full.names=TRUE) #TODO exacter regex
                else
-                   lst <- list.files(qproject@path, 
+                   lst <- list.files(qproject@env$bamfileDir, 
                                      pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), full.names=TRUE)
                ifelse(length(lst),
-                      .getBamFile(lst, qproject@genome$name, qproject@alignmentParameter),
+                      .getBamFile(lst, qproject@env$genome$name, qproject@env$alignmentParameter),
                       NA)
            }))
            #TODO what when more than one results
     ## load auxiliary alignment
-    if(!is.null(qproject@annotations)){
-        aux <- qproject@annotations$filepath[qproject@annotations$filetype == "fasta"]
-        names(aux) <- qproject@annotations$feature[qproject@annotations$filetype == "fasta"]
+    if(!is.null(qproject@env$annotations)){
+        aux <- qproject@env$annotations$filepath[qproject@env$annotations$filetype == "fasta"]
+        names(aux) <- qproject@env$annotations$feature[qproject@env$annotations$filetype == "fasta"]
         auxAlignment <- lapply(aux, function(a){
-            unlist(lapply(qproject@samples$filepath, 
+            unlist(lapply(qproject@env$samples$filepath, 
                       function(filepath){
-                              if(is.null(qproject@path))
+                              if(is.null(qproject@env$bamfileDir))
                                   lst <- list.files(dirname(filepath), 
                                                     pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), 
                                                     full.names=TRUE) #TODO exacter regex
                               else
-                                  lst <- list.files(qproject@path, 
+                                  lst <- list.files(qproject@env$bamfileDir, 
                                                     pattern=sprintf("%s.*\\.bam$", .baseFileName(filepath)), 
                                                     full.names=TRUE)
                               ifelse(length(lst),
-                                     .getBamFile(lst, a, qproject@alignmentParameter),
+                                     .getBamFile(lst, a, qproject@env$alignmentParameter),
                                      NA)
                           }))
         })
@@ -90,9 +90,9 @@
     }
 
     ## set external bamfiles
-    if(any(idx <- qproject@samples$filetype == "bam")){
+    if(any(idx <- qproject@env$samples$filetype == "bam")){
         alignments[idx,] <- ""
-        alignments$genome[idx] <- qproject@samples$filepath[idx]
+        alignments$genome[idx] <- qproject@env$samples$filepath[idx]
     }
     return(alignments)
 }
@@ -172,15 +172,15 @@
     return(aligner)
 }
 
-.loadIndex <- function(qProject, lib=NULL, lib.loc=NULL)
+.loadIndex <- function(qproject, lib=NULL, lib.loc=NULL)
 {
     .progressReport("Loading genome index")
     ## TODO check if genome and aligner is not NULL
-    if(qProject@genome$bsgenome)
+    if(qproject@env$genome$bsgenome)
     {
         #Genome is BSgenome
-        pkgname <- paste(qProject@aligner$pkgname,
-                         qProject@genome$name,
+        pkgname <- paste(qproject@env$aligner$pkgname,
+                         qproject@env$genome$name,
                          sep=".")
         if(suppressWarnings(require(pkgname, character.only=TRUE, quietly=TRUE)))
         {
@@ -188,20 +188,20 @@
         } else {
             .progressReport("No index found. Create index now")
             ## create and install index
-            srcPkgDir <- .createIndexPackage(qProject, lib.loc=lib.loc)
+            srcPkgDir <- .createIndexPackage(qproject, lib.loc=lib.loc)
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
             require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
             index <- get(ls(sprintf("package:%s", pkgname))[1])
         }
     } else {
-        if(is.null(qProject@indexLocation))
-            indexDir <- file.path(qProject@genome$dir, sprintf("%sIndex", qProject@aligner$pkgname))
+        if(is.null(qproject@env$indexLocation))
+            indexDir <- file.path(qproject@env$genome$dir, sprintf("%sIndex", qproject@env$aligner$pkgname))
         else
-            indexDir <- file.path(qProject@indexLocation, sprintf("%sIndex", qProject@aligner$pkgname))
+            indexDir <- file.path(qproject@env$indexLocation, sprintf("%sIndex", qproject@env$aligner$pkgname))
         if(!file.exists(indexDir)){
             .progressReport("No index found. Create index now")
-            index <- .createGenomeIndex(qProject)
+            index <- .createGenomeIndex(qproject)
         } else {
             index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
             ## set index path

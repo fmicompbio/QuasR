@@ -1,11 +1,13 @@
 qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 {
+#     args <- list(...) # ToDO see boxplot.default 
+
     if(!is.null(pdfFilename)){
         pdf(pdfFilename, paper="default", onefile=TRUE, width=0, height=0)
         on.exit(dev.off())
     }
 
-    label <- as.character(qproject@samples$name)
+    label <- as.character(qproject@env$samples$name)
     for(x in as.character(unique(label))){
         idx <- label == x
         if(sum(idx) > 1)
@@ -13,49 +15,49 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
     }
 
     # FASTQ/A quality control
-    if(is.null(qproject@qc$qa)){
-#         qc1L <- parLapply(qproject@cluster, seq_along(qproject@samples$name),
-        qc1L <- lapply(seq_along(qproject@samples$name),
+    if(is.null(qproject@env$qc$qa)){
+#         qc1L <- parLapply(getOption("quasr.cluster"), seq_along(qproject@env$samples$name),
+        qc1L <- lapply(seq_along(qproject@env$samples$name),
                        function(i, sChunkSize, qproject){
-                           switch(as.character(qproject@samples$filetype[i]),
+                           switch(as.character(qproject@env$samples$filetype[i]),
                                   fastq = {
-                                      f <- FastqSampler(qproject@samples$filepath[i], n=sChunkSize)
-                                      qa(yield(f), label[i]) # TODO qproject@samples$name[i]
+                                      f <- FastqSampler(qproject@env$samples$filepath[i], n=sChunkSize)
+                                      qa(yield(f), label[i]) # TODO qproject@env$samples$name[i]
                                   },
                                   fasta = {
-                                      reads <- readFasta(as.character(qproject@samples$filepath[i]), nrec=sChunkSize)
+                                      reads <- readFasta(as.character(qproject@env$samples$filepath[i]), nrec=sChunkSize)
                                       qa(reads, label[i])
                                   },
                                   bam = {
-                                      ShortRead:::.ShortReadQQA(lst <- qa(as.character(qproject@samples$filepath[i]),
+                                      ShortRead:::.ShortReadQQA(qa(as.character(qproject@env$samples$filepath[i]),
                                                                    type="BAM")@.srlist)
                                   })
                        },
                        chunkSize, qproject)
-        qproject@qc$qa <- do.call(rbind, qc1L)
+        qproject@env$qc$qa <- do.call(rbind, qc1L)
     }
 
     if(is.null(pdfFilename))
         dev.new()
-    qL <- .plotQualByCycle(qproject@qc$qa, ...)
+    qL <- .plotQualByCycle(qproject@env$qc$qa, ...)
 
     if(is.null(pdfFilename))
         dev.new()
-    nL <- .plotNuclByCycle(qproject@qc$qa, ...)
+    nL <- .plotNuclByCycle(qproject@env$qc$qa, ...)
 
     if(is.null(pdfFilename))
         dev.new()
-    dL <- .plotDuplicated(qproject@qc$qa, ...)
+    dL <- .plotDuplicated(qproject@env$qc$qa, ...)
 
-    if(!is.null(qproject@qc$mappingStats)){
+    if(!is.null(qproject@env$qc$mappingStats)){
         if(is.null(pdfFilename))
             dev.new()
-        rownames(qproject@qc$mappingStats$genome) <- label
-        mL <- .plotMappings(qproject@qc$mappingStats$genome, ...)
+        rownames(qproject@env$qc$mappingStats$genome) <- label[qproject@env$samples$filetype != "bam"]
+        mL <- .plotMappings(qproject@env$qc$mappingStats$genome, ...)
     }
 
-    if(!any(is.na(qproject@alignments$genome))){
-        bamfilename <- qproject@alignments$genome
+    if(!any(is.na(qproject@env$alignments$genome))){
+        bamfilename <- qproject@env$alignments$genome
         names(bamfilename) <- label
         if(is.null(pdfFilename))
             dev.new()
@@ -208,7 +210,8 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 }
 
 .plotMappings <- function(mapdata, breaks=c(0,1,5,10,50,100), cols=c("#E41A1C","#006D2C","#31A354","#74C476","#BAE4B3","#EDF8E9","#BDBDBD")) {
-    mapdata <- mapdata[nrow(mapdata):1,]
+    if(nrow(mapdata) > 1L)
+        mapdata <- mapdata[nrow(mapdata):1,]
     if(breaks[length(breaks)]<Inf)
         breaks <- c(breaks,breaks[length(breaks)]+1,Inf)
     breakNames <- c(as.character(breaks[1:(length(breaks)-2)]),paste(">",breaks[length(breaks)-2],sep=""))
