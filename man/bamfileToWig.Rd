@@ -1,7 +1,7 @@
 \name{bamfileToWig}
 \alias{bamfileToWig}
 
-\title{QuasR Align}
+\title{Create wig file from bam file}
 
 \description{
 Create a fixed-step wig file from the alignments in a bam file.
