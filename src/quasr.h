@@ -24,5 +24,5 @@ SEXP count_alignments(SEXP bam_in, SEXP idx_in, SEXP regions, SEXP stranded, SEX
 int32_t get_inverse_weight(const bam1_t *b);
 
 //export_wig.c
-SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP w);
+SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP normFactor, SEXP trackname, SEXP color, SEXP append);
 #endif /* _QUASR_H_ */
