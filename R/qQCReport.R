@@ -1,7 +1,7 @@
 qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 {
 #     args <- list(...) # ToDO see boxplot.default 
-
+    
     if(!is.null(pdfFilename)){
         pdf(pdfFilename, paper="default", onefile=TRUE, width=0, height=0)
         on.exit(dev.off())
@@ -16,8 +16,8 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 
     # FASTQ/A quality control
     if(is.null(qproject@env$qc$qa)){
-#         qc1L <- parLapply(getOption("quasr.cluster"), seq_along(qproject@env$samples$name),
-        qc1L <- lapply(seq_along(qproject@env$samples$name),
+        qc1L <- parLapply(getOption("quasr.cluster"), seq_along(qproject@env$samples$name),
+#         qc1L <- lapply(seq_along(qproject@env$samples$name),
                        function(i, sChunkSize, qproject){
                            switch(as.character(qproject@env$samples$filetype[i]),
                                   fastq = {
@@ -61,7 +61,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
         names(bamfilename) <- label
         if(is.null(pdfFilename))
             dev.new()
-        eL <- .plotErrorsByCycle(bamfilename, ...)
+        eL <- .plotErrorsByCycle(bamfilename, N=chunkSize, ...)
     }
 }
 
