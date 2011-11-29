@@ -16,7 +16,7 @@ bamfileToWig <- function(bamFname, wigFname=NULL, width=100L, shift=0L, maxHits=
   if(!quiet)
     .progressReport(paste("converting",bamFname,"to wig"), phase=-1)
   res <- .Call(.bamfile_to_wig, bamFname, wigFname, as.integer(width), as.integer(shift), as.integer(maxHits),
-               as.numeric(normFactor), trackname, rgbcolor, as.logical(append), as.logical(quiet))
+               as.numeric(normFactor), trackname, rgbcolor, as.logical(append))
   if(!quiet)
     .progressReport(paste("successfully created",wigFname), phase=1)
 

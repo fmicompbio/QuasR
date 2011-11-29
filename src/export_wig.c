@@ -73,7 +73,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxH
 	error("could not create outfile: %s\n", wo);
 
     // output track header
-    fprintf(fout, "track type=wiggle_0 name='%s' description='%s' visibility=full color='%s' altColor='%s' priority=100 autoscale=off gridDefault=on maxHeightPixels=128:128:11 graphType=bar yLineMark=0.0 yLineOnOff=off windowingFunction=maximum smoothingWindow=off\n", tn, tn, co, co);
+    fprintf(fout, "track type=wiggle_0 name='%s' description='%s%s' visibility=full color='%s' altColor='%s' priority=100 autoscale=off gridDefault=on maxHeightPixels=64:64:11 graphType=bar yLineMark=0.0 yLineOnOff=off windowingFunction=maximum smoothingWindow=off\n", tn, tn, f==1.0 ? "" : " (scaled)", co, co);
 
     // start a new target
     currTid = 0;                                 // is always first in a sorted bam file

@@ -115,3 +115,27 @@
     }
     return(annotationSeqnames)
 }
+
+.getMappingStatsFromBam <- function(nm, fnameSeq, typeSeq, fnameBam) {
+  # get mapping statistics from bam file (IH and XM tags) and total number of reads (n)
+  if(typeSeq=="fasta")
+    n <- length(fasta.info(fnameSeq, use.names=FALSE))
+  else if(typeSeq=="fastq")
+    n <- fastq.geometry(fnameSeq)[1]
+  else
+    stop(paste("Don't know how to count sequences in a '",typeSeq,"' file.",sep=""))
+
+  ih <- scanBam(fnameBam, param=ScanBamParam(what=character(0), tag="IH"))[[1]]$tag$IH
+  ihT <- table(ih)
+  rm(ih)
+  nhits <- as.numeric(names(ihT))
+  ihTF <- numeric(max(nhits)+2) # from zero, 1:maxHits, >maxHits
+  ihTF[nhits+1] <- ihT/nhits
+  if("0" %in% names(ihT)) {
+    xm <- scanBam(fnameBam, param=ScanBamParam(what=character(0), tag="XM", flag=scanBamFlag(isUnmappedQuery=TRUE)))[[1]]$tag$XM
+    ihTF[max(nhits)+2] <- sum(xm>0)
+    ihTF[1] <- ihT["0"] - ihTF[max(nhits)+2]
+    rm(xm)
+  }
+  return(matrix(ihTF, nrow=1, dimnames=list(nm, c(as.character(0:max(nhits)), paste(">",max(nhits),sep="")))))
+}
