@@ -58,11 +58,13 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
     assign("alignments", alignments, qproject@env)
     assign("index", NULL, qproject@env)
     
-#     if(suppressWarnings(require(parallel, quietly=TRUE)) && is.null(getOption("quasr.cluster"))){ # inherits(getOption("quasr.cluster"), "cluster")
-#         options(quasr.cluster=makeCluster(2)) # TODO number of cluster 
-#         clusterCall(getOption("quasr.cluster"), function() library("QuasR"))
-#     #stopCluster(cl)
-#     }
+    if(suppressWarnings(require(parallel, quietly=TRUE)) && is.null(getOption("quasr.cluster"))){ # inherits(getOption("quasr.cluster"), "cluster")
+        if(is.null(getOption("quasr.clusterSize")))
+            options(quasr.clusterSize=2)
+        options(quasr.cluster=makeCluster(getOption("quasr.clusterSize")))
+        clusterCall(getOption("quasr.cluster"), function() library("QuasR"))
+        #stopCluster(cl)
+    }
     .progressReport(sprintf("Successfully created project '%s'", projectName), phase=1)
     return(qproject)
 }

@@ -9,6 +9,7 @@
         options(quasr.cores=max(detectCores()-2,1))
     else
         options(quasr.cores=1)
+    options(quasr.clusterSize=2)
     options(quasr.maxmem=2048)
 }
 
