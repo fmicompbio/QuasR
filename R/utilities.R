@@ -118,6 +118,21 @@
     return(annotationSeqnames)
 }
 
+.getMappingTagFromBam <- function(fnameBam){
+    bfh <- scanBamHeader(fnameBam)[[1]]
+    idx <- grep("ID:QuasR", bfh$text)
+    if(length(idx) == 0)
+        return(NULL)
+    qTag <- bfh$text[[idx]]
+    ## extrect subtags
+    ml <- unlist(strsplit(qTag[grep("ml:", qTag)], ":"))[2]
+    mc <- unlist(strsplit(qTag[grep("mc:", qTag)], ":"))[2]
+    ## create r structure
+    mc <- as.integer(strsplit(mc,";")[[1]])
+    names(mc) <- strsplit(ml,";")[[1]]
+    return(mc)
+}
+
 .getMappingStatsFromBam <- function(nm, fnameSeq, typeSeq, fnameBam) {
   # get mapping statistics from bam file (IH and XM tags) and total number of reads (n)
   if(typeSeq=="fasta")

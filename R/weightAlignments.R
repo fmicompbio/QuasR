@@ -35,7 +35,7 @@
 
         hitcount <- .Call(.weight_alignments, sortFile, cntFile, headerFile, maxHits)
         names(hitcount) <- c(0:maxHits, paste(">", maxHits,sep=""))
-    
+
         if(!file.exists(cntFile))
             stop("failed to create 'BAM' file")
         
@@ -55,9 +55,9 @@
     return(hitcount)
 }
 
-.createSamHeaderFile <- function(bamfile, headerFile, index, qproject){
+.createSamHeaderFile <- function(bamfile, headerFile, index, qproject, hitcount){
     ## read current bam_header
-    h <- scanBamHeader(bamfile)[[1]]$text
+    h <- scanBamHeader(bamfile)[[1]]$text 
     pgLineIdx <- names(h) == "@PG"
     ppValues <- unlist(strsplit(h[pgLineIdx][[1]][grep("ID:", h[pgLineIdx])],":"))[2]
     h <- paste(names(h), unlist(lapply(h, paste, collapse="\t")), sep="\t")
@@ -69,14 +69,26 @@
                                  sprintf("\tap:%s", paste(qproject@env$alignmentParameter, collapse=",")))
     alignmentTarget <- sprintf("\tat:%s", index$name)
     #alignmentTarget <- sprintf("\tat:%s-%s", index$name, index$md5sum)
+    hitcount <- ifelse(!missing(hitcount),
+                        sprintf("\tml:%s\tmc:%s", 
+                                paste(names(hitcount), collapse=";"), 
+                                paste(hitcount, collapse=";"))
+                        , "")
     pgLine <- paste("@PG\tID:QuasR\tPN:QuasR\tVN:",
                     quasrVersion,
                     alignmentTarget,
                     alignmentParameter,
+                    hitcount,
                     "\tCL:\"Add or modifiy IH Tag\"\tPP:",
                     ppValues, sep="")
+
+    ## check if pg tag for quasr exists already
+    quasrLineIdx <- grep("ID:QuasR", h[pgLineIdx])
     ## add new pg tag to bam_header
-    h <- c(h[!pgLineIdx], pgLine, h[pgLineIdx])
+    if(length(quasrLineIdx) && quasrLineIdx == 1)
+        h <- c(h[!pgLineIdx], pgLine, h[pgLineIdx][-1]) ## replase the quasr pg tag
+    else 
+        h <- c(h[!pgLineIdx], pgLine, h[pgLineIdx])
     if(missing(headerFile))
         headerFile <- tempfile(pattern="header_", fileext=".sam")
     ## create sam_header file
