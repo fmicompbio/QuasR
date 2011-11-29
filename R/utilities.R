@@ -86,9 +86,11 @@
         msg <- paste(msg, "...", sep="")
     if(phase>0)
         cat("done\n")
-    cat(qTag, msg)
-    if(phase>0)
-        cat("\n")
+    if(msg != ""){
+        cat(qTag, msg)
+        if(phase>0)
+            cat("\n")
+    }
 }
 
 .multiToSingleFasta <- function(inFiles, outFile){
