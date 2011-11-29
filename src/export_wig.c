@@ -18,7 +18,7 @@
   remark: could support compression by linking to the zlibbioc package
   see: http://www.bioconductor.org/packages/2.9/bioc/vignettes/zlibbioc/inst/doc/UsingZlibbioc.pdf
 */
-SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP normFactor, SEXP trackname, SEXP color, SEXP append) {
+SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxHits, SEXP normFactor, SEXP trackname, SEXP color, SEXP append) {
     if (!isString(bam_in)    || 1 != length(bam_in))
         error("'bam_in' must be character(1)");
     if (!isString(wig_out)   || 1 != length(wig_out))
@@ -27,6 +27,8 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP norm
         error("'width' must be integer(1)");
     if (!isInteger(shift)    || 1 != length(shift))
         error("'shift' must be integer(1)");
+    if (!isInteger(maxHits)  || 1 != length(maxHits))
+        error("'maxHits' must be integer(1)");
     if (!isReal(normFactor)  || 1 != length(normFactor))
         error("'normFactor' must be numeric(1)");
     if (!isString(trackname) || 1 != length(trackname))
@@ -36,7 +38,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP norm
     if (!isLogical(append)   || 1 != length(append))
         error("'append' must be logical(1)");
     
-    int i=0, w=asInteger(width), s=asInteger(shift), beg=0, end=0x7fffffff;
+    int i=0, w=asInteger(width), s=asInteger(shift), m=asInteger(maxHits), beg=0, end=0x7fffffff;
     int32_t ih=0, currTid=0, currTlen=0, currTbin=0, hitPos=0;
     double *currCount=NULL, f=asReal(normFactor);
     int a=asLogical(append);
@@ -48,6 +50,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP norm
 
     if(w == NA_INTEGER) error("invalid '%s' value", "width");
     if(s == NA_INTEGER) error("invalid '%s' value", "shift");
+    if(m == NA_INTEGER) error("invalid '%s' value", "maxHits");
     if(f == NA_REAL)    error("invalid '%s' value", "normFactor");
     if(a == NA_LOGICAL) error("'%s' must be TRUE or FALSE", "append");
 
@@ -83,6 +86,11 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP norm
 	if (hit->core.flag & BAM_FUNMAP) // skip unmapped reads
 	    continue;
 
+	// get alignment inverse weight (aux tag "IH")
+	ih = get_inverse_weight(hit);
+	if (ih > m || ih==0) // skip alignments of reads with more than maxHits (m) hits
+	    continue;
+
 	// get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
 	if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
 	    hitPos = bam_calend(&(hit->core), bam1_cigar(hit)) - s;
@@ -92,14 +100,6 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP norm
 	    hitPos = 0;
 	if (hitPos >= currTlen)
 	    hitPos = currTlen-1;
-
-	// get alignment inverse weight (aux tag "IH")
-	ih = get_inverse_weight(hit);
-	/*
-	  int32_t hit->core.pos : 0-based leftmost coordinate
-	  int32_t hit->core.tid : chromosome ID, defined by bam_header_t
-	  uint32_t bam_calend() : calculate the rightmost coordinate of an alignment on the reference genome
-	*/
 
 	if (currTid != hit->core.tid) {
 	    // output former target

@@ -9,7 +9,7 @@ static const R_CallMethodDef callMethods[] = {
     {".count_alignments", (DL_FUNC) &count_alignments, 8},
     {".seqname", (DL_FUNC) &seqname, 1},
     /* export_wig.c */
-    {".bamfile_to_wig", (DL_FUNC) &bamfile_to_wig, 8},
+    {".bamfile_to_wig", (DL_FUNC) &bamfile_to_wig, 9},
     {NULL, NULL, 0}
 };
 

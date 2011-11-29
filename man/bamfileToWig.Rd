@@ -8,8 +8,8 @@ Create a fixed-step wig file from the alignments in a bam file.
 }
 
 \usage{
-    bamfileToWig(bamFname, wigFname=NULL, width=100L, shift=0L,
-    normFactor=1.0, trackname=NULL, color="#1B9E77", append=FALSE)
+    bamfileToWig(bamFname, wigFname=NULL, width=100L, shift=0L, maxHits=100L,
+    normFactor=1.0, trackname=NULL, color="#1B9E77", append=FALSE, quiet=FALSE)
 }
 
 \arguments{
@@ -22,6 +22,11 @@ Create a fixed-step wig file from the alignments in a bam file.
     for the wig file (will be coerced to integer()).}
   \item{shift}{A scalar value defining the read shift (e.g. half of
     fragment length, see details).}
+  \item{maxHits}{Only include alignments of reads with no more than
+    \sQuote{maxHits} hits to the genome. Warning: If
+    \sQuote{bamfileToWig} is called directly (rather than by
+    \sQuote{qExportWig}), there is no guarantee that all alignments up
+    to \sQuote{maxHits} are contained in the bam file.}
   \item{normFactor}{A scalar value defining the normalization
     factor. The coverage for each window will be multiplied by \sQuote{normFactor}.}
   \item{trackname}{A character(1) vector with the name of the
@@ -31,12 +36,16 @@ Create a fixed-step wig file from the alignments in a bam file.
   \item{append}{If \sQuote{TRUE}, the generated track is appended to a
     the WIG file \sQuote{wigFname}. If \sQuote{wigFname} does not exist,
     it will be created.}
+  \item{quiet}{If \sQuote{TRUE}, no progress reports will be printed to
+    the console.}
 }
 
 \details{
   Using a BAM file as input, the function creates a WIG file
   (\url{http://genome.ucsc.edu/goldenPath/help/wiggle.html}) containing
-  the coverage of alignments along the genome.
+  the coverage of alignments along the genome. Only alignments of reads
+  with up to \sQuote{maxHits} hits will be included. Setting
+  \sQuote{maxHits=1} will thus produce a wig file from uniquely mapped reads.
   
   The genome is tiled with sequential windows of size \sQuote{width},
   and alignments in the BAM file are assigned to these windows according

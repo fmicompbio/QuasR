@@ -9,7 +9,7 @@ files of the \sQuote{QuasR} project.
 }
 
 \usage{
-    qExportWig(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
+    qExportWig(qproject, file=NULL, combined=TRUE, width=100L, shift=0L, maxHits=100L,
     normalize=TRUE, tracknames=NULL, colors=c("#1B9E77",
     "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"))
 }
@@ -37,6 +37,8 @@ files of the \sQuote{QuasR} project.
     length must match the number of samples in \sQuote{qproject}, and
     the i-th sample will be converted to wig using the value in
     \sQuote{shift[i]}. \sQuote{shift} will be coerced to integer().}
+  \item{maxHits}{Only include alignments of reads with no more than
+    \sQuote{maxHits} hits to the genome.}
   \item{normalize}{If TRUE, the output values in the wig file(s)
     will be normalized to improve comparability of multiple samples in
     \sQuote{qproject} (see details).}

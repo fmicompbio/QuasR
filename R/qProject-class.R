@@ -22,7 +22,7 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
 {
     .progressReport("Gathering filepath information", phase=-1)
     qproject <- new("qProject", projectName)
-    if(bamfileDir == ".")
+    if(!is.null(bamfileDir) && bamfileDir == ".")
          bamfileDir <- tools::file_path_as_absolute(".")
     assign("bamfileDir", bamfileDir, qproject@env)
     sampleFile <- tools::file_path_as_absolute(sampleFile)
