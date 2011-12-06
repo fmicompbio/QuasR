@@ -198,7 +198,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
             yoff <- ytop - 1.8*cumsum(strheight(frqseqS, cex=frqseqcex, family="mono"))
             ii <- yoff+diff(yoff[1:2]) > max(bocc[i, 1:xn > floor(xleft)])
             if(any(ii)) {
-                text(x=xleft, y=ytop,     adj=c(0,0), label=paste(nm,"frequent sequences (ppm):",sep="\n"))
+                text(x=xleft, y=ytop,     adj=c(0,0), label=paste(nm,"frequent sequences (per Mio.):",sep="\n"))
                 text(x=xleft, y=yoff[ii], adj=c(0,1), label=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
             } else {
                 text(x=xleft, y=ytop,     adj=c(0,0), label=nm)
