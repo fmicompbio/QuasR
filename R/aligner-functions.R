@@ -30,7 +30,7 @@
     alignmentParameters <- switch(qproject@env$aligner$pkgname,
                              Rbowtie = .createBowtieAlignmentParameters(qproject),
                              Rbwa = .createBwaAlignmentParameters(qproject),
-                             stop("The '", aligner$pkgname, "' Aligner is not supported.")
+                             stop("The '", qproject@env$aligner$pkgname, "' Aligner is not supported.")
                              )
     return(alignmentParameters)
 }

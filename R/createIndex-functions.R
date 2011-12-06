@@ -2,7 +2,7 @@
 ### Function to create the index
 ###
 
-.createGenomeIndex <- function(qProject)
+.createGenomeIndex <- function(qproject)
 {
     if(is.null(qproject@env$indexLocation))
         destDir <- tools::file_path_as_absolute(qproject@env$genome$dir)
@@ -53,7 +53,7 @@
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-.createIndexPackage <- function(qProject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
+.createIndexPackage <- function(qproject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
 {
     .progressReport("Load genome")
     .requirePkg(qproject@env$aligner$pkgname, lib.loc=NULL)

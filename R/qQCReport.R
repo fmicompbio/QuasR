@@ -319,8 +319,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
     function(dirPath, lane, ..., verbose=FALSE)
 {
     if (missing(lane))
-        .throw(SRError("UserArgumentMismatch",
-                       "'%s' must be '%s'", "lane", "character(1)"))
+        stop("Paramteter 'lane' is missing.")
     obj <- dirPath
     alf <- alphabetFrequency(sread(obj), baseOnly=TRUE, collapse=TRUE)
 #     bqtbl <- alphabetFrequency(quality(obj), collapse=TRUE)
