@@ -126,6 +126,7 @@ preprocessReads <- function(filename, filenameMate=NULL,
     else
         lFilt <- filterLength(minLength)
     filters <- c(nFilt, cFilt, lFilt)
+    ## deactivate filters if NULL
     active(filters) <- c(!is.null(nBases), !is.null(complexity), !is.null(minLength))
     
     report <- data.frame(totalSequence=0, matchTo5pAdaptor=0, matchTo3pAdaptor=0, tooShort=0, tooManyN=0, lowEntropy=0, totalPassed=0)

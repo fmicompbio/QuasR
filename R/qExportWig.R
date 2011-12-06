@@ -3,7 +3,7 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
 {
   if(!is(qproject, "qProject"))
     stop("The object '", class(qproject), "' is not a 'qProject' object.")
-  
+
   bamfiles <- qproject@env$alignments$genome
   n <- length(bamfiles)
   idx <- !is.na(qproject@env$alignments$genome)
@@ -12,7 +12,7 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
     if(combined)
       stop("A value for 'file' has to be provided when creating a combined wig file.")
     else
-      file <- paste(sub(".bam$","",bamfiles),".wig")
+      file <- paste(sub(".bam$","",bamfiles),".wig", sep="")
   else
     if(combined && length(file)!=1)
       stop("Only a single value for 'file' can be provided when creating a combined wig file.")
@@ -54,21 +54,22 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
   
   fact <- rep(1,n)
   if(normalize) {
-    ms <- qproject@env$qc$mappingStats$genome
-    if(is.null(ms)) {
-      if(proj@env$aligner=="Rbowtie") {
+    if(is.null(qproject@env$qc$mappingStats$genome)) {
+      if(qproject@env$aligner$pkgname == "Rbowtie") {
         .progressReport("Collecting mapping statistics from bam files", phase=-1)
         mapdataL <- lapply(seq.int(n), function(i)
                            .getMappingStatsFromBam(tracknames[i], qproject@env$samples$filepath[i], qproject@env$samples$filetype[i], bamfiles[i]) )
         mapdata <- do.call(rbind, mapdataL)
         qproject@env$qc$mappingStats$genome <- mapdata
         .progressReport("", phase=1)
-
       } else { # if not using bowtie, cannot guarantee to recover unmapped/overmapped counts from bam files
         stop("mapping statistics are needed to use 'normalize'.")
       }
     }
-    N <- rowSums(ms[,2:(ncol(ms)-1)]) # fist/last columns contains un-/overmapped
+    ms <- qproject@env$qc$mappingStats$genome
+    N <- ifelse(length(n) == 1, 
+                sum(ms[,2:(ncol(ms)-1)]), 
+                rowSums(ms[,2:(ncol(ms)-1)])) # first/last columns contains un-/overmapped
     fact <- min(N) /N
   }
 

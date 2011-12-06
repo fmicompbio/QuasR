@@ -14,7 +14,7 @@
             stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
         ## check if filename is duplicated
         if(any(checkFile <- duplicated(basename(tab$FileName))))
-            stop("Filename ", paste(tab$FileName[checkFile], collapse=", "), "is duplicated.")
+            stop("Duplicated filename ", paste(unique(basename(tab$FileName[checkFile])), collapse=", "))
         return(data.frame(name=tab$SampleName, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
     }else{
         ## convert to absolut filename
@@ -35,7 +35,7 @@
             stop("File not found: ", paste(tab$FileName2[!checkFile], collapse=", "))
         ## check if filename is duplicated
         if(any(checkFile <- duplicated(basename(tab$FileName1))))
-            stop("Filename ", paste(tab$FileName1[checkFile], collapse=", "), "is duplicated.") #TODO for mate too
+            stop("Duplicated filename ", paste(unique(basename(tab$FileName1[checkFile])), collapse=", ")) #TODO for mate too
         return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName1),
                           filepath2=I(tab$FileName2), filetype=.fileType(tab$FileName1)))
     }
