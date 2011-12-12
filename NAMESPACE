@@ -1,9 +1,13 @@
 useDynLib("QuasR", .registration=TRUE)
 
+import(methods)
+import(parallel)
+import(tools)
 import(BSgenome)
 importFrom(BiocInstaller, biocLite)
 import(IRanges)
 importFrom(Biobase, createPackage)
+importFrom(rtracklayer, import.gff2)
 
 exportPattern("^[^\\.]")
 

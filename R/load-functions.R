@@ -182,7 +182,7 @@
         pkgname <- paste(qproject@env$aligner$pkgname,
                          qproject@env$genome$name,
                          sep=".")
-        if(suppressWarnings(require(pkgname, character.only=TRUE, quietly=TRUE)))
+        if(suppressWarnings(require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)))
         {
             index <- eval(parse(text=ls(sprintf("package:%s", pkgname))))
         } else {

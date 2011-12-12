@@ -8,7 +8,7 @@ Align sequences from a \sQuote{qProject} hierarchical to a genome, exon-exon-jun
 }
 
 \usage{
-    qAlign(qProject, lib=NULL, lib.loc=NULL)
+    qAlign(qproject, lib=NULL, lib.loc=NULL)
 }
 
 \arguments{

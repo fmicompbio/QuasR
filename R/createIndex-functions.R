@@ -22,7 +22,7 @@
                       fastaFiles=qproject@env$annotations[isFastaFormat,]$filepath,
                       name=qproject@env$annotations[isFastaFormat,]$filepath,
                       shortname=as.character(qproject@env$annotations[isFastaFormat,]$feature),
-                      MoreArgs=list(aligner=qproject@env$aligner),
+                      MoreArgs=list(aligner=qproject@env$aligner, destDir=qproject@env$cacheDir),
                       SIMPLIFY=FALSE,
                       USE.NAMES = TRUE)
 #     names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
@@ -53,7 +53,7 @@
 ### All Function to create an index package of a genome for a specific aligner
 ###
 
-.createIndexPackage <- function(qproject, sourcePackageFilepath=tempdir(), lib.loc=NULL)
+.createIndexPackage <- function(qproject, lib.loc=NULL)
 {
     .progressReport("Load genome")
     .requirePkg(qproject@env$aligner$pkgname, lib.loc=NULL)
@@ -66,8 +66,8 @@
     seedList$MD5SUM <- tools::md5sum(fastaFilepath)
     ## create package
     pkgname <- seedList$ALIGNERINDEXNAME
-    dir.create(sourcePackageFilepath, showWarnings=FALSE, recursive=TRUE)
-    destinationDir <- sourcePackageFilepath
+    destinationDir <- qproject@env$cacheDir  
+    dir.create(destinationDir, showWarnings=FALSE, recursive=TRUE)
     templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
     pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
     ## create index files
@@ -106,7 +106,8 @@
     newPack <- dir(pattern="\\.tar.gz$")
     if(is.null(lib))
         lib <- .libPaths()[1]
-    out <- c(out, capture.output(install.packages(file.path(getwd(), newPack), repos=NULL, dependencies=FALSE, lib=lib)))
+    out <- c(out, capture.output(install.packages(file.path(getwd(), newPack), 
+                                                  repos=NULL, dependencies=FALSE, lib=lib, type="source")))
     return(out)
 }
 

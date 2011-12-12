@@ -84,7 +84,7 @@ files of the \sQuote{QuasR} project.
 \author{Michael Stadler}
 
 \seealso{
-    \code{\linkS4class{qProject}}, \code{\link{bamfilesToWig}}
+    \code{\linkS4class{qProject}}, \code{\link{bamfileToWig}}
 }
 
 \examples{
