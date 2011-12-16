@@ -23,7 +23,7 @@
 
 \title{An Introduction to \Rpackage{QuasR}}
 \author{Anita Lerch}
-\date{Modified: 4 May, 2011. Compiled: \today}
+\date{Modified: 12 December, 2011. Compiled: \today}
 
 \begin{document}
 
@@ -39,18 +39,74 @@ options(width=60)
 
 \section{Introduction}
 
-This document describes xxx
+The \Rpackage{QuasR} packages quantify and annotate short reads in R. For now only single read ChIP-seq experiments are supported. In future \Rpackage{QuasR} will support single and paired-end ChIP-seq, RNA-seq and Bis-seq experiments.
 
 <<preliminaries, eval=FALSE>>=
-##source("http://www.bioconductor.org/biocLite.R")
-##biocLite("QuasR")
 library(QuasR)
 @
 
-\section{Example Project with a BSgenome as genome}
+\section{Getting started}
+
+In this section a simple single-end ChIP-seq workflow is shown. We assume in this workflow that the short reads doesn't need to be preprocessed. For short reads which contains a barcode, an adapter or which has do be filtered, please read the section \ref{sec:preprocessRead} preprocessRead().
+
+\subsection{Create the qProject object}
+
+\subsubsection*{Create the sample file}
+The sample file is a tab delimited text file, with the two columes 'SampleName' and 'FileName' for single-end and three columes 'SampleName', 'FileName' 'FileNameMate' for a paired-end experiment.
+
+\begin{tabular}{|ll|}
+\hline
+SampleName&FileName\\
+wt&filenameWt.fastq\\
+ko&filenameKo1.fastq\\
+ko&filenameKo2.fastq\\
+\hline
+\end{tabular}
+
+<<sampleFile, eval=FALSE>>=
+sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+@
+
+\subsubsection*{Create the annotation file}
+<<annotationFile, eval=FALSE>>=
+annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+@
+
+\subsubsection*{Set genome}
+<<genome, eval=FALSE>>=
+available.genomes()
+genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
+@
+
+\subsubsection*{Set genome}
+<<qProject, eval=FALSE>>=
+project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile)
+@
+
+\subsection{Performe the alignment with the qAlign() function}
+<<qAlign, eval=FALSE>>=
+project <- qAlign(project)
+@
+
+\subsection{Extract sum of the alignment weights with the qCount() function}
+GRange
+<<qCount, eval=FALSE>>=
+library(TxDb.Dmelanogaster.UCSC.dm3.ensGene)
+txdb <- TxDb.Dmelanogaster.UCSC.dm3.ensGene
+isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
+isActiveSeq(txdb)["chr2L"] <- TRUE
+gr <- transcripts(txdb)
+cnt <- qCount(project, gr, collapseSamples=T, overlap="within")
+@
+
+\subsection{Saving and restoring the qProject object}
+<<saveRestore, eval=FALSE>>=
+projectFilename <- qSaveProject(project)
+project <- qReadProject(projectFilename)
+@
+
+\section{Example workflow with a \Rpackage{BSgenome} as genome}
 <<BSgenomeProject, eval=FALSE>>=
-options(quasr.cores=7)
-options(quasr.maxhits=90)
 td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
 annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
@@ -62,7 +118,7 @@ projectFilename <- qSaveProject(project)
 project <- qReadProject(projectFilename)
 @
 
-\section{Example Project with fasta files as genome}
+\section{Example workflow with fasta files as genome}
 
 <<fastaProject, eval=FALSE>>=
 td <- tempdir()
@@ -77,6 +133,29 @@ genomeName <- "data/sacCer2"
 project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, path=td)
 project <- qAlign(project)
 @
+
+\section{Detailed function description}
+\subsection{preprocessRead()}
+\label{sec:preprocessRead}
+If the short reads are barcoded, contains adapter or should be filtered then TODO 
+
+\subsection{qProject()}
+TODO
+
+\subsection{qAlign()}
+TODO
+
+\subsection{qCount()}
+TODO
+
+\subsection{qQCReport()}
+TODO
+
+\subsection{qExportWig()}
+TODO
+
+\subsection{qSaveProject() and qReadProject()}
+TODO
 
 \section{Session information}
 

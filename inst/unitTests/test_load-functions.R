@@ -24,9 +24,10 @@ test_readSamples <- function()
     ## TODO wrong sample file format
 }
 
-test_loadAlignments <- function(){
-    DEACTIVATED("Not implemented yet")
-}
+# test_loadAlignments <- function(){
+#     DEACTIVATED("Not implemented yet")
+#     .loadAlignments(qproject)
+# }
 
 test_readAnnotations <- function(){
     annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
@@ -47,6 +48,7 @@ test_readAnnotations <- function(){
 }
 
 test_loadBSgenome <- function(){
+    checkTrue(require("BSgenome", quietly=TRUE), msg="Package 'BSgenome' is missing")
     bsgenomes <- installed.genomes()
     if(length(bsgenomes) == 0L)
         available.genomes()
@@ -70,10 +72,25 @@ test_loadBSgenome <- function(){
 }
 
 test_loadFastaGenome <- function(){
-    DEACTIVATED("Not implemented yet")
+    genomeDir <- system.file(package="QuasR", "extdata", "phage_genomes")   
+    checkException(.loadFastaGenome(genomeDir),
+                   msg="Function should not be exported.")
+    ans <- QuasR:::.loadFastaGenome(genomeDir)
+    checkEquals(genomeDir, ans$name)
+    checkEquals(basename(genomeDir), ans$shortname)
+    checkTrue(is.list(ans), msg="Should be a list.")
+    checkTrue(!ans$bsgenome, msg="Should be FALSE")
+
+    genomeFile <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001416.fna")
+    ans <- QuasR:::.loadFastaGenome(genomeFile)
+    checkEquals(genomeFile, ans$name)
+    checkEquals(basename(genomeFile), ans$shortname)
+    checkTrue(is.list(ans), msg="Should be a list.")
+    checkTrue(!ans$bsgenome, msg="Should be FALSE")   
 }
 
 test_checkGenome <- function(){
+    checkTrue(require("BSgenome", quietly=TRUE), msg="Package 'BSgenome' is missing")
     bsgenomes <- installed.genomes()
     if(length(bsgenomes) == 0L)
         available.genomes()
@@ -116,6 +133,6 @@ test_loadAligner <- function(){
     checkTrue(!is.null(ans$pkgversion))
 }
 
-test_loadIndex <- function(){
-    DEACTIVATED("Not implemented yet")
-}
+# test_loadIndex <- function(){
+#     DEACTIVATED("Not implemented yet")
+# }
