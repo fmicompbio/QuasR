@@ -69,11 +69,11 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
 
     if(length(IRanges::unique(unmapped[[1]]$qual)) <= 1L){
         if(missing(destFile))
-            destfile <- file.path(tempdir(), sprintf("%s.fasta", .baseFileName(bamFile)))
+            destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fasta", .baseFileName(bamFile)))
         write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fasta")
     } else {
         if(missing(destFile))
-            destfile <- file.path(tempdir(), sprintf("%s.fastq", .baseFileName(bamFile)))
+            destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fastq", .baseFileName(bamFile)))
         write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual)
     }
     return(destfile)
