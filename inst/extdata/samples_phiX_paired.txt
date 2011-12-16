@@ -1,0 +1,4 @@
+SampleName	FileName1	FileName2
+SampleName	FileName	FileNameMate
+Sample1	sr_phiX174_1_1.fastq	sr_phiX174_1_2.fastq
+Sample2	sr_phiX174_2_1.fastq	sr_phiX174_2_2.fastq

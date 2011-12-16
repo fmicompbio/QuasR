@@ -1,2 +1,2 @@
 FileName	Class
-NC_001422.1.fa	phiX174
+phage_genomes/NC_001422.1.fa	phiX174
