@@ -77,19 +77,20 @@
         return(listBamFilenames[bfhIdx])
 }
 
-.progressReport <- function(msg, phase=0)
+.progressReport <- function(msg, phase=0, qTag="[QuasR]", quiet=getOption("quasr.quiet"))
 {
-    qTag <- "[QuasR]"
-    if(phase==0)
-        cat("done\n")
-    if(phase<=0)
-        msg <- paste(msg, "...", sep="")
-    if(phase>0)
-        cat("done\n")
-    if(msg != ""){
-        cat(qTag, msg)
+    if(!quiet){
+        if(phase==0)
+            cat("done\n")
+        if(phase<=0)
+            msg <- paste(msg, "...", sep="")
         if(phase>0)
-            cat("\n")
+            cat("done\n")
+        if(msg != ""){
+            cat(qTag, msg)
+            if(phase>0)
+                cat("\n")
+        }
     }
 }
 
