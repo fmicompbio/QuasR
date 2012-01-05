@@ -1,0 +1,2 @@
+AuxName	FileName
+phiX174	phage_genomes/NC_001422.1.fa

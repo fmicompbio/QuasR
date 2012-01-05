@@ -52,19 +52,33 @@ In this section a simple single-end ChIP-seq workflow is shown. We assume in thi
 \subsection{Create the qProject object}
 
 \subsubsection*{Create the sample file}
-The sample file is a tab delimited text file, with the two columes 'SampleName' and 'FileName' for single-end and three columes 'SampleName', 'FileName' 'FileNameMate' for a paired-end experiment.
+The sample file is a tab delimited text file, with the two columes 'SampleName' and 'FileName' for single-end
 
 \begin{tabular}{|ll|}
 \hline
 SampleName&FileName\\
-wt&filenameWt.fastq\\
-ko&filenameKo1.fastq\\
-ko&filenameKo2.fastq\\
+Sample1&sr\_phiX174\_1\_1.fastq\\
+Sample2&sr\_phiX174\_2\_1.fastq\\
+Sample2&sr\_phiX174\_2\_2.fastq\\
+\hline
+\end{tabular}\\
+and three columes 'SampleName', 'FileName1' 'FileName2' for a paired-end experiment.
+
+\begin{tabular}{|lll|}
+\hline
+SampleName&FileName1&FileName2\\
+Sample1&sr\_phiX174\_1\_1.fastq&sr\_phiX174\_1\_2.fastq\\
+Sample2&sr\_phiX174\_2\_1.fastq&sr\_phiX174\_2\_2.fastq\\
 \hline
 \end{tabular}
 
+Example files could be found in the \Rpackage{QuasR} packages.
+
 <<sampleFile, eval=FALSE>>=
-sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+sampleFile <- system.file(package="QuasR", 
+                          "extdata", "samples_phiX_single.txt")
+sampleFile <- system.file(package="QuasR", 
+                          "extdata", "samples_phiX_paired.txt")
 @
 
 \subsubsection*{Create the annotation file}

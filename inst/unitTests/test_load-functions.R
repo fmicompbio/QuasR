@@ -1,6 +1,6 @@
 test_readSamples <- function()
 {
-    sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_dm_single.txt")
     checkTrue(file.exists(sampleFile))
 
     checkException(.readSamples(file=sampleFile),
@@ -11,7 +11,7 @@ test_readSamples <- function()
               msg="Should be a data.frame.")
     checkEquals(c("name", "filepath", "filetype"), colnames(ans), 
                 msg="Colnames should be 'name', 'filepath' and 'filetype'.")
-    checkEquals(as.character(1:length(ans)), rownames(ans), 
+    checkEquals(as.character(1:dim(ans)[1]), rownames(ans), 
                 msg="Rownames are wrong.")
     checkTrue(!any(is.na(ans)), 
               msg="Should not contain NAs.")
@@ -20,23 +20,24 @@ test_readSamples <- function()
     ## TODO checkException() if basename(ans$filepath) is duplicated
     ## TODO checkExeption() if type is mix of fasta and fastq
     ## TODO check class(ans$name) ans$filepath ans$filetype
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_dm_paired.txt")
     ## TODO QuasR:::.readSamples(file=sampleFile, paired=FALSE)
     ## TODO wrong sample file format
 }
 
-# test_loadAlignments <- function(){
-#     DEACTIVATED("Not implemented yet")
-#     .loadAlignments(qproject)
-# }
+test_loadAlignments <- function(){
+    DEACTIVATED("Not implemented yet")
+    .loadAlignments(qproject)
+}
 
-test_readAnnotations <- function(){
-    annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
-    checkTrue(file.exists(annotationFile))
+test_readAuxiliaries <- function(){
+    auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    checkTrue(file.exists(auxiliaryFile))
  
-    checkException(.readAnnotations(file=annotationFile),
+    checkException(.readAuxiliaries(file=auxiliaryFile),
                    msg="Function should not be exported.")
     
-    ans <- QuasR:::.readAnnotations(file=annotationFile)
+    ans <- QuasR:::.readAuxiliaries(file=auxiliaryFile)
     checkTrue(is.data.frame(ans), 
               msg="Should be a data.frame.")
     checkEquals(c("feature", "filepath", "filetype"), colnames(ans), 
@@ -133,6 +134,7 @@ test_loadAligner <- function(){
     checkTrue(!is.null(ans$pkgversion))
 }
 
-# test_loadIndex <- function(){
-#     DEACTIVATED("Not implemented yet")
-# }
+test_loadIndex <- function(){
+    # TODO check index path / name
+    DEACTIVATED("Not implemented yet")
+}

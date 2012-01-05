@@ -1,22 +1,26 @@
 test_QuasR_BSgenome <- function()
 {
-    td <- tempdir()
+    td <- tempfile()
+    checkTrue(dir.create(td, showWarnings=FALSE, recursive=TRUE))
+    on.exit(unlink(td, recursive=TRUE))
     sampleFile <- system.file(package="QuasR", "extdata", "samples_dm_single.txt")
-    annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+    auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
     genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
-    project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, bamfileDir=td, aligner="Rbowtie")
+    project <- qProject(sampleFile, genome=genomeName, auxiliaryFile=auxiliaryFile, bamfileDir=td, aligner="Rbowtie")
     project <- qAlign(project)
     seqInfo <- seqlengths(Dmelanogaster)
     gr <- GRanges(seqnames=names(seqInfo), ranges=IRanges(1, width=seqInfo), seqlengths=seqInfo)
     cnt <- qCount(project, gr)
-    ## align with existing index
+    cnt## align with existing index
     project <- qAlign(project)
 }
 
 
 test_QuasR_FastaDirGenome <- function()
 {
-    td <- tempdir()
+    td <- tempfile()
+    checkTrue(dir.create(td, showWarnings=FALSE, recursive=TRUE))
+    on.exit(unlink(td, recursive=TRUE))
     sampleFile <- system.file(package="QuasR", "extdata", "samples_phiX_single.txt")
     genomeName <- system.file(package="QuasR", "extdata", "phage_genomes")
     project <- qProject(sampleFile, genome=genomeName, bamfileDir=td, aligner="Rbowtie")
@@ -30,7 +34,9 @@ test_QuasR_FastaDirGenome <- function()
 
 test_QuasR_FastaFileGenome <- function()
 {
-    td <- tempdir()
+    td <- tempfile()
+    checkTrue(dir.create(td, showWarnings=FALSE, recursive=TRUE))
+    on.exit(unlink(td, recursive=TRUE))
     sampleFile <- system.file(package="QuasR", "extdata", "samples_phiX_single.txt")
     genomeName <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa")
     project <- qProject(sampleFile, genome=genomeName, bamfileDir=td, aligner="Rbowtie")
