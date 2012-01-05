@@ -81,7 +81,7 @@
 .BSgenomeSeqToFasta <- function(bsgenome, outFile=tempfile(fileext=".fa"))
 {
     if(!is(bsgenome, "BSgenome"))
-        stop("The variable 'bsgenome'' is not a BSgenome")
+        stop("The variable 'bsgenome' is not a BSgenome")
     append <- FALSE
     for(chrT in seqnames(bsgenome)){
         if(is.null(masks(bsgenome[[chrT]])))
