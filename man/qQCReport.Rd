@@ -10,7 +10,7 @@ available plot vary depending on whether base qualities are available
 }
 
 \usage{
-    qQCReport(qproject, pdfFilename=NULL, chunkSize=1e6, \dots{})
+    qQCReport(qproject, pdfFilename=NULL, chunkSize=1e6, \dots)
 }
 
 \arguments{
@@ -21,7 +21,7 @@ available plot vary depending on whether base qualities are available
       device.}
     \item{chunkSize}{The number of sequences or alignments that will be
       sampled from each file to collect quality statistics.}
-    \item{\dots{}}{additional arguments that will be passed to the functions
+    \item{\dots}{additional arguments that will be passed to the functions
       generating the individual quality control plots, see Details.}
 }
 
@@ -82,7 +82,7 @@ available plot vary depending on whether base qualities are available
 
 \seealso{
   \code{\linkS4class{qProject}}, \code{\link{qAlign}},
-  \code{\link[=ShortRead-package]{ShortRead}} package
+  \code{\link[=ShortReadBase-package]{ShortRead}} package
 }
 
 \examples{

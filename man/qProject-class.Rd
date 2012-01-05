@@ -38,7 +38,7 @@ qProject(sampleFile="Sample.txt",
      bisulfite=FALSE,
      lib.loc=NULL,
      indexLocation=NULL,
-     maxHits=99L,
+     maxHits=100L,
      cacheDir=NULL,
      alignmentParameter)
 
