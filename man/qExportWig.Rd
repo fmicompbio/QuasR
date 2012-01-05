@@ -15,7 +15,7 @@ files of the \sQuote{QuasR} project.
 }
 
 \arguments{
-  \item{qProject}{A \sQuote{qProject} object containing all information
+  \item{qproject}{A \sQuote{qProject} object containing all information
     from the current project.}
   \item{file}{A character vector with the name(s) for the wig file(s) to
     be generated. Either \sQuote{NULL}, a single file name for
@@ -36,7 +36,9 @@ files of the \sQuote{QuasR} project.
     fragment length, see details). If \sQuote{length(shift)>1}, the
     length must match the number of samples in \sQuote{qproject}, and
     the i-th sample will be converted to wig using the value in
-    \sQuote{shift[i]}. \sQuote{shift} will be coerced to integer().}
+    \sQuote{shift[i]}. \sQuote{shift} will be coerced to integer(). For
+    paired-end alignments, \sQuote{shift} will be ignored, and a warning
+    will be issued if it is set to a non-zero value (see details).}
   \item{maxHits}{Only include alignments of reads with no more than
     \sQuote{maxHits} hits to the genome.}
   \item{normalize}{If TRUE, the output values in the wig file(s)
@@ -59,16 +61,20 @@ files of the \sQuote{QuasR} project.
   definition of the wig format.
   
   The genome is tiled with sequential windows of size \sQuote{width},
-  and alignments in the bam file are assigned to these windows according
-  to their 5'-end coordinate shifted by \sQuote{shift} towards the
-  3'-end. The 5'-end is the leftmost coordinate for plus-strand
-  alignments, and the rightmost coordinate for minus-strand alignments.
+  and alignments in the bam file are assigned to these windows: Single
+  read alignments are assigned according to their 5'-end coordinate
+  shifted by \sQuote{shift} towards the 3'-end (The 5'-end is the
+  leftmost coordinate for plus-strand alignments, and the rightmost
+  coordinate for minus-strand alignments). Paired-end alignments are
+  assigned according to the base in the middle between the leftmost and
+  rightmost coordinates of the aligned pair of reads. Each pair of reads
+  is only counted once, and unpaired alignments are ignored.
 
   For \sQuote{normalize=TRUE}, the number of alignments per window
   \sQuote{n} for the sample \sQuote{i} are linearly scaled to the
   minimum total number of alignments over all samples in
   \sQuote{qproject} according to:
-  \sQuote{n_norm = n /N[i] *mean(N)}
+  \sQuote{n_norm = n /N[i] *min(N)}
   where \sQuote{n_norm} is the normalized number of alignments in the
   window, \sQuote{N} is a vector with the total number of alignments for
   each sample.

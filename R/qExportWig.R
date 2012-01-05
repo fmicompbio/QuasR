@@ -7,6 +7,7 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
   bamfiles <- qproject@env$alignments$genome
   n <- length(bamfiles)
   idx <- !is.na(qproject@env$alignments$genome)
+  paired <- qproject@env$paired
 
   if(is.null(file))
     if(combined)
@@ -32,6 +33,8 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
     stop("'shift' has to be a vector of integer values.")
   if(length(shift)!=1 && length(shift)!=n)
     stop("'shift' has to contain either a single value or exactly one value per sample.")
+  if(paired && shift!=0L)
+    warning("'shift' will not be used for paired-end alignments.")
   if(length(shift)==1)
     shift <- rep(shift,n)
 
@@ -80,7 +83,7 @@ qExportWig <- function(qproject, file=NULL, combined=TRUE, width=100L, shift=0L,
   if(combined && file.exists(file))
     unlink(file)
   lapply(which(idx), function(i)
-         bamfileToWig(bamFname=bamfiles[i], wigFname=ifelse(combined[1], file[1], file[i]), width=width[i], shift=shift[i],
+         bamfileToWig(bamFname=bamfiles[i], wigFname=ifelse(combined[1], file[1], file[i]), width=width[i], shift=shift[i], paired=paired,
                       maxHits=maxHits, normFactor=fact[i], trackname=tracknames[i], color=colors[i], append=combined, quiet=TRUE))
   .progressReport("", phase=1)
 

@@ -8,8 +8,9 @@ Create a fixed-step wig file from the alignments in a bam file.
 }
 
 \usage{
-    bamfileToWig(bamFname, wigFname=NULL, width=100L, shift=0L, maxHits=100L,
-    normFactor=1.0, trackname=NULL, color="#1B9E77", append=FALSE, quiet=FALSE)
+    bamfileToWig(bamFname, wigFname=NULL, width=100L, shift=0L,
+    paired=FALSE, maxHits=100L, normFactor=1.0, trackname=NULL,
+    color="#1B9E77", append=FALSE, quiet=FALSE)
 }
 
 \arguments{
@@ -21,7 +22,10 @@ Create a fixed-step wig file from the alignments in a bam file.
   \item{width}{A scalar value defining the window size and step size
     for the wig file (will be coerced to integer()).}
   \item{shift}{A scalar value defining the read shift (e.g. half of
-    fragment length, see details).}
+    fragment length, see details). \sQuote{shift} is ignored if
+    \sQuote{paired=TRUE}.}
+  \item{paired}{If \sQuote{TRUE}, only count paired alignments and
+    assign them to the base in the middle (see details).}
   \item{maxHits}{Only include alignments of reads with no more than
     \sQuote{maxHits} hits to the genome. Warning: If
     \sQuote{bamfileToWig} is called directly (rather than by
@@ -48,10 +52,15 @@ Create a fixed-step wig file from the alignments in a bam file.
   \sQuote{maxHits=1} will thus produce a wig file from uniquely mapped reads.
   
   The genome is tiled with sequential windows of size \sQuote{width},
-  and alignments in the BAM file are assigned to these windows according
-  to their 5'-end coordinate shifted by \sQuote{shift} towards the
-  3'-end. The 5'-end is the leftmost coordinate for plus-strand
-  alignments, and the rightmost coordinate for minus-strand alignments.
+  and alignments in the BAM file are assigned to these windows: If
+  \sQuote{paired=FALSE} individual read alignments are assigned
+  according to their 5'-end coordinate shifted by \sQuote{shift} towards
+  the 3'-end (The 5'-end is the leftmost coordinate for plus-strand
+  alignments, and the rightmost coordinate for minus-strand
+  alignments). If \sQuote{paired=TRUE}, the paired-end alignments are
+  assigned according to the base in the middle between the leftmost and
+  rightmost coordinates of the aligned pair of reads. Each pair of reads
+  is only counted once, and unpaired alignments are ignored.
 
   The resulting wig file can be compressed and is suitable for uploading
   as a custom track to your favortie genome browser (e.g. UCSC or Ensembl).

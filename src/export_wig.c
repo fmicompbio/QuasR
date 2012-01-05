@@ -18,7 +18,8 @@
   remark: could support compression by linking to the zlibbioc package
   see: http://www.bioconductor.org/packages/2.9/bioc/vignettes/zlibbioc/inst/doc/UsingZlibbioc.pdf
 */
-SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxHits, SEXP normFactor, SEXP trackname, SEXP color, SEXP append) {
+SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP paired,
+		    SEXP maxHits, SEXP normFactor, SEXP trackname, SEXP color, SEXP append) {
     if (!isString(bam_in)    || 1 != length(bam_in))
         error("'bam_in' must be character(1)");
     if (!isString(wig_out)   || 1 != length(wig_out))
@@ -27,6 +28,8 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxH
         error("'width' must be integer(1)");
     if (!isInteger(shift)    || 1 != length(shift))
         error("'shift' must be integer(1)");
+    if (!isLogical(paired)   || 1 != length(paired))
+        error("'paired' must be logical(1)");
     if (!isInteger(maxHits)  || 1 != length(maxHits))
         error("'maxHits' must be integer(1)");
     if (!isReal(normFactor)  || 1 != length(normFactor))
@@ -38,10 +41,11 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxH
     if (!isLogical(append)   || 1 != length(append))
         error("'append' must be logical(1)");
     
-    int i=0, w=asInteger(width), s=asInteger(shift), m=asInteger(maxHits), beg=0, end=0x7fffffff;
+    int i=0, w=asInteger(width), s=asInteger(shift), m=asInteger(maxHits); // beg=0, end=0x7fffffff;
     int32_t ih=0, currTid=0, currTlen=0, currTbin=0, hitPos=0;
     double *currCount=NULL, f=asReal(normFactor);
     int a=asLogical(append);
+    int p=asLogical(paired);
     const char *bi=translateChar(asChar(bam_in));
     const char *wo=translateChar(asChar(wig_out));
     const char *tn=translateChar(asChar(trackname));
@@ -53,6 +57,7 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxH
     if(m == NA_INTEGER) error("invalid '%s' value", "maxHits");
     if(f == NA_REAL)    error("invalid '%s' value", "normFactor");
     if(a == NA_LOGICAL) error("'%s' must be TRUE or FALSE", "append");
+    if(p == NA_LOGICAL) error("'%s' must be TRUE or FALSE", "paired");
 
     samfile_t *fin = _bam_tryopen(bi, "rb", NULL);
     if (fin->header == 0) {
@@ -82,40 +87,83 @@ SEXP bamfile_to_wig(SEXP bam_in, SEXP wig_out, SEXP width, SEXP shift, SEXP maxH
     currCount = (double*)calloc(currTbin,sizeof(double)); // sum of alignment weights per window on current target
     fprintf(fout, "fixedStep chrom=%s start=1 step=%d span=%d\n", fin->header->target_name[currTid], w, w);
 
-    while( samread(fin, hit) > 0) {
-	if (hit->core.flag & BAM_FUNMAP) // skip unmapped reads
-	    continue;
+    if (p) { // paired-end alignments: ignore unpaired alignments, ignore value of shift (use half of offset between pair)
+	while( samread(fin, hit) > 0) {
+	    if (!(hit->core.flag & BAM_FPROPER_PAIR)) // skip reads that are not aligned as a proper pair
+		continue;
 
-	// get alignment inverse weight (aux tag "IH")
-	ih = get_inverse_weight(hit);
-	if (ih > m || ih==0) // skip alignments of reads with more than maxHits (m) hits
-	    continue;
+	    if (hit->core.flag & BAM_FREAD2) // skip read2 of proper pairs
+		continue;
 
-	// get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
-	if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
-	    hitPos = bam_calend(&(hit->core), bam1_cigar(hit)) - s;
-	else                              // alignment on plus strand
-	    hitPos = hit->core.pos + s;
-	if (hitPos < 0)
-	    hitPos = 0;
-	if (hitPos >= currTlen)
-	    hitPos = currTlen-1;
+	    // get alignment inverse weight (aux tag "IH")
+	    ih = get_inverse_weight(hit);
+	    if (ih > m || ih==0) // skip alignments of reads with more than maxHits (m) hits
+		continue;
 
-	if (currTid != hit->core.tid) {
-	    // output former target
-	    for(i=0; i<currTbin; i++)
-		fprintf(fout, "%.1f\n", currCount[i]);
-	    // start a new target
-	    currTid = hit->core.tid;
-	    currTlen = fin->header->target_len[currTid];
-	    currTbin = ceil((double)currTlen /w);
-	    fprintf(fout, "fixedStep chrom=%s start=1 step=%d span=%d\n", fin->header->target_name[currTid], w, w);
-	    free(currCount);
-	    currCount = (double*)calloc(currTbin,sizeof(double));
+	    // get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
+	    // REMARK: assuming --fr orientation of paired alignments (as for Illumina paired-end protocol)
+	    if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
+		hitPos = bam_calend(&(hit->core), bam1_cigar(hit)) + hit->core.isize /2;
+	    else                               // alignment on plus strand
+		hitPos = hit->core.pos + hit->core.isize /2;
+	    if (hitPos < 0)
+		hitPos = 0;
+	    if (hitPos >= currTlen)
+		hitPos = currTlen-1;
+
+	    if (currTid != hit->core.tid) {
+		// output former target
+		for(i=0; i<currTbin; i++)
+		    fprintf(fout, "%.1f\n", currCount[i]);
+		// start a new target
+		currTid = hit->core.tid;
+		currTlen = fin->header->target_len[currTid];
+		currTbin = ceil((double)currTlen /w);
+		fprintf(fout, "fixedStep chrom=%s start=1 step=%d span=%d\n", fin->header->target_name[currTid], w, w);
+		free(currCount);
+		currCount = (double*)calloc(currTbin,sizeof(double));
+	    }
+
+	    // add hit to current window
+	    currCount[ (int)floor((double)hitPos /w) ] += f/ih;
 	}
 
-	// add hit to current window
-	currCount[ (int)floor((double)hitPos /w) ] += f/ih;
+    } else { // single read alignments
+	while( samread(fin, hit) > 0) {
+	    if (hit->core.flag & BAM_FUNMAP) // skip unmapped reads
+		continue;
+
+	    // get alignment inverse weight (aux tag "IH")
+	    ih = get_inverse_weight(hit);
+	    if (ih > m || ih==0) // skip alignments of reads with more than maxHits (m) hits
+		continue;
+
+	    // get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
+	    if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
+		hitPos = bam_calend(&(hit->core), bam1_cigar(hit)) - s;
+	    else                               // alignment on plus strand
+		hitPos = hit->core.pos + s;
+	    if (hitPos < 0)
+		hitPos = 0;
+	    if (hitPos >= currTlen)
+		hitPos = currTlen-1;
+
+	    if (currTid != hit->core.tid) {
+		// output former target
+		for(i=0; i<currTbin; i++)
+		    fprintf(fout, "%.1f\n", currCount[i]);
+		// start a new target
+		currTid = hit->core.tid;
+		currTlen = fin->header->target_len[currTid];
+		currTbin = ceil((double)currTlen /w);
+		fprintf(fout, "fixedStep chrom=%s start=1 step=%d span=%d\n", fin->header->target_name[currTid], w, w);
+		free(currCount);
+		currCount = (double*)calloc(currTbin,sizeof(double));
+	    }
+
+	    // add hit to current window
+	    currCount[ (int)floor((double)hitPos /w) ] += f/ih;
+	}
     }
 
     // output last target
