@@ -12,29 +12,41 @@ setMethod("initialize", "qProject", function(.Object, name, ...){
     callNextMethod(.Object, env=env, name=name, id=id, ...)
 })
 
-qProject <- function(sampleFile="Sample.txt", genome=".",
-                     annotationFile=NULL, aligner="Rbowtie",
-                     projectName="qProject", bamfileDir=NULL, paired=FALSE,
-                     junction=FALSE, bisulfite=FALSE, lib.loc=NULL,
+qProject <- function(sampleFile, genome,
+                     auxiliaryFile=NULL, aligner="Rbowtie",
+                     projectName="qProject", bamfileDir=NULL,
+                     splicedAlignment=FALSE, bisulfite=FALSE, lib.loc=NULL,
                      indexLocation=NULL, maxHits=100L,
                      cacheDir=NULL,
                      alignmentParameter)
 {
+    if(missing(sampleFile))
+        stop("Missing 'sampleFile' parameter.")
+    if(missing(genome))
+        stop("Missing 'genome' parameter.")
+
     .progressReport("Gathering filepath information", phase=-1)
     qproject <- new("qProject", projectName)
-    if(!is.null(bamfileDir) && bamfileDir == ".")
-         bamfileDir <- tools::file_path_as_absolute(".")
+    if(!is.null(bamfileDir)){
+        ## convert to absolut filename
+        if(bamfileDir == ".")
+            bamfileDir <- tools::file_path_as_absolute(".")
+        if(substr(bamfileDir, 1, 1) != "/")
+            bamfileDir <- file.path(getwd(), bamfileDir)
+    }
     assign("bamfileDir", bamfileDir, qproject@env)
     sampleFile <- tools::file_path_as_absolute(sampleFile)
-    samples <- .readSamples(sampleFile, paired=paired)
+    samples <- .readSamples(sampleFile)
     assign("samples", samples, qproject@env)
-    if(is.null(annotationFile)){
-        annotations <- NULL
+    paired <- ifelse(length(samples) == 3, FALSE, TRUE)
+    assign("paired", paired, qproject@env)    
+    if(is.null(auxiliaryFile)){
+        auxiliaries <- NULL
     }else{
-        annotationFile <- tools::file_path_as_absolute(annotationFile)
-        annotations <- .readAnnotations(annotationFile)
+        auxiliaryFile <- tools::file_path_as_absolute(auxiliaryFile)
+        auxiliaries <- .readAuxiliaries(auxiliaryFile)
     }
-    assign("annotations", annotations, qproject@env)
+    assign("auxiliaries", auxiliaries, qproject@env)
     genome <- .checkGenome(genome, lib.loc=lib.loc)
     assign("genome", genome, qproject@env)
     aligner <- .loadAligner(aligner, lib.loc=lib.loc)
@@ -42,13 +54,18 @@ qProject <- function(sampleFile="Sample.txt", genome=".",
     if(!is.null(indexLocation))
         indexLocation <- tools::file_path_as_absolute(indexLocation)
     assign("indexLocation", indexLocation, qproject@env)
-    if(is.null(cacheDir))
+    if(is.null(cacheDir)){
+#         cacheDir <- tempfile(pattern="quasr_")
         cacheDir <- tempdir()
-    else
+        dir.create(path=cacheDir, showWarnings=FALSE)
+    }else
         cacheDir <- tools::file_path_as_absolute(cacheDir)
     assign("cacheDir", cacheDir, qproject@env)
-    assign("paired", paired, qproject@env)
-    assign("junction", junction, qproject@env)
+    if(splicedAlignment)
+        stop("Spliced alignment mode is not implemented yet.")
+    assign("splicedAlignment", splicedAlignment, qproject@env)
+    if(bisulfite)
+        stop("Bisulfite mode is not implemented yet.")
     assign("bisulfite", bisulfite, qproject@env)
     assign("maxHits", maxHits, qproject@env) 
     if(missing(alignmentParameter) || is.null(alignmentParameter) || alignmentParameter == "" )
@@ -87,61 +104,62 @@ setMethod("show","qProject", function(object){
            function(index){
                cat(index, paste(as.matrix(object@env$alignments[index]), collapse="\n"), sep="\n")
            })
+    return(invisible(NULL))
 })
 
-qSaveProject <- function(project, filename)
+qSaveProject <- function(qproject, filename)
 {
-    if(!is(project, "qProject"))
+    if(!is(qproject, "qProject"))
         stop("The variable project is not a qProject")
     if(missing(filename))
-        filename <- file.path(project@env$bamfileDir, paste(project@id, "rds", sep="."))
+        filename <- file.path(paste(qproject@id, "rds", sep="."))
     ## TODO calculate checksum of files or save modification date
-    saveRDS(project, file=filename)
+    saveRDS(qproject, file=filename)
     return(filename)
 }
 
 qReadProject <- function(filename)
 {
-    project <- readRDS(file=filename)
+    qproject <- readRDS(file=filename)
     ## TODO check qProject with checksum, path ...
-    return(project)
+    return(qproject)
 }
 
-getGenomeInformation <- function(qProject, ...){
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
-
-    if(is.null(qProject@env$genome$sequenceInfo)){
-        if(qProject@env$genome$bsgenome)
-            qProject@env$genome$sequenceInfo <- seqlengths(.loadBSgenome(qProject@env$genome$name, ...))
-        else {
-            faList <- open(FaFileList(file.path(qProject@env$genome$dir, qProject@env$genome$files)))
-            qProject@env$genome$sequenceInfo <- seqlengths(IRanges::unlist(GRangesList(IRanges::lapply(faList, scanFaIndex))))
-        }
-    }
-    return(qProject@env$genome$sequenceInfo)
-}
-
-getAlignments <- function(qProject){
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    return(qProject@env$alignments)
-}
-
-getSamples <- function(qProject){
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    return(qProject@env$samples)
-}
-
-paired <- function(qProject){
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    return(qProject@env$paired)
-}
-
-bamfileDir <- function(qProject){
-    if(!is(qProject, "qProject"))
-        stop("The object '", class(qProject), "' is not a 'qProject' object.")
-    return(qProject@env$bamfileDir)
-}
+# getGenomeInformation <- function(qProject, ...){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+# 
+#     if(is.null(qProject@env$genome$sequenceInfo)){
+#         if(qProject@env$genome$bsgenome)
+#             qProject@env$genome$sequenceInfo <- seqlengths(.loadBSgenome(qProject@env$genome$name, ...))
+#         else {
+#             faList <- open(FaFileList(file.path(qProject@env$genome$dir, qProject@env$genome$files)))
+#             qProject@env$genome$sequenceInfo <- seqlengths(IRanges::unlist(GRangesList(IRanges::lapply(faList, scanFaIndex))))
+#         }
+#     }
+#     return(qProject@env$genome$sequenceInfo)
+# }
+# 
+# getAlignments <- function(qProject){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+#     return(qProject@env$alignments)
+# }
+# 
+# getSamples <- function(qProject){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+#     return(qProject@env$samples)
+# }
+# 
+# paired <- function(qProject){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+#     return(qProject@env$paired)
+# }
+# 
+# bamfileDir <- function(qProject){
+#     if(!is(qProject, "qProject"))
+#         stop("The object '", class(qProject), "' is not a 'qProject' object.")
+#     return(qProject@env$bamfileDir)
+# }

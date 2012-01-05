@@ -19,15 +19,19 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
     }
 
     ## create index and align unmapped reads to annotation
-    if(!is.null(qproject@env$annotations) && any(is.na(qproject@env$alignments))){
+    if(!is.null(qproject@env$auxiliaries) && any(is.na(qproject@env$alignments))){
         ## get unmapped reads
         .progressReport("Get unmapped reads")
-        unmapped <- unlist(lapply(qproject@env$alignments$genome, .unmappedToFasta))
-        on.exit(unlink(unmapped))        
+        if(any("fasta" %in% qproject@env$samples$filetype))
+            unmapped <- unlist(lapply(qproject@env$alignments$genome, .unmappedToFasta))
+        else
+            unmapped <- unlist(lapply(qproject@env$alignments$genome, .unmappedToFastq))
+        on.exit(unlink(unmapped))
         ## create auxiliary index
         .progressReport("Creating index of auxiliaries")
         auxIndexes <- .createAuxiliaryIndex(qproject)
-#         on.exit(unlink(auxIndexes$path)) ## TODO delete aux index file in the end
+        auxIndexDir <- dirname(dirname(auxIndexes[[1]]$path))
+        on.exit(unlink(auxIndexDir, recursive=TRUE), add=TRUE)
         qproject@env$index[names(auxIndexes)] <- auxIndexes
         auxIndexes <- names(auxIndexes)
         ## align unmapped reads auxiliary index
@@ -62,19 +66,29 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
 }
 
 .unmappedToFasta <- function(bamFile, destFile){
+    if(length(bamFile) != 1L)
+        stop("Parameter 'bamFile' must be of length one.")
+    param <- ScanBamParam(flag=scanBamFlag(isUnmappedQuery=TRUE),
+                          what=c("qname", "seq"))
+    unmapped <- scanBam(bamFile, param=param)
+    names(unmapped[[1]]$seq) <- unmapped[[1]]$qname
+    if(missing(destFile))
+            destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fasta", .baseFileName(bamFile)))
+    write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fasta")
+#     writeFasta(chunks[filter], outputFilename, mode=mode)
+    return(destfile)
+}
+
+.unmappedToFastq <- function(bamFile, destFile){
+    if(length(bamFile) != 1L)
+        stop("Parameter 'bamFile' must be of length one.")
     param <- ScanBamParam(flag=scanBamFlag(isUnmappedQuery=TRUE),
                           what=c("qname", "seq", "qual"))
     unmapped <- scanBam(bamFile, param=param)
     names(unmapped[[1]]$seq) <- unmapped[[1]]$qname
-
-    if(length(IRanges::unique(unmapped[[1]]$qual)) <= 1L){
-        if(missing(destFile))
-            destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fasta", .baseFileName(bamFile)))
-        write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fasta")
-    } else {
-        if(missing(destFile))
-            destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fastq", .baseFileName(bamFile)))
-        write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual)
-    }
+    if(missing(destFile))
+        destfile <- file.path(dirname(bamFile), sprintf("%s_unmapped.fastq", .baseFileName(bamFile)))
+    write.XStringSet(unmapped[[1]]$seq, file=destfile, format="fastq", qualities=unmapped[[1]]$qual)
+#     writeFastq(chunks[filter], outputFilename, mode=mode, qualityType="Auto")
     return(destfile)
 }

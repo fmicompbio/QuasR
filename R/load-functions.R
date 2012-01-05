@@ -1,8 +1,8 @@
-.readSamples <- function(file="samples.txt", paired=FALSE, sep="\t", row.names=NULL,  quote="\"", ...)
+.readSamples <- function(file="samples.txt", sep="\t", row.names=NULL,  quote="\"", ...)
 {
     .progressReport("Read sample file")
     tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
-    if(!paired){
+    if(!all(c("FileName1", "FileName2") %in% names(tab))){
         ## convert to absolut filename
         tab$FileName[dirname(tab$FileName) == "."] <- 
             file.path(dirname(file), tab$FileName[dirname(tab$FileName) == "."])
@@ -15,7 +15,11 @@
         ## check if filename is duplicated
         if(any(checkFile <- duplicated(basename(tab$FileName))))
             stop("Duplicated filename ", paste(unique(basename(tab$FileName[checkFile])), collapse=", "))
-        return(data.frame(name=tab$SampleName, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
+        ## check filetype
+        filetype <- .fileType(tab$FileName)
+        if(all(c("fasta", "fastq") %in% filetype))
+            stop("'FileName' should be either fasta or fastq files.")
+        return(data.frame(name=tab$SampleName, filepath=I(tab$FileName), filetype=filetype))
     }else{
         ## convert to absolut filename
         tab$FileName1[dirname(tab$FileName1) == "."] <-
@@ -35,9 +39,17 @@
             stop("File not found: ", paste(tab$FileName2[!checkFile], collapse=", "))
         ## check if filename is duplicated
         if(any(checkFile <- duplicated(basename(tab$FileName1))))
-            stop("Duplicated filename ", paste(unique(basename(tab$FileName1[checkFile])), collapse=", ")) #TODO for mate too
+            stop("In sampleFile; Duplicated filename ", paste(unique(basename(tab$FileName1[checkFile])), collapse=", "))
+        if(any(checkFile <- duplicated(basename(tab$FileName2))))
+            stop("In sampleFile; Duplicated filename ", paste(unique(basename(tab$FileName2[checkFile])), collapse=", "))
+        ## check filetype
+        filetype <- .fileType(tab$FileName1)
+        if(all(filetype != .fileType(tab$FileName2)))
+            stop("In sampleFile; 'FileName2' should have same filetype as 'FileName1'")
+        if(all(c("fasta", "fastq") %in% filetype))
+            stop("In sampleFile; 'FileName1' and 'FileName2' should be either fasta or fastq files.")
         return(data.frame(name=tab$SampleName, filepath1=I(tab$FileName1),
-                          filepath2=I(tab$FileName2), filetype=.fileType(tab$FileName1)))
+                          filepath2=I(tab$FileName2), filetype=filetype))
     }
 }
 
@@ -64,9 +76,9 @@
            }))
            #TODO what when more than one results
     ## load auxiliary alignment
-    if(!is.null(qproject@env$annotations)){
-        aux <- qproject@env$annotations$filepath[qproject@env$annotations$filetype == "fasta"]
-        names(aux) <- qproject@env$annotations$feature[qproject@env$annotations$filetype == "fasta"]
+    if(!is.null(qproject@env$auxiliaries)){
+        aux <- qproject@env$auxiliaries$filepath[qproject@env$auxiliaries$filetype == "fasta"]
+        names(aux) <- qproject@env$auxiliaries$feature[qproject@env$auxiliaries$filetype == "fasta"]
         auxAlignment <- lapply(aux, function(a){
             unlist(lapply(qproject@env$samples$filepath, 
                       function(filepath){
@@ -97,25 +109,29 @@
     return(alignments)
 }
 
-.readAnnotations <- function(file="annotations.txt", sep="\t", row.names=NULL, quote="\"", ...)
+.readAuxiliaries <- function(file="auxiliaries.txt", sep="\t", row.names=NULL, quote="\"", ...)
 {
-    .progressReport("Read annotation file")
+    .progressReport("Read auxiliary file")
     if(!file.exists(file))
         stop("File '", file, "'not found.")
     tab <- read.table(file, header=TRUE, as.is=TRUE, sep=sep, quote=quote, fill=TRUE, ...)
-    if(dirname(file) != ".")
-        tab$FileName[dirname(tab$FileName) == "."] <- file.path(dirname(file), tab$FileName)
+    
+    tab$FileName[dirname(tab$FileName) == "."] <- 
+        file.path(dirname(file), tab$FileName[dirname(tab$FileName) == "."])
+    tab$FileName[substr(tab$FileName, 1, 1) != "/"]  <- 
+        file.path(dirname(file), tab$FileName[substr(tab$FileName, 1, 1) != "/"])
     checkFile <- file.exists(tab$FileName)
     if(any(!checkFile))
         stop("File not found: ", paste(tab$FileName[!checkFile], collapse=", "))
-    return(data.frame(feature=tab$Class, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
+    return(data.frame(feature=tab$AuxName, filepath=I(tab$FileName), filetype=.fileType(tab$FileName)))
 }
 
 .loadBSgenome <- function(pkgname, lib.loc=NULL)
 {
     if(!pkgname %in% installed.packages()[,'Package']){
         ## download BSgenome
-        if(suppressWarnings(require(BiocInstaller, quietly=TRUE, lib.loc=lib.loc)))
+
+#         if(suppressWarnings(require(BiocInstaller, quietly=TRUE, lib.loc=lib.loc)))
             BiocInstaller::biocLite(pkgname, suppressUpdates=TRUE, lib=lib.loc)
     }
     ## load BSgenome
@@ -139,8 +155,10 @@
         dir <- dirname(dirname)
         files <- basename(dirname)
       }
-    name <- gsub("_", "", dirname) # TODO maybe remove gsub
-    shortname <- gsub("_", "", basename(name))
+    name <- dirname
+#     name <- gsub("_", "", dirname) # TODO maybe remove gsub
+    shortname <- basename(name)
+#     shortname <- gsub("_", "", basename(name))
     return(list(name=name, shortname=shortname, dir=dir, files=files, bsgenome=FALSE))
 }
 
@@ -156,11 +174,15 @@
     if(genomeName %in% installed.packages()[,'Package'])
         return(list(name=genomeName, bsgenome=TRUE))
     ## check if there is a BSgenome available with this name
-    require(BSgenome, quietly=TRUE, lib.loc=lib.loc)
-    if(genomeName %in% available.genomes()){
+#     require(BSgenome, quietly=TRUE, lib.loc=lib.loc)
+    if(testBioCConnection() && genomeName %in% available.genomes()){
         return(list(name=genomeName, bsgenome=TRUE))
-    } else
-        stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse=""), sep="")
+    } else {
+        if(!testBioCConnection())
+            stop("No connection to the Bioconductor website.\nCan't check existens of genome '", genomeName, "'.")
+        else
+            stop("Genome '", genomeName, "' not found.\nChoose a 'fasta' file, a directory containing 'fasta' files or one of the following BSgenomes:\n", paste(available.genomes(), "\n", collapse=""), sep="")
+    }
 }
 
 .loadAligner <- function(pkgname, lib.loc=NULL){
@@ -191,21 +213,33 @@
             srcPkgDir <- .createIndexPackage(qproject, lib.loc=lib.loc)
             .installIndexPackage(srcPkgDir, lib=lib)
             pkgname <- basename(srcPkgDir)
+            unlink(srcPkgDir, recursive=TRUE)
             require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
             index <- get(ls(sprintf("package:%s", pkgname))[1])
         }
     } else {
+        ## set index directory
         if(is.null(qproject@env$indexLocation))
-            indexDir <- file.path(qproject@env$genome$dir, sprintf("%sIndex", qproject@env$aligner$pkgname))
+            indexDir <- file.path(qproject@env$genome$dir, 
+                                  sprintf("%sIndex_%s", qproject@env$aligner$pkgname, qproject@env$genome$shortname))
         else
-            indexDir <- file.path(qproject@env$indexLocation, sprintf("%sIndex", qproject@env$aligner$pkgname))
+            indexDir <- file.path(qproject@env$indexLocation, 
+                                  sprintf("%sIndex_%s", qproject@env$aligner$pkgname, qproject@env$genome$shortname))
+        ## load or create index from index directory
         if(!file.exists(indexDir)){
             .progressReport("No index found. Create index now")
             index <- .createGenomeIndex(qproject)
         } else {
-            index <- read.table(file=file.path(indexDir,"index.tab"), sep="\t", header=TRUE)
             ## set index path
-            index$path <- file.path(indexDir, index$shortname) # TODO or from index.tab file
+            index <- read.table(file=file.path(indexDir, sprintf("%s.tab", qproject@env$genome$shortname)), 
+                                sep="\t", header=TRUE)
+            ## check index source
+            fastaFiles <- paste(file.path(qproject@env$genome$dir, qproject@env$genome$files), collapse=",")
+            if(index$sourceurl != fastaFiles)
+                stop("Genome and index don't match.")
+            # TODO fix index path if index was moved
+#             index$path <- file.path(indexDir, index$shortname)
+#             index$path <- file.path(indexDir, qproject@env$genome$shortname)
         }
     }
     return(index)

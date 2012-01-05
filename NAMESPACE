@@ -9,6 +9,5 @@ import(IRanges)
 importFrom(Biobase, createPackage, testBioCConnection)
 importFrom(rtracklayer, import.gff2)
 
-exportPattern("^[^\\.]")
-
+export(qProject, qAlign, qCount, qQCReport, qExportWig, preprocessReads, qSaveProject, qReadProject)
 

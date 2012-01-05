@@ -69,6 +69,8 @@ setMethod("qCount",
           .progressReport("Starting count alignments", phase=-1)
           bamFiles <- unlist(qproject@env$alignments$genome)
 
+          .checkBamfileTargets(bamFiles, query)
+          
           if(collapseSamples == TRUE){
               counts <- lapply(split(bamFiles, qproject@env$samples$name), 
                                .countAlignments, 

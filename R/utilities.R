@@ -1,8 +1,9 @@
 .requirePkg <- function(pkgname, strict=TRUE, lib.loc=NULL)
 {
     ## check package installed
-    if(!require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc))
-        stop("Can not find the '", pkgname, "' package.")
+    if(length(find.package(pkgname, quiet=FALSE, lib.loc=lib.loc)) == 0)
+       stop("Can not find the '", pkgname, "' package.")
+    require(pkgname, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)
     ## check package version
     current <- installed.packages(lib.loc=lib.loc)[pkgname, 'Version']
     pkgs <- unlist(strsplit(installed.packages(lib.loc=lib.loc)['QuasR','Suggests'], ","))
@@ -75,6 +76,22 @@
         return(NA)
     else
         return(listBamFilenames[bfhIdx])
+}
+
+.checkBamfileTargets <- function(bamFilenames, grange)
+{
+    bfh <- scanBamHeader(bamFilenames)
+    bfhTargets <- lapply(bfh, function(x){
+        names(x$targets)
+    })
+    names(bfhTargets) <- bamFilenames
+    query <- as.character(unique(seqnames(grange)))
+    target <- unlist(unique(bfhTargets))
+    idx <- query %in% target
+    if(any(!idx))
+        stop("Query sequence '", paste(query[!idx], collapse="', '"),
+             "' not found as bamfile target '", paste(target, collapse="', '"), "'.")
+    return(all(idx))
 }
 
 .progressReport <- function(msg, phase=0, qTag="[QuasR]", quiet=getOption("quasr.quiet"))

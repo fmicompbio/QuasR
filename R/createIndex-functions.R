@@ -17,23 +17,25 @@
 .createAuxiliaryIndex <- function(qproject)
 {
     .progressReport("Creating auxiliary index")
-    isFastaFormat <- qproject@env$annotations$filetype == "fasta"
+    isFastaFormat <- qproject@env$auxiliaries$filetype == "fasta"
     indexes <- mapply(.createIndex,
-                      fastaFiles=qproject@env$annotations[isFastaFormat,]$filepath,
-                      name=qproject@env$annotations[isFastaFormat,]$filepath,
-                      shortname=as.character(qproject@env$annotations[isFastaFormat,]$feature),
-                      MoreArgs=list(aligner=qproject@env$aligner, destDir=qproject@env$cacheDir),
+                      fastaFiles=qproject@env$auxiliaries[isFastaFormat,]$filepath,
+                      name=qproject@env$auxiliaries[isFastaFormat,]$filepath,
+                      shortname=as.character(qproject@env$auxiliaries[isFastaFormat,]$feature),
+                      MoreArgs=list(aligner=qproject@env$aligner, 
+                                    destDir=tempfile(pattern="auxIndex_", tmpdir=qproject@env$cacheDir)),
                       SIMPLIFY=FALSE,
                       USE.NAMES = TRUE)
 #     names(indexes) <- .baseFileName(names(indexes)) ## FIXME: maybe use name or name should be basefilename
-    names(indexes) <- as.character(qproject@env$annotations[isFastaFormat,]$feature)
+    names(indexes) <- as.character(qproject@env$auxiliaries[isFastaFormat,]$feature)
     return(indexes)
 }
 
 .createIndex <- function(fastaFiles, aligner, name, shortname, destDir=tempfile())
 {
-    indexName <- file.path(destDir, sprintf("%sIndex", aligner$pkgname), shortname)
-    dir.create(dirname(indexName), showWarnings=FALSE, recursive=TRUE)
+    indexName <- file.path(destDir, sprintf("%sIndex_%s", aligner$pkgname, shortname), shortname)
+    if(!dir.create(dirname(indexName), showWarnings=TRUE, recursive=TRUE))
+        stop("Could not create index directory '", dirname(indexName),"'.")
     .index(aligner, fastaFiles, indexName)
     index <- list(name=name,
                   shortname=shortname,
@@ -44,7 +46,7 @@
                   sourceurl=paste(fastaFiles, collapse=","),
                   md5sum=paste(tools::md5sum(fastaFiles), collapse=",")
                   )
-    write.table(index, file=file.path(destDir, sprintf("%sIndex", aligner$pkgname), "index.tab"), 
+    write.table(index, file=sprintf("%s.tab", indexName), 
                 sep="\t", col.names=TRUE, row.names=FALSE)
     return(index)
 }
@@ -57,10 +59,10 @@
 {
     .progressReport("Load genome")
     .requirePkg(qproject@env$aligner$pkgname, lib.loc=NULL)
-    suppressPackageStartupMessages(require(Biobase, quietly=TRUE, lib.loc=lib.loc))
+#     suppressPackageStartupMessages(require(Biobase, quietly=TRUE, lib.loc=lib.loc))
     genome <- .loadBSgenome(qproject@env$genome$name, lib.loc=lib.loc)
     .progressReport("Creating index package")
-    fastaFilepath <- .BSgenomeSeqToFasta(genome)
+    fastaFilepath <- .BSgenomeSeqToFasta(genome, tempfile(tmpdir=qproject@env$cacheDir, fileext=".fa"))
     on.exit(unlink(fastaFilepath))
     seedList <- .createSeedList(genome, qproject@env$aligner)
     seedList$MD5SUM <- tools::md5sum(fastaFilepath)
@@ -76,18 +78,17 @@
     return(pkgDir$pkgdir)
 }
 
-.BSgenomeSeqToFasta <- function(bsGenome, outFile=tempfile(fileext=".fa"))
+.BSgenomeSeqToFasta <- function(bsgenome, outFile=tempfile(fileext=".fa"))
 {
-    if(!is(bsGenome, "BSgenome"))
-        stop("The variable bsGenome is not a BSgenome")
+    if(!is(bsgenome, "BSgenome"))
+        stop("The variable 'bsgenome'' is not a BSgenome")
     append <- FALSE
-    for(chrT in seqnames(bsGenome)){
-        if(is.null(masks(bsGenome[[chrT]])))
-            chrSeq <- DNAStringSet(bsGenome[[chrT]])
+    for(chrT in seqnames(bsgenome)){
+        if(is.null(masks(bsgenome[[chrT]])))
+            chrSeq <- DNAStringSet(bsgenome[[chrT]])
         else
-            chrSeq <- DNAStringSet(unmasked(bsGenome[[chrT]]))
+            chrSeq <- DNAStringSet(unmasked(bsgenome[[chrT]]))
         names(chrSeq) <- chrT
-        ## FH: I wonder why filepath can't be a connection. Would have made this appending nightmare a lot cleaner...
         write.XStringSet(chrSeq, filepath=outFile, format="fasta", append=append)
         append <- TRUE
     }
@@ -96,18 +97,19 @@
 
 .installIndexPackage <- function(pkgdir, lib=NULL)
 {
-    curwd <- setwd(dirname(pkgdir))
+    .progressReport("Build index packages")
+    curwd <- setwd(dirname(pkgdir)) # crash if wd not changed 
     on.exit(setwd(curwd))
-    .progressReport("Installing new index")
     buildFun <- tools:::.build_packages
     fbody <- body(buildFun)
     body(buildFun) <- fbody[1:(length(fbody)-1)]
     out <- capture.output(buildFun(basename(pkgdir)))
-    newPack <- dir(pattern="\\.tar.gz$")
+    .progressReport("Installing index packages")
+    srcpkg <- file.path(getwd(), dir(pattern="\\.tar.gz$"))
     if(is.null(lib))
         lib <- .libPaths()[1]
-    out <- c(out, capture.output(install.packages(file.path(getwd(), newPack), 
-                                                  repos=NULL, dependencies=FALSE, lib=lib, type="source")))
+    out <- c(out, capture.output(install.packages(srcpkg, repos=NULL, dependencies=FALSE, lib=lib, type="source")))
+    unlink(srcpkg, recursive=TRUE)
     return(out)
 }
 
