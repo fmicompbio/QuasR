@@ -1,7 +1,8 @@
 qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
 {
+    .progressReport("Start creating quality control plots.", phase=-1)
 #     args <- list(...) # ToDO see boxplot.default 
-    
+
     if(!is.null(pdfFilename)){
         pdf(pdfFilename, paper="default", onefile=TRUE, width=0, height=0)
         on.exit(dev.off())
@@ -37,25 +38,41 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
         qproject@env$qc$qa <- do.call(rbind, qc1L)
     }
 
+    .progressReport("Plot qualtity by cycle.")
     if(is.null(pdfFilename))
         dev.new()
     qL <- .plotQualByCycle(qproject@env$qc$qa, ...)
 
+    .progressReport("Plot nucleotide by cycle.")
     if(is.null(pdfFilename))
         dev.new()
     nL <- .plotNuclByCycle(qproject@env$qc$qa, ...)
 
+    .progressReport("Plot duplication level.")
     if(is.null(pdfFilename))
         dev.new()
     dL <- .plotDuplicated(qproject@env$qc$qa, ...)
 
-    if(!is.null(qproject@env$qc$mappingStats)){
+    if(!any(is.na(qproject@env$alignments$genome))){
+        if(is.null(qproject@env$qc$mappingStats$genome)) {
+            .progressReport("Calculate mapping statistics.")
+            if(qproject@env$aligner$pkgname != "Rbowtie") 
+               stop("Only bamfiles from Rbowtie are supported to calculate the mapping statistics.")
+            idx <- seq.int(qproject@env$samples$filepath)[qproject@env$samples$filetype != "bam"]
+            qproject@env$qc$mappingStats$genome <- do.call(rbind, lapply(idx , function(i)
+                               .getMappingStatsFromBam(basename(qproject@env$samples$filepath)[i],
+                                                       qproject@env$samples$filepath[i],
+                                                       qproject@env$samples$filetype[i], 
+                                                       qproject@env$alignments$genome[i])))
+        }
+        .progressReport("Plot mapping statistics.")
         if(is.null(pdfFilename))
             dev.new()
         rownames(qproject@env$qc$mappingStats$genome) <- label[qproject@env$samples$filetype != "bam"]
         mL <- .plotMappings(qproject@env$qc$mappingStats$genome, ...)
     }
 
+    .progressReport("Plot mismatch by cycle.")
     if(!any(is.na(qproject@env$alignments$genome))){
         bamfilename <- qproject@env$alignments$genome
         names(bamfilename) <- label
@@ -63,6 +80,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
             dev.new()
         eL <- .plotErrorsByCycle(bamfilename, N=chunkSize, ...)
     }
+    .progressReport("Successfully finished plotting the quality control.", phase=1)
 }
 
 .plotQualByCycle <- function(qcdata, lmat=matrix(1:18, nrow=6, byrow=TRUE)) {

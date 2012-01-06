@@ -153,12 +153,12 @@
 
 .getMappingStatsFromBam <- function(nm, fnameSeq, typeSeq, fnameBam) {
   # get mapping statistics from bam file (IH and XM tags) and total number of reads (n)
-  if(typeSeq=="fasta")
-    n <- length(fasta.info(fnameSeq, use.names=FALSE))
-  else if(typeSeq=="fastq")
-    n <- fastq.geometry(fnameSeq)[1]
-  else
-    stop(paste("Don't know how to count sequences in a '",typeSeq,"' file.",sep=""))
+#   if(typeSeq=="fasta")
+#     n <- length(fasta.info(fnameSeq, use.names=FALSE))
+#   else if(typeSeq=="fastq")
+#     n <- fastq.geometry(fnameSeq)[1]
+#   else
+#     stop(paste("Don't know how to count sequences in a '",typeSeq,"' file.",sep=""))
 
   ih <- scanBam(fnameBam, param=ScanBamParam(what=character(0), tag="IH"))[[1]]$tag$IH
   ihT <- table(ih)
