@@ -54,7 +54,7 @@
 }
 
 .loadAlignments <- function(qproject){
-    .progressReport("Read annotation file")
+    .progressReport("Search and load existing alignment files.")
     ## emtpy alignment data.frame
     alignments <- as.data.frame(matrix(NA,
                                        nrow=nrow(qproject@env$samples),
@@ -233,13 +233,13 @@
             ## set index path
             index <- read.table(file=file.path(indexDir, sprintf("%s.tab", qproject@env$genome$shortname)), 
                                 sep="\t", header=TRUE)
+            index$shortname <- qproject@env$genome$shortname
+            index$path <- file.path(indexDir, qproject@env$genome$shortname)
+            index$name <- file.path(indexDir, qproject@env$genome$name)
             ## check index source
             fastaFiles <- paste(file.path(qproject@env$genome$dir, qproject@env$genome$files), collapse=",")
             if(index$sourceurl != fastaFiles)
                 stop("Genome and index don't match.")
-            # TODO fix index path if index was moved
-#             index$path <- file.path(indexDir, index$shortname)
-#             index$path <- file.path(indexDir, qproject@env$genome$shortname)
         }
     }
     return(index)

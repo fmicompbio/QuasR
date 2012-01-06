@@ -71,9 +71,15 @@ test_unmappedToFastq <- function()
     on.exit(unlink(bamFilename))
     ansFilename <- QuasR:::.unmappedToFastq(bamFilename)
     on.exit(unlink(ansFilename), add=TRUE)
+    
     ans <- readFastq(ansFilename)
+    ans <- ans[order(id(ans))]
+    
     fastq <- readFastq(fastqFilename)
-    checkEquals(toString(sort(id(fastq))), toString(sort(id(ans))))
-    checkEquals(toString(sort(sread(fastq))), toString(sort(sread(ans))))
+    fastq <- fastq[order(id(fastq))]
+    
+    checkEquals(toString(id(fastq)), toString(id(ans)))
+    checkEquals(toString(sread(fastq)), toString(sread(ans)))
+    checkEquals(as(quality(fastq), "matrix"), as(quality(ans), "matrix"))
     ## TODO fastqFilename <- QuasR:::.unmappedToFastq(bamFilename, tempfile())
 }
