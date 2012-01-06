@@ -27,6 +27,8 @@
 \date{Modified: 6 January, 2012. Compiled: \today}
 
 \begin{document}
+\bibliographystyle{plain}
+
 
 \maketitle
 
@@ -48,6 +50,7 @@ The current \QuasR{} release supports the analysis of single read ChIP-seq exper
 \section{Preliminaries}
 
 %\subsection{Citing \QuasR{}}
+%\cite{QuasR}
 %TODO
 
 \subsection{Installation}
@@ -104,11 +107,11 @@ to get a list of all the objects you have created. You can see the contents of a
 show(x)
 x
 @ 
-We hope that you can use \QuasR{} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \QuasR{} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see P. Dalgaard. \textit{Introductory Statistics with R}. Springer, New York, 2002.
+We hope that you can use \QuasR{} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \QuasR{} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see \cite{Dalgaard}.
 
 
 \subsection{Sample \QuasR{} session}
-This is a quick overview of what an analysis might look like for the users who prefer to jump right into an analysis. The example assumes an that the sequence files to be analyzed are listed in the \Rcode{samples.txt} file (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} (from the \Rpackage{Rbowtie} package) to the mouse genome (contained in the \Rpackage{BSgenome.Mmusculus.UCSC.mm9} package). A quality control report will be saved to the \Rcode{qc\_report.pdf} file and read alignments will be quantified in promoter regions, whose genomic coordinates are contained in the \Rcode{GRanges}-object with the name \Rcode{promoters}.
+This is a quick overview of what an analysis might look like for the users who prefer to jump right into an analysis. The example assumes an that the sequence files to be analyzed are listed in the \Rcode{samples.txt} file (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to the mouse genome (contained in the \Rpackage{BSgenome.Mmusculus.UCSC.mm9} package). A quality control report will be saved to the \Rcode{qc\_report.pdf} file and read alignments will be quantified in promoter regions, whose genomic coordinates are contained in the \Rcode{GRanges}-object with the name \Rcode{promoters}.
 
 <<SampleSession1, eval=FALSE>>=
 td <- tempdir()
@@ -323,7 +326,7 @@ TODO
 
 \subsection{\Rfunction{qAlign}}
 \label{sec:qAlign}
-TODO
+TODO\cite{SpliceMap}
 
 \subsection{\Rfunction{qCount}}
 \label{sec:qCount}
@@ -346,6 +349,8 @@ The output in this vignette was produced under the following conditions:
 sessionInfo()
 @
 
+\bibliography{QuasR-refs}
+
 \end{document}
 
 
@@ -353,4 +358,4 @@ sessionInfo()
 % LocalWords:  qQCReport qExportWig qSaveProject qReadProject TODO BSgenome fq
 % LocalWords:  SampleName FileName fasta fastq fna txt auxiliaryFile AuxName Qu
 % LocalWords:  edgeR DESeq Rbowtie Html limma https postingGuide html ethz www
-% LocalWords:  listinfo Lerch Dalgaard metadata projectFilename
+% LocalWords:  listinfo Lerch Dalgaard metadata projectFilename SpliceMap
