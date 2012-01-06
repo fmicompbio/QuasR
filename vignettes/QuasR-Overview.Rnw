@@ -1,0 +1,356 @@
+%\VignetteIndexEntry{An introduction to QuasR}
+%\VignetteDepends{}
+%\VignetteKeywords{XXXKexword}
+%\VignettePackage{QuasR}
+
+\documentclass[10pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsf{#1}}
+\newcommand{\R}{\software{R}}
+\newcommand{\QuasR}{\Rpackage{QuasR}}
+\newcommand{\bam}{\texttt{BAM}}
+
+
+\title{An Introduction to \QuasR{}}
+\author{Anita Lerch, Michael Stadler}
+\date{Modified: 6 January, 2012. Compiled: \today}
+
+\begin{document}
+
+\maketitle
+
+<<options,echo=FALSE>>=
+options(width=60)
+@
+
+\tableofcontents
+
+\newpage
+
+
+\section{Introduction}
+
+The \QuasR{} package (short for \underline{Qu}antify and \underline{a}nnotate \underline{s}hort reads in \underline{R}) integrates the functionality of several \R{} packages (such as \Rpackage{IRanges} and \Rpackage{Rsamtools}) and external software (e.g. \software{bowtie}, through the \Rpackage{Rbowtie} package). The package aims to cover the whole analysis workflow of typical ultra-high throughput sequencing experiments, starting from the raw sequence reads, over pre-processing and alignment, up to quantification. A single \R{} script can contain all steps of a complete analysis, making it simple to document, reproduce or share the workflow containing all relevant details.
+
+The current \QuasR{} release supports the analysis of single read ChIP-seq experiments (chromatin immuno-precipitation combined with sequencing). Support for paired-end sequencing experiments, and for RNA-seq (expression profiling) and Bis-seq (DNA methylation profiling) experiments will be added in successive future releases.
+
+\section{Preliminaries}
+
+%\subsection{Citing \QuasR{}}
+%TODO
+
+\subsection{Installation}
+\QuasR{} is a package for the \R{} computing environment and it is assumed that you have already installed \R{}. See the \R{} project at \url{http://www.r-project.org}. To install the latest version of \QuasR{}, you will need to be using the latest version of \R{}. \QuasR{} is part of the Bioconductor project at \url{http://www.bioconductor.org}. To get \QuasR{} together with its dependencies you can use
+<<install, eval=FALSE>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("QuasR")
+@
+
+Bioconductor works on a 6-monthly official release cycle, lagging each major \R{} release by a short time. As with other Bioconductor packages, there are always two versions of \QuasR{}. Most users will use the current official release version, which will be installed by \Rcode{biocLite} if you are using the current version of \R{}. There is also a developmental version of \QuasR{} that includes new features due for the next official release. The developmental version will be installed if you are using the developmental version of \R{}. The official release version always has an even second number (for example 0.2.1), whereas the developmental version has an odd second number (for example 0.3.6).
+
+\subsection{How to get help}
+Most questions about \QuasR{} will hopefully be answered by the documentation or references. If you've run into a question which isn't addressed by the documentation, or you've found a conflict between the documentation and software itself, then there is an active support community which can offer help.
+The authors of the package always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements.
+Any other questions or problems concerning \QuasR{} should be sent to the Bioconductor mailing list \url{bioconductor@stat.math.ethz.ch}. To subscribe to the mailing list, see \url{https://stat.ethz.ch/mailman/listinfo/bioconductor}. Please send requests for general assistance and advice to the mailing list rather than to the individual authors. Users posting to the mailing list for the first time should read the helpful posting guide at \url{http://www.bioconductor.org/doc/postingGuide.html}. Note that each function in \QuasR{} has it's own online help page, as described in the section \ref{sec:Rintro}. Mailing list etiquette requires that you read the relevant help page carefully before posting a problem to the list.
+
+
+\newpage
+
+\section{Quick Start}
+\subsection{A brief introduction to \R{}}
+\label{sec:Rintro}
+Much in this vignette and in particular this section is based on the excellent user guide of the \Rpackage{limma} package, which we would like to hereby acknowledge.
+
+\R{} is a program for statistical computing. It is a command-driven language meaning that you have to type commands into it rather than pointing and clicking using a mouse. In this guide it will be assumed that you have successfully downloaded and installed \R{} from \url{http://www.r-project.org}. A good way to get started is to type
+<<help1, eval=FALSE>>=
+help.start()
+@ 
+at the \R{} prompt or, if you're using \R{} for Windows, to follow the drop-down menu items \textit{Help} $\succ$ \textit{Html help}. Following the links \textit{Packages} $\succ$ \Rpackage{QuasR} from the html help page will lead you to the contents page of help topics for functions in \QuasR{}.
+Before you can use any \QuasR{} commands you have to load the package by typing
+<<loadQuasRLibrary, eval=FALSE>>=
+library(QuasR)
+@ 
+at the \R{} prompt. You can get help on any function in any loaded package by typing \Rcode{?} and the function name at the \R{} prompt, for example
+<<help2, eval=FALSE>>=
+?preprocessReads
+@ 
+or equivalently
+<<help3, eval=FALSE>>=
+help("preprocessReads")
+@ 
+for detailed help on the \Rfunction{preprocessReads} function. The individual function help pages are especially important for listing all the arguments which a function will accept and what values the arguments can take.
+
+A key to understanding \R{} is to appreciate that anything that you create in \R{} is an \textit{object}. Objects might include data sets, variables, functions, anything at all. For example
+<<assign, eval=FALSE>>=
+x <- 2
+@ 
+will create a variable \Rcode{x} and will assign it the value 2. At any stage of your \R{} session you can type
+<<objects, eval=FALSE>>=
+objects()
+@ 
+to get a list of all the objects you have created. You can see the contents of any object by typing the name of the object at the prompt, for example either of the following commands will print out the contents of \Rcode{x}:
+<<printObject, eval=FALSE>>=
+show(x)
+x
+@ 
+We hope that you can use \QuasR{} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \QuasR{} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see P. Dalgaard. \textit{Introductory Statistics with R}. Springer, New York, 2002.
+
+
+\subsection{Sample \QuasR{} session}
+This is a quick overview of what an analysis might look like for the users who prefer to jump right into an analysis. The example assumes an that the sequence files to be analyzed are listed in the \Rcode{samples.txt} file (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} (from the \Rpackage{Rbowtie} package) to the mouse genome (contained in the \Rpackage{BSgenome.Mmusculus.UCSC.mm9} package). A quality control report will be saved to the \Rcode{qc\_report.pdf} file and read alignments will be quantified in promoter regions, whose genomic coordinates are contained in the \Rcode{GRanges}-object with the name \Rcode{promoters}.
+
+<<SampleSession1, eval=FALSE>>=
+td <- tempdir()
+project <- qProject(sampleFile="samples.txt",
+                    genome="BSgenome.Mmusculus.UCSC.mm9",
+                    path=td, aligner="Rbowtie")
+qAlign(project)
+qQCReport(project, "qc_report.pdf")
+promoterCounts <- qCount(project, query=promoters)
+@
+
+The \Robject{project} object keeps track of all the metadata (where the sequence and alignment files are, what aligner and genome was used, and information on the qualities of the sequences and alignments). It may be convenient to save this metadata for later use by
+<<SampleSession2, eval=FALSE>>=
+projectFilename <- qSaveProject(project)
+project <- qReadProject(projectFilename)
+@
+
+%\subsection{Data objects}
+%TODO
+
+
+\newpage
+\section{\QuasR{} Overview}
+The following scheme shows the major components of \QuasR{} and their relationships:
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{QuasR-scheme.png}
+\caption{QuasR package overview}
+\label{fig:QuasR-scheme}
+\end{center}
+\end{figure}
+
+\QuasR{} works with data (sequence files, alignment files, genome sequence and index, etc.) that are stored as files on your hard disk (the gray box on the left of Figure \ref{fig:QuasR-scheme}). There is no need to setup and maintain a database management system, and neither to copy the files into a specific place or directory.
+
+In order to keep track of the location of the data, as well as the current state of the analysis, \QuasR{} makes use of a \Robject{qProject} object. A typical analysis therefore starts with the creation of a \Robject{qProject} object, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome} for details).
+
+During the analysis, the \Robject{qProject} object is the main argument passed to each function; it contains all necessary information on the current project and eliminates the need to specify the same information, e.g. the reference genome, several times. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}. These \textit{q-functions} will also update the \Robject{qProject} object with additional information, for example \Rfunction{qAlign} will store the path and file names of the generated alignments, and \Rfunction{qQCReport} will store the collected quality information. The \Rfunction{qSaveProject} and \Rfunction{qReadProject} can be used to save a \Robject{qProject} to a file and open it again.
+
+Finally, the main workhorse of \QuasR{} is the \Rfunction{qCount} function: It counts the alignments for regions of interest, e.g. promoters, genes, exons, etc. and produces a count table (regions in rows, samples in columns) for further analysis, e.g. using packages \Rpackage{edgeR} or \Rpackage{DESeq}.
+
+\vskip 4em
+
+In summary, a typical \QuasR{} analysis consists of the following steps:
+\begin{enumerate}
+\item \Rfunction{preprocessReads} (filter reads, optional)
+\item prepare \textit{samples} file (optional: \textit{auxiliary} file)
+\item \Rfunction{qProject} (create project object)
+\item \Rfunction{qAlign} (create alignments)
+\item \Rfunction{qQCReport} (create quality control report, optional)
+\item \Rfunction{qExportWig} (create wiggle tracks for genome browser visualization, optional)
+\item \Rfunction{qSaveProject} (store the \Robject{qProject} object for later reuse, optional)
+\item \Rfunction{qCount} (quantify alignments)
+\end{enumerate}
+
+
+
+\newpage
+\section{Example workflow: Sequence data pre-processing}
+\label{sec:workflowPreprocess}
+A detailed description of the \Rfunction{preprocessReads} function can be found in section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
+
+TODO
+
+
+\newpage
+\section{Example workflow: ChIP-seq}
+In this section a simple single-end ChIP-seq workflow is shown. We assume in this workflow that sequence reads have already been preprocessed if necessary, for example as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}.
+
+\subsection{Create a \Robject{qProject} object}
+
+\subsubsection{Create a sample file}
+\label{sec:SampleFile}
+The sample file is a tab delimited text file with at least two columns. Its first row contains the column names. Some columns are mandatory and have to be named correctly: For a single read experiment, these are 'SampleName' and 'FileName'; for a paired-end experiment, 'FileName1' and 'FileName2' are used in place of 'FileName'.
+
+Here are examples of such sample files for a single read experiment:
+\begin{center}
+\begin{tabular}{|ll|}
+\hline
+SampleName&FileName\\
+Sample1&sr\_phiX174\_1\_1.fastq\\
+Sample2&sr\_phiX174\_2\_1.fastq\\
+Sample2&sr\_phiX174\_2\_2.fastq\\
+\hline
+\end{tabular}
+\end{center}
+
+\vskip 1em
+and for a paired-end experiment:
+\begin{center}
+\begin{tabular}{|lll|}
+\hline
+SampleName&FileName1&FileName2\\
+Sample1&sr\_phiX174\_1\_1.fastq&sr\_phiX174\_1\_2.fastq\\
+Sample2&sr\_phiX174\_2\_1.fastq&sr\_phiX174\_2\_2.fastq\\
+\hline
+\end{tabular}
+\end{center}
+
+These files are also contained in the \QuasR{} package to serve as templates for your own analysis. The path of the files depends on your operating system and \R{} installation and can be determined using:
+<<sampleFile, eval=FALSE>>=
+sampleFile <- system.file(package="QuasR", 
+                          "extdata", "samples_phiX_single.txt")
+sampleFile <- system.file(package="QuasR", 
+                          "extdata", "samples_phiX_paired.txt")
+@
+
+The type of the project that is implicitly defined by the sample file, i.e. single read or paired-end read, will have a profound impact on all downstream analysis. For example, the project type defines whether the alignments will be performed in single or paired-end mode, or whether the quantification will be based on single reads or read pairs.
+
+The \textit{SampleName} column contains sample names for each sequence file. The same name can be used on several lines to indicate multiple sequence files that belong to the same sample.
+
+The \textit{FileName*} columns contain paths and names to files containing the sequence data. This allows combining files from different directories in a single analysis. By default, \QuasR{} will store the alignments in the same directory as the corresponding sequence file, and already existing alignment files with identical parameters will not be re-created, so that it is easy to reuse the same sequence files in multiple projects without unnecessarily copying sequence files or recreating alignments.
+
+Three types of files can be listed in the \textit{FileName*} column:
+\begin{itemize}
+\item \textbf{fasta} files have names that end with '.fa', '.fna' or '.fasta'. They contain only sequences (and no base qualities) and will thus be aligned on the basis of mismatches (the best alignment is the one with fewest mismatches).
+\item \textbf{fastq} files have names that end with '.fq' or '.fastq'. They contain sequences and corresponding base qualities and will be aligned using these qualities if supported by the selected aligner.
+\item \textbf{bam} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools or parameters that are not already available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \QuasR{} are fulfilled by the external aligner. In addition, some meta data, such as statistics on the alignments, which \QuasR{} store in the header of \bam{} files, will be missing from such external \bam{} files and the corresponding information may take a long time to regenerated, or may not be available at all.
+\end{itemize}
+
+\subsubsection{Create an auxiliary file (optional)}
+\label{sec:AuxFile}
+In general, \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify vector or foreign species contamination, or in order to quantify a spiked-in foreign sequence that is not contained in the genome. In \QuasR{}, such additional reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument. The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
+
+An example auxiliary file is available from your \QuasR{} installation at
+<<auxiliaryFile, eval=FALSE>>=
+auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+@
+
+\subsubsection{Select the reference genome}
+\label{sec:refGenome}
+The reference genome can be provided in three different formats:
+\begin{itemize}
+\item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package
+\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in FASTA format.
+\item{\textbf a directory name}, referring to a directory containing one or several sequence files in FASTA format, identified by their file extension (one of '.fa', '.fna' or '.fasta'.
+\end{itemize}
+    
+<<genome, eval=FALSE>>=
+available.genomes()
+gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
+@
+
+\subsubsection{Create the \Robject{qProject} object}
+<<qProject, eval=FALSE>>=
+project <- qProject(sampleFile, genome=gnm)
+@
+
+\subsection{Align reads using the \Rfunction{qAlign} function}
+<<qAlign, eval=FALSE>>=
+project <- qAlign(project)
+@
+
+\subsection{Create a quality control report}
+TODO
+
+\subsection{Count alignments using the \Rfunction{qCount} function}
+GRange
+<<qCount, eval=FALSE>>=
+library(TxDb.Dmelanogaster.UCSC.dm3.ensGene)
+txdb <- TxDb.Dmelanogaster.UCSC.dm3.ensGene
+isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
+isActiveSeq(txdb)["chr2L"] <- TRUE
+gr <- transcripts(txdb)
+cnt <- qCount(project, gr, collapseSamples=T, overlap="within")
+@
+
+\subsection{Saving and restoring \Robject{qProject} objects}
+<<saveRestore, eval=FALSE>>=
+projectFilename <- qSaveProject(project)
+project <- qReadProject(projectFilename)
+@
+
+\newpage
+\section{Example workflow with a \Rpackage{BSgenome} as genome}
+<<BSgenomeProject, eval=FALSE>>=
+td <- tempdir()
+sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+available.genomes()
+gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
+project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td, aligner="Rbowtie")
+project <- qAlign(project)
+projectFilename <- qSaveProject(project)
+project <- qReadProject(projectFilename)
+@
+
+\section{Example workflow with fasta files as genome}
+
+<<fastaProject, eval=FALSE>>=
+td <- tempdir()
+sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+#gnm <- file.path(td, "sacCer2")
+#url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
+#destFile <- file.path(td, basename(url))
+#download.file(url, destFile, "curl")
+#untar(destFile, exdir=gnm, verbose=T)
+gnm <- "data/sacCer2"
+project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td)
+project <- qAlign(project)
+@
+
+\newpage
+\section{Description of Individual \QuasR{} Functions}
+\subsection{\Rfunction{preprocessReads}}
+\label{sec:preprocessReads}
+If the short reads are barcoded, contains adapter or should be filtered then TODO 
+
+\subsection{\Rfunction{qProject}}
+\label{sec:qProject}
+TODO
+
+\subsection{\Rfunction{qAlign}}
+\label{sec:qAlign}
+TODO
+
+\subsection{\Rfunction{qCount}}
+\label{sec:qCount}
+TODO
+
+\subsection{\Rfunction{qQCReport}}
+\label{qQCReport}
+TODO
+
+\subsection{\Rfunction{qExportWig}}
+\label{qExportWig}
+TODO
+
+\subsection{\Rfunction{qSaveProject} and \Rfunction{qReadProject}}
+TODO
+
+\section{Session information}
+The output in this vignette was produced under the following conditions:
+<<sessionInfo>>=
+sessionInfo()
+@
+
+\end{document}
+
+
+% LocalWords:  nnotate hort antify Rintro SampleFile qProject qAlign qCount pre
+% LocalWords:  qQCReport qExportWig qSaveProject qReadProject TODO BSgenome fq
+% LocalWords:  SampleName FileName fasta fastq fna txt auxiliaryFile AuxName Qu
+% LocalWords:  edgeR DESeq Rbowtie Html limma https postingGuide html ethz www
+% LocalWords:  listinfo Lerch Dalgaard metadata projectFilename
