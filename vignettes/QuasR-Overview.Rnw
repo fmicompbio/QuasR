@@ -6,7 +6,10 @@
 \documentclass[10pt]{article}
 
 \usepackage{times}
+%\usepackage{inconsolata}
 \usepackage{hyperref}
+%\usepackage[super]{natbib}
+%\usepackage[numbers]{natbib}
 
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
 \newcommand{\Robject}[1]{{\texttt{#1}}}
@@ -24,10 +27,12 @@
 
 \title{An Introduction to \QuasR{}}
 \author{Anita Lerch, Michael Stadler}
-\date{Modified: 6 January, 2012. Compiled: \today}
+\date{Modified: 7 January, 2012. Compiled: \today}
 
 \begin{document}
-\bibliographystyle{plain}
+%\bibliographystyle{plain}
+\bibliographystyle{unsrt}
+%\bibliographystyle{plainnat}
 
 
 \maketitle
@@ -150,7 +155,7 @@ In order to keep track of the location of the data, as well as the current state
 
 During the analysis, the \Robject{qProject} object is the main argument passed to each function; it contains all necessary information on the current project and eliminates the need to specify the same information, e.g. the reference genome, several times. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}. These \textit{q-functions} will also update the \Robject{qProject} object with additional information, for example \Rfunction{qAlign} will store the path and file names of the generated alignments, and \Rfunction{qQCReport} will store the collected quality information. The \Rfunction{qSaveProject} and \Rfunction{qReadProject} can be used to save a \Robject{qProject} to a file and open it again.
 
-Finally, the main workhorse of \QuasR{} is the \Rfunction{qCount} function: It counts the alignments for regions of interest, e.g. promoters, genes, exons, etc. and produces a count table (regions in rows, samples in columns) for further analysis, e.g. using packages \Rpackage{edgeR} or \Rpackage{DESeq}.
+Finally, the main workhorse of \QuasR{} is the \Rfunction{qCount} function: It counts the alignments for regions of interest, e.g. promoters, genes, exons, etc. and produces a count table (regions in rows, samples in columns) for further analysis, e.g. using packages \Rpackage{edgeR} \cite{edgeR} or \Rpackage{DESeq} \cite{DESeq}.
 
 \vskip 4em
 
@@ -169,20 +174,8 @@ In summary, a typical \QuasR{} analysis consists of the following steps:
 
 
 \newpage
-\section{Example workflow: Sequence data pre-processing}
-\label{sec:workflowPreprocess}
-A detailed description of the \Rfunction{preprocessReads} function can be found in section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
-
-TODO
-
-
-\newpage
-\section{Example workflow: ChIP-seq}
-In this section a simple single-end ChIP-seq workflow is shown. We assume in this workflow that sequence reads have already been preprocessed if necessary, for example as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}.
-
-\subsection{Create a \Robject{qProject} object}
-
-\subsubsection{Create a sample file}
+\section{Example tasks}
+\subsection{Create a sample file}
 \label{sec:SampleFile}
 The sample file is a tab delimited text file with at least two columns. Its first row contains the column names. Some columns are mandatory and have to be named correctly: For a single read experiment, these are 'SampleName' and 'FileName'; for a paired-end experiment, 'FileName1' and 'FileName2' are used in place of 'FileName'.
 
@@ -197,8 +190,8 @@ Sample2&sr\_phiX174\_2\_2.fastq\\
 \hline
 \end{tabular}
 \end{center}
-
 \vskip 1em
+
 and for a paired-end experiment:
 \begin{center}
 \begin{tabular}{|lll|}
@@ -209,6 +202,7 @@ Sample2&sr\_phiX174\_2\_1.fastq&sr\_phiX174\_2\_2.fastq\\
 \hline
 \end{tabular}
 \end{center}
+\vskip 1em
 
 These files are also contained in the \QuasR{} package to serve as templates for your own analysis. The path of the files depends on your operating system and \R{} installation and can be determined using:
 <<sampleFile, eval=FALSE>>=
@@ -231,18 +225,19 @@ Three types of files can be listed in the \textit{FileName*} column:
 \item \textbf{bam} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools or parameters that are not already available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \QuasR{} are fulfilled by the external aligner. In addition, some meta data, such as statistics on the alignments, which \QuasR{} store in the header of \bam{} files, will be missing from such external \bam{} files and the corresponding information may take a long time to regenerated, or may not be available at all.
 \end{itemize}
 
-\subsubsection{Create an auxiliary file (optional)}
+
+\subsection{Create an auxiliary file (optional)}
 \label{sec:AuxFile}
-In general, \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify vector or foreign species contamination, or in order to quantify a spiked-in foreign sequence that is not contained in the genome. In \QuasR{}, such additional reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument. The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
+By default \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify contamination from vectors or a foreign species, or in order to quantify a spiked-in sequence that is not contained in the genome. In \QuasR{}, such additional reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument. The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
 
 An example auxiliary file is available from your \QuasR{} installation at
 <<auxiliaryFile, eval=FALSE>>=
 auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 @
 
-\subsubsection{Select the reference genome}
+\subsection{Select the reference genome}
 \label{sec:refGenome}
-The reference genome can be provided in three different formats:
+Sequence reads will be primarily aligned against the reference genome. If necessary, \QuasR{} will create an index for the genome and store it for later reuse. The reference genome can be provided in three different formats:
 \begin{itemize}
 \item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package
 \item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in FASTA format.
@@ -254,20 +249,37 @@ available.genomes()
 gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
 @
 
-\subsubsection{Create the \Robject{qProject} object}
+
+\subsection{Sequence data pre-processing}
+\label{sec:workflowPreprocess}
+A detailed description of the \Rfunction{preprocessReads} function can be found in section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
+
+TODO
+
+
+\newpage
+\section{Example workflows}
+\subsection{ChIP-seq}
+In this section a simple single-end ChIP-seq workflow is shown. We assume in this workflow that sequence reads have already been preprocessed if necessary, for example as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}.
+
+\subsubsection{Create a \Robject{qProject} object}
+In order to create the \Robject{qProject} object, a sample file (section \ref{sec:SampleFile}) and a reference genome (section \ref{sec:refGenome}) will be needed. Optionally, you can also include auxiliary references (section \ref{sec:AuxFile}).
+
 <<qProject, eval=FALSE>>=
+sampleFile <- "samples.txt"
+gnm <- "BSgenome.Mmusculus.UCSC.mm9"
 project <- qProject(sampleFile, genome=gnm)
 @
 
-\subsection{Align reads using the \Rfunction{qAlign} function}
+\subsubsection{Align reads using the \Rfunction{qAlign} function}
 <<qAlign, eval=FALSE>>=
 project <- qAlign(project)
 @
 
-\subsection{Create a quality control report}
+\subsubsection{Create a quality control report}
 TODO
 
-\subsection{Count alignments using the \Rfunction{qCount} function}
+\subsubsection{Count alignments using the \Rfunction{qCount} function}
 GRange
 <<qCount, eval=FALSE>>=
 library(TxDb.Dmelanogaster.UCSC.dm3.ensGene)
@@ -278,41 +290,40 @@ gr <- transcripts(txdb)
 cnt <- qCount(project, gr, collapseSamples=T, overlap="within")
 @
 
-\subsection{Saving and restoring \Robject{qProject} objects}
+\subsubsection{Saving and restoring \Robject{qProject} objects}
 <<saveRestore, eval=FALSE>>=
 projectFilename <- qSaveProject(project)
 project <- qReadProject(projectFilename)
 @
 
-\newpage
-\section{Example workflow with a \Rpackage{BSgenome} as genome}
-<<BSgenomeProject, eval=FALSE>>=
-td <- tempdir()
-sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
-available.genomes()
-gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
-project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td, aligner="Rbowtie")
-project <- qAlign(project)
-projectFilename <- qSaveProject(project)
-project <- qReadProject(projectFilename)
-@
-
-\section{Example workflow with fasta files as genome}
-
-<<fastaProject, eval=FALSE>>=
-td <- tempdir()
-sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
-#gnm <- file.path(td, "sacCer2")
-#url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
-#destFile <- file.path(td, basename(url))
-#download.file(url, destFile, "curl")
-#untar(destFile, exdir=gnm, verbose=T)
-gnm <- "data/sacCer2"
-project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td)
-project <- qAlign(project)
-@
+%\newpage
+%\section{Example workflow with a \Rpackage{BSgenome} as genome}
+%<<BSgenomeProject, eval=FALSE>>=
+%td <- tempdir()
+%sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+%annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+%available.genomes()
+%gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
+%project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td, aligner="Rbowtie")
+%project <- qAlign(project)
+%projectFilename <- qSaveProject(project)
+%project <- qReadProject(projectFilename)
+%@
+%
+%\section{Example workflow with fasta files as genome}
+%<<fastaProject, eval=FALSE>>=
+%td <- tempdir()
+%sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
+%annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+%#gnm <- file.path(td, "sacCer2")
+%#url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/sacCer2/bigZips/chromFa.tar.gz"
+%#destFile <- file.path(td, basename(url))
+%#download.file(url, destFile, "curl")
+%#untar(destFile, exdir=gnm, verbose=T)
+%gnm <- "data/sacCer2"
+%project <- qProject(sampleFile, genome=gnm, annotationFile=annotationFile, path=td)
+%project <- qAlign(project)
+%@
 
 \newpage
 \section{Description of Individual \QuasR{} Functions}
