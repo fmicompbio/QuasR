@@ -15,10 +15,12 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
         qproject@env$alignments$genome[idx] <- unlist(lapply(genomeAlignments, "[[", "bamfile"))
         qproject@env$qc$mappingStats$genome <- t(as.data.frame(lapply(genomeAlignments, "[[", "mappingStats")))
         ## TODO get unmapped reads
-        ## TODO align to exon-junction-db 
+        ## TODO align with SpliceMap
+        ## TODO combine genome and spliced-genome bam files
+        ## TODO weight reads (IH tag) in combined bam file, collect alignment statistics and save in ...$qc$mappingStats$genome
     }
 
-    ## create index and align unmapped reads to annotation
+    ## create index and align unmapped reads to auxiliaries
     if(!is.null(qproject@env$auxiliaries) && any(is.na(qproject@env$alignments))){
         ## get unmapped reads
         .progressReport("Get unmapped reads")

@@ -45,7 +45,7 @@
 .truncPath <- function(path, w=getOption('width'))
 {
     truncpath <- lapply(path, function(p) {
-        if(nchar(p)>w)
+        if(nchar(p[1])>w)
             file.path(paste(substr(p,1,w-nchar(basename(p))-4),"...",sep=""),basename(p))
         else
             p
