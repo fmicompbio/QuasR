@@ -93,19 +93,19 @@ setMethod("show","qProject", function(object){
         "\n         bisulfite=", object@env$bisulfite,
         "\n         maxHits=", object@env$maxHits,
         "\n         alignmentParameter=", object@env$alignmentParameter, "\n", sep="")
+    cat("Aligner: ", object@env$aligner$pkgname, " Version ", object@env$aligner$pkgversion, "\n", sep="")
     cat("Genome:  ",
         if(object@env$genome$bsgenome) object@env$genome$name
         else .truncPath(object@env$genome$name, getOption("width")-26),
         " (BSgenome=", object@env$genome$bsgenome, ")\n", sep="")
-    cat("Aligner: ", object@env$aligner$pkgname, " Version ", object@env$aligner$pkgversion, "\n", sep="")
-    maxlen <- max(nchar(object@env$samples$name),0)
-    cat("Samples:\n", paste(sprintf(" %*s  %s\n", maxlen, object@env$samples$name,
-                                    .truncPath(object@env$samples$filepath, getOption("width")-maxlen-3)), collapse=""), sep="")
-    maxlen <- max(nchar(object@env$auxiliaries$feature),0)
     cat("Auxiliaries:\n",
         if(is.null(object@env$auxiliaries)) " none\n"
         else paste(sprintf(" %*s  %s\n", maxlen, object@env$auxiliaries$feature,
                            .truncPath(object@env$auxiliaries$filepath, getOption("width")-maxlen-3)), collapse=""), sep="")
+    maxlen <- max(nchar(object@env$samples$name),0)
+    cat("Samples:\n", paste(sprintf(" %*s  %s\n", maxlen, object@env$samples$name,
+                                    .truncPath(object@env$samples$filepath, getOption("width")-maxlen-3)), collapse=""), sep="")
+    maxlen <- max(nchar(object@env$auxiliaries$feature),0)
     cat("Alignments:\n")
     lapply(names(object@env$alignments),
            function(index){
