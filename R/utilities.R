@@ -42,6 +42,17 @@
     return(type)
 }
 
+.truncPath <- function(path, w=getOption('width'))
+{
+    truncpath <- lapply(path, function(p) {
+        if(nchar(p)>w)
+            file.path(paste(substr(p,1,w-nchar(basename(p))-4),"...",sep=""),basename(p))
+        else
+            p
+    })
+    return(unlist(truncpath, use.names=FALSE))
+}
+
 .createBamFilename <- function(bamfileDir, sampleFilename, genomeName)
 {
     if(is.null(bamfileDir))

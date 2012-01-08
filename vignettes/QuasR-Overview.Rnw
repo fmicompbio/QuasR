@@ -7,9 +7,14 @@
 
 \usepackage{times}
 %\usepackage{inconsolata}
-\usepackage{hyperref}
+\usepackage{hyperref} % remove to suppress links
 %\usepackage[super]{natbib}
 %\usepackage[numbers]{natbib}
+
+% the following three are needed to include function documentations (importing of Rd causes pdflatex to fail???)
+%\usepackage[times,hyper]{Rd}
+%\usepackage[latin1]{inputenc}
+%\usepackage{makeidx}
 
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
 \newcommand{\Robject}[1]{{\texttt{#1}}}
@@ -39,6 +44,8 @@
 
 <<options,echo=FALSE>>=
 options(width=60)
+library(BSgenome)
+library(QuasR)
 @
 
 \tableofcontents
@@ -74,7 +81,6 @@ Any other questions or problems concerning \QuasR{} should be sent to the Biocon
 
 
 \newpage
-
 \section{Quick Start}
 \subsection{A brief introduction to \R{}}
 \label{sec:Rintro}
@@ -128,7 +134,7 @@ qQCReport(project, "qc_report.pdf")
 promoterCounts <- qCount(project, query=promoters)
 @
 
-The \Robject{project} object keeps track of all the metadata (where the sequence and alignment files are, what aligner and genome was used, and information on the qualities of the sequences and alignments). It may be convenient to save this metadata for later use by
+The \Robject{project} object keeps track of all the metadata (where sequence and alignment files are, what aligner and genome was used, and information on qualities of sequences and alignments). It may be convenient to save this metadata for later use by
 <<SampleSession2, eval=FALSE>>=
 projectFilename <- qSaveProject(project)
 project <- qReadProject(projectFilename)
@@ -151,25 +157,30 @@ The following scheme shows the major components of \QuasR{} and their relationsh
 
 \QuasR{} works with data (sequence files, alignment files, genome sequence and index, etc.) that are stored as files on your hard disk (the gray box on the left of Figure \ref{fig:QuasR-scheme}). There is no need to setup and maintain a database management system, and neither to copy the files into a specific place or directory.
 
-In order to keep track of the location of the data, as well as the current state of the analysis, \QuasR{} makes use of a \Robject{qProject} object. A typical analysis therefore starts with the creation of a \Robject{qProject} object, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome} for details).
+In order to keep track of directory paths, as well as the current state of the analysis, \QuasR{} makes use of a \Robject{qProject} object. A typical analysis therefore starts with the creation of a \Robject{qProject} object, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome} for details).
 
-During the analysis, the \Robject{qProject} object is the main argument passed to each function; it contains all necessary information on the current project and eliminates the need to specify the same information, e.g. the reference genome, several times. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}. These \textit{q-functions} will also update the \Robject{qProject} object with additional information, for example \Rfunction{qAlign} will store the path and file names of the generated alignments, and \Rfunction{qQCReport} will store the collected quality information. The \Rfunction{qSaveProject} and \Rfunction{qReadProject} can be used to save a \Robject{qProject} to a file and open it again.
+During the analysis, the \Robject{qProject} object is the main argument passed to each function; it contains all necessary information on the current project and eliminates the need to repeatedly enter the same information (such as the reference genome). All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}. These \textit{q-functions} will also update the \Robject{qProject} object with additional information, for example \Rfunction{qAlign} will store the path and file names of the generated alignments, and \Rfunction{qQCReport} will store the collected quality information. The q-functions can update the original \Robject{qProject} object passed to them. It is therefore not necessary to assign return values from q-functions in order to keep their results.
 
-Finally, the main workhorse of \QuasR{} is the \Rfunction{qCount} function: It counts the alignments for regions of interest, e.g. promoters, genes, exons, etc. and produces a count table (regions in rows, samples in columns) for further analysis, e.g. using packages \Rpackage{edgeR} \cite{edgeR} or \Rpackage{DESeq} \cite{DESeq}.
+The \Rfunction{qSaveProject} and \Rfunction{qReadProject} can be used to save a \Robject{qProject} object to a file and open it again.
+
+Finally, the main workhorse of \QuasR{} is the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further analysis, e.g. using packages \Rpackage{edgeR} \cite{edgeR} or \Rpackage{DESeq} \cite{DESeq}.
 
 \vskip 4em
 
-In summary, a typical \QuasR{} analysis consists of the following steps:
-\begin{enumerate}
-\item \Rfunction{preprocessReads} (filter reads, optional)
-\item prepare \textit{samples} file (optional: \textit{auxiliary} file)
-\item \Rfunction{qProject} (create project object)
-\item \Rfunction{qAlign} (create alignments)
-\item \Rfunction{qQCReport} (create quality control report, optional)
-\item \Rfunction{qExportWig} (create wiggle tracks for genome browser visualization, optional)
-\item \Rfunction{qSaveProject} (store the \Robject{qProject} object for later reuse, optional)
-\item \Rfunction{qCount} (quantify alignments)
-\end{enumerate}
+In summary, a typical \QuasR{} analysis consists of the following steps (some of them being optional):
+\begin{quote}
+\begin{itemize}
+\item \Rfunction{preprocessReads} (optional): Remove adaptors from start or end of reads, filter out reads of low quality, short lenght or low complexity.
+\item Prepare \textit{samples} file: List sequence files or alignments, provide sample names.
+\item Prepare \textit{auxiliary} file (optional): List additional reference sequences for alignment of reads not matching the reference genome.
+\item \Rfunction{qProject}: Create project object and specify project parameters (reference genome, aligner, etc.)
+\item \Rfunction{qAlign}: Create alignments if not already existing. If necessary, create aligner index for reference genome and auxiliary references.
+\item \Rfunction{qQCReport} (optional): Create quality control report with plots on sequence qualities and alignment statistics.
+\item \Rfunction{qExportWig} (optional): Export genomic alignments as wiggle tracks for genome browser visualization.
+\item \Rfunction{qSaveProject} (optional): Store the \Robject{qProject} object for later reuse.
+\item \Rfunction{qCount}: Quantify alignments in regions of interest.
+\end{itemize}
+\end{quote}
 
 
 
@@ -177,16 +188,17 @@ In summary, a typical \QuasR{} analysis consists of the following steps:
 \section{Example tasks}
 \subsection{Create a sample file}
 \label{sec:SampleFile}
-The sample file is a tab delimited text file with at least two columns. Its first row contains the column names. Some columns are mandatory and have to be named correctly: For a single read experiment, these are 'SampleName' and 'FileName'; for a paired-end experiment, 'FileName1' and 'FileName2' are used in place of 'FileName'.
+The sample file is a tab-delimited text file with two columns or three columns. The first row contains the column names: For a single read experiment, these are 'SampleName' and 'FileName'; for a paired-end experiment, these are 'SampleName', 'FileName1' and 'FileName2'. These mandatory columns can appear in any order in the samples file, and additional columns may be contained in it. However, if the first row does not contain the corretly spelled names of the mandatory columns, \QuasR{} will not accept the samples file.
 
 Here are examples of such sample files for a single read experiment:
 \begin{center}
+\ttfamily
 \begin{tabular}{|ll|}
 \hline
-SampleName&FileName\\
-Sample1&sr\_phiX174\_1\_1.fastq\\
-Sample2&sr\_phiX174\_2\_1.fastq\\
-Sample2&sr\_phiX174\_2\_2.fastq\\
+SampleName & FileName                \\
+Sample1    & sr\_phiX174\_1\_1.fastq \\
+Sample2    & sr\_phiX174\_2\_1.fastq \\
+Sample2    & sr\_phiX174\_2\_2.fastq \\
 \hline
 \end{tabular}
 \end{center}
@@ -194,25 +206,24 @@ Sample2&sr\_phiX174\_2\_2.fastq\\
 
 and for a paired-end experiment:
 \begin{center}
+\ttfamily
 \begin{tabular}{|lll|}
 \hline
-SampleName&FileName1&FileName2\\
-Sample1&sr\_phiX174\_1\_1.fastq&sr\_phiX174\_1\_2.fastq\\
-Sample2&sr\_phiX174\_2\_1.fastq&sr\_phiX174\_2\_2.fastq\\
+SampleName & FileName1               & FileName2               \\
+Sample1    & sr\_phiX174\_1\_1.fastq & sr\_phiX174\_1\_2.fastq \\
+Sample2    & sr\_phiX174\_2\_1.fastq & sr\_phiX174\_2\_2.fastq \\
 \hline
 \end{tabular}
 \end{center}
 \vskip 1em
 
-These files are also contained in the \QuasR{} package to serve as templates for your own analysis. The path of the files depends on your operating system and \R{} installation and can be determined using:
+These example files are also contained in the \QuasR{} package and may be used as templates. The path of the files can be determined using:
 <<sampleFile, eval=FALSE>>=
-sampleFile <- system.file(package="QuasR", 
-                          "extdata", "samples_phiX_single.txt")
-sampleFile <- system.file(package="QuasR", 
-                          "extdata", "samples_phiX_paired.txt")
+sampleFile1 <- system.file(package="QuasR", "extdata",
+                           "samples_phiX_single.txt")
+sampleFile2 <- system.file(package="QuasR", "extdata",
+                           "samples_phiX_paired.txt")
 @
-
-The type of the project that is implicitly defined by the sample file, i.e. single read or paired-end read, will have a profound impact on all downstream analysis. For example, the project type defines whether the alignments will be performed in single or paired-end mode, or whether the quantification will be based on single reads or read pairs.
 
 The \textit{SampleName} column contains sample names for each sequence file. The same name can be used on several lines to indicate multiple sequence files that belong to the same sample.
 
@@ -225,29 +236,50 @@ Three types of files can be listed in the \textit{FileName*} column:
 \item \textbf{bam} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools or parameters that are not already available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \QuasR{} are fulfilled by the external aligner. In addition, some meta data, such as statistics on the alignments, which \QuasR{} store in the header of \bam{} files, will be missing from such external \bam{} files and the corresponding information may take a long time to regenerated, or may not be available at all.
 \end{itemize}
 
+\subsubsection*{Important remark on single- versus paired-end read experiments}
+The sample file implicitely defines the type of samples contained in the project: \textit{single read} or \textit{paired-end read}. This type will have a profound impact on the downstream analysis. For example, it controls whether alignments will be performed in single or paired-end mode and whether the quantification will be based on single reads or read pairs. All samples within a project have the same type; it is not possible to mix both single and paired-end read samples in the same project and analyze each one respectively. It is however possible to include data from paired-end read experiments in a single read project, in which case they will be analyzed as single reads.
+
 
 \subsection{Create an auxiliary file (optional)}
 \label{sec:AuxFile}
-By default \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify contamination from vectors or a foreign species, or in order to quantify a spiked-in sequence that is not contained in the genome. In \QuasR{}, such additional reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument. The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
+By default \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \QuasR{}, such supplementary reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qProject} on page \pageref{sec:qProject} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
 
-An example auxiliary file is available from your \QuasR{} installation at
-<<auxiliaryFile, eval=FALSE>>=
-auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+An example auxiliary file looks like this:
+\begin{center}
+\ttfamily
+\begin{tabular}{|ll|}
+\hline
+AuxName & FileName                       \\
+phiX174 & phage\_genomes/NC\_001422.1.fa \\
+\hline
+\end{tabular}
+\end{center}
+\vskip 1em
+
+and is available from your \QuasR{} installation at
+<<auxiliaryFile, eval=TRUE>>=
+auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 @
 
 \subsection{Select the reference genome}
 \label{sec:refGenome}
 Sequence reads will be primarily aligned against the reference genome. If necessary, \QuasR{} will create an index for the genome and store it for later reuse. The reference genome can be provided in three different formats:
 \begin{itemize}
-\item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package
-\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in FASTA format.
-\item{\textbf a directory name}, referring to a directory containing one or several sequence files in FASTA format, identified by their file extension (one of '.fa', '.fna' or '.fasta'.
-\end{itemize}
-    
-<<genome, eval=FALSE>>=
+\item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package:
+<<selectGenomeBSgenome, eval=TRUE>>=
 available.genomes()
 gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
 @
+\item{\textbf a directory name}, referring to a directory containing one or several sequence files in FASTA format, identified by their file extension (one of '.fa', '.fna' or '.fasta':
+<<selectGenomeDirectory, eval=FALSE>>=
+gnm <- system.file(package="QuasR", "extdata", "phage_genomes")
+@
+\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in FASTA format:
+<<selectGenomeFile, eval=FALSE>>=
+gnm <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa")
+@
+\end{itemize}
+    
 
 
 \subsection{Sequence data pre-processing}
@@ -265,15 +297,18 @@ In this section a simple single-end ChIP-seq workflow is shown. We assume in thi
 \subsubsection{Create a \Robject{qProject} object}
 In order to create the \Robject{qProject} object, a sample file (section \ref{sec:SampleFile}) and a reference genome (section \ref{sec:refGenome}) will be needed. Optionally, you can also include auxiliary references (section \ref{sec:AuxFile}).
 
-<<qProject, eval=FALSE>>=
-sampleFile <- "samples.txt"
-gnm <- "BSgenome.Mmusculus.UCSC.mm9"
+<<qProject, eval=TRUE>>=
+sampleFile <- system.file(package="QuasR", "extdata",
+                          "samples_phiX_single.txt")
+gnm <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa")
 project <- qProject(sampleFile, genome=gnm)
+project
 @
 
 \subsubsection{Align reads using the \Rfunction{qAlign} function}
 <<qAlign, eval=FALSE>>=
-project <- qAlign(project)
+qAlign(project)
+project
 @
 
 \subsubsection{Create a quality control report}
@@ -345,6 +380,19 @@ TODO
 
 \subsection{\Rfunction{qQCReport}}
 \label{qQCReport}
+% from: http://r.789695.n4.nabble.com/How-to-include-the-documentation-of-a-function-in-a-Sweave-document-td849350.html
+% may need header:
+%\usepackage[times,hyper]{Rd}
+%\usepackage[latin1]{inputenc}
+%\usepackage{makeidx}
+% when building the binary package, use --latex to include latex function documentations:
+%R CMD INSTALL --latex --build QuasR
+
+%<<echo=FALSE,print=FALSE,results=tex>>=
+%path <- sub("help","latex",as.character(?qQCReport))
+%path <- paste(path,'tex',sep=".")
+%cat(readLines(path),sep="\n")
+%@
 TODO
 
 \subsection{\Rfunction{qExportWig}}

@@ -87,17 +87,18 @@ qProject <- function(sampleFile, genome,
 }
 
 setMethod("show","qProject", function(object){
-    cat("QuasRProject\n")
     cat("Project: " , object@name, "\n", sep="")
     cat("Options: paired=", object@env$paired,
-        "\n         junction=", object@env$junction,
+        "\n         splicedAlignment=", object@env$splicedAlignment,
         "\n         bisulfite=", object@env$bisulfite,
         "\n         maxHits=", object@env$maxHits,
         "\n         alignmentParameter=", object@env$alignmentParameter, "\n", sep="")
-    cat("Genome:  ", object@env$genome$name, " is BSgenome=", object@env$genome$bsgenome, "\n", sep="")
+    cat("Genome:  ", .truncPath(object@env$genome$name, getOption("width")-26), " (BSgenome=", object@env$genome$bsgenome, ")\n", sep="")
     cat("Aligner: ", object@env$aligner$pkgname, " Version ", object@env$aligner$pkgversion, "\n", sep="")
-    cat("Samples:\n", paste(object@env$samples$name, object@env$samples$filepath, sep="\t", collapse="\n"), "\n", sep="")
-    cat("Annotations:\n", paste(object@env$annotations$feature, object@env$annotations$filepath, sep="\t", collapse="\n"), "\n", sep="")
+    maxlen <- max(nchar(object@env$samples$name))
+    cat("Samples:\n", paste(sprintf("%*s  %s", maxlen, object@env$samples$name, .truncPath(object@env$samples$filepath, getOption("width")-maxlen-2)), collapse="\n"), "\n", sep="")
+    maxlen <- max(nchar(object@env$annotations$feature))
+    cat("Auxiliaries:\n", paste(sprintf("%*s  %s", maxlen, object@env$annotations$feature, .truncPath(object@env$annotations$filepath, getOption("width")-maxlen-2)), collapse="\n"), "\n", sep="")
     ## TODO write alignments in a nice way
     cat("Alignments:\n")
     lapply(names(object@env$alignments),
