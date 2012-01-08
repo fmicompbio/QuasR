@@ -1,2 +1,2 @@
 AuxName	FileName
-phiX174	phage_genomes/NC_001422.1.fa
+lambda	phage_genomes/NC_001416.fna
