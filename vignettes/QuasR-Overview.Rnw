@@ -7,9 +7,11 @@
 
 \usepackage{times}
 %\usepackage{inconsolata}
+%\usepackage[scaled=0.85]{beramono}
 \usepackage{hyperref} % remove to suppress links
 %\usepackage[super]{natbib}
 %\usepackage[numbers]{natbib}
+
 
 % the following three are needed to include function documentations (importing of Rd causes pdflatex to fail???)
 %\usepackage[times,hyper]{Rd}
@@ -32,7 +34,7 @@
 
 \title{An Introduction to \QuasR{}}
 \author{Anita Lerch, Michael Stadler}
-\date{Modified: 7 January, 2012. Compiled: \today}
+\date{Modified: 8 January, 2012. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
@@ -125,10 +127,9 @@ We hope that you can use \QuasR{} without having to spend a lot of time learning
 This is a quick overview of what an analysis might look like for the users who prefer to jump right into an analysis. The example assumes an that the sequence files to be analyzed are listed in the \Rcode{samples.txt} file (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to the mouse genome (contained in the \Rpackage{BSgenome.Mmusculus.UCSC.mm9} package). A quality control report will be saved to the \Rcode{qc\_report.pdf} file and read alignments will be quantified in promoter regions, whose genomic coordinates are contained in the \Rcode{GRanges}-object with the name \Rcode{promoters}.
 
 <<SampleSession1, eval=FALSE>>=
-td <- tempdir()
 project <- qProject(sampleFile="samples.txt",
                     genome="BSgenome.Mmusculus.UCSC.mm9",
-                    path=td, aligner="Rbowtie")
+                    aligner="Rbowtie")
 qAlign(project)
 qQCReport(project, "qc_report.pdf")
 promoterCounts <- qCount(project, query=promoters)
@@ -250,7 +251,7 @@ An example auxiliary file looks like this:
 \begin{tabular}{|ll|}
 \hline
 AuxName & FileName                       \\
-phiX174 & phage\_genomes/NC\_001422.1.fa \\
+lambda & phage\_genomes/NC\_001416.fna \\
 \hline
 \end{tabular}
 \end{center}
@@ -292,27 +293,103 @@ TODO
 \newpage
 \section{Example workflows}
 \subsection{ChIP-seq}
-In this section a simple single-end ChIP-seq workflow is shown. We assume in this workflow that sequence reads have already been preprocessed if necessary, for example as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}.
+Here we show an exemplary single-end ChIP-seq workflow using sequence data that was obtained from a control experiment with genomic DNA from bacteriophage $\Phi$X174. All necessary files are included in the \QuasR{} package.
 
 \subsubsection{Create a \Robject{qProject} object}
-In order to create the \Robject{qProject} object, a sample file (section \ref{sec:SampleFile}) and a reference genome (section \ref{sec:refGenome}) will be needed. Optionally, you can also include auxiliary references (section \ref{sec:AuxFile}).
+We assume that the sequence reads have already been pre-processed as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}. Also, a sample file (section \ref{sec:SampleFile} on \pageref{sec:SampleFile}) that lists all sequence files to be analyzed has been prepared. Fasta files with $\Phi$X174 and $\Lambda$ bacteriophage genomes (reference and auxiliary) have been downloaded (sections \ref{sec:refGenome} on page \pageref{sec:refGenome}) and the auxiliary genome is listed in an auxiliary file (section \ref{sec:AuxFile} on page \pageref{sec:AuxFile}). Finally, we provide a directory (here the temporary directory of the current \R{} session as returned by \Rfunction{tempdir}) for storing newly generated \bam{} files using the \Rfunarg{bamfileDir} argument. Everything is ready to start the analysis and create a \Robject{qProject} object:
 
 <<qProject, eval=TRUE>>=
 sampleFile <- system.file(package="QuasR", "extdata",
                           "samples_phiX_single.txt")
-gnm <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa")
-project <- qProject(sampleFile, genome=gnm)
+gnm <- system.file(package="QuasR", "extdata",
+                   "phage_genomes", "NC_001422.1.fa")
+aux <- system.file(package="QuasR", "extdata",
+                   "auxiliaries.txt")
+td <- tempdir()
+project <- qProject(sampleFile, genome=gnm, auxiliaryFile=aux, bamfileDir=td)
 project
+@
+
+The \Robject{qProject} object was assigned to the variable \Robject{project}, and typing its name will show its content: the (optional) project name, the project parameters, aligner package, reference genome and auxiliaries, and at the bottom the sequence and alignment files. At this point, alignments have not yet been generated and are shown as missing values (\Rcode{NA}). If \bam{} alignments have been provided as input in the samples file, or if compatible alignment files were found on the disk, their path and filenames would be contained in \Robject{project}. In this example however, the alignments do not exist yet and will have to be generated by \Rfunction{qAlign}:
+
+<<tempdir1, eval=TRUE>>=
+list.files(td, pattern=".bam$")
 @
 
 \subsubsection{Align reads using the \Rfunction{qAlign} function}
-<<qAlign, eval=FALSE>>=
+\Rfunction{qAlign} will start by searching the alignment index of the selected reference genome, and create it if none is found. Then individual sequence files will be aligned to the genome, converted to \bam{} format, sorted and indexed for fast access. The number of hits per read will be counted and added to the \bam{} file as well, so it can be used later in the quality control report and for alignment weighting. 
+<<qAlign, eval=TRUE>>=
 qAlign(project)
 project
 @
+The \Rcode{Alignments} section now lists \bam{} files for reference genome and all auxiliary sequences, one for each input sequence file.
+
+A look at the \bam{} file directory shows all alignment files that have been generated so far:
+<<tempdir2, eval=TRUE>>=
+list.files(td, pattern=".bam$")
+@
+
+The file names of reference genome \bam{} files are a combination of the input sequence file name, the reference genome name, and a randomly generated string that prevents alignments to be overwritten that happen to have identical sequence file and genome names. When searching for pre-existing \bam{} files, \QuasR{} verifies additional information (e.g. alignment parameters) contained in the headers of candidate \bam{} files to decide if alignments can be reused or new alignments have to be generated.
+
+The file names of auxiliary reference \bam{} files are a combination of the corresponding reference genome \bam{} file name, the suffix of \texttt{\_unmapped}, the name of the auxiliary and another random string. The \texttt{\_unmapped} suffix illustrates that only sequence reads without hits to the reference genome will be further aligned to the auxiliaries.
+
+The temporary directory of the \R{} session and all contained files will be deleted when the session ends, which is fine in the case of our example. If the \bam{} files are supposed to survive the current \R{} session for later reuse, a more permanent directory should be used as \Rfunarg{bamfileDir}, or else the default value of \Rcode{bamfileDir=NULL} can be used when creating the \Robject{qProject} object. The latter will cause \QuasR{} to store the \bam{} files at their default location, in the directory containing the input sequence files, where they can be found again.
 
 \subsubsection{Create a quality control report}
-TODO
+\QuasR{} can produce a quality control plot in the form of a series of diagnostic plots with details on sequences and alignments (quality control 1 and 2 in Figure \ref{fig:QuasR-scheme} on page \pageref{fig:QuasR-scheme}). The plots are generated using the \Rfunction{qQCReport} function on the \Robject{pProject} object. \Rfunction{qQCReport} uses \Rpackage{ShortRead} \cite{ShortRead} internally to obtain some of the quality metrics, and some of the additional plots are inspired by the FastQC quality control tool by Simon Andrews (\url{http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/}). The plots will be stored into a multipage PDF document defined by the \Rfunarg{pdfFilename} argument, or else shown as individual plot windows on the current graphics device. In order to keep the running time reasonably short, some quality metrics are obtained from a random subsample of the sequences or alignments.
+
+<<qcplots, eval=FALSE>>=
+qQCReport(project, pdfFilename="qc_report.pdf")
+@
+
+Currently available plots are described below:
+\begin{itemize}
+\item \textbf{Quality score boxplot} (Fig. \ref{fig:quality_score_boxplot}) shows the distribution of base quality values as a box plot for each position in the input sequence. The background color (green, orange or red) indicates ranges of high, intermediate and low qualtities. The plot is available for fastq and external bam files.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{quality_score_boxplot.png}
+\caption{Quality score boxplot}
+\label{fig:quality_score_boxplot}
+\end{center}
+\end{figure}
+
+\item \textbf{Nucleotide frequency} plot (Fig. \ref{fig:nucleotide_frequency}) shows the frequency of A, C, G, T and N bases by position in the input sequence.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{nucleotide_frequency.png}
+\caption{Nucleotide frequency plot}
+\label{fig:nucleotide_frequency}
+\end{center}
+\end{figure}
+
+\item \textbf{Duplication level} plot (Fig. \ref{fig:duplication_level}) shows for each sample the fraction of reads observed at different duplication levels (e.g. once, two-times, three-times, etc.). In addition, the most frequent sequences are listed.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{duplication_level.png}
+\caption{Sequence duplication levels}
+\label{fig:duplication_level}
+\end{center}
+\end{figure}
+
+\item \textbf{Mapping statistics} (Fig. \ref{fig:mapping_statistics}) shows the number and fraction of reads that were unmappable, or that were mapped with different numbers of hits to the reference genome are shown. This plot is available for projects with alignments created by the \Rfunction{qAlign} function.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{mapping_statistics.png}
+\caption{Mapping statistics}
+\label{fig:mapping_statistics}
+\end{center}
+\end{figure}
+
+\item \textbf{Mismatch frequency} (Fig. \ref{fig:mismatch_frequency}) shows the frequency and position (relative to the short read) of mismatches in the alignments against the reference genome. This plot is available for projects with alignments created by the \Rfunction{qAlign} function.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{mismatch_frequency.png}
+\caption{Mismatch frequency plot}
+\label{fig:mismatch_frequency}
+\end{center}
+\end{figure}
+
+\end{itemize}
 
 \subsubsection{Count alignments using the \Rfunction{qCount} function}
 GRange
@@ -362,6 +439,8 @@ project <- qReadProject(projectFilename)
 
 \newpage
 \section{Description of Individual \QuasR{} Functions}
+Please refer to the \QuasR{} reference manual or the function documentation (e.g. using \Rcode{?qAlign}) for a complete description of all details on \QuasR{} functions. The descriptions provided below are meant to give and overview over all functions and summarize the purpose of each one.
+
 \subsection{\Rfunction{preprocessReads}}
 \label{sec:preprocessReads}
 If the short reads are barcoded, contains adapter or should be filtered then TODO 
