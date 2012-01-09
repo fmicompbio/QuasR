@@ -1,4 +1,0 @@
-FileName	SampleName
-DmS2DRSC_RNA_seqs_subsample.fa	Sample1
-DmS2DRSC_RNA_seqs_subsample.fa	Sample2
-DmS2DRSC_RNA_seqs_subsample.fa	Sample2
