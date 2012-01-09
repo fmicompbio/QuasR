@@ -92,7 +92,7 @@ preprocessReads <- function(filename, filenameMate=NULL,
                             nrec
                             )
 {
-    .progressReport(sprintf("Filter file %s", filename))
+    .progressReport(sprintf("Filter file %s", .truncPath(filename, getOption('width')-15)))
     
     ## extend R/Lpattern by Ns
     numNs <- 20
@@ -205,7 +205,9 @@ preprocessReads <- function(filename, filenameMate=NULL,
                             nrec
                             )
 {
-    .progressReport(sprintf("Filter paired files %s and %s", filename, filenameMate))
+    .progressReport(sprintf("Filter paired files %s and %s",
+                            .truncPath(filename, getOption('width')-20-nchar(filenameMate)),
+                            .truncPath(filenameMate, getOption('width')-20-nchar(filename))))
 
     format <- .fileType(filename)
                                    
