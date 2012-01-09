@@ -156,8 +156,9 @@ preprocessReads <- function(filename, filenameMate=NULL,
             report$lowEntropy <- report$lowEntropy + sum(!filterResults$LowComplexityFilter)
             filter <- as.logical(do.call(pmin.int, filterResults))
             report$totalPassed <- report$totalPassed + sum(filter)
-            writeFasta(chunks[filter], outputFilename, mode=mode)
-            
+            if(sum(filter))
+              writeFasta(chunks[filter], outputFilename, mode=mode)
+
             mode <- 'a'
             cycle <- cycle + 1
         }
@@ -187,7 +188,8 @@ preprocessReads <- function(filename, filenameMate=NULL,
             report$lowEntropy <- report$lowEntropy + sum(!filterResults$LowComplexityFilter)
             filter <- as.logical(do.call(pmin.int, filterResults))
             report$totalPassed <- report$totalPassed + sum(filter)
-            writeFastq(chunks[filter], outputFilename, mode=mode, qualityType="Auto")
+            if(sum(filter))
+              writeFastq(chunks[filter], outputFilename, mode=mode, qualityType="Auto")
             
             mode <- 'a'
         }
@@ -246,8 +248,10 @@ preprocessReads <- function(filename, filenameMate=NULL,
             report$lowEntropy <- report$lowEntropy + sum(!(filterResults$LowComplexityFilter & filterResultsMate$LowComplexityFilter))
             filter <- as.logical(do.call(pmin.int, c(filterResults, filterResultsMate)))
             report$totalPassed <- report$totalPassed + sum(filter)         
-            writeFasta(chunks[filter], outputFilename, mode=mode)
-            writeFasta(chunksMate[filter], outputFilenameMate, mode=mode)
+            if(sum(filter)) {
+              writeFasta(chunks[filter], outputFilename, mode=mode)
+              writeFasta(chunksMate[filter], outputFilenameMate, mode=mode)
+            }
             
             mode <- 'a'
             cycle <- cycle + 1
@@ -272,8 +276,10 @@ preprocessReads <- function(filename, filenameMate=NULL,
             report$lowEntropy <- report$lowEntropy + sum(!(filterResults$LowComplexityFilter & filterResultsMate$LowComplexityFilter))
             filter <- as.logical(do.call(pmin.int, c(filterResults, filterResultsMate)))
             report$totalPassed <- report$totalPassed + sum(filter)            
-            writeFastq(chunks[filter], outputFilename, mode=mode, qualityType="Auto")
-            writeFastq(chunksMate[filter], outputFilenameMate, mode=mode, qualityType="Auto")
+            if(sum(filter)) {
+              writeFastq(chunks[filter], outputFilename, mode=mode, qualityType="Auto")
+              writeFastq(chunksMate[filter], outputFilenameMate, mode=mode, qualityType="Auto")
+            }
             
             mode <- 'a'
         }
