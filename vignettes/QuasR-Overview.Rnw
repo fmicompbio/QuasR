@@ -30,6 +30,8 @@
 \newcommand{\R}{\software{R}}
 \newcommand{\QuasR}{\Rpackage{QuasR}}
 \newcommand{\bam}{\texttt{BAM}}
+\newcommand{\fasta}{\texttt{FASTA}}
+\newcommand{\fastq}{\texttt{FASTQ}}
 
 
 \title{An Introduction to \QuasR{}}
@@ -232,9 +234,9 @@ The \textit{FileName*} columns contain paths and names to files containing the s
 
 Three types of files can be listed in the \textit{FileName*} column:
 \begin{itemize}
-\item \textbf{fasta} files have names that end with '.fa', '.fna' or '.fasta'. They contain only sequences (and no base qualities) and will thus be aligned on the basis of mismatches (the best alignment is the one with fewest mismatches).
-\item \textbf{fastq} files have names that end with '.fq' or '.fastq'. They contain sequences and corresponding base qualities and will be aligned using these qualities if supported by the selected aligner.
-\item \textbf{bam} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools or parameters that are not already available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \QuasR{} are fulfilled by the external aligner. In addition, some meta data, such as statistics on the alignments, which \QuasR{} store in the header of \bam{} files, will be missing from such external \bam{} files and the corresponding information may take a long time to regenerated, or may not be available at all.
+\item \textbf{\fasta{}} files have names that end with '.fa', '.fna' or '.fasta'. They contain only sequences (and no base qualities) and will thus be aligned on the basis of mismatches (the best alignment is the one with fewest mismatches).
+\item \textbf{\fastq{}} files have names that end with '.fq' or '.fastq'. They contain sequences and corresponding base qualities and will be aligned using these qualities if supported by the selected aligner.
+\item \textbf{\bam{}} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools or parameters that are not already available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \QuasR{} are fulfilled by the external aligner. In addition, some meta data, such as statistics on the alignments, which \QuasR{} store in the header of \bam{} files, will be missing from such external \bam{} files and the corresponding information may take a long time to regenerated, or may not be available at all.
 \end{itemize}
 
 \subsubsection*{Important remark on single- versus paired-end read experiments}
@@ -243,7 +245,7 @@ The sample file implicitely defines the type of samples contained in the project
 
 \subsection{Create an auxiliary file (optional)}
 \label{sec:AuxFile}
-By default \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \QuasR{}, such supplementary reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qProject} on page \pageref{sec:qProject} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in fasta format.
+By default \QuasR{} aligns reads to the reference genome only. However, it may be interesting to align non-matching reads to further references, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \QuasR{}, such supplementary reference files are called \textit{auxiliary} references and can be specified when creating the \Robject{qProject} object using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qProject} on page \pageref{sec:qProject} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns, with column names 'AuxName' and 'FileName' in the first row. Additional rows contain names and files of one or several auxiliary references in \fasta{} format.
 
 An example auxiliary file looks like this:
 \begin{center}
@@ -271,11 +273,11 @@ Sequence reads will be primarily aligned against the reference genome. If necess
 available.genomes()
 gnm <- "BSgenome.Dmelanogaster.UCSC.dm3"
 @
-\item{\textbf a directory name}, referring to a directory containing one or several sequence files in FASTA format, identified by their file extension (one of '.fa', '.fna' or '.fasta':
+\item{\textbf a directory name}, referring to a directory containing one or several sequence files in \fasta{} format, identified by their file extension (one of '.fa', '.fna' or '.fasta':
 <<selectGenomeDirectory, eval=FALSE>>=
 gnm <- system.file(package="QuasR", "extdata", "phage_genomes")
 @
-\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in FASTA format:
+\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in \fasta{} format:
 <<selectGenomeFile, eval=FALSE>>=
 gnm <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa")
 @
@@ -285,9 +287,41 @@ gnm <- system.file(package="QuasR", "extdata", "phage_genomes", "NC_001422.1.fa"
 
 \subsection{Sequence data pre-processing}
 \label{sec:workflowPreprocess}
-A detailed description of the \Rfunction{preprocessReads} function can be found in section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
+The \Rfunction{preprocessReads} function can be used to prepare the input sequence files prior to the main analysis. The function takes one or several sequence files (or pairs of files for a paired-end experiment) in \fasta{} or \fastq{} format as input and produces the same number of output files with the processed reads.
 
-TODO
+In the following example, we truncate the reads by removing the three bases from the 3'-end (the right side), remove the adapter sequence \texttt{AAAAAAAAAA} from the 5'-end (the left side) and filter out reads that are shorter than 14 bases (after truncation and adapter removal) or contain more than 2 \texttt{N} bases:
+<<preprocessReadsSingle,eval=TRUE>>=
+td <- tempdir()
+infiles <- system.file(package="QuasR", "extdata",
+                       c("sr_phiX174_1_1.fastq","sr_phiX174_2_1.fastq"))
+outfiles <- file.path(td, basename(infiles))
+res <- preprocessReads(filename = infiles,
+                       outputFilename = outfiles,
+                       truncateEndBases = 3,
+                       Lpattern = "AAAAAAAAAA",
+                       minLength = 14, 
+                       nBases = 2)
+res
+@ 
+
+In the example below we process paired-end reads, removing all pairs with more \texttt{N} bases. Even if only one sequence in a pair fulfills the filtering criteria, both reads in the pair are removed, thereby preserving the matching order of the sequences in the two files:
+<<preprocessReadsPaired,eval=TRUE>>=
+td <- tempdir()
+infiles1 <- system.file(package="QuasR", "extdata", "sr_dm_1_1.fastq")
+infiles2 <- system.file(package="QuasR", "extdata", "sr_dm_1_2.fastq")
+outfiles1 <- file.path(td, basename(infiles1))
+outfiles2 <- file.path(td, basename(infiles2))
+res <- preprocessReads(filename=infiles1,
+                       filenameMate=infiles2,
+                       outputFilename=outfiles1,
+                       outputFilenameMate=outfiles2,
+                       nBases=0)
+res
+fastq.geometry(outfiles1)[1]
+fastq.geometry(outfiles2)[1]
+@ 
+
+More details on the \Rfunction{preprocessReads} function can be found in the function documentation (see \Rcode{?preprocessReads}) or in the section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
 
 
 \newpage
@@ -297,7 +331,7 @@ TODO
 Here we show an exemplary single-end ChIP-seq workflow using sequence data that was obtained from a control experiment with genomic DNA from bacteriophage $\Phi$X174. All necessary files are included in the \QuasR{} package.
 
 \subsubsection{Create a \Robject{qProject} object}
-We assume that the sequence reads have already been pre-processed as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}. Also, a sample file (section \ref{sec:SampleFile} on \pageref{sec:SampleFile}) that lists all sequence files to be analyzed has been prepared. Fasta files with $\Phi$X174 and $\Lambda$ bacteriophage genomes (reference and auxiliary) have been downloaded (sections \ref{sec:refGenome} on page \pageref{sec:refGenome}) and the auxiliary genome is listed in an auxiliary file (section \ref{sec:AuxFile} on page \pageref{sec:AuxFile}). Finally, we provide a directory (here the temporary directory of the current \R{} session as returned by \Rfunction{tempdir}) for storing newly generated \bam{} files using the \Rfunarg{bamfileDir} argument. Everything is ready to start the analysis and create a \Robject{qProject} object:
+We assume that the sequence reads have already been pre-processed as described in section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}. Also, a sample file (section \ref{sec:SampleFile} on \pageref{sec:SampleFile}) that lists all sequence files to be analyzed has been prepared. \fasta{} files with $\Phi$X174 and $\Lambda$ bacteriophage genomes (reference and auxiliary) have been downloaded (sections \ref{sec:refGenome} on page \pageref{sec:refGenome}) and the auxiliary genome is listed in an auxiliary file (section \ref{sec:AuxFile} on page \pageref{sec:AuxFile}). Finally, we provide a directory (here the temporary directory of the current \R{} session as returned by \Rfunction{tempdir}) for storing newly generated \bam{} files using the \Rfunarg{bamfileDir} argument. Everything is ready to start the analysis and create a \Robject{qProject} object:
 
 <<qProject, eval=TRUE>>=
 sampleFile <- system.file(package="QuasR", "extdata",
@@ -401,7 +435,14 @@ Please refer to the \QuasR{} reference manual or the function documentation (e.g
 
 \subsection{\Rfunction{preprocessReads}}
 \label{sec:preprocessReads}
-If the short reads are barcoded, contains adapter or should be filtered then TODO 
+The \Rfunction{preprocessReads} can be used to prepare the input sequences before aligning the to the reference genome, for example filtering out low quality reads that are unlikely to produce meaningful alignments. When working with data paired-end experiments, the paired reads are expected to be contained in two separate files in identical order. In that case, both reads of a pair are filtered out if any of the two reads fulfills the filtering criteria. The following types of filtering tasks can be performed (in the order as listed):
+\begin{quote}
+\begin{enumerate}
+\item \textbf{Truncate reads}: remove nucleotides from the start and/or end of each read.
+\item \textbf{Trim adapters}: remove nucleotides at the beginning and/or end of each read that match to a defined (adapter) sequence. The adapter trimming is done by calling \Rfunction{trimLRPatterns} from the \Rpackage{Biostrings} package \cite{Biostrings}.
+\item \textbf{Filter out low quality reads}: Filter out reads that fulfill any of the filtering criteria (contain more than \Rfunarg{nBases} \texttt{N} bases, are shorter than \Rfunarg{minLength} or have a dinucleotide complexity of less than \Rfunarg{complexity}-times the average complexity of the human genome sequence).
+\end{enumerate}
+\end{quote}
 
 \subsection{\Rfunction{qProject}}
 \label{sec:qProject}
@@ -420,7 +461,7 @@ TODO
 The \Rfunction{qQCReport} function samples a random subset of sequences and alignments from each sample and generates a series of diagnostic plots for estimating data quality. The plots below show the currenly available plots as produced by the ChIP-seq example in section \ref{sec:ChIP}:
 \setkeys{Gin}{width=0.7\textwidth}
 \begin{itemize}
-\item \textbf{Quality score boxplot} shows the distribution of base quality values as a box plot for each position in the input sequence. The background color (green, orange or red) indicates ranges of high, intermediate and low qualtities. The plot is available for fastq and external bam files.
+\item \textbf{Quality score boxplot} shows the distribution of base quality values as a box plot for each position in the input sequence. The background color (green, orange or red) indicates ranges of high, intermediate and low qualtities. The plot is available for \fastq{} and external \bam{} files.
 \begin{center}
 <<qcplotsFig1, eval=TRUE, echo=FALSE, fig=TRUE, height=6, width=8>>=
 QuasR:::.plotQualByCycle(project@env$qc$qa, lmat=rbind(1:2,3:4))
@@ -503,3 +544,5 @@ sessionInfo()
 % LocalWords:  SampleName FileName fasta fastq fna txt auxiliaryFile AuxName Qu
 % LocalWords:  edgeR DESeq Rbowtie Html limma https postingGuide html ethz www
 % LocalWords:  listinfo Lerch Dalgaard metadata projectFilename SpliceMap
+% LocalWords:  filename infiles AAAAAAAAAA truncateEndBases trimLRPatterns
+% LocalWords:  Biostrings nBases minLength outfiles
