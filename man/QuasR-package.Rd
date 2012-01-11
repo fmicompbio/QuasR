@@ -30,7 +30,7 @@ td <- tempdir()
 
 ## Example data
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 
 ## BSgenome name (see available.genomes()), a 'fasta' file 
 ## or a directory containing 'fasta' files

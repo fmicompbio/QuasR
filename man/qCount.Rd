@@ -1,5 +1,8 @@
 \name{qCount}
 \alias{qCount}
+\alias{qCount,qProject,GRanges-method}
+\alias{qCount,qProject,character-method}
+\alias{qCount,qProject,missing-method}
 
 \title{QuasR Count}
 
@@ -10,9 +13,9 @@ Function up to now not implemented.
 
 \usage{
     qCount(qproject, query, stranded=FALSE, collapseSamples=TRUE, collapseQuery=c("gene", "transcript", "exon"), overlap=c("any", "within", "startwithin", "endwithin"), maxHits=NULL, shift=0, minoverlap=1L)
-    \S4method{qCount}{qProject, missing}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
-    \S4method{qCount}{qProject, character}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
-    \S4method{qCount}{qProject, GRanges}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
+    \S4method{qCount}{qProject,missing}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
+    \S4method{qCount}{qProject,character}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
+    \S4method{qCount}{qProject,GRanges}(qproject, query, stranded, collapseSamples, collapseQuery, overlap, maxHits, shift, minoverlap)
 }
 
 \arguments{
@@ -45,7 +48,7 @@ Function up to now not implemented.
 \dontrun{
 td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
 aligner <- "Rbowtie"
 project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, aligner=aligner, path=td)

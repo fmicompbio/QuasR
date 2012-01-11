@@ -89,7 +89,7 @@ available plot vary depending on whether base qualities are available
 \dontrun{
 td <- tempdir()
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
 aligner <- "Rbowtie"
 project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, aligner=aligner, path=td)

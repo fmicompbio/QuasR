@@ -27,14 +27,13 @@ Container class for meta-data needed during the deep sequencing analysis.
 \usage{
 
 ## Constructor
-qProject(sampleFile="Sample.txt",
-     genome=".", 
-     annotationFile=NULL, 
+qProject(sampleFile,
+     genome, 
+     auxiliaryFile=NULL, 
      aligner="Rbowtie", 
      projectName="qProject", 
      bamfileDir=NULL, 
-     paired=FALSE, 
-     junction=FALSE, 
+     splicedAlignment=FALSE, 
      bisulfite=FALSE,
      lib.loc=NULL,
      indexLocation=NULL,
@@ -45,10 +44,10 @@ qProject(sampleFile="Sample.txt",
 
 ## Accessors
 \S4method{show}{qProject}(object)
-\S4method{getGenome}{qProject}(object)
-\S4method{getSamples}{qProject}(object)
-\S4method{getAlignments}{qProject}(object)
-\S4method{paired}{qProject}(object)
+%\S4method{getGenome}{qProject}(object)
+%\S4method{getSamples}{qProject}(object)
+%\S4method{getAlignments}{qProject}(object)
+%\S4method{paired}{qProject}(object)
 
 ## Methods
 \S4method{qSaveProject}{qProject}(object)
@@ -59,7 +58,7 @@ qReadProject(filename)
 \arguments{
     \item{sampleFile}{A character() vector of the sample file path name.}
     \item{genome}{A character() vector of the \sQuote{BSgenome} name or of the directory path names fasta files path names or of a single fasta file path names.}
-    \item{annotationFile}{A character() vector of the annotation file path name.}  
+    \item{auxiliaryFile}{A character() vector of the auxiliary file path name.}  
     \item{aligner}{A character() vector of the name of the alinger package used for the alignments.}
     \item{projectName}{A character() vector of the project name, used for saving the \sQuote{qProject}.}
     \item{bamfileDir}{A character() vector of the directory path names, at which the resulting bam files will be stored. If it is NULL, then the bam files are stored at the same location as the fasta/q files.}
@@ -67,8 +66,7 @@ qReadProject(filename)
     \item{lib.loc}{A character() vector describing the location of R library trees to search through, or \sQuote{NULL}.  The default value of \sQuote{NULL} corresponds to all libraries currently known.  Non-existent library trees are silently ignored.}
     \item{object}{A qProject() object.}
     \item{filename}{A character() vector of the \sQuote{qProject} rds-file.}
-    \item{paired}{logical(1). If \code{TRUE} then the samples in the \sQuote{qProject} are handled as paired-end reads. Up to now not implemented.}
-    \item{junction}{A logical(1). If \code{TRUE} then the samples are additionaly aligned to the Exon-exon-junction database. Up to now not implemented.}
+    \item{splicedAlignment}{A logical(1). If \code{TRUE} then the samples are additionaly aligned to the Exon-exon-junction database. Up to now not implemented.}
     \item{bisulfite}{logical(1). If \code{TRUE} then the samples in the \sQuote{qProject} are handled as bisultite reads. Up to now not implemented.}
     \item{cacheDir}{A character() vector of the directory path names, where the temporary files are saved.}
     \item{maxHits}{A integer(1) vector of the maximal allowed hits in the alignment file.}
@@ -79,7 +77,7 @@ qReadProject(filename)
     \describe{
         \item{name}{A character() vector of the project name.}
         \item{id}{A character() vector of a unique identifier for the project, used for saving the \sQuote{qProject}.}
-        \item{env}{An environment containing the variable used by QuasR, e.g. samples, annotations, genome, aligner, alignment.}
+        \item{env}{An environment containing the variable used by QuasR, e.g. samples, auxiliaries, genome, aligner, alignment.}
     }
 }
 
@@ -117,10 +115,10 @@ qReadProject(filename)
 \dontrun{
 
 sampleFile <- system.file(package="QuasR", "extdata", "samples.txt")
-annotationFile <- system.file(package="QuasR", "extdata", "annotations.txt")
+auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 genomeName <- "BSgenome.Dmelanogaster.UCSC.dm3"
 
-project <- qProject(sampleFile, genome=genomeName, annotationFile=annotationFile, aligner="Rbowtie", bamfileDir=tempdir())
+project <- qProject(sampleFile, genome=genomeName, auxiliaryFile=auxiliaryFile, aligner="Rbowtie", bamfileDir=tempdir())
 
 show(project)
 
