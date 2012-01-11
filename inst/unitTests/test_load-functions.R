@@ -26,8 +26,16 @@ test_readSamples <- function()
 }
 
 test_loadAlignments <- function(){
-    DEACTIVATED("Not implemented yet")
-    .loadAlignments(qproject)
+    td <- tempfile()
+    checkTrue(dir.create(td, showWarnings=FALSE, recursive=TRUE))
+    on.exit(unlink(td, recursive=TRUE))
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_phiX_single.txt")
+    genomeName <- system.file(package="QuasR", "extdata", "phage_genomes")
+    
+    project <- qProject(sampleFile, genomeName, bamfileDir=td)
+    qAlign(project)
+    ans <- QuasR:::.loadAlignments(project)
+    checkEquals(project@env$alignments, ans)
 }
 
 test_readAuxiliaries <- function(){
@@ -135,6 +143,51 @@ test_loadAligner <- function(){
 }
 
 test_loadIndex <- function(){
-    # TODO check index path / name
-    DEACTIVATED("Not implemented yet")
+    td <- tempfile()
+    checkTrue(dir.create(td, showWarnings=FALSE, recursive=TRUE))
+    on.exit(unlink(td, recursive=TRUE))
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_phiX_single.txt")
+    genomeName <- system.file(package="QuasR", "extdata", "phage_genomes")
+    project <- qProject(sampleFile, genomeName, bamfileDir=td, indexLocation=td)
+    
+    checkTrue(is.null(project@env$index$name))
+    checkTrue(is.null(project@env$index$shortname))
+    checkTrue(is.null(project@env$index$path))
+    project <- qAlign(project)
+    
+    ans <- QuasR:::.loadIndex(project)
+    checkTrue(!is.null(ans$name))
+    checkEquals(project@env$genome$name, ans$name)
+    checkTrue(!is.null(ans$shortname))
+    checkEquals(project@env$genome$shortname, ans$shortname)
+    checkTrue(!is.null(ans$path))
+    
+    ans <- QuasR:::.loadIndex(project, lib=.libPaths(), lib.loc=.libPaths()[1])
+    checkTrue(!is.null(ans$name))
+    checkEquals(project@env$genome$name, ans$name)
+    checkTrue(!is.null(ans$shortname))
+    checkEquals(project@env$genome$shortname, ans$shortname)
+    checkTrue(!is.null(ans$path))
+    
+    # check the tab file in indexDir 
+    indexFile <- file.path(td, "RbowtieIndex_phage_genomes", sprintf("%s.tab", project@env$genome$shortname))
+    index <- read.table(file=indexFile, sep="\t", header=TRUE, stringsAsFactors=FALSE)
+    checkTrue(!is.null(index$name))
+    checkEquals(project@env$genome$name, index$name)
+    checkTrue(!is.null(index$shortname))
+    checkEquals(project@env$genome$shortname, index$shortname)
+    checkTrue(!is.null(index$path))
+    index$name <- NULL
+    index$shortname <- NULL
+    index$path <- NULL
+    unlink(indexFile)
+    write.table(index, file=indexFile, sep="\t", col.names=TRUE, row.names=FALSE)     
+    ans <- QuasR:::.loadIndex(project)
+    checkTrue(!is.null(ans$name))
+    checkEquals(project@env$genome$name, ans$name)
+    checkTrue(!is.null(ans$shortname))
+    checkEquals(project@env$genome$shortname, ans$shortname)
+    checkTrue(!is.null(ans$path))
+    
+    # TODO BSgenome
 }

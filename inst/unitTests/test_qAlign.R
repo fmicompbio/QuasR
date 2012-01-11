@@ -7,7 +7,7 @@ test_qAlign_single <- function()
     genomeName <- system.file(package="QuasR", "extdata", "phage_genomes")
     on.exit(unlink(system.file(package="QuasR", "extdata", "phage_genomes", "RbowtieIndex_phage_genomes"),
                    recursive=TRUE), add=TRUE)
-    
+
     ## align sequence
     project <- qProject(sampleFile, genomeName, bamfileDir=td)
     checkTrue(all(is.na(project@env$alignments$genome)))
@@ -15,7 +15,7 @@ test_qAlign_single <- function()
     checkTrue(all(!is.na(ans@env$alignments$genome)))
     checkTrue(all(!is.na(project@env$alignments$genome)))
     checkEquals(ans, project) ## check if pass by reference works
-    
+
     ## find existing bamfile
     project <- qProject(sampleFile, genomeName, bamfileDir=td)
     checkTrue(all(!is.na(project@env$alignments$genome)))
@@ -24,27 +24,31 @@ test_qAlign_single <- function()
     ans <- qAlign(project)
     checkEquals(ans@env$alignmentParameter, project@env$alignmentParameter)
     checkEquals(ans@env$alignments, project@env$alignments)
-    
+
     ## align to auxiliary sequence
     auxiliaryFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
     project <- qProject(sampleFile, genomeName, auxiliaryFile=auxiliaryFile, bamfileDir=td)
     checkTrue(!is.null(project@env$auxiliaries))
+    auxName <- as.character(project@env$auxiliaries$feature[1])
+    checkTrue(!is.null(auxName))
     checkTrue(all(!is.na(project@env$alignments$genome)))
-    checkTrue(!is.null(project@env$alignments$phiX174))
-    checkTrue(all(is.na(project@env$alignments$phiX174)))
+
+    checkTrue(!is.null(project@env$alignments[auxName]))
+    checkTrue(!is.null(project@env$alignments[auxName]))
+    checkTrue(all(is.na(project@env$alignments[auxName])))
     ans <- qAlign(project)
-    checkTrue(all(!is.na(ans@env$alignments$phiX174)))
+    checkTrue(all(!is.na(ans@env$alignments[auxName])))
     checkEquals(ans@env$alignmentParameter, project@env$alignmentParameter)
     checkEquals(ans, project)
 
     ## check destination of bamfile 
     checkEquals(td, unique(dirname(project@env$alignments$genome)))
-    checkEquals(td, unique(dirname(project@env$alignments$phiX174)))
+    checkEquals(td, unique(dirname(project@env$alignments[[auxName]])))
     ## TODO check destination of bamfileDir when NULL
     project <- qProject(sampleFile, genomeName, auxiliaryFile=auxiliaryFile)
     qAlign(project)
     checkEquals(dirname(project@env$samples$filepath), dirname(project@env$alignments$genome))
-    checkEquals(dirname(project@env$samples$filepath), dirname(project@env$alignments$phiX174))
+    checkEquals(dirname(project@env$samples$filepath), dirname(project@env$alignments[[auxName]]))
     ## TODO check paired sample
 }
 

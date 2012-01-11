@@ -59,10 +59,10 @@ test_weightAlignments <- function()
     maxHits <- max(count)-1 # TODO
     project <- qProject(sampleFile, genomeName, bamfileDir=td, maxHits=maxHits)
     # checkException() TODO checkWarning()
-    hitcountDist2 <- QuasR:::.weightAlignments(bamFilename, bamFilename, 
+    hitcountDist2 <- suppressWarnings(QuasR:::.weightAlignments(bamFilename, bamFilename, 
                                                index=project@env$index$genome,
                                                qproject=project,
-                                               overwrite=TRUE, indexDestination=FALSE)
+                                               overwrite=TRUE, indexDestination=FALSE))
     cat(hitcountDist2)
     ## check if equel hitcounts
     list <- as.data.frame(scanBam(bamFilename, param=param)[[1]], stringsAsFactors=FALSE)
@@ -90,3 +90,22 @@ test_weightAlignments <- function()
         })
 }
 
+# test_createSamHeaderFile <- function()
+# {
+#     hf <- tempfile(tmpdir=td, fileext=".sam")
+#     cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chr2L\tLN:23011544\n@PG\tID:QuasR\tPN:QuasR\tVN:0.1.1",
+#         sprintf("at:%s", genomeName),
+#         "CL:\"Add or modifiy IH Tag\"", sep="\t", file=hf)
+#     bamfile <- asBam(hf, tempfile(pattern=sampleBaseName, tmpdir=td), indexDestination=F)
+#     listBamFilenames <- list.files(path=td, pattern=sprintf("%s.*\\.bam$", sampleBaseName), full.names=TRUE)
+#     checkException(QuasR:::.getBamFile(listBamFilenames, genomeName, ""))
+# 
+#     ## missing genomeName in bamheader
+#     ## uncertain situation the process should not continue
+#     hf <- tempfile(tmpdir=td, fileext=".sam")
+#     cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chr2L\tLN:23011544\n@PG\tID:QuasR\tPN:QuasR\tVN:0.1.1",
+#         sprintf("at:%s", genomeName),
+#         "CL:\"Add or modifiy IH Tag\"", sep="\t", file=hf)
+#     bamfile <- asBam(hf, tempfile(pattern=sampleBaseName, tmpdir=td), indexDestination=F)
+#     listBamFilenames <- list.files(path=td, pattern=sprintf("%s.*\\.bam$", sampleBaseName), full.names=TRUE)
+# }
