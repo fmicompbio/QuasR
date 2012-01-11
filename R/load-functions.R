@@ -232,10 +232,10 @@
         } else {
             ## set index path
             index <- read.table(file=file.path(indexDir, sprintf("%s.tab", qproject@env$genome$shortname)), 
-                                sep="\t", header=TRUE)
+                                sep="\t", header=TRUE, stringsAsFactors=FALSE)
+            index$name <- qproject@env$genome$name
             index$shortname <- qproject@env$genome$shortname
             index$path <- file.path(indexDir, qproject@env$genome$shortname)
-            index$name <- file.path(indexDir, qproject@env$genome$name)
             ## check index source
             fastaFiles <- paste(file.path(qproject@env$genome$dir, qproject@env$genome$files), collapse=",")
             if(index$sourceurl != fastaFiles)

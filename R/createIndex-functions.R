@@ -74,6 +74,7 @@
     pkgDir <- Biobase::createPackage(pkgname, destinationDir, templatePath, seedList, quiet=TRUE)
     ## create index files
     indexDir <- file.path(pkgDir, "inst", "alignerIndex", seedList$GENOMENAME)
+    #TODO check indexDir exists  
     .index(qproject@env$aligner, fastaFilepath, indexDir)
     return(pkgDir$pkgdir)
 }

@@ -81,6 +81,7 @@ qQCReport <- function(qproject, pdfFilename=NULL, chunkSize=1e6, ...)
         eL <- .plotErrorsByCycle(bamfilename, N=chunkSize, ...)
     }
     .progressReport("Successfully finished plotting the quality control.", phase=1)
+    return(invisible(qproject))
 }
 
 .plotQualByCycle <- function(qcdata, lmat=matrix(1:18, nrow=6, byrow=TRUE)) {

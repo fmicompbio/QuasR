@@ -70,6 +70,10 @@
 
 .getBamFile <- function(listBamFilenames, genomeName, alignerParameter)
 {
+    if(is.null(genomeName))
+        stop("Parameter 'genomeName' should not be NULL.")
+    if(is.null(alignerParameter))
+        stop("Parameter 'alignerParameter' should not be NULL.")
     # TODO qproject parameter 
     bfh <- scanBamHeader(listBamFilenames)
     bfhIdx <- unlist(lapply(bfh, function(x){
@@ -79,7 +83,8 @@
         qTag <- x$text[[idx]]
         at <- unlist(strsplit(qTag[grep("at:", qTag)], ":"))[2]
         ap <- unlist(strsplit(qTag[grep("ap:", qTag)], ":"))[2]
-        all(at == genomeName,  ap == paste(alignerParameter, collapse=","))
+        all(at == genomeName, !is.null(at),
+            ap == alignerParameter, !is.null(ap))
     }))
     if(sum(bfhIdx) > 1L)
         stop("More than one bamfile found '", paste(listBamFilenames[bfhIdx], collapse="', '"), "'.")

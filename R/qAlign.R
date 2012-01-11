@@ -64,7 +64,7 @@ qAlign <- function(qproject, lib=NULL, lib.loc=NULL)
 #            })
     qproject@env$index <- qproject@env$index["genome"] ## remove aux indexes
     .progressReport("Successfully finished the quasr alignment.", phase=1)
-#    return(qproject)
+    return(invisible(qproject))
 }
 
 .unmappedToFasta <- function(bamFile, destFile){

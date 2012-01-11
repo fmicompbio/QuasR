@@ -35,7 +35,7 @@
 
         hitcount <- .Call(.weight_alignments, sortFile, cntFile, headerFile, maxHits)
         names(hitcount) <- c(0:maxHits, paste(">", maxHits,sep=""))
-
+        
         if(!file.exists(cntFile))
             stop("failed to create 'BAM' file")
         
@@ -63,17 +63,17 @@
     h <- paste(names(h), unlist(lapply(h, paste, collapse="\t")), sep="\t")
     ## create new pg tag for quasr
     quasrVersion <- installed.packages()['QuasR', 'Version']
-    # TODO alignmentParameter is never null
-    alignmentParameter <- ifelse(is.null(qproject@env$alignmentParameter), # TODO alignmentParameter is never null
-                                 "", 
-                                 sprintf("\tap:%s", paste(qproject@env$alignmentParameter, collapse=",")))
-    alignmentTarget <- sprintf("\tat:%s", index$name)
-    #alignmentTarget <- sprintf("\tat:%s-%s", index$name, index$md5sum)
+    alignmentParameter <- ifelse(is.null(qproject@env$alignmentParameter), # needed to ensure writing of the ap tag
+                                 "\tap:", 
+                                 sprintf("\tap:%s", qproject@env$alignmentParameter))
+    alignmentTarget <- ifelse(is.null(index$name), # needed to ensure writing of the at tag
+                              "\tat:",
+                              sprintf("\tat:%s", index$name))
     hitcount <- ifelse(!missing(hitcount),
                         sprintf("\tml:%s\tmc:%s", 
                                 paste(names(hitcount), collapse=";"), 
-                                paste(hitcount, collapse=";"))
-                        , "")
+                                paste(hitcount, collapse=";")),
+                        "")
     pgLine <- paste("@PG\tID:QuasR\tPN:QuasR\tVN:",
                     quasrVersion,
                     alignmentTarget,
