@@ -77,7 +77,7 @@ test_getBamFile <- function()
     cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chr2L\tLN:23011544\n@PG\tID:QuasR\tPN:QuasR\tVN:0.1.1",
         sprintf("ap:%s", alignerParameter),
         sprintf("at:%s", genomeName),
-        "CL:\"Add or modifiy IH Tag\"", sep="\t", file=hf)
+        "CL:\"Add or modifiy IH Tag\"\nsq1\t4\t*\t0\t0\t*\t*\t0\t0\tAAA\t###\tXM:i:0\tIH:i:0", sep="\t", file=hf)
     bamfile <- asBam(hf, tempfile(pattern=sampleBaseName, tmpdir=td), indexDestination=F)
     listBamFilenames <- list.files(path=td, pattern=sprintf("%s.*\\.bam$", sampleBaseName), full.names=TRUE)
     ans <- QuasR:::.getBamFile(listBamFilenames, genomeName, alignerParameter)
