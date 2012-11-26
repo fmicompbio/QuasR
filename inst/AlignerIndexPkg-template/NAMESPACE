@@ -1,6 +1,0 @@
-import(@ALIGNER@)
-
-### Don't export @ALIGNERINDEXNAME@ (the object defined in this package): 
-### it is created and dynamically exported at load time (refer to R/zzz.R
-### for the details).
-

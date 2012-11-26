@@ -1,5 +1,0 @@
-SampleName	FileName
-Sample1	sr_phiX174_1_1.fastq
-Sample1	sr_phiX174_1_2.fastq
-Sample2	sr_phiX174_2_1.fastq
-Sample2	sr_phiX174_2_2.fastq

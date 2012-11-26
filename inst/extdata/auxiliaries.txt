@@ -1,2 +1,0 @@
-AuxName	FileName
-lambda	phage_genomes/NC_001416.fna
