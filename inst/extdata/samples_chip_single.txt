@@ -1,0 +1,4 @@
+FileName	SampleName
+chip_1_1.fq.bz2	Sample1
+chip_2_1.fq.bz2	Sample2
+

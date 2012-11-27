@@ -1,0 +1,1 @@
+Dummy file to make sure that the (empty) folder is not deleted during build process.

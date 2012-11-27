@@ -1,0 +1,22 @@
+useDynLib("QuasR", .registration=TRUE)
+
+import(methods)
+import(parallel)
+import(zlibbioc)
+
+import(BiocGenerics)
+importFrom(BiocInstaller, biocLite)
+import(IRanges)
+importFrom(Biobase, createPackage, testBioCConnection)
+import(Biostrings)
+import(GenomicRanges)
+import(BSgenome)
+import(Rsamtools)
+import(ShortRead)
+import(GenomicFeatures)
+
+exportClasses(qProject)
+
+exportMethods(length, genome, auxiliaries, alignments, "[", show)
+
+export(qAlign, qCount, preprocessReads, qExportWig, qQCReport, qMeth, alignmentStats, qProfile)

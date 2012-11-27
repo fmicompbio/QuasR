@@ -1,0 +1,873 @@
+%\VignetteIndexEntry{An introduction to QuasR}
+%\VignetteDepends{}
+%\VignetteKeywords{XXXKexword}
+%\VignettePackage{QuasR}
+
+\documentclass[10pt]{article}
+
+\usepackage{times}
+\usepackage{inconsolata}
+%\usepackage[scaled=0.85]{beramono}
+\usepackage{hyperref} % remove to suppress links
+
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsf{#1}}
+\newcommand{\R}{\software{R}}
+\newcommand{\QuasR}{\Rpackage{QuasR}}
+\newcommand{\bam}{\texttt{BAM}}
+\newcommand{\fasta}{\texttt{FASTA}}
+\newcommand{\fastq}{\texttt{FASTQ}}
+
+%original
+%\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+%\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+%\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
+\usepackage{Sweave}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+%\title{An Introduction to \QuasR{}}
+\title{An Introduction to \raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}
+\author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
+\date{Modified: November 23, 2012. Compiled: \today}
+
+\begin{document}
+%\bibliographystyle{plain}
+\bibliographystyle{unsrt}
+%\bibliographystyle{plainnat}
+
+
+\maketitle
+
+<<options,echo=FALSE>>=
+options(width=65)
+@
+
+\tableofcontents
+
+\newpage
+
+
+\section{Introduction}
+
+The \QuasR{} package (short for \underline{Qu}antify and \underline{a}nnotate \underline{s}hort reads in \underline{R}) integrates the functionality of several \R{} packages (such as \Rpackage{IRanges} and \Rpackage{Rsamtools}) and external software (e.g. \software{bowtie}, through the \Rpackage{Rbowtie} package). The package aims to cover the whole analysis workflow of typical ultra-high throughput sequencing experiments, starting from the raw sequence reads, over pre-processing and alignment, up to quantification. A single \R{} script can contain all steps of a complete analysis, making it simple to document, reproduce or share the workflow containing all relevant details.
+
+The current \QuasR{} release supports the analysis of single read and paired-end ChIP-seq (chromatin immuno-precipitation combined with sequencing), RNA-seq (gene expression profiling by sequencing of RNA) and Bis-seq (measurement of DNA methylation by sequencing of bisulfite-converted genomic DNA) experiments.
+
+\section{Preliminaries}
+
+\subsection{Citing \QuasR{}}
+If you use \QuasR{} \cite{QuasR} in your work, you can cite it as follows:
+<<cite, eval=TRUE>>=
+citation("QuasR")
+@
+
+\subsection{Installation}
+\label{sec:Installation}
+\QuasR{} is a package for the \R{} computing environment and it is assumed that you have already installed \R{}. See the \R{} project at \url{http://www.r-project.org}. To install the latest version of \QuasR{}, you will need to be using the latest version of \R{}. \QuasR{} is part of the Bioconductor project at \url{http://www.bioconductor.org}. To get \QuasR{} together with its dependencies you can use
+<<install, eval=FALSE>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("QuasR")
+@
+
+Bioconductor works on a 6-monthly official release cycle. As with other Bioconductor packages, there are always two versions of \QuasR{}. Most users will use the current official release version, which will be installed by \Rcode{biocLite} if you are using the current version of \R{}. There is also a developmental version of \QuasR{} that includes new features due for the next official release. The developmental version will be installed if you are using the developmental version of \R{}. The official release version always has an even second number (for example 0.2.1), whereas the developmental version has an odd second number (for example 0.3.6).
+
+\subsection{Loading of \QuasR{} and other required libraries}
+In order to run the code examples in this vignette, the \QuasR{} library and a few additional libraries need to be loaded:
+<<loadLibraries, eval=TRUE>>=
+library(QuasR)
+library(BSgenome)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicFeatures)
+library(Gviz)
+@
+
+\subsection{How to get help}
+Most questions about \QuasR{} will hopefully be answered by the documentation or references. If you've run into a question which isn't addressed by the documentation, or you've found a conflict between the documentation and software itself, then there is an active support community which can offer help.
+The authors of the package (maintainer: \Schunk{maintainer("QuasR")}) always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements. 
+Any other questions or problems concerning \QuasR{} should be sent to the Bioconductor mailing list \url{bioconductor@stat.math.ethz.ch}. To subscribe to the mailing list, see \url{https://stat.ethz.ch/mailman/listinfo/bioconductor}. Please send requests for general assistance and advice to the mailing list rather than to the individual authors. Users posting to the mailing list for the first time should read the helpful posting guide at \url{http://www.bioconductor.org/doc/postingGuide.html}. Note that each function in \QuasR{} has it's own help page, as described in the section \ref{sec:Rintro}. Mailing list etiquette requires that you read the relevant help page carefully before posting a problem to the list.
+
+
+\newpage
+\section{Quick Start}
+\subsection{A brief introduction to \R{}}
+\label{sec:Rintro}
+If you already use \R{} and know about its command line interface, just skip this section and continue with section \ref{sec:SampleSession} on page \pageref{sec:SampleSession}.
+
+The structure of this vignette and in particular this section is based on the excellent user guide of the \Rpackage{limma} package, which we would like to hereby acknowledge. \R{} is a program for statistical computing. It is a command-driven language meaning that you have to type commands into it rather than pointing and clicking using a mouse. In this guide it will be assumed that you have successfully downloaded and installed \R{} from \url{http://www.r-project.org} as well as \QuasR{} (see section \ref{sec:Installation}). A good way to get started is to type
+<<help1, eval=FALSE>>=
+help.start()
+@ 
+at the \R{} prompt or, if you're using \R{} for Windows, to follow the drop-down menu items \textit{Help} $\succ$ \textit{Html help}. Following the links \textit{Packages} $\succ$ \Rpackage{QuasR} from the html help page will lead you to the contents page of help topics for functions in \QuasR{}.
+Before you can use any \QuasR{} commands you have to load the package by typing
+<<loadQuasRLibrary, eval=FALSE>>=
+library(QuasR)
+@ 
+at the \R{} prompt. You can get help on any function in any loaded package by typing \Rcode{?} and the function name at the \R{} prompt, for example
+<<help2, eval=FALSE>>=
+?preprocessReads
+@ 
+or equivalently
+<<help3, eval=FALSE>>=
+help("preprocessReads")
+@ 
+for detailed help on the \Rfunction{preprocessReads} function. The individual function help pages are especially important for listing all the arguments which a function will accept and what values the arguments can take.
+
+A key to understanding \R{} is to appreciate that anything that you create in \R{} is an \textit{object}. Objects might include data sets, variables, functions, anything at all. For example
+<<assign, eval=FALSE>>=
+x <- 2
+@ 
+will create a variable \Rcode{x} and will assign it the value 2. At any stage of your \R{} session you can type
+<<ls, eval=FALSE>>=
+ls()
+@ 
+to get a list of all the objects you have created. You can see the contents of any object by typing the name of the object at the prompt. The following command will print out the contents of \Rcode{x}:
+<<printObject, eval=FALSE>>=
+x
+@ 
+We hope that you can use \QuasR{} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \QuasR{} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see \cite{Dalgaard}.
+
+
+\subsection{Sample \QuasR{} session}
+\label{sec:SampleSession}
+This is a quick overview of what an analysis could look like for users preferring to jump right into an analysis. The example uses data that is provided with the \QuasR{} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
+<<SampleSession1, eval=TRUE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+@
+
+The sequence files to be analyzed are listed in \Rcode{sampleFile} (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the \Rpackage{BSgenome.Hsapiens.UCSC.hg19} package).
+<<SampleSession2, eval=TRUE>>=
+sampleFile <- "extdata/samples_chip_single.txt"
+genomeFile <- "extdata/hg19sub.fa"
+
+proj <- qAlign(sampleFile, genomeFile)
+proj
+@
+The \Robject{proj} object keeps track of all the information of a sequencing experiment, for example where sequence and alignment files are stored, and what aligner and reference genome was used to generate the alignments.
+
+Now that the alignments have been generated, further analyses can be performed. A quality control report is saved to the \Rcode{"extdata/qc\_report.pdf"} file using the \Rfunction{qQCReport} function.
+<<SampleSession3, eval=TRUE>>=
+qQCReport(proj, "extdata/qc_report.pdf")
+@
+
+The number of alignments per promoter region is quantified using \Rfunction{qCount}. Genomic coordinates for promoter regions are imported from a gtf file (\Rcode{annotFile}) into the \Rcode{GRanges}-object with the name \Rcode{promReg}:
+<<SampleSession4, eval=TRUE>>=
+library(rtracklayer)
+library(GenomicFeatures)
+annotFile <- "extdata/hg19sub_annotation.gtf"
+txStart <- import.gff(annotFile, format="gtf", asRangedData=FALSE,
+                      feature.type="start_codon")
+promReg <- promoters(txStart, upstream=500, downstream=500)
+names(promReg) <- mcols(promReg)$transcript_name
+
+promCounts <- qCount(proj, query=promReg)
+promCounts
+@ 
+ 
+\newpage
+\section{\QuasR{} Overview}
+The following scheme shows the major components of \QuasR{} and their relationships:
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{QuasR-scheme.png}
+\caption{QuasR package overview}
+\label{fig:QuasR-scheme}
+\end{center}
+\end{figure}
+
+\QuasR{} works with data (sequences and alignments, reference genome, etc.) that are stored as files on your storage (the gray cylinder on the lower left of Figure \ref{fig:QuasR-scheme}). \QuasR{} does not need a database management system, or these files to be named and organized according to a specific scheme.
+
+In order to keep track of directory paths during an analysis, \QuasR{} makes use of a \Robject{qProject} object that is returned by the \Rfunction{qAlign} function, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome}).
+
+The \Robject{qProject} object is the main argument passed to subsequent functions such as \Rfunction{qQCReport} and \Rfunction{qCount}. The \Robject{qProject} object contains all necessary information on the current project and eliminates the need to repeatedly enter the same information. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}.
+
+Read quantification (apart from quantification of methylation which has its own function \Rfunction{qMeth}) is done using the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further visualization and analysis. The count table can also be used as input to a statistical analysis using packages such as \Rpackage{edgeR} \cite{edgeR} or \Rpackage{DESeq} \cite{DESeq}.
+
+\vskip 4em
+
+In summary, a typical \QuasR{} analysis consists of the following steps (some of them are optional):
+\begin{quote}
+\begin{itemize}
+\item \Rfunction{preprocessReads} (optional): Remove adapters from start or end of reads, filter out reads of low quality, short length or low complexity (section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}).
+\item Prepare \textit{samples file}: List sequence files or alignments, provide sample names (section \ref{sec:SampleFile} on page \pageref{sec:SampleFile}).
+\item Prepare \textit{auxiliary file} (optional): List additional reference sequences for alignment of reads not matching the reference genome (section \ref{sec:AuxFile} on page \pageref{sec:AuxFile}).
+\item \Rfunction{qAlign}: Create \Robject{qProject} object and specify project parameters. Also download BSgenome package, create aligner indices and align reads if not already existing (\ref{sec:qAlign} on page \pageref{sec:qAlign}).
+\item \Rfunction{qQCReport} (optional): Create quality control report with plots on sequence qualities and alignment statistics (section \ref{sec:qQCReport} on page \pageref{sec:qQCReport}).
+\item \Rfunction{qExportWig} (optional): Export genomic alignments as wiggle tracks for genome browser visualization (section \ref{sec:qExportWig} on page \pageref{sec:qExportWig}).
+\item \Rfunction{qCount}: Quantify alignments in regions of interest (section \ref{sec:qCount} on page \pageref{sec:qCount}).
+\end{itemize}
+\end{quote}
+
+Recurrent example tasks that may be part of any typical analysis are described in section \ref{sec:exampleTasks} starting on page \pageref{sec:exampleTasks}. Example workflows for specific experiment types (ChIP-seq, RNA-seq and Bis-seq) are described in section \ref{sec:exampleWorkflows} starting on page \pageref{sec:exampleWorkflows}.
+
+
+\newpage
+\section{Example tasks}
+\label{sec:exampleTasks}
+\subsection{Create a sample file}
+\label{sec:SampleFile}
+The sample file is a tab-delimited text file with two or three columns. The first row contains the column names: For a single read experiment, these are 'FileName' and 'SampleName'; for a paired-end experiment, these are 'FileName1', 'FileName2' and 'SampleName'. If the first row does not contain the correctly spelled column names, \QuasR{} will not accept the samples file. Subsequent rows contain the input sequence files.
+
+Here are examples of such sample files for a single read experiment:
+\begin{center}
+\ttfamily
+\begin{tabular}{|ll|}
+\hline
+FileName          & SampleName \\
+chip\_1\_1.fq.bz2 & Sample1    \\
+chip\_2\_1.fq.bz2 & Sample2    \\
+\hline
+\end{tabular}
+\end{center}
+\vskip 1em
+
+and for a paired-end experiment:
+\begin{center}
+\ttfamily
+\begin{tabular}{|lll|}
+\hline
+FileName1        & FileName2        & SampleName \\
+rna\_1\_1.fq.bz2 & rna\_1\_2.fq.bz2 & Sample1    \\
+rna\_2\_1.fq.bz2 & rna\_2\_2.fq.bz2 & Sample2    \\
+\hline
+\end{tabular}
+\end{center}
+\vskip 1em
+
+These example files are also contained in the \QuasR{} package and may be used as templates. The path of the files can be determined using:
+<<sampleFile, eval=FALSE>>=
+sampleFile1 <- system.file(package="QuasR", "extdata",
+                           "samples_chip_single.txt")
+sampleFile2 <- system.file(package="QuasR", "extdata",
+                           "samples_rna_paired.txt")
+@
+
+The columns \textit{FileName} for single-read, or \textit{FileName1} and \textit{FileName2} for paired-end experiments contain paths and names to files containing the sequence data. The paths can be absolute or relative to the location of the sample file. This allows combining files from different directories in a single analysis. For each input sequence file, \Rfunction{qAlign} will create one alignment file and by default store it in the same directory as the sequence file. Already existing alignment files with identical parameters will not be re-created, so that it is easy to reuse the same sequence files in multiple projects without unnecessarily copying sequence files or recreating alignments.
+
+The \textit{SampleName} column contains sample names for each sequence file. The same name can be used on several lines to indicate multiple sequence files that belong to the same sample (\Rfunction{qCount} can use this information to automatically combine counts for one sample from multiple files).
+
+Three file formats are supported for input files (but cannot be mixed within a single sample file):
+\begin{itemize}
+\item \textbf{\fasta{}} files have names that end with '.fa', '.fna' or '.fasta'. They contain only sequences (and no base qualities) and will thus by default be aligned on the basis of mismatches (the best alignment is the one with fewest mismatches).
+\item \textbf{\fastq{}} files have names that end with '.fq' or '.fastq'. They contain sequences and corresponding base qualities and will be aligned by default using these qualities.
+\item \textbf{\bam{}} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools that are not available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \Rfunction{qCount} are fulfilled by the external aligner. In addition, since the data provided to \QuasR{} has already been processed, quality control plots that are based on unprocessed raw data will be missing from the output of \Rfunction{qQCReport}.
+\end{itemize}
+\textbf{\fasta{}} and \textbf{\fastq{}} files can be compressed with gzip, bzip2 or xz (file extensions '.gz', '.bz2' or 'xz', respectively) and will automatically decompressed when necessary.
+
+\subsubsection*{Consistency of samples within a project}
+The sample file implicitly defines the type of samples contained in the project: \textit{single read} or \textit{paired-end read}, sequences \textit{with} or \textit{without} qualities. This type will have a profound impact on the downstream analysis. For example, it controls whether alignments will be performed in single or paired-end mode, either with or without base qualities. That will also determine availability of certain options for quality control and quantification in \Rfunction{qQCReport} and \Rfunction{qCount}. For consistency, it is therefore required that all samples within a project have the same type; it is not possible to mix both single and paired-end read samples, or \textbf{\fasta{}} and \textbf{\fastq{}} files in a single project (sample file). If necessary, it may be possible to analyse different types of files in separate \QuasR{} projects and combine the derived results at the end.
+
+
+\subsection{Create an auxiliary file (optional)}
+\label{sec:AuxFile}
+By default \QuasR{} aligns reads only to the reference genome. However, it may be interesting to align non-matching reads to further targets, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \QuasR{}, such supplementary reference files are called \textit{auxiliary} references and can be specified to \Rfunction{qAlign} using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qAlign} on page \pageref{sec:qAlign} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns with column names 'FileName' and 'AuxName' in the first row. Additional rows contain names and files of one or several auxiliary references in \fasta{} format.
+
+An example auxiliary file looks like this:
+\begin{center}
+\ttfamily
+\begin{tabular}{|ll|}
+\hline
+FileName        & AuxName \\
+NC\_001422.1.fa & phiX174  \\
+\hline
+\end{tabular}
+\end{center}
+\vskip 1em
+
+and is available from your \QuasR{} installation at
+<<auxiliaryFile, eval=TRUE>>=
+auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+@
+
+\subsection{Select the reference genome}
+\label{sec:refGenome}
+Sequence reads are primarily aligned against the reference genome. If necessary, \QuasR{} will create an aligner index for the genome. The reference genome can be provided in one of two different formats:
+\begin{itemize}
+\item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package:
+<<selectGenomeBSgenome, eval=TRUE>>=
+available.genomes()
+genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
+@
+\item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in \fasta{} format:
+<<selectGenomeFile, eval=FALSE>>=
+genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
+@
+\end{itemize}
+    
+
+
+\subsection{Sequence data pre-processing}
+\label{sec:workflowPreprocess}
+The \Rfunction{preprocessReads} function can be used to prepare the input sequence files prior to alignment. The function takes one or several sequence files (or pairs of files for a paired-end experiment) in \fasta{} or \fastq{} format as input and produces the same number of output files with the processed reads.
+
+In the following example, we truncate the reads by removing the three bases from the 3'-end (the right side), remove the adapter sequence \texttt{AAAAAAAAAA} from the 5'-end (the left side) and filter out reads that, after truncation and adapter removal, are shorter than 14 bases or contain more than 2 \texttt{N} bases:
+<<preprocessReadsSingle,eval=TRUE>>=
+td <- tempdir()
+infiles <- system.file(package="QuasR", "extdata",
+                       c("rna_1_1.fq.bz2","rna_2_1.fq.bz2"))
+outfiles <- file.path(td, basename(infiles))
+res <- preprocessReads(filename = infiles,
+                       outputFilename = outfiles,
+                       truncateEndBases = 3,
+                       Lpattern = "AAAAAAAAAA",
+                       minLength = 14, 
+                       nBases = 2)
+res
+unlink(outfiles)
+@ 
+
+\Rfunction{preprocessReads} returns a matrix with a summary of the pre-processing. The matrix contains one column per (pair of) input sequence files, and contains the total number of reads (\Rcode{totalSequences}), the number of reads that matched to the five prime or three prime adapters (\Rcode{matchTo5pAdapter} and \Rcode{matchTo3pAdapter}), the number of reads that were too short (\Rcode{tooShort}), contained too many non-base characters (\Rcode{tooManyN}) or were of low sequence complexity (\Rcode{lowComplexity}, deactivated by default). Finally, the number of reads that passed the filtering steps is reported in the last row (\Rcode{totalPassed}).
+
+In the example below we process paired-end reads, removing all pairs with one or several \texttt{N} bases. Even if only one sequence in a pair fulfills the filtering criteria, both reads in the pair are removed, thereby preserving the matching order of the sequences in the two files:
+<<preprocessReadsPaired,eval=TRUE>>=
+td <- tempdir()
+infiles1 <- system.file(package="QuasR", "extdata", "rna_1_1.fq.bz2")
+infiles2 <- system.file(package="QuasR", "extdata", "rna_1_2.fq.bz2")
+outfiles1 <- file.path(td, basename(infiles1))
+outfiles2 <- file.path(td, basename(infiles2))
+res <- preprocessReads(filename=infiles1,
+                       filenameMate=infiles2,
+                       outputFilename=outfiles1,
+                       outputFilenameMate=outfiles2,
+                       nBases=0)
+res
+unlink(c(outfiles1,outfiles2))
+@ 
+
+More details on the \Rfunction{preprocessReads} function can be found in the function documentation (see \Rcode{?preprocessReads}) or in the section \ref{sec:preprocessReads} on page \pageref{sec:preprocessReads}.
+
+
+\newpage
+\section{Example workflows}
+\label{sec:exampleWorkflows}
+
+\subsection{ChIP-seq: Measuring protein-DNA binding and chromatin modifications}
+\label{sec:ChIP}
+Here we show an exemplary single-end ChIP-seq workflow using a small number of reads from a histone 3 lysine 4 trimethyl (H3K4me3) ChIP-seq experiment. This histone modification is known to locate to genomic regions with a high density of CpG dinucleotides (so called CpG islands); about 60\% of mammalian genes have such a CpG island close to their transcript start site. All necessary files are included in the \QuasR{} package, and we start the example workflow by copying those files into the current working directly, into a subfolder called \Rcode{"extdata"}:
+<<ChIP_copyExtdata, eval=TRUE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+@
+
+
+\subsubsection{Align reads using the \Rfunction{qAlign} function}
+We assume that the sequence reads have already been pre-processed as described in section \ref{sec:workflowPreprocess}. Also, a sample file (section \ref{sec:SampleFile}) that lists all sequence files to be analyzed has been prepared. A \fasta{} file with the reference genome sequence(s) is also available (section \ref{sec:refGenome}), as well as a auxiliary file for alignment of reads that failed to match the reference genome (section \ref{sec:AuxFile}).
+
+By default, newly generated \bam{} files will be stored at the location of the input sequence files, which should be writable and have sufficient capacity (an alternative location can be specified using the \Rfunarg{alignmentsDir} argument). We start by aligning the reads using \Rfunction{qAlign}:
+<<ChIP_qAlign, eval=TRUE>>=
+sampleFile <- "extdata/samples_chip_single.txt"
+auxFile <- "extdata/auxiliaries.txt"
+genomeFile <- "extdata/hg19sub.fa"
+
+proj1 <- qAlign(sampleFile, genome=genomeFile, auxiliaryFile=auxFile)
+proj1
+@
+
+\Rfunction{qAlign} will build alignment indices if they do not yet exist (by default, if the genome and auxiliary sequences are given in the form of \fasta{} files, they will be stored in the same folder). The \Robject{qProject} object (\Robject{proj1}) returned by \Rfunction{qAlign} now contains all information about the ChIP-seq experiment: the (optional) project name, the project options, aligner package, reference genome, and at the bottom the sequence and alignment files. For each input sequence file, there will be one \bam{} file with alignments against the reference genome, and one for each auxiliary target sequence with alignments of reads without genome hits. Our \Robject{auxFile} contains a single auxiliary target sequence, so we expect two \bam{} files per input sequence file:
+<<ChIP_bamfiles1, eval=TRUE>>=
+list.files("extdata", pattern=".bam$")
+@
+The \bam{} file names consist of the base name of the sequence file with an added random string. The random suffix makes sure that newly generated alignment files do not overwrite existing ones, for example of the same reads aligned against an alternative reference genome. Each alignment file is accompanied by two additional files with suffixes ``.bai'' and ``.txt'':
+<<ChIP_bamfiles2, eval=TRUE>>=
+list.files("extdata", pattern="^chip_1_1_")[1:3]
+@
+The ``.bai'' file is the \bam{} index used for fast access by genomic coordinate. The ``.txt'' file contains all the parameters used to generate the corresponding \bam{} file. Before new alignments are generated, \Rfunction{qAlign} will look for available ``.txt'' files in default locations (the directory containing the input sequence file, or the value of \Rfunarg{alignmentsDir}), and read their contents to determine if a compatible \bam{} file already exists. A compatible \bam{} file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible \bam{} file is not found, or the ``.txt'' file is missing, \Rfunction{qAlign} will generate a new \bam{} file. It is therefore recommended not to delete the ``.txt'' file - without it, the corresponding \bam{} file will become unusable for \QuasR{}. 
+
+
+\subsubsection{Create a quality control report}
+\QuasR{} can produce a quality control report in the form of a series of diagnostic plots with details on sequences and alignments (see Figure \ref{fig:QuasR-scheme} on page \pageref{fig:QuasR-scheme}). The plots are generated by calling the \Rfunction{qQCReport} function with the \Robject{qProject} object as argument. \Rfunction{qQCReport} uses \Rpackage{ShortRead} \cite{ShortRead} internally to obtain some of the quality metrics, and some of the plots are inspired by the FastQC quality control tool by Simon Andrews (\url{http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/}). The plots will be stored into a multipage PDF document defined by the \Rfunarg{pdfFilename} argument, or else shown as individual plot windows on the current graphics device. In order to keep the running time reasonably short, some quality metrics are obtained from a random sub-sample of the sequences or alignments.
+<<ChIP_qcplot1, eval=TRUE, echo=FALSE>>=
+qcdat1 <- qQCReport(proj1, pdfFilename="extdata/qc_report.pdf")
+@ 
+<<ChIP_qcplots2, eval=TRUE>>=
+qQCReport(proj1, pdfFilename="extdata/qc_report.pdf")
+@
+
+Currently available plots are described in section \ref{sec:qQCReport} on page \pageref{sec:qQCReport} and following.
+
+
+\subsubsection{Alignment statistics}
+The \Rfunction{alignmentStats} gets the number of (un-)mapped reads for each sequence file in a \Robject{qProject} object, by reading the \bam{} file indices, and returns them as a \Rcode{data.frame}. The function also works for arguments of type \Rcode{character} with one or several \bam{} file names (for details see section \ref{sec:alignmentStats} on page \pageref{sec:alignmentStats}).
+<<ChIP_alignmentStats, eval=TRUE>>=
+alignmentStats(proj1)
+@
+
+
+\subsubsection{Export genome wig file from alignments}
+For visualization in a genome browser, alignment coverage along the genome can be exported to a (compressed) wig file using the \Rfunction{qExportWig} function. The created fixedStep wig file (see \url{http://genome.ucsc.edu/goldenPath/help/wiggle.html} for details on the wig format) will contain one track per sample in the \Robject{qProject} object. The resolution is defined using the \Rfunarg{binsize} argument, and if \Rfunarg{scaling} is set to \Rcode{TRUE}, read counts per bin are scaled by the total number of aligned reads in each sample to improve comparability: 
+<<ChIP_qExportWig, eval=TRUE>>=
+qExportWig(proj1, binsize=100L, scaling=TRUE, collapseBySample=TRUE)
+@ 
+
+
+\subsubsection{Count alignments using \Rfunction{qCount}}
+Alignments are quantified using \Rfunction{qCount}, for example using a \Rcode{GRanges} object as a query. In our H3K4me3 ChIP-seq example, we expect the reads to occur around the transcript start site of genes. We can therefore construct suitable query regions using genomic intervals around the start sites of known genes. In the code below, this is achieved with help from the \Rpackage{GenomicFeatures} package: We first create a \Rcode{TranscriptDb} object from a ``.gtf'' file with gene annotation. With the \Rfunction{promoters} function, we can then create the \Rcode{GRanges} object with regions to be quantified. Finally, because most genes consist of multiple overlapping transcripts, we select the first transcript for each gene: \label{obj:promRegSel}
+<<ChIP_GenomicFeatures, eval=TRUE>>=
+library(GenomicFeatures)
+annotFile <- "extdata/hg19sub_annotation.gtf"
+chrLen <- scanFaIndex(genomeFile)
+chrominfo <- data.frame(chrom=as.character(seqnames(chrLen)),
+                        length=width(chrLen),
+                        is_circular=rep(FALSE, length(chrLen)))
+txdb <- makeTranscriptDbFromGFF(file=annotFile, format="gtf",
+                                exonRankAttributeName="exon_number",  
+                                gffGeneIdAttributeName="gene_name",
+                                chrominfo=chrominfo,
+                                dataSource="Ensembl",
+                                species="Homo sapiens")
+promReg <- promoters(txdb, upstream=1000, downstream=500,
+                     columns=c("gene_id","tx_id"))
+gnId <- sapply(mcols(promReg)$gene_id, paste, collapse=",")
+promRegSel <- promReg[ match(unique(gnId), gnId) ]
+names(promRegSel) <- unique(gnId)
+head(promRegSel)
+@
+
+Using \Robject{promRegSel} object as query, we can now count the alignment per sample in each of the promoter windows.
+\label{code:ChIP_qCount}
+<<ChIP_qCount, eval=TRUE>>=
+cnt <- qCount(proj1, promRegSel)
+cnt
+@
+
+The counts returned by \Rfunction{qCount} are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the \Rpackage{Gviz} package:
+<<ChIP_visualize, eval=TRUE, fig=TRUE, width=8, height=4.5>>=
+gr1 <- import("Sample1.wig.gz", asRangedData=FALSE)
+gr2 <- import("Sample2.wig.gz", asRangedData=FALSE)
+
+library(Gviz)
+axisTrack <- GenomeAxisTrack()
+dTrack1 <- DataTrack(range=gr1, name="Sample 1", type="h")
+dTrack2 <- DataTrack(range=gr2, name="Sample 2", type="h")
+txTrack <- GeneRegionTrack(txdb, name="Transcripts", showId=TRUE)
+plotTracks(list(axisTrack, dTrack1, dTrack2, txTrack),
+           chromosome="chr3", extend.left=1000)
+@
+
+
+\subsubsection{Create a genomic profile for a set of regions using \Rfunction{qProfile}}
+Given a set of anchor positions in the genome, \Rfunction{qProfile} calculates the number of nearby alignments relative to the anchor position, for example to generate a average profile. The neighborhood around anchor positions can be specified by the \Rfunarg{upstream} and \Rfunarg{downstream} argument. Alignments that are upstream of an anchor position will have a negative relative position, and downstream alignments a positive. The anchor positions are all aligned at position zero in the return value.
+
+Anchor positions will be provided to \Rfunction{qProfile} using the \Rfunarg{query} argument, which takes a \Rcode{GRanges} object. The anchor positions correspond to \Rcode{start()} for regions on ''+'' or ''*'' strands, and to \Rcode{end()} for regions on the ''-'' strand. As mentioned above, we expect H3K4me3 ChIP-seq alignments to be enriched around the transcript start site of genes. We can therefore construct a suitable \Rfunarg{query} object from the start sites of known genes. In the code below, start sites ('start\_codon') are imported from a ''.gtf'' file with the help of the \Rpackage{rtracklayer} package. In addition, 'strand' and 'gene\_name' are also selected for import. Duplicated start sites, e.g. from genes with multiple transcripts, are removed. Finally, all regions are given the name ''TSS'', because \Rfunction{qProfile} combines regions with identical names into a single profile. 
+<<ChIP_rtracklayer, eval=TRUE>>=
+library(rtracklayer)
+annotationFile <- "extdata/hg19sub_annotation.gtf"
+tssRegions <- import.gff(annotationFile, format="gtf",
+                         asRangedData=FALSE,
+                         feature.type="start_codon",
+                         colnames=c("strand", "gene_name"))
+tssRegions <- tssRegions[!duplicated(tssRegions)]
+names(tssRegions) <- rep("TSS", length(tssRegions))
+head(tssRegions)
+@
+
+Alignments around the \Robject{tssRegions} coordinates are counted in a window defined by the \Rfunarg{upstream} and \Rfunarg{downstream} arguments, which specify the number of bases to include around each anchor position. For \Rfunarg{query} regions on ''+'' or ''*'' strands, upstream refers to the left side of the anchor position (lower coordinates), while for regions on the ''-'' strand, upstream refers to the right side (higher coordinates). The following example creates separate profiles for alignments on the \emph{same} and on the \emph{opposite} strand of the regions in \Rfunarg{query}.
+<<ChIP_qProfile, eval=TRUE>>=
+prS <- qProfile(proj1, tssRegions, upstream=3000, downstream=3000, 
+                orientation="same")
+prO <- qProfile(proj1, tssRegions, upstream=3000, downstream=3000, 
+                orientation="opposite")
+lapply(prS, "[", , 1:10)
+@
+% The following example illustrates the use on a set of narrow regions.
+% <<ChIP_qProfile, eval=TRUE>>=
+% pr <- qProfile(proj1, tssRegions, upstream=19, downstream=19)
+% pr
+% @
+
+The counts returned by \Rfunction{qProfile} are the raw number of alignments per sample and position, without any normalization for the number of query regions or the total number of alignments in a sample per position. To obtain the average number of alignments, we divide the alignment counts by the number of \Robject{query} regions that covered a given relative position around the anchor sites. This coverage is available as the first element in the return value. The shift between \textit{same} and \textit{opposite} strand alignments is indicative for the average length of the sequenced ChIP fragments.
+<<ChIP__visualizeProfile, eval=TRUE, fig=TRUE, width=8, height=4.5>>=
+prCombS <- do.call("+", prS[-1]) /prS[[1]]
+prCombO <- do.call("+", prO[-1]) /prO[[1]]
+
+plot(as.numeric(colnames(prCombS)), filter(prCombS[1,], rep(1/100,100)), 
+     type='l', xlab="Position relative to TSS", ylab="Mean no. of alignments")
+lines(as.numeric(colnames(prCombO)), filter(prCombO[1,], rep(1/100,100)), 
+      type='l', col="red")
+legend(title="strand", legend=c("same as query","opposite of query"), 
+       x="topleft", col=c("black","red"), lwd=1.5, bty="n", title.adj=0.1)
+@
+
+\subsubsection{Using a \Rpackage{BSgenome} package as reference genome}
+\QuasR{} also allows using of \Rpackage{BSgenome} packages instead of a \fasta{} file as reference genome (see section \ref{sec:refGenome}). To use a \Rpackage{BSgenome}, the \Rfunarg{genome} argument of \Rfunction{qAlign} is set to a string matching the name of a \Rpackage{BSgenome} package, for example \Rcode{"BSgenome.Hsapiens.UCSC.hg19"}. If that package is not already installed, \Rfunction{qAlign} will check if it is available from \url{bioconductor.org} and download it automatically. The corresponding alignment index will be saved as a new package, named after the original \Rpackage{BSgenome} package and the aligner used to build the index, for example \Rpackage{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}.
+
+The code example below illustrates the use of a \Rpackage{BSgenome} reference genome for the same example data as above. Running it for the first time will take several hours in order to build the aligner index: \label{obj:proj1}
+<<ChIP_BSgenomeProject, eval=FALSE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+sampleFile <- "extdata/samples_chip_single.txt"
+auxFile <- "extdata/auxiliaries.txt"
+
+available.genomes() # list available genomes
+genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
+
+proj1 <- qAlign(sampleFile, genome=genomeName, auxiliaryFile=auxFile)
+proj1
+@
+
+
+\subsection{RNA-seq: Gene expression profiling}
+\label{sec:RNA}
+In \QuasR{}, an analysis workflow for an RNA-seq dataset is very similar to the one described above for a ChIP-seq experiment. The major difference is that here reads are aligned using \Rcode{splicedAlignment=TRUE}, which will cause \Rfunction{qAlign} to align reads with SpliceMap\cite{SpliceMap}, rather than bowtie\cite{bowtie} (both are contained in the \Rpackage{Rbowtie} package). SpliceMap and \QuasR{} also support spliced paired-end alignments; the \Rfunarg{splicedAlignment} argument can be freely combined with the \Rfunarg{paired} argument.
+
+We start the example workflow by copying the example data files into the current working directly, into a subfolder called \Rcode{"extdata"}, and then create spliced alignments using \Rfunction{qAlign}:
+<<RNA_qAlign, eval=TRUE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+sampleFile <- "extdata/samples_rna_paired.txt"
+genomeFile <- "extdata/hg19sub.fa"
+
+proj2 <- qAlign(sampleFile, genome=genomeFile, splicedAlignment=TRUE)
+proj2
+@
+
+Aligning the reads with \Rcode{splicedAlignment=TRUE} is much slower than the default, but will allow to also align reads that cross one or two exon junctions, and thus have a large deletion (the intron) relative to the reference genome. 
+<<RNA_alignmentStats, eval=TRUE>>=
+proj2unspl <- qAlign(sampleFile, genome=genomeFile,
+                     splicedAlignment=FALSE)
+
+alignmentStats(proj2)
+alignmentStats(proj2unspl)
+@
+
+As with ChIP-seq experiments, \Rfunction{qCount} is used to quantify alignments. For quantification of gene or exon expression levels, \Rfunction{qCount} can be called with a query of type \Rcode{TranscriptDB}, such as the one we constructed in the ChIP-seq workflow above from a ``.gtf'' file. The argument \Rfunarg{reportLevel} can be used to control if annotated exonic regions should be quantified independently (\Rcode{reportLevel="exon"}) or non-redundantly combined per gene (\Rcode{reportLevel="gene"}): 
+<<RNA_qCount, eval=TRUE>>=
+geneLevels <- qCount(proj2, txdb, reportLevel="gene")
+exonLevels <- qCount(proj2, txdb, reportLevel="exon")
+
+head(geneLevels)
+head(exonLevels)
+@
+
+The values returned by \Rfunction{qCount} are the number of alignments. Sometimes it is required to normalize for the length of query regions, or the size of the libraries. For example, gene expression levels in the form of \textit{RPKM} values (reads per kilobase of transcript and million mapped reads) can be obtained as follows:
+<<RNA_RPMK, eval=TRUE>>=
+geneRPKM <- t(t(geneLevels[,-1] /geneLevels[,1] *1000)
+              /colSums(geneLevels[,-1]) *1e6)
+geneRPKM
+@
+Please note the RPKM values in our example are higher than what you would usually get for a real RNA-seq dataset. The values here are artificially scaled up because our example data contains reads only for a small number of genes.
+
+% acquire 'qcdat2' for qQCReport examples from a paired-end experiment
+<<RNA_qcplot1, eval=TRUE, echo=FALSE>>=
+qcdat2 <- qQCReport(proj2unspl, pdfFilename="qc_report.pdf")
+@ 
+
+
+\subsection{Bis-seq: Measuring DNA methylation}
+\label{sec:Bis}
+Sequencing of bisulfite-converted genomic DNA allows detection of methylated cytosines, which in mammalian genomes typically occur un the context of CpG dinucleotides. The treatment of DNA with bisulfite induces deamination of non-methylated cytosines, converting them to uracils. Sequencing and aligning of such bisulfite-converted DNA results in C-to-T mismatches. Both alignment of converted reads, as well as the interpretation of the alignments for calculation of methylation levels require specific approaches and are supported in \QuasR{} by \Rfunction{qAlign} (\Rfunarg{bisulfite} argument, section \ref{sec:qAlign}) and \Rfunction{qMeth} (section \ref{sec:qMeth}), respectively.
+
+We start the analysis by copying the example data files into the current working directly, into a subfolder called \Rcode{"extdata"}. Then, bisulfite-specific alignment is selected in \Rfunction{qAlign} by setting \Rfunarg{bisulfite} to \Rcode{"dir"} for a directional experiment, or to \Rcode{"undir"} for an undirectional Bis-seq experiment:
+<<Bis_qAlign, eval=TRUE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+sampleFile <- "extdata/samples_bis_single.txt"
+genomeFile <- "extdata/hg19sub.fa"
+
+proj3 <- qAlign(sampleFile, genomeFile, bisulfite="dir")
+proj3
+@
+
+The resulting alignments are not different from those of non-Bis-seq experiments, apart from the fact that they may contain many C-to-T (or A-to-G) mismatches that are not counted as mismatches when aligning the reads. The number of alignments in specific genomic regions could be quantified using \Rfunction{qCount} as with ChIP-seq or RNA-seq experiments. For quantification of methylation the \Rfunction{qMeth} function is used: 
+<<Bis_qMeth1, eval=TRUE>>=
+meth <- qMeth(proj3, mode="CpGcomb", collapseBySample=TRUE)
+meth
+@
+
+By default, \Rfunction{qMeth} quantifies methylation for all cytosines in CpG contexts, combining the data from plus and minus strands (\Rcode{mode="CpGcomb"}). The results are returned as a \Robject{GRanges} object with coordinates of each CpG, and two metadata columns for each input sequence file in the \Robject{qProject} object. These two columns contain the total number of aligned reads that overlap a given CpG (C-to-C matches or C-to-T mismatches, suffix \texttt{\_T} in the column name), and the number of read alignments that had a C-to-C match at that position (methylated events, suffix \texttt{\_M}).
+
+Independent of the number of alignments, the returned object will list all CpGs in the target genome including the ones that have zero coverage, unless you set \Rcode{keepZero=FALSE}:
+<<Bis_qMeth2, eval=TRUE>>=
+chrs <- readDNAStringSet(genomeFile)
+sum(vcountPattern("CG",chrs))
+length(qMeth(proj3))
+length(qMeth(proj3, keepZero=FALSE))
+@
+
+The fraction methylation can easily be obtained as the ratio between \texttt{\_M} and \texttt{\_T} columns:
+<<Bis_visualize, eval=TRUE, fig=TRUE, height=4.5, width=8>>=
+percMeth <- mcols(meth)[,2] *100 /mcols(meth)[,1]
+summary(percMeth)
+
+axisTrack <- GenomeAxisTrack()
+dTrack1 <- DataTrack(range=gr1, name="H3K4me3", type="h")
+dTrack2 <- DataTrack(range=meth, data=percMeth,
+                     name="Methylation", type="p")
+txTrack <- GeneRegionTrack(txdb, name="Transcripts", showId=TRUE)
+plotTracks(list(axisTrack, dTrack1, dTrack2, txTrack),
+           chromosome="chr3", extend.left=1000)
+@
+
+If \Rfunction{qMeth} is called without a \Rfunarg{query} argument, it will by default return methylation states for each C or CpG in the genome. Using a \Rfunarg{query} argument it is possible to restrict the analysis to specific genomic regions, and if using in addition \Rcode{collapseByQueryRegion=TRUE}, the single base methylation states will further be combined for all C's that are contained in the same query region:
+<<Bis_query, eval=TRUE>>=
+qMeth(proj3, query=GRanges("chr1",IRanges(start=31633,width=2)),
+      collapseBySample=TRUE)
+qMeth(proj3, query=promRegSel, collapseByQueryRegion=TRUE,
+      collapseBySample=TRUE)
+@
+
+
+\subsection{Allele-specific analysis}
+\label{sec:Allele}
+All experiment types supported by \QuasR{} (ChIP-seq, RNA-seq and Bis-seq; only alignments to the genome, but not to auxiliaries) can also be analyzed in an allele-specific manner. For this, a file containing genomic location and the two alleles of known sequence polymorphisms has to be provided to the \Rfunarg{snpFile} argument of \Rfunction{qAlign}. The file is in tab-delimited text format without a header and contains four columns with chromosome name, position, reference allele and alternative allele. 
+
+Below is an example of a SNP file, also available from \Rcode{system.file(package="QuasR", "extdata", "hg19sub\_snp.txt")}:
+\begin{center}
+\ttfamily
+\begin{tabular}{|llll|}
+\hline
+chr1 &  8596 & G & A \\
+chr1 & 18443 & G & A \\
+chr1 & 18981 & C & T \\
+chr1 & 19341 & G & A \\
+...  &       &   &   \\
+\hline
+\end{tabular}
+\end{center}
+\vskip 1em
+
+For a given locus, either reference or alternative allele may but does not have to be identical to the sequence of the reference genome (\Robject{genomeFile} in this case). To avoid an alignment bias, all reads are aligned separately to each of the two new genomes, which \QuasR{} generates by \textit{injecting} the SNPs listed in \Robject{snpFile} into the reference genome. Finally, the two alignment files are combined, only retaining the best alignment for each read. While this procedure takes more than twice as long as aligning against a single genome, it has the advantage to correctly align reads even in regions of high SNP density and has been shown to produce more accurate results.
+
+While combining alignments, each read is classified into one of three groups (stored in the \bam{} files under the \texttt{XV} tag):
+\begin{itemize}
+  \item \textbf{R}: the read aligned better to the \textbf{reference} genome
+  \item \textbf{U}: the read aligned equally well to both genomes (\textbf{unknown} origin)
+  \item \textbf{A}: the read aligned better to the \textbf{alternative} genome
+\end{itemize}
+Using these alignment classifications, the \Rfunction{qCount} and \Rfunction{qMeth} functions will produce three counts instead of a single count; one for each class. The column names will be suffixed by \texttt{\_R}, \texttt{\_U} and \texttt{\_A}.
+
+The examples below use data provided with the \QuasR{} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
+<<Alelle_Extdata, eval=TRUE>>=
+file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+@
+
+
+The example below aligns the same reads that were also used in the ChIP-seq workflow (section \ref{sec:ChIP}), but this time using a \Robject{snpFile}:
+<<Allele_qAlign, eval=TRUE>>=
+sampleFile <- "extdata/samples_chip_single.txt"
+genomeFile <- "extdata/hg19sub.fa"
+snpFile <- "extdata/hg19sub_snp.txt"
+proj1SNP <- qAlign(sampleFile, genome=genomeFile, snpFile=snpFile)
+proj1SNP
+@
+
+Instead of one count per promoter region and sample, \Rfunction{qCount} now returns three (\Robject{promRegSel} was generated in the ChIP-seq example workflow on page \pageref{obj:promRegSel}):
+<<Allele_qCount, eval=TRUE>>=
+head(qCount(proj1, promRegSel))
+head(qCount(proj1SNP, promRegSel))
+@
+
+The example below illustrates use of a \Robject{snpFile} for Bis-seq experiments. Similarly as for \Rfunction{qCount}, the count types are labeled by \texttt{R}, \texttt{U} and \texttt{A}. These labels are added to the total and methylated column suffixes \texttt{\_T} and \texttt{\_M}, resulting in a total of six instead of two counts per feature and sample:
+<<Allele_Bis, eval=TRUE>>=
+sampleFile <- "extdata/samples_bis_single.txt"
+genomeFile <- "extdata/hg19sub.fa"
+proj3SNP <- qAlign(sampleFile, genomeFile,
+                   snpFile=snpFile, bisulfite="dir")
+head(qMeth(proj3SNP, mode="CpGcomb", collapseBySample=TRUE))
+@
+
+
+\newpage
+\section{Description of Individual \QuasR{} Functions}
+Please refer to the \QuasR{} reference manual or the function documentation (e.g. using \Rcode{?qAlign}) for a complete description of \QuasR{} functions. The descriptions provided below are meant to give and overview over all functions and summarize the purpose of each one.
+
+\subsection{\Rfunction{preprocessReads}}
+\label{sec:preprocessReads}
+The \Rfunction{preprocessReads} function can be used to prepare the input sequences before alignment to the reference genome, for example to filter out low quality reads unlikely to produce informative alignments. When working with paired-end experiments, the paired reads are expected to be contained in identical order in two separate files. For this reason, both reads of a pair are filtered out if any of the two reads fulfills the filtering criteria. The following types of filtering tasks can be performed (in the order as listed):
+\begin{quote}
+\begin{enumerate}
+\item \textbf{Truncate reads}: remove nucleotides from the start and/or end of each read.
+\item \textbf{Trim adapters}: remove nucleotides at the beginning and/or end of each read that match to a defined (adapter) sequence. The adapter trimming is done by calling \Rfunction{trimLRPatterns} from the \Rpackage{Biostrings} package \cite{Biostrings}.
+\item \textbf{Filter out low quality reads}: Filter out reads that fulfill any of the filtering criteria (contain more than \Rfunarg{nBases} \texttt{N} bases, are shorter than \Rfunarg{minLength} or have a dinucleotide complexity of less than \Rfunarg{complexity}-times the average complexity of the human genome sequence).
+\end{enumerate}
+\end{quote}
+
+The dinucleotide complexity is calculated in bits as Shannon entropy using the following formula $-\sum_i f_i \cdot \log_2 f_i$, where $f_i$ is the frequency of dinucleotide $i$ ($i=1, 2, ..., 16$).
+
+
+\subsection{\Rfunction{qAlign}}
+\label{sec:qAlign}
+\Rfunction{qAlign} is the function that generates alignment files in \bam{} format, for all input sequence files listed in \Rfunarg{sampleFile} (see section \ref{sec:SampleFile}), against the reference genome (\Rfunarg{genome} argument), and for reads that to not match to the reference genome, against one or several auxiliary target sequences (\Rfunarg{auxiliaryFile}, see section \ref{sec:AuxFile}).
+
+The reference genome can be provided either as a \fasta{} sequence file or as a \Robject{BSgenome} package name (see section \ref{sec:refGenome}). If a \Robject{BSgenome} package is not found in the installed packages but available from Bioconductor, it will be automatically downloaded.
+
+The alignment program is set by \Rfunarg{aligner}, and parameters by \Rfunarg{maxHits}, \Rfunarg{paired}, \Rfunarg{splicedAlignment} and \Rfunarg{alignmentParameter}. Currently, \Rfunarg{aligner} can only be set to \Rcode{"Rbowtie"}, which is a wrapper for \textit{bowtie} \cite{bowtie} and \textit{SpliceMap} \cite{SpliceMap}. \textit{SpliceMap} will be used if \Rcode{splicedAlignment=TRUE}. The alignment strategy is affected by the parameters \Rfunarg{snpFile} (alignments to variant genomes containing sequence polymorphisms) and \Rfunarg{bisulfite} (alignment of bisulfite-converted reads). Finally, \Rfunarg{clObj} can be used to enable parallelized alignment, sorting and conversion to \bam{} format.
+
+For each input sequence file listed in \Rfunarg{sampleFile}, one \bam{} file with alignments to the reference genome will be generated, and an additional one for each auxiliary sequence file listed in \Rfunarg{auxiliaryFile}. By default, these \bam{} files are stored at the same location as the sequence files, unless a different location is specified under \Rfunarg{alignmentsDir}. If compatible alignment files are found at this location, they will not be regenerated, which allows re-use of the same sequencing samples in multiple analysis projects by listing them in several project-specific \Rfunarg{sampleFile}s.
+
+\Rfunction{qAlign} returns a \Robject{qProject} object that contains all file names and paths, as well as all alignment parameters necessary for further analysis (see section \ref{sec:qProject} for methods to access the information contained in a \Robject{qProject} object).
+
+
+
+\subsection{\Robject{qProject} class}
+\label{sec:qProject}
+The \Robject{qProject} objects are returned by \Rfunction{qAlign} and contain all information about a sequencing experiment needed for further analysis. It is the main argument passed to the functions that start with a \textit{q} letter, such as \Rfunction{qCount}, \Rfunction{qQCReport} and \Rfunction{qExportWig}. Some information inside of a \Robject{qProject} object can be accessed by specific methods (in the examples below, \Rcode{x} is a \Robject{qProject} object):
+\begin{itemize}
+  \item \Rcode{length(x)} gets the number of input files.
+  \item \Rcode{genome(x)} gets the reference genome as a \Rcode{character(1)}. The type of genome is stored as an attribute in \Rcode{attr(genome(x),"genomeFormat")}: \Rcode{"BSgenome"} indicates that \Rcode{genome(x)} refers to the name of a \textit{BSgenome} package, \Rcode{"file"} indicates that it contains the path and file name of a genome in \fasta{} format.
+  \item \Rcode{auxiliaries(x)} gets a \Rcode{data.frame} with auxiliary target sequences. The \Rcode{data.frame} has one row per auxiliary target file, and two columns "FileName" and "AuxName".
+  \item \Rcode{alignments(x)} gets a list with two elements \Rcode{"genome"} and \Rcode{"aux"}. \Rcode{"genome"} contains a \Rcode{data.frame} with \Rcode{length(x)} rows and two columns \Rcode{"FileName"} (containing the path to bam files with genomic alignments) and \Rcode{"SampleName"}. \Rcode{"aux"} contains a \Rcode{data.frame} with one row per auxiliary target file (with auxiliary names as row names), and \Rcode{length(x)} columns (one per input sequence file).
+  \item \Rcode{x[i]} returns a \Rcode{qProject} object instance with \Rcode{i} input files, where \Rcode{i} can be an \Rcode{NA}-free logical, numeric, or character vector.
+\end{itemize}
+
+
+\subsection{\Rfunction{qQCReport}}
+\label{sec:qQCReport}
+The \Rfunction{qQCReport} function samples a random subset of sequences and alignments from each sample or input file and generates a series of diagnostic plots for estimating data quality. The plots below show the currently available plots as produced by the ChIP-seq example in section \ref{sec:ChIP} (except for the fragment size distributions which are based on an unspliced alignment of paired-end RNA seq reads):
+\setkeys{Gin}{width=0.7\textwidth}
+\begin{itemize}
+\item \textbf{Quality score boxplot} shows the distribution of base quality values as a box plot for each position in the input sequence. The background color (green, orange or red) indicates ranges of high, intermediate and low qualities. The plot is available for fastq only (\bam{} files may contain base quality information, which is however not used here because reads contained in the \bam{} file, e.g. aligned reads, may not be a representative sub-sample of all sequenced reads).
+\begin{center}
+<<qcplotsFig1, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotQualByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
+@
+\end{center}
+
+\item \textbf{Nucleotide frequency} plot shows the frequency of A, C, G, T and N bases by position in the read. The plot is always available.
+\begin{center}
+<<qcplotsFig2, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotNuclByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
+@
+\end{center}
+
+\item \textbf{Duplication level} plot shows for each sample the fraction of reads observed at different duplication levels (e.g. once, two-times, three-times, etc.). In addition, the most frequent sequences are listed. The plot is available for fasta or fastq files, but not for bam files, again because contained reads may not be representative for the experiment.
+\begin{center}
+<<qcplotsFig3, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotDuplicated(qcdat1$raw$qa, lmat=rbind(1:2))
+@
+\end{center}
+
+\item \textbf{Mapping statistics} shows fractions of reads that were (un)mappable to the reference genome. This plot is available for bam input, i.e. if \Rfunarg{input} is a vector of \bam{} files, or a \Robject{qProject} with alignment files as returned by \Rfunction{qAlign}.
+\begin{center}
+<<qcplotsFig4, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout=FALSE)
+@
+\end{center}
+
+\item \textbf{Mismatch frequency} shows the frequency and position (relative to the read sequence) of mismatches in the alignments against the reference genome. The plot is available for bam input.
+\begin{center}
+<<qcplotsFig5, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotErrorsByCycle(qcdat1$raw$mm, lmat=rbind(1:2))
+@
+\end{center}
+
+\item \textbf{Mismatch types} shows the frequency of read bases that caused mismatches in the alignments to the reference genome, separately for each genome base. This plot is available for bam input. 
+\begin{center}
+<<qcplotsFig6, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotMismatchTypes(qcdat1$raw$mm, lmat=rbind(1:2))
+@
+\end{center}
+
+\item \textbf{Fragment size} shows the distribution of fragment sizes inferred from aligned read pairs. This plot is available for paired-end bam input.
+\begin{center}
+<<qcplotsFig7, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat=rbind(1:2))
+@
+\end{center}
+
+\end{itemize}
+\setkeys{Gin}{width=0.8\textwidth}
+
+
+\subsection{\Rfunction{alignmentStats}}
+\label{sec:alignmentStats}
+\Rfunction{alignmentStats} is comparable to the ``idxstats'' function from Samtools; it returns the size of the target sequence, as well as the number of mapped and unmapped reads that are contained in an indexed \bam{} file. The function works for arguments of type \Rcode{qProject}, as well as on a string with one or several \bam{} file names. There is however a small difference in the two that is illustrated in the following example, which uses the \Rcode{qProject} object from the ChIP-seq workflow created on page \pageref{obj:proj1}:
+<<alignmentStats, eval=TRUE>>=
+# using bam files
+alignmentStats(alignments(proj1)$genome$FileName)
+alignmentStats(unlist(alignments(proj1)$aux))
+
+# using a qProject object
+alignmentStats(proj1)
+@
+If calling \Rfunction{alignmentStats} on the bam files directly as in the first two expressions of the above example, the returned numbers correspond exactly to what you would obtain by the ``idxstats'' function from Samtools, only that the latter would report them separately for each target sequence, while \Rfunction{alignmentStats} sums them for each \bam{} file. These numbers correctly state that there are zero unmapped reads in the auxiliary \bam{} files. However, if calling \Rfunction{alignmentStats} on a \Robject{qProject} object, it will report 7 and 12 unmapped reads in the auxiliary \bam{} files. This is because \Rfunction{alignmentStats} is aware that unmapped reads are removed from auxiliary \bam{} files by \QuasR{}, but can be calculated from the total number of reads to be aligned to the auxiliary target, which equals the number of unmapped reads in the corresponding genomic \bam{} file.
+
+
+\subsection{\Rfunction{qExportWig}}
+\label{sec:qExportWig}
+\Rfunction{qExportWig} creates fixed-step wig files (see \url{http://genome.ucsc.edu/goldenPath/help/wiggle.html} for format definition) from the genomic alignments contained in a \Robject{qProject} object. The \Rfunarg{combine} argument controls if several input files are combined into a single multi-track wig file, or if they are exported as individual wig files. Alignments of single read experiments can be shifted towards there 3'-end using \Rfunarg{shift}; paired-end alignments are automatically shifted by half the insert size. The resolution of the created wig file is defines by the \Rfunarg{binsize} argument, and if \Rcode{scaling=TRUE}, multiple alignment files in the \Robject{qProject} object are scaled by their total number of reads.
+
+
+\subsection{\Rfunction{qCount}}
+\label{sec:qCount}
+\Rfunction{qCount} is the workhorse for counting alignments that overlap query regions. Usage and details on parameters can be obtained from the \Rcode{qCount} function documentation. Two aspects that are of special importance are also discussed here:
+
+\subsubsection{Determination of overlap}
+How an alignment overlap with a query region is defined can be controlled by the following four arguments of \Rfunction{qCount}:
+\begin{itemize}
+  \item \Rfunarg{selectReadPosition} specifies the read base that serves as a reference for overlaps with query regions. The alignment position of that base, eventually after shifting (see below), needs to be contained in the query region for an overlap. \Rfunarg{selectReadPosition} can be set to \Rcode{"start"} (the default) or \Rcode{"end"}, which refer to  the biological start (5\'-end) and end (3\'-end) of the read. For example, the \Rcode{"start"} of a read aligned to the plus strand is the leftmost base in the alignment (the one with the lowest coordinate), and the \Rcode{"end"} of a read aligned to the minus strand is also its leftmost base in the alignment.
+  \item \Rfunarg{shift} allows shifting of alignments towards their 3\'-end prior to overlap determination and counting. This can be helpful to increase resolution of ChIP-seq experiments by moving alignments by half the immuno-precipitated fragment size towards the middle of fragments. \Rfunarg{shift} can either contain \Rcode{"integer"} values that specify the shift size, or for paired-end experiments, it can be set to the keyword \Rcode{"halfInsert"}, which will estimate the true fragment size from the distance between aligned read pairs and shift the alignments accordingly.
+  \item \Rfunarg{orientation} controls the interpretation of alignment strand relative to the strand of the query region. The default value \Rcode{"any"} will count all overlapping alignments, irrespective of the strand. This setting is for example used in an unstranded RNA-seq experiment where both sense and antisense reads are generated from an mRNA. A value of \Rcode{"same"} will only count the alignments on the same strand as the query region (e.g. in a stranded RNA-seq experiment), and \Rcode{"opposite"} will only count the alignments on the opposite strand from the query region (e.g. to quantify anti-sense transcription in a stranded RNA-seq experiment).
+  \item \Rfunarg{useRead} only applies to paired-end experiments and allows to quantify either all alignments (\Rcode{useRead="any"}), or only the first (\Rcode{useRead="first"}) or last (\Rcode{useRead="last"}) read from each read pair or read group. Note that for \Rcode{useRead="any"} (the default), an alignment pair that is fully contained within a query region will contribute two counts to the value of that region.
+\end{itemize}
+
+\subsubsection{Running modes of \Rfunction{qCount}}
+The features to be quantified are specified by the \Rfunarg{query} argument. At the same time, the type of \Rfunarg{query} select the mode of quantification. \Rfunction{qCount} supports three different types of \Rfunarg{query} arguments and implements three corresponding quantification types, which primarily differ in the way they deal with redundancy, such as query bases that are contained in more than one query region:
+
+\begin{itemize}
+  \item \Robject{GRanges} query: Overlapping alignments are counted separately for each coordinate region in the query object. If multiple regions have identical names, their counts will be summed, counting each alignment only once even if it overlaps more than one of these regions. Alignments may however be counted more than once if they overlap multiple regions with different names. This mode is for example used to quantify ChIP-seq alignments in promoter regions (see section \ref{sec:ChIP} on page \pageref{code:ChIP_qCount}), or gene expression levels in an RNA-seq experiment (using a 'query' with exon regions named by gene).
+  \item \Robject{GRangesList} query: Alignments are counted and summed for each list element in the query object if they overlap with any of the regions contained in the list element. The order of the list elements defines a hierarchy for quantification: Alignment will only be counted for the first element (the one with the lowest index in the query) that they overlap, but not for any potential further list elements containing overlapping regions. This mode can be used to hierarchically and uniquely count (assign) each alignment to a one of several groups of regions (the elements in the query), for example to estimate the fractions of different classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA, mRNA, etc.)
+  \item \Robject{TranscriptDb} query: Used to extract regions from annotation and report alignment counts depending on the value of the \Rfunarg{reportLevel} argument. If \Rcode{reportLevel="exon"}, alignments overlapping each exon in the query are counted. If \Rcode{reportLevel="gene"}, alignment counts for all exons of a gene will be summed, counting each alignment only once even if it overlaps multiple annotated exons of a gene. These are useful to calculate exon or gene expression levels in RNA-seq experiments based on the annotation in a \Robject{TranscriptDB} object. If \Rcode{reportLevel="promoter"}, the \Rfunction{promoters} function from package \Rpackage{GenomicFeatures} is used with default arguments to extract promoter regions around transcript start sites, e.g. to quantify alignments inf a ChIP-seq experiment.
+\end{itemize}
+
+
+\subsection{\Rfunction{qProfile}}
+\label{sec:qProfile}
+The \Rfunction{qProfile} function differs from \Rfunction{qCount} in that it returns alignments counts relative to their position in the query region. Except for \Rfunarg{upstream} and \Rfunarg{downstream}, the arguments of \Rfunction{qProfile} and \Rfunction{qCount} are the same. This section will describe these two additional arguments; more details on the other arguments are available in section \ref{sec:qCount} and from the \Rcode{qProfile} function documentation.
+
+The regions to be profiled are anchored by the biological start position, which are aligned at position zero in the return value. The biological start position is defined as \Rcode{start(query)} for regions on the plus strand and \Rcode{end(query)} for regions on the minus strand. The anchor positions are extended to the left and right sides by the number of bases indicated in the \Rfunarg{upstream} and \Rfunarg{downstream} arguments. 
+\begin{itemize}
+  \item \Robject{upstream} indicates the number of bases upstream of the anchor position, which is on the left side of the anchor point for regions on the plus strand and on the right side for regions on the minus strand.
+  \item \Robject{downstream} indicates the number of bases downstream of the anchor position, which is on the left side of the anchor point for regions on the plus strand and on the left side for regions on the minus strand.
+\end{itemize}
+Be aware that query regions with a ''*'' strand are handled the same way as regions on the plus strand.
+
+
+\subsection{\Rfunction{qMeth}}
+\label{sec:qMeth}
+\Rfunction{qMeth} is used exclusively for Bis-seq experiments. In contrast to \Rfunction{qCount}, which counts the number of read alignments per query region, \Rfunction{qMeth} quantifies the number of C and T bases per cytosine in query regions, in order to determine methylation status.
+
+\Rfunction{qMeth} can be run in one of four modes, controlled by the \Rfunarg{mode} argument:
+\begin{itemize}
+  \item \texttt{CpGcomb}: Only C's in CpG context are considered. It is assumed that methylation status of the CpG base-pair on both strands is identical. Therefore, the total and methylated counts obtained for the C at position $i$ and the C on the opposite strand at position $i+1$ are summed.
+  \item \texttt{CpG}: As with \texttt{CpGcomb}, only C's in CpG context are quantified. However, counts from opposite strand are not summed, resulting in separate output values for C's on both strands.
+  \item \texttt{allC}: All C's contained in query regions are quantified, keeping C's from either strand separate. While this mode allows quantification of non-CpG methylation, it should be used with care, as the large result could use up available memory. In that case, a possible work-around is to divide the region of interest (e.g. the genome) into several regions (e.g. chromosomes) and call \Rfunction{qMeth} separately for each region.  
+  \item \texttt{var}: In this mode, only alignments on the opposite strand from C's are analysed in order to collect evidence for sequence polymorphisms. Methylated C's are hot-spots for C-to-T transitions, which in a Bis-seq experiment cannot be discriminated from completely unmethylated C's. The information is however contained in alignments to the G from the opposite strand: Reads containing a G are consistent with a non-mutated C, and reads with an A support the presence of a sequence polymorphism. \Rcode{qMeth(..., mode="var")} returns counts for total and matching bases for all C's on both strands. A low fraction of matching bases is an indication of a mutation and can be used as a basis to identify mutated positions in the studied genome relative to the reference genome. Such positions should not be included in the quantification of methylation.
+\end{itemize}
+
+When using \Rfunction{qMeth} in a allele-specific quantification (see also section \ref{sec:Allele}), cytosines (or CpGs) that overlap a sequence polymorphism will not be quantified.
+
+
+\section{Session information}
+The output in this vignette was produced under:
+<<sessionInfo>>=
+sessionInfo()
+@
+
+<<cleanUp, eval=TRUE, echo=FALSE>>=
+unlink("extdata", recursive=TRUE, force=TRUE)
+@
+
+\bibliography{QuasR-refs}
+
+\end{document}
+
+
+% LocalWords:  nnotate hort antify Rintro SampleFile qProject qAlign qCount pre
+% LocalWords:  qQCReport qExportWig qSaveProject qReadProject TODO BSgenome fq
+% LocalWords:  SampleName FileName fasta fastq fna txt auxiliaryFile AuxName Qu
+% LocalWords:  edgeR DESeq Rbowtie Html limma https postingGuide html ethz www
+% LocalWords:  listinfo Lerch Dalgaard metadata projectFilename SpliceMap
+% LocalWords:  filename infiles AAAAAAAAAA truncateEndBases trimLRPatterns
+% LocalWords:  Biostrings nBases minLength outfiles

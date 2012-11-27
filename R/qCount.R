@@ -1,0 +1,388 @@
+## query : GRanges : value has one row per unique name in GRanges
+## query : GRangesList : value has one row per name of GRangesList
+## query : TranscriptDB : value has has one row per 'reportLevel'
+
+qCount <-
+    function(proj,
+             query,
+             reportLevel=c(NULL,"gene","exon","promoter"),
+             selectReadPosition=c("start", "end"),
+             shift=0L,
+             orientation=c("any","same","opposite"),
+             useRead=c("any","first","last"),
+             auxiliaryName=NULL,
+             mask=NULL,
+             collapseBySample=TRUE,
+             maxInsertSize=500L,
+             clObj=NULL) {
+        ## setup variables from 'proj' -----------------------------------------------------------------------
+        ## 'proj' is correct type?
+        if(!inherits(proj, "qProject", which=FALSE))
+            stop("'proj' must be an object of type 'qProject' (returned by 'qAlign')")
+
+        samples <- proj@alignments$SampleName
+        nsamples <- length(samples)
+        bamfiles <-
+            if(is.null(auxiliaryName))
+                proj@alignments$FileName
+            else if(!is.na(i <- match(auxiliaryName, proj@aux$AuxName)))
+                unlist(proj@auxAlignments[i,], use.names=FALSE)
+            else
+                stop("unknown 'auxiliaryName', should be one of: NULL, ",
+                     paste(sprintf("'%s'", proj@aux$AuxName), collapse=", "))
+
+        
+        ## validate parameters -------------------------------------------------------------------------------
+        reportLevel <- match.arg(reportLevel)
+        selectReadPosition <- match.arg(selectReadPosition)
+        orientation <- match.arg(orientation)
+        useRead <- match.arg(useRead)
+
+        ## check shift
+        if(shift == "halfInsert") {
+            if(proj@paired == "no") {
+                stop("'shift=\"halfInsert\"' can only be used for paired-end experiments")
+            } else {
+                shifts <- rep(-1000000L, nsamples)
+                broaden <- as.integer(ceiling(maxInsertSize/2))
+            }
+        } else {
+            if(!is.numeric(shift) || (length(shift)>1 && length(shift)!=nsamples))
+                stop(sprintf("'shift' must be 'halfInsert', a single integer or an integer vector with %d values",nsamples))
+            else if(length(shift) == 1)
+                shifts <- rep(as.integer(shift), nsamples)
+            else
+                shifts <- as.integer(shift)
+            broaden <- 0L
+        }
+
+        
+        ## 'query' is correct type?
+        if(!inherits(query,c("GRanges","GRangesList","TranscriptDb")))
+            stop("'query' must be either an object of type 'GRanges', 'GRangesList' or 'TranscriptDb'")
+
+        ## all query chromosomes present in all bamfiles?
+        trTab <- table(unlist(lapply(scanBamHeader(bamfiles), function(bh) names(bh$targets))))
+        trCommon <- names(trTab)[trTab==length(bamfiles)]
+        if(any(f <- !(seqlevels(query) %in% trCommon)))
+            stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
+                         paste(seqlevels(query)[f],collapse=", ")))
+
+        ## 'useRead' set but not a paired-end experiment?
+        if(useRead != "any" && proj@paired == "no")
+            warning("ignoring 'useRead' for single read experiments")
+
+
+        ## preprocess query -------------------------------------------------------------------------------
+        ##    --> create 'flatquery', 'querynames', 'querylengths' and 'zeroquerynames'
+        ##    GRanges query -------------------------------------------------------------------------------
+        if(inherits(query,"GRanges")) {
+            if(!is.null(names(query)) && length(query) > length(unique(names(query)))) {
+                # remove redundancy from 'query' by names
+                tmpquery <- reduce(split(query, names(query)))
+                flatquery <- unlist(tmpquery, use.names=FALSE)
+                querynames <- rep(names(tmpquery), elementLengths(tmpquery))
+                rm(tmpquery)
+            } else {
+                flatquery <- query
+                querynames <- if(is.null(names(query))) as.character(seq_len(length(query))) else names(query)
+            }
+            querylengths <- width(flatquery)
+            zeroquerynames <- character(0)
+            
+        ##    GRangesList query ---------------------------------------------------------------------------
+        } else if(inherits(query,"GRangesList")) {
+            if(any(i <- elementLengths(query)==0)) {
+                warning(sprintf("removing %d elements from 'query' with zero regions: %s",sum(i),paste(names(query)[i],collapse=", ")))
+                query <- query[-i]
+            }
+            # hierarchically remove redundancy from 'query'
+            message("hierarchically removing redundancy from 'query'...", appendLF=FALSE)
+            if(orientation=="any")
+                strand(query) <- endoapply(strand(query), function(x) Rle(factor("*", levels=c("+","-","*")), lengths=length(x)))
+            query <- reduce(query)
+            if(length(query)>1) {
+                cumquery <- query[[1]]
+                for(i in 2:length(query)) {
+                    query[[i]] <- setdiff(query[[i]], cumquery)
+                    cumquery <- c(query[[i]], cumquery)
+                }
+            }
+            message("done")
+            flatquery <- unlist(query, use.names=FALSE)
+            querynames <- rep(if(is.null(names(query))) as.character(seq_len(length(query))) else names(query),
+                              elementLengths(query))
+            querylengths <- unlist(width(query), use.names=FALSE)
+            zeroquerynames <- (if(is.null(names(query))) as.character(seq_len(length(query))) else names(query))[elementLengths(query)==0]
+            
+        ##    TranscriptDb query --------------------------------------------------------------------------
+        } else if(inherits(query,"TranscriptDb")) {
+            if(is.null(reportLevel))
+                stop("'reportLevel' must be set to a non-NULL value for 'query' of type 'TranscriptDb'")
+            message(sprintf("extracting %s regions from TranscriptDb...",reportLevel), appendLF=FALSE)
+            if(reportLevel == "gene") {
+                tmpquery <- reduce(exonsBy(query, by="gene"))
+                flatquery <- unlist(tmpquery, use.names=FALSE)
+                querynames <- rep(names(tmpquery), elementLengths(tmpquery))
+                querylengths <- unlist(width(tmpquery), use.names=FALSE)
+                rm(tmpquery)
+                
+            } else if (reportLevel == "exon") {
+                flatquery <- exons(query, columns="exon_id")
+                querynames <- as.character(mcols(flatquery)$exon_id)
+                querylengths <- width(flatquery)
+                
+            } else if (reportLevel == "promoter") {
+                flatquery <- promoters(query, columns=c("tx_id","tx_name"))
+                querynames <- paste(as.character(mcols(flatquery)$tx_id),as.character(mcols(flatquery)$tx_name),sep=";")
+                querylengths <- width(flatquery)
+                
+            } else if (reportLevel == "exonJunction") {
+                ### TODO
+                stop("'reportLevel=\"exonJunction\"' is not supported yet")
+            }
+            zeroquerynames <- character(0)
+            message("done")
+        }
+        if(length(flatquery)==0)
+            stop("'query' is empty - nothing to do")
+        ## from now on, only use 'flatquery' (GRanges object) with names in 'querynames' and lengthes in 'querylengths'
+        
+
+        ## apply 'mask' to flatquery -------------------------------------------------------------------
+        if(!is.null(mask)) {
+            if(!inherits(mask,"GRanges"))
+                stop("'mask' must be an object of type 'GRanges'")
+            message("removing 'mask' ranges from 'query'...", appendLF=FALSE)
+            strand(mask) <- "*"
+            mask <- reduce(mask)
+            ov <- findOverlaps(flatquery, mask)
+            qOM <- unique(queryHits(ov))
+            gr1 <- GRanges(seqnames=Rle(qOM), ranges=IRanges(start=start(flatquery)[qOM], end=end(flatquery)[qOM]))
+            gr2 <- GRanges(seqnames=Rle(queryHits(ov)), ranges=IRanges(start=start(mask)[subjectHits(ov)], end=end(mask)[subjectHits(ov)]))
+            SD <- setdiff(gr1,gr2)
+            notOverlappingMaskInd <- which(!((1:length(flatquery)) %in% qOM))
+            completelyMaskedInd <- qOM[!(qOM %in% as.numeric(as.character(unique(seqnames(SD)))))]
+
+            # 'zeroquery' contains regions that are completely masked (will get zero count and length)
+            #zeroquery <- flatquery[completelyMaskedInd]
+            tmpnames <- querynames[completelyMaskedInd]
+            zeroquerynames <- c(zeroquerynames, tmpnames[!(tmpnames %in% querynames[-completelyMaskedInd])])
+            #zeroquerylengths <- rep(0L, length(completelyMaskedInd))
+
+            # masked 'flatquery' maybe split into several non-masked pieces
+            flatquery <- c(flatquery[notOverlappingMaskInd],
+                           GRanges(seqnames=seqnames(flatquery)[as.numeric(as.character(seqnames(SD)))],
+                                   ranges=ranges(SD), strand=strand(flatquery)[as.numeric(as.character(seqnames(SD)))],
+                                   seqlengths=seqlengths(flatquery)),
+                           ignore.mcols=TRUE)
+            querynames <- querynames[c(notOverlappingMaskInd, as.numeric(as.character(seqnames(SD))))]
+            querylengths <- width(flatquery)
+            message("done")
+        }
+        
+        ## setup tasks for parallelization -------------------------------------------------------------------
+        ## TODO: if sum(width(flatquery)) close to sum(seqlengths(genome)) -> select variant counting algorithm (sequential walk through bamfiles)
+        if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE)) {
+            message("preparing to run on ", length(clObj), " nodes...", appendLF=FALSE)
+            ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
+            if(!all(sapply(ret, function(x) "QuasR" %in% x)))
+                stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+            taskIByFlatQuery <- splitIndices(nx=length(flatquery), ncl=ceiling(length(clObj) /nsamples *2))
+            taskSamples <- rep(samples, each=length(taskIByFlatQuery))
+            taskBamfiles <- rep(bamfiles, each=length(taskIByFlatQuery))
+            flatquery <- lapply(taskIByFlatQuery, function(i) flatquery[i])
+            shifts <- rep(shifts, each=length(taskIByFlatQuery))
+            myapply <- function(...) {
+                ret <- clusterMap(clObj, ..., SIMPLIFY=FALSE, .scheduling="dynamic")
+                ## fuse
+                iBySample <- split(seq_along(ret),names(ret))
+                names(ret) <- NULL
+                if(!is.na(proj@snpFile)){
+                    ret <- do.call(cbind, lapply(iBySample, function(i) do.call(rbind, ret[i])))
+                    postfix <- substring(colnames(ret), nchar(colnames(ret)))
+                    ## rename
+                    dimnames(ret) <- list(querynames, 
+                                          paste(rep(samples, each=3), postfix, sep="_"))
+                } else {
+                    ret <- do.call(cbind, lapply(iBySample, function(i) do.call(c, ret[i])))
+                    ## rename
+                    dimnames(ret) <- list(querynames, samples)
+                }
+                ret
+            }
+            message("done")
+        } else {
+            taskSamples <- samples
+            taskBamfiles <- bamfiles
+            flatquery <- list(flatquery)
+            myapply <- function(...) {
+                ret <- do.call(cbind, mapply(..., SIMPLIFY=FALSE))
+                ## rename
+                if(!is.na(proj@snpFile))
+                    dimnames(ret) <- list(querynames, 
+                                          paste(rep(samples, each=3),
+                                                substring(colnames(ret), nchar(colnames(ret))), sep="_"))
+                else
+                    dimnames(ret) <- list(querynames, samples)
+                ret
+            }
+        }
+        
+        ## count alignments ----------------------------------------------------------------------------------
+        message("counting alignments...", appendLF=FALSE)
+        res <- myapply(countAlignments,
+                       bamfile=taskBamfiles,
+                       regions=flatquery,
+                       shift=shifts,
+                       MoreArgs=list(
+                           selectReadPosition=selectReadPosition,
+                           orientation=orientation,
+                           useRead=useRead,
+                           broaden=broaden,
+                           allelic=!is.na(proj@snpFile)))
+        message("done")
+
+        
+        ## collapse (sum) counts by sample if necessary
+        if(nsamples > length(unique(samples))) {
+            if(collapseBySample) {
+                message("collapsing counts by sample...", appendLF=FALSE)
+                if(is.na(proj@snpFile))
+                    iBySample <- split(seq_len(nsamples),samples)[unique(samples)]
+                else
+                    iBySample <- split(seq_len(ncol(res)),colnames(res))[unique(colnames(res))]
+                res <- do.call(cbind, lapply(iBySample, function(i) rowSums(res[,i,drop=FALSE])))
+                message("done")
+
+            } else {
+                # unify non-collapsed identical sample names
+                if(is.na(proj@snpFile))
+                    colnames(res) <- displayNames(proj)
+                else
+                    colnames(res) <- paste(rep(displayNames(proj), each=3), substring(colnames(res), nchar(colnames(res))), sep="_")
+            }
+        }
+
+        ## add the region width as first column
+        res <- cbind(width=querylengths, res)
+        rm(querylengths)
+        
+        ## collapse (sum) counts by 'querynames'
+        if(length(querynames)>length(unique(querynames))) {
+            message("collapsing counts by query name...", appendLF=FALSE)
+            iByQuery <- split(seq_len(nrow(res)),querynames)
+            res <- do.call(rbind, lapply(iByQuery, function(i) colSums(res[i,1:ncol(res),drop=FALSE])))
+            rownames(res) <- querynames <- names(iByQuery)
+            message("done")
+        }
+        if(length(zeroquerynames)>length(unique(zeroquerynames)))
+            zeroquerynames <- unique(zeroquerynames)
+
+        ## combine with zeroquery and reorder according to 'query'
+        res2 <- matrix(0, nrow=length(querynames)+length(zeroquerynames), ncol=ncol(res),
+                       dimnames=list(if(inherits(query,"TranscriptDb"))
+                                       sort(c(querynames,zeroquerynames))
+                                     else if(is.null(names(query)))
+                                       as.character(seq_len(length(query)))
+                                     else unique(names(query)),
+                                     colnames(res)))
+        res2[rownames(res),] <- res
+
+        ## return results
+        return(res2)
+    }
+
+
+## count alignments (with the C-function) for single bamfile, single shift, and single set of regions
+## return a numeric vector with length(regions) elements (same order as regions)
+countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation, useRead, broaden, allelic)
+{
+    tryCatch({ # try catch block goes through the whole function
+        
+        ## translate seqnames to tid and create region data.frame
+        seqnamesBamHeader <- names(scanBamHeader(bamfile)[[1]]$targets)
+        
+        ## prepare region vectors
+        #tid <- IRanges::as.vector(IRanges::match(seqnames(regions), seqnamesBamHeader)) - 1L
+        tid <- as.vector(match(seqnames(regions), seqnamesBamHeader) - 1L) 
+        start <- start(regions) - 1L ## samtool library has 0-based inclusiv start
+        end <- end(regions) ## samtool library has 0-based exclusiv end
+        
+        ## swap strand for 'orientation="opposite"' 
+        if(orientation == "any")
+            strand <- rep("*", length(regions))
+        else if(orientation == "opposite")
+            strand <- c("+"="-", "-"="+", "*"="*")[as.character(strand(regions))]
+        else # orientation == "same"
+            strand <- as.character(strand(regions))
+        
+        ## translate useRead parameter
+        BAM_FREAD1 <- 64L
+        BAM_FREAD2 <- 128L
+        if(useRead == "any")
+            readBitMask <- BAM_FREAD1 + BAM_FREAD2
+        else if (useRead == "first")
+            readBitMask <- BAM_FREAD1
+        else if (useRead == "last")
+            readBitMask <- BAM_FREAD2
+        
+        ## get counts
+        if(!allelic) {
+            count <- .Call(countAlignmentsNonAllelic, bamfile, tid, start, end, strand,
+                           selectReadPosition, readBitMask, shift, broaden, PACKAGE="QuasR")
+        } else {
+            count <- as.matrix(as.data.frame(.Call(countAlignmentsAllelic, bamfile, tid, start, end, strand,
+                                                   selectReadPosition, readBitMask, shift, broaden, PACKAGE="QuasR")))
+        }
+     
+        return(count)
+    }, error = function(ex) {
+        reg <- regions[c(1, length(regions))]
+        emsg <- paste("Internal error on", Sys.info()['nodename'], "query bamfile", bamfile,"with regions\n", 
+                      paste(seqnames(reg), start(reg), "-" , end(reg), strand(reg), collapse="\n\t...\n"), 
+                      "\n Error message is:", ex$message)
+        stop(emsg)
+    })
+}
+
+
+
+## Counts alignments in a given set of regions which are located in a subspace of the genome
+## using a per-base-coverage vector approach
+##     shift the read, broaden fetch region,
+## return a numeric vector with length(regions) elements (same order as regions)
+countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shift=0L, broaden=0L)
+{
+    ## check if region are located on one chromosme
+    seqName <- unique(seqnames(regions))
+    if(length(seqName) > 1L)
+        stop("regions should only be located on one chromosome")
+    
+    ## check broaden and shift parameter
+    if(broaden < 0)
+        stop("'broaden' should not be negative") 
+    #    if(shift > 0 && selectReadPosition="midwithin")
+    #        stop("'shift' parameter must be zero if 'selectReadPosition' is set to midwithin")
+    #    if(broaden > 0 && (selectReadPosition="startwithin" || selectReadPosition="endwithin"))
+    #        stop("'broaden' parameter must be zero if 'selectReadPosition' is set to startwithin or endwithin")
+    
+    ## translate seqName to tid
+    seqnamesList <- names(scanBamHeader(bamfile)[[1]]$targets)
+    tidList <- as.integer(seq_along(seqnamesList)-1)
+    tid <- tidList[ match(seqName, seqnamesList) ]
+    
+    ## convert grange to data.frame 
+    ## with 0-based start inclusive
+    ## with 0-based end exclusive
+    regionsTable <- data.frame(start=as.integer(start(regions)-1), ## samtool library has 0-based start
+                               end=as.integer(end(regions)),
+                               strand=as.character(strand(regions)),
+                               stringsAsFactors=FALSE
+    )
+    
+    ## call c-function
+    cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end), regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, PACKAGE="QuasR")
+    
+    return(cnt)
+}

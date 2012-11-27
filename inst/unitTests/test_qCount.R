@@ -1,0 +1,789 @@
+source(system.file(package="QuasR", "unitTests", "help_function.R"))
+
+## Test the counts parameter shift, selectReadPosition
+test_shift <- function()
+{
+    ## Load data
+    project <- createProjectPairedMode()
+
+    # qCount with SmartShift
+    
+    #fr R1->left R2->right
+    query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "+")
+    resSoll <- rep(0,20)
+    resSoll[10] <- 4
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 1: qCount with smartShift")
+    
+    resSoll <- rep(0,20)
+    resSoll[c(6,14)] <- 2       
+    res <- qCount(project, query, selectReadPosition="end", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 2: qCount with smartShift")
+    
+    #fr R2->left R1->right
+    query <- GRanges("chrV", IRanges(start=21:40, width=1), "+")
+    resSoll <- rep(0,20)
+    resSoll[10] <- 4
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 3: qCount with smartShift")
+    
+    resSoll <- rep(0,20)
+    resSoll[c(6,14)] <- 2       
+    res <- qCount(project, query, selectReadPosition="end", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 4: qCount with smartShift")
+    
+    #ff R1->left R2->right
+    query <- GRanges("chrV", IRanges(start=41:60, width=1), "+")
+    resSoll <- rep(0,20)
+    resSoll[c(6,10)] <- 2
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 5: qCount with smartShift")
+    
+    resSoll <- rep(0,20)
+    resSoll[c(10,14)] <- 2       
+    res <- qCount(project, query, selectReadPosition="end", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 6: qCount with smartShift")
+    
+    #rr R2->left R1->right
+    query <- GRanges("chrV", IRanges(start=61:80, width=1), "+")
+    resSoll <- rep(0,20)
+    resSoll[c(10,14)] <- 2
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 7: qCount with smartShift")
+    
+    resSoll <- rep(0,20)
+    resSoll[c(6,10)] <- 2       
+    res <- qCount(project, query, selectReadPosition="end", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 8: qCount with smartShift")
+    
+    #rf R1->left R2->right
+    query <- GRanges("chrV", IRanges(start=81:99, width=1), "+")
+    resSoll <- rep(0,19)
+    resSoll[c(6,14)] <- 2
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 9: qCount with smartShift")
+    
+    resSoll <- rep(0,19)
+    resSoll[10] <- 4      
+    res <- qCount(project, query, selectReadPosition="end", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 10: qCount with smartShift")
+    
+    
+    # qCount with interger as shift
+    
+    aln <- readBamGappedAlignments(project@alignments$FileName)
+    
+    query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 1: qCount with shift and selectReadPosition")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln)+1, end(aln)-1)
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=1, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 2: qCount with shift and selectReadPosition")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln)-1, end(aln)+1)
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=-1, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 3: qCount with shift and selectReadPosition")
+    
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 4: qCount with shift and selectReadPosition")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln)+1, start(aln)-1)
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=1, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 5: qCount with shift and selectReadPosition")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln)-1, start(aln)+1)
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=-1, orientation="any")[,-1]
+    checkTrue(all(resSoll == res), "Test 6: qCount with shift and selectReadPosition")
+}
+
+## Test the counts parameter shift in allelic mode
+test_shift_allelic <- function()
+{
+    ## Load data
+    project <- createProjectAllelic()
+    project
+    
+    # qCount allele specific
+    query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "+")
+    
+    # no shift
+    resSoll <- rep(0,20)
+    resSoll[c(4,16)] <- 1
+    res <- qCount(project, query, selectReadPosition="start", orientation="any")[,-1]
+    checkTrue(all(resSoll == res[,1]), "Test 1: qCount allele specific")
+    checkTrue(all(resSoll == res[,2]), "Test 2: qCount allele specific")
+    checkTrue(all(resSoll == res[,3]), "Test 3: qCount allele specific")
+    colname <- paste(rep(project@alignments$SampleName, each=3), c("R","U","A"), sep="_")
+    checkTrue(all(colname == colnames(res)), "Test 4: qCount allele specific")
+    
+    # smart shift
+    resSoll <- rep(0,20)
+    resSoll[10] <- 2
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", orientation="any")[,-1]
+    checkTrue(all(resSoll == res[,1]), "Test 5: qCount allele specific")
+    checkTrue(all(resSoll == res[,2]), "Test 6: qCount allele specific")
+    checkTrue(all(resSoll == res[,3]), "Test 7: qCount allele specific")
+    
+    # shift
+    resSoll <- rep(0,20)
+    resSoll[c(6,14)] <- 1
+    res <- qCount(project, query, selectReadPosition="start", shift=2, orientation="any")[,-1]
+    checkTrue(all(resSoll == res[,1]), "Test 8: qCount allele specific")
+    checkTrue(all(resSoll == res[,2]), "Test 9: qCount allele specific")
+    checkTrue(all(resSoll == res[,3]), "Test 10: qCount allele specific")
+}
+   
+## Test the counts parameter orientation
+test_orientation <- function()
+{
+    ## Load data
+    project <- createProjectPairedMode()
+    project
+    
+    # qCount with orientation, query strand
+    aln <- readBamGappedAlignments(project@alignments$FileName)
+    
+    query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
+    resSoll <- rep(0,99)
+    pos <- Rle(start(aln[strand(aln)=="+"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 1: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(end(aln[strand(aln)=="-"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 2: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(end(aln[strand(aln)=="+"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 3: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(start(aln[strand(aln)=="-"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 4: qCount with orientation and query strand")
+    
+    query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "-")
+    resSoll <- rep(0,99)
+    pos <- Rle(start(aln[strand(aln)=="+"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 5: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(end(aln[strand(aln)=="-"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 6: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(end(aln[strand(aln)=="+"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 7: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- Rle(start(aln[strand(aln)=="-"]))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 8: qCount with orientation and query strand")
+    
+    query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "*")
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 9: qCount with orientation and query strand")
+    
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 10: qCount with orientation and query strand")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="same")[,-1]
+    checkTrue(all(resSoll == res), "Test 11: qCount with orientation and query strand")
+    
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="opposite")[,-1]
+    checkTrue(all(resSoll == res), "Test 12: qCount with orientation and query strand")
+}
+
+## Test the counts parameter useRead
+test_useRead <- function()
+{
+    ## Load data
+    project <- createProjectPairedMode()
+    project
+
+    # qCount with useRead
+    aln <- readBamGappedAlignments(project@alignments$FileName, 
+                                   param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=T, isSecondMateRead=F)))
+    
+    query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any", useRead="first")[,-1]
+    checkTrue(all(resSoll == res), "Test 1: qCount with useRead")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="first")[,-1]
+    checkTrue(all(resSoll == res), "Test 2: qCount with useRead")
+    
+    aln <- readBamGappedAlignments(project@alignments$FileName, 
+                                   param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=F, isSecondMateRead=T)))
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any", useRead="last")[,-1]
+    checkTrue(all(resSoll == res), "Test 3: qCount with useRead")
+    
+    resSoll <- rep(0,99)
+    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    resSoll[runValue(pos)] <- runLength(pos)
+    res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="last")[,-1]
+    checkTrue(all(resSoll == res), "Test 4: qCount with useRead")
+}
+
+## Test the counts parameter maxInsertSize
+test_maxInsertSize <- function()
+{
+    ## Load data
+    project <- createProjectPairedMode()
+    project
+    
+    # qCount with maxInsertSize 
+    query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "*")
+    resSoll <- rep(0,20)
+    #resSoll[c(10, 30, 46, 50, 70, 74, 86, 94)] <- c(4,4,2,2,2,2,2,2)
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", maxInsertSize=0)[,-1]
+    checkTrue(all(resSoll == res), "Test 1: qCount with maxInsertSize")
+    
+    resSoll[10] <- 4
+    res <- qCount(project, query, selectReadPosition="start", shift="halfInsert", maxInsertSize=14)[,-1]
+    checkTrue(all(resSoll == res), "Test 2: qCount with maxInsertSize")
+}
+
+# query with GRanges and mask
+test_query_GRanges <- function()
+{
+    ## Load data
+    project <- createProjectSingleMode()
+    project
+    
+    tilingRegion <- createTilingRegion()
+    
+    ###############################
+    # qCount                      #
+    ###############################
+    
+    ## NO masking
+    ## reduce region by query rownames
+    region <- tilingRegion
+    strand(region) <- "*"    
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(300,300,300,250)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 1: qCount orientation=same")
+    
+    strand(region) <- "+"
+    resSoll[,3] = 0
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 2: qCount orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,2] = 0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 3: qCount orientation=same")
+    
+    ## NO reduce region by query rownames
+    names(region) <- NULL
+    strand(region) <- "*"
+    resSoll <- matrix(0, nrow=12, ncol=3, byrow=T) 
+    resSoll[,1] =  c(rep(100,11),50)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 4: qCount orientation=same")  
+    
+    strand(region) <- "+"
+    resSoll[,3] =  0
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 5: qCount orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,2] =  0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 6: qCount orientation=same")
+    
+
+    ## Masking Test 1
+    mask <- tilingRegion[names(tilingRegion) == "H4"]
+    
+    ## reduce region by query rownames
+    region <- tilingRegion
+    strand(region) <- "+"    
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(200,300,150,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 7: qCount with masking and orientation=any")
+    
+    strand(region) <- "+"
+    resSoll[,3] = 0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 8: qCount with masking and orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,2] = 0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 9: qCount with masking and orientation=same")
+    
+    ## NO reduce region by query rownames
+    names(region) <- NULL
+    strand(region) <- "+"
+    resSoll <- matrix(0, nrow=12, ncol=3, byrow=T) 
+    resSoll[,1] =  c(100,100,50,0,50,100,50,0,50,100,50,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 10: qCount with masking and orientation=any")  
+    
+    strand(region) <- "+"
+    resSoll[,3] =  0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 11: qCount with masking and orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,2] =  0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 12: qCount with masking and orientation=same")
+    
+        
+    ## Masking Test 2
+    mask <- GRanges(seqnames="chrV", IRanges(c(361,401), c(390,700)))
+
+    ## reduce region by query rownames
+    region <- tilingRegion
+    strand(region) <- "+"    
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(170,120,100,100)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 13: qCount with masking and orientation=any")
+    
+    resSoll[,3] = 0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 14: qCount with masking and orientation=same")
+    
+    ## NO reduce region by query rownames
+    names(region) <- NULL
+    strand(region) <- "+"
+    resSoll <- matrix(0, nrow=12, ncol=3, byrow=T) 
+    resSoll[,1] =  c(100,100,100,100,70,20,0,0,0,0,0,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 15: qCount with masking and orientation=any")  
+    
+    resSoll[,3] =  0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 16: qCount with masking and orientation=same")
+}    
+    
+# query with GRangesList and mask 
+# (hierarchically non overlapping region and reduce by queryrowname)
+test_query_GRangesList <- function()
+{
+    ## Load data
+    project <- createProjectSingleMode()
+    project
+    
+    tilingRegion <- createTilingRegion()
+    
+    ###############################
+    # qCount                      #
+    ###############################
+    
+    region <- tilingRegion
+    strand(region) <- "*"
+    regionList <- split(region, names(region))
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(300,150,150,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 1: qCount orientation=same")
+    
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll[,3] = 0
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 2: qCount orientation=same")
+
+    strand(region) <- "-"
+    regionList <- split(region, names(region))
+    resSoll[,2] = 0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 3: qCount orientation=same")
+
+    
+    ## Masking Test 1
+    mask <- tilingRegion[names(tilingRegion) == "H4"]
+    
+    region <- tilingRegion
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(200,150,0,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]   
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRangesList Test 4: qCount with masking and orientation=any")
+    
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll[,3] = 0
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 5: qCount with masking and orientation=same")
+    
+    strand(region) <- "-"
+    regionList <- split(region, names(region))
+    resSoll[,2] = 0
+    resSoll[,3] = 3*resSoll[,1]
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 6: qCount with masking and orientation=same")
+    
+    ## Masking Test 2
+    mask <- GRanges(seqnames="chrV", IRanges(c(361,401), c(390,700)))
+    
+    region <- tilingRegion
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll <- matrix(0, nrow=4, ncol=3, byrow=T) 
+    resSoll[,1] = c(170,50,50,0)
+    resSoll[,c(2,3)] = 3*resSoll[,1]   
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRangesList Test 7: qCount with masking and orientation=any")
+    
+    regionList <- split(region, names(region))
+    resSoll[,3] = 0
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 8: qCount with masking and orientation=same")
+
+}
+
+# Allelic query with GRanges and mask
+test_query_GRanges_allelic <- function()
+{
+    ## Load data        
+    project <- createProjectSingleMode(allelic=TRUE)
+    project
+    
+    tilingRegion <- createTilingRegion()
+    
+    ###############################
+    # qCount allele specific      #
+    ###############################
+    
+    ## NO masking
+    ## reduce region by query rownames
+    region <- tilingRegion
+    strand(region) <- "*"    
+    resSoll <- matrix(0, nrow=4, ncol=7, byrow=T) 
+    resSoll[,1] = c(300,300,300,250)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 1: qCount allele specific orientation=same")
+    
+    strand(region) <- "+"
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 2: qCount allele specific orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 3: qCount allele specific orientation=same")
+    
+    ## NO reduce region by query rownames
+    names(region) <- NULL
+    strand(region) <- "*"
+    resSoll <- matrix(0, nrow=12, ncol=7, byrow=T) 
+    resSoll[,1] =  c(rep(100,11),50)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 4: qCount allele specific orientation=same")  
+    
+    strand(region) <- "+"
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 5: qCount allele specific orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 6: qCount allele specific orientation=same")
+    
+    ## Masking Test 1
+    mask <- tilingRegion[names(tilingRegion) == "H4"]
+  
+    ## reduce region by query rownames
+    region <- tilingRegion
+    strand(region) <- "+"    
+    resSoll <- matrix(0, nrow=4, ncol=7, byrow=T) 
+    resSoll[,1] = c(200,300,150,0)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 7: qCount allele specific with masking and orientation=same")
+    
+    strand(region) <- "+"
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 8: qCount allele specific with masking and orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 9: qCount allele specific with masking and orientation=same")
+    
+    ## NO reduce region by query rownames
+    names(region) <- NULL
+    strand(region) <- "+"
+    resSoll <- matrix(0, nrow=12, ncol=7, byrow=T) 
+    resSoll[,1] =  c(100,100,50,0,50,100,50,0,50,100,50,0)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRanges Test 10: qCount allele specific with masking and orientation=any")  
+    
+    strand(region) <- "+"
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 11: qCount allele specific with masking and orientation=same")
+    
+    strand(region) <- "-"
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, region, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRanges Test 12: qCount allele specific with masking and orientation=same")
+}
+
+# Allelic query with GRangesList and mask 
+# (hierarchically non overlapping region and reduce by queryrowname)
+test_query_GRangesList_allelic <- function()
+{
+    ## Load data        
+    project <- createProjectSingleMode(allelic=TRUE)
+    project
+    
+    tilingRegion <- createTilingRegion()
+
+    ###############################
+    # qCount allele specific      #
+    ###############################
+
+    region <- tilingRegion
+    strand(region) <- "*"
+    regionList <- split(region, names(region))
+    resSoll <- matrix(0, nrow=4, ncol=7, byrow=T) 
+    resSoll[,1] = c(300,150,150,0)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 1: qCount allele specific orientation=same")
+    
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 2: qCount allele specific orientation=same")
+    
+    strand(region) <- "-"
+    regionList <- split(region, names(region))
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, regionList, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 3: qCount allele specific orientation=same")
+  
+    ## Masking Test 1
+    mask <- tilingRegion[names(tilingRegion) == "H4"]
+    
+    region <- tilingRegion
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll <- matrix(0, nrow=4, ncol=7, byrow=T) 
+    resSoll[,1] = c(200,150,0,0)
+    resSoll[,c(2,3,4,5,6,7)] = resSoll[,1]
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="any")
+    checkTrue(all(resSoll == res), "GRangesList Test 4: qCount allele specific with masking and orientation=any")
+    
+    strand(region) <- "+"
+    regionList <- split(region, names(region))
+    resSoll[,c(5,6,7)] = 0
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 5: qCount allele specific with masking and orientation=same")
+    
+    strand(region) <- "-"
+    regionList <- split(region, names(region))
+    resSoll[,c(2,3,4)] = 0
+    resSoll[,c(5,6,7)] = resSoll[,1]
+    res <- qCount(project, regionList, mask=mask, collapseBySample=F, orientation="same")
+    checkTrue(all(resSoll == res), "GRangesList Test 6: qCount allele specific with masking and orientation=same")
+}
+
+# query with TranscriptDB; test parameters: collapseBySample, reportLevel, mask
+test_query_transcriptDB <- function()
+{
+    if(!"clObj" %in% ls(envir=.GlobalEnv)){
+        clObj <<- makeCluster(2)
+    }
+
+    ## Load data
+    genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
+    project <- qAlign(sampleFile, genome, splicedAlignment=TRUE, clObj=clObj)
+
+    ## Create query objects    
+    gtfRegion <- createGtfRegion()
+    txdb <- createTranscriptDb()
+    
+    ## Create mask objects
+    mask <- gtfRegion[mcols(gtfRegion)$gene_name == "TNFRSF18"]
+    
+    
+    ###############################
+    # qCount                      #
+    ###############################
+    
+    ## TranscriptDB vs GRanges
+    # Gene
+    res <- qCount(project, txdb, collapseBySample=F, reportLevel=NULL)
+    resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="gene")
+    checkTrue(all(resTxdb == res), "TranscriptDB vs GRanges Test 1")
+    
+    region <- gtfRegion
+    names(region) <- mcols(gtfRegion)$gene_id
+    resGr <- qCount(project, region, collapseBySample=F)
+    resGr <- resGr[sort(rownames(resGr)),]
+    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 2")
+    
+    # Exon
+    resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="exon")
+    
+    region <- exons(txdb)
+    resGr <- qCount(project, region, collapseBySample=F)
+    resGr <- resGr[sort(rownames(resGr)),]
+    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 3")    
+    
+    # Promoter
+    resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="promoter")
+    
+    region <- promoters(txdb, columns=c("tx_id","tx_name"))
+    names(region) <- paste(mcols(region)$tx_id,mcols(region)$tx_name, sep=";")
+    resGr <- qCount(project, region, collapseBySample=F)
+    resGr <- resGr[sort(rownames(resGr)),]
+    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 4")
+    
+    
+    ## TranscriptDB vs GRanges with masked region
+    resTxdb <- qCount(project, txdb, collapseBySample=F, mask=mask, reportLevel="gene")
+    
+    region <- gtfRegion
+    names(region) <- mcols(gtfRegion)$gene_id
+    resGr <- qCount(project, region, collapseBySample=F, mask=mask)
+    resGr <- resGr[sort(rownames(resGr)),]
+    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 5")
+
+    ## Collapse by sample
+    resTxdbCS <- qCount(project, txdb, collapseBySample=T, mask=mask, reportLevel="gene")
+    res <- cbind(rowSums(resTxdb[,c(2,3)]), rowSums(resTxdb[,c(4,5)]))
+    checkTrue(all(res == resTxdbCS[,c(2,3)]), "TranscriptDB collapse by Sample Test")    
+    
+}
+
+test_collapseBySample_GRanges <- function()
+{
+    if(!"clObj" %in% ls(envir=.GlobalEnv)){
+        clObj <<- makeCluster(2)
+    }
+
+    ## Load data
+    genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
+    snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+    gtfRegion <- createGtfRegion()
+
+    ## Non Allelic
+    project <- qAlign(sampleFile, genome, clObj=clObj)
+    res <- qCount(project, gtfRegion, collapseBySample=T)
+    
+    length(project)
+    projectS1 <- project[1:2]
+    resS1 <- qCount(projectS1, gtfRegion, collapseBySample=T)
+    
+    projectS2 <- project[3:4]
+    resS2 <- qCount(projectS2, gtfRegion, collapseBySample=T)
+
+    checkTrue(all(res[,2:3] == cbind(resS1[,2], resS2[,2])),
+              "Test collapseBySample; Collapse counts are not equal.")
+
+    ## Allelic
+    project <- qAlign(sampleFile, genome, snpFile=snpFile, clObj=clObj)
+    res <- qCount(project, gtfRegion, collapseBySample=T)
+    
+    length(project)
+    projectS1 <- project[1:2]
+    resS1 <- qCount(projectS1, gtfRegion, collapseBySample=T)
+    
+    projectS2 <- project[3:4]
+    resS2 <- qCount(projectS2, gtfRegion, collapseBySample=T)
+    
+    checkTrue(all(res[,2:7] == cbind(resS1[,2:4], resS2[,2:4])),
+              "Test collapseBySample; Collapse counts are not equal for allelic.")
+}
+
+test_auxiliaryName <- function()
+{
+    if(!"clObj" %in% ls(envir=.GlobalEnv)){
+        clObj <<- makeCluster(2)
+    }
+
+    ## Load data
+    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
+    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
+    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, clObj=clObj)
+    
+    ## Test aux counts
+    auxRegion <- createAuxRegion()
+    res <- qCount(project, auxRegion, collapseBySample=F, auxiliaryName="phiX174")
+    resSoll <- c(251,493)
+    checkTrue(all(resSoll == res[,2:3]))
+}
