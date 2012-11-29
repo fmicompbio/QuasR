@@ -522,12 +522,13 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   # create all the .md5 files necessary to identify preexisting bam files
   createReferenceSequenceIndices(proj)
 
-  # --------------------- SEARCH FOR GENOMIC BAM FILES THAT HAVE BEEN CREATED PREVIOUSLY ----------------------
+
+  # --------------------- SEARCH FOR BAM FILES THAT HAVE BEEN CREATED PREVIOUSLY ----------------------
 
   # search for genomic alignments
   for(i in 1:nrow(proj@reads)){
-    projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
     if(is.na(proj@alignments$FileName[i])){
+       projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
        filesInBamDir <- list.files(bamDir)
@@ -709,7 +710,11 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["aux"]=NA
   alnInfo["aux.md5"]=NA
   alnInfo["aligner"]=proj@aligner
-  alnInfo["aligner.version"]=installed.packages()[proj@aligner, 'Version']
+  if(!is.na(proj@aligner)){
+    alnInfo["aligner.version"]=installed.packages()[proj@aligner, 'Version']
+  }else{
+    alnInfo["aligner.version"]=NA
+  }
   alnInfo["maxHits"]=proj@maxHits
   alnInfo["paired"]=proj@paired
   alnInfo["splicedAlignment"]=proj@splicedAlignment
