@@ -22,7 +22,7 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 %~~ the R documentation directory ~~
 \keyword{ package }
 \seealso{
-  \code{\link{qAlign}}, \code{\link{qCount}}, \code{\link{qProfile}}
+  \code{\link{qAlign}}, \code{\link{qCount}}, \code{\link{qProfile}}, \code{\link{qMeth}}, \code{\link{qQCReport}}
 }
 
 \examples{

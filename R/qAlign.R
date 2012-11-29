@@ -506,16 +506,13 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if(any(is.na(proj@alignments$FileName)) | any(is.na(proj@auxAlignments))){
 
     pkgname <- aligner
-    if(!(pkgname %in% installed.packages())){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
-
-    if(!require(pkgname, character.only=TRUE, quietly=TRUE)){stop("Fatal error 340954")}
-
-    ## check package version of aligner and compare to what is suggested in QuasR
-    pkg_version <- installed.packages()[pkgname, 'Version']
-    QuasR_suggests <- unlist(strsplit(installed.packages()['QuasR','Suggests'], ","))
-    QuasR_suggests_pkg <- grep(pkgname, QuasR_suggests, value=T)
-
-    if(paste(pkgname," (== ",pkg_version,")",sep="") != QuasR_suggests_pkg){stop("Incorrect version of Rbowtie. Required version is ",pkg_version,call.=FALSE)}
+    
+    # these test are not needed while Rbowtie is in "Depends"
+    #if(!(pkgname %in% installed.packages())){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
+    #if(!require(pkgname, character.only=TRUE, quietly=TRUE)){stop("Fatal error 340954")}
+    #pkg_version <- installed.packages()[pkgname, 'Version']
+    #QuasR_suggests <- unlist(strsplit(installed.packages()['QuasR','Suggests'], ","))
+    #QuasR_suggests_pkg <- grep(pkgname, QuasR_suggests, value=T)
   }
 
 
@@ -712,6 +709,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["aux"]=NA
   alnInfo["aux.md5"]=NA
   alnInfo["aligner"]=proj@aligner
+  alnInfo["aligner.version"]=installed.packages()[proj@aligner, 'Version']
   alnInfo["maxHits"]=proj@maxHits
   alnInfo["paired"]=proj@paired
   alnInfo["splicedAlignment"]=proj@splicedAlignment
@@ -719,6 +717,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["snpFile.md5"]=NA
   alnInfo["bisulfite"]=proj@bisulfite
   alnInfo["alignmentParameter"]=proj@alignmentParameter
+  alnInfo["QuasR.version"]=installed.packages()['QuasR', 'Version']
 
   if(!is.null(auxNr)){
     alnInfo["aux"]=proj@aux$FileName[auxNr]
@@ -734,12 +733,21 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
 
 
 # replace full file paths in bamInfo by base name
+# remove the aligner and QuasR version. this allows using bam files generated with an older QuasR version
 bamInfoOnlyBaseName <- function(bamInfo){
   bamInfo["reads.FileName1"] <- basename(bamInfo["reads.FileName1"])
   bamInfo["reads.FileName2"] <- basename(bamInfo["reads.FileName2"])
   bamInfo["genome"] <- basename(bamInfo["genome"])
   bamInfo["aux"] <- basename(bamInfo["aux"])
   bamInfo["snpFile"] <- basename(bamInfo["snpFile"])
+
+  if("aligner.version" %in% names(bamInfo)){
+    bamInfo <- bamInfo[!(names(bamInfo) %in% "aligner.version")]
+  }
+
+  if("QuasR.version" %in% names(bamInfo)){
+    bamInfo <- bamInfo[!(names(bamInfo) %in% "QuasR.version")]
+  }
 
   return(bamInfo)
 }

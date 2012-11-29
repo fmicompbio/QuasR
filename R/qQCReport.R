@@ -4,18 +4,23 @@
 # clObj       : cluster object for parallelization
 
 calcQaInformation <- function(filename, label, filetype, chunkSize){
-    qa <- switch(as.character(filetype),
-           fastq = {
-               f <- FastqSampler(filename, n=chunkSize)
-               reads <- yield(f)
-               close(f)
-               qa(reads, label)
-               },
-           fasta = {
-               reads <- readFasta(as.character(filename), nrec=chunkSize)
-               qa(reads, label)
-               }
-           )
+    if(any(filetype == "fasta") && any(compressedFileFormat(filename) != "none")){
+        qa <- NULL
+        warning("compressed 'fasta' input is not yet supported")
+    }else{
+        qa <- switch(as.character(filetype),
+               fastq = {
+                   f <- FastqSampler(filename, n=chunkSize)
+                   reads <- yield(f)
+                   close(f)
+                   qa(reads, label)
+                   },
+               fasta = {
+                   reads <- readFasta(as.character(filename), nrec=chunkSize)
+                   qa(reads, label)
+                   }
+               )
+    }
     return(qa)
 }
 
