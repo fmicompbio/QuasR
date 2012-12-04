@@ -14,8 +14,8 @@ test_subset_project <- function()
     projectS2 <- project[3:4]    
     checkTrue(len/2 == length(projectS2))
 
-    checkIdentical(project[1], project["Sample1"])
-    checkIdentical(project[3], project["Sample2"])
+    suppressWarnings(checkIdentical(project[1], project["Sample1"]))
+    suppressWarnings(checkIdentical(project[3], project["Sample2"]))
     
     project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, clObj=clObj)
     len <- length(project)

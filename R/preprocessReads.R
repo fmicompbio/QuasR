@@ -7,7 +7,6 @@ preprocessReads <-
              with.Lindels=FALSE, with.Rindels=FALSE,
              minLength=14L, nBases=2L, complexity=NULL,
              nrec=1000000L, clObj=NULL) {
-        suppressPackageStartupMessages(require("ShortRead", quietly=TRUE))
 
         ## check parameters
         if(!is.character(filename))
@@ -124,7 +123,7 @@ preprocessSingleReads <-
              with.Lindels, with.Rindels,
              filters,
              nrec) {
-        suppressPackageStartupMessages(require("ShortRead", quietly=TRUE))
+
         message("  filtering ", truncPath(filename, getOption('width')-13))
 
         ## create (temporary) output file name, will be compressed if filecompr!="none"
@@ -233,7 +232,7 @@ preprocessPairedReads <-
              truncateFromBase, truncateToBase, 
              filters,
              nrec) {
-        suppressPackageStartupMessages(require("ShortRead", quietly=TRUE))
+
         message("  filtering ", truncPath(filename, getOption('width')-17), " and\n    ",
                 truncPath(filenameMate, getOption('width')-16))
 

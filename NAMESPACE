@@ -1,7 +1,6 @@
 useDynLib("QuasR", .registration=TRUE)
 
 import(methods)
-import(parallel)
 import(zlibbioc)
 
 import(BiocGenerics)

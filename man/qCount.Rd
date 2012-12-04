@@ -121,8 +121,7 @@ qCount(proj,
     overlaps multiple annotated exons of a gene. These are useful to
     calculate exon or gene expression levels in RNA-seq experiments
     based on the annotation in a \code{TranscriptDB} object. If
-    \code{reportLevel="promoter"}, the
-    \code{\link[GenomicFeatures]{promoters}} function from package
+    \code{reportLevel="promoter"}, the \code{promoters} function from package
     \pkg{GenomicFeatures} is used with default arguments to extract
     promoter regions around transcript start sites, e.g. to quantify
     alignments inf a ChIP-seq experiment.

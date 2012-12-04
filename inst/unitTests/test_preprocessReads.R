@@ -134,6 +134,7 @@ createFastqReads <- function(){
 
 test_paired_fasta <- function()
 {
+    library(ShortRead)
     faFiles <- createFastaReads()
     
     # results for default parameter
@@ -210,6 +211,7 @@ test_paired_fasta <- function()
 
 test_single_fasta <- function()
 {
+    library(ShortRead)
     faFiles <- createFastaReads()
     
     # results for default parameter
@@ -291,6 +293,7 @@ test_single_fasta <- function()
 
 test_paired_fastq <- function()
 {
+    library(ShortRead)
     fqFiles <- createFastqReads()
     
     # results for default parameter
@@ -352,6 +355,7 @@ test_paired_fastq <- function()
 
 test_single_fastq <- function()
 {
+    library(ShortRead)
     fqFiles <- createFastqReads()
     
     # results for default parameter
