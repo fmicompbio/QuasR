@@ -47,20 +47,10 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
   \code{\link[QuasR]{qProject}},
 }
 \examples{
-# copy example data to current working directory
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
-
-# using a qProject
-sampleFile <- "extdata/samples_chip_single.txt"
-genomeFile <- "extdata/hg19sub.fa"
-auxFile <- "extdata/auxiliaries.txt"
-
-proj <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile)
-alignmentStats(proj)
-
-# using bam files
-alignmentStats(alignments(proj)$genome$FileName)
-alignmentStats(unlist(alignments(proj)$aux))
+\dontrun{
+    # see qProject manual page for an example
+    example(qProject)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

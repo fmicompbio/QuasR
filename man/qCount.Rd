@@ -246,25 +246,14 @@ gseq <- readDNAStringSet(genomeFile)
 chrRegions <- GRanges(names(gseq), IRanges(start=1,width=width(gseq),names=names(gseq)))
 
 
-# create alignments (single-end experiment)
-sampleFile1 <- "extdata/samples_rna_single.txt"
-proj1 <- qAlign(sampleFile1, genomeFile, splicedAlignment=TRUE)
-proj1
-
-
-# count reads using a "GRanges" query
-qCount(proj1, query=chrRegions)
-qCount(proj1, query=chrRegions, collapseBySample=FALSE)
-
-
 # create alignments (paired-end experiment)
-sampleFile2 <- "extdata/samples_rna_paired.txt"
-proj2 <- qAlign(sampleFile2, genomeFile, splicedAlignment=TRUE)
+sampleFile <- "extdata/samples_rna_paired.txt"
+proj <- qAlign(sampleFile, genomeFile, splicedAlignment=TRUE)
 
 
 # count reads using a "GRanges" query
-qCount(proj2, query=chrRegions)
-qCount(proj2, query=chrRegions, useRead="first")
+qCount(proj, query=chrRegions)
+qCount(proj, query=chrRegions, useRead="first")
 
 
 # hierarchical counting using a "GRangesList" query
@@ -276,7 +265,7 @@ names(gtfRegions) <- mcols(gtfRegions)$source
 gtfRegionList <- split(gtfRegions, names(gtfRegions))
 names(gtfRegionList)
 
-res3 <- qCount(proj1, gtfRegionList)
+res3 <- qCount(proj, gtfRegionList)
 res3
 
 
@@ -294,7 +283,7 @@ txdb <- makeTranscriptDbFromGFF(annotationFile,
                                 dataSource="Ensembl modified",
                                 species="Homo sapiens")
 
-res4 <- qCount(proj1, txdb, reportLevel="gene")
+res4 <- qCount(proj, txdb, reportLevel="gene")
 res4
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

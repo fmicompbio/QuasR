@@ -169,9 +169,17 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 
 # create alignments
-sampleFile <- "extdata/samples_rna_single.txt"
+sampleFile <- "extdata/samples_chip_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
+auxFile <- "extdata/auxiliaries.txt"
 
-proj <- qAlign(sampleFile, genomeFile)
+proj <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile)
 proj
+
+# alignment statistics using a qProject
+alignmentStats(proj)
+
+# alignment statistics using bam files
+alignmentStats(alignments(proj)$genome$FileName)
+alignmentStats(unlist(alignments(proj)$aux))
 }

@@ -26,28 +26,10 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 }
 
 \examples{
-library(GenomicRanges)
-
-# copy example data to current working directory
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
-
-
-# create alignments
-sampleFile <- "extdata/samples_chip_single.txt"
-genomeFile <- "extdata/hg19sub.fa"
-auxFile <- "extdata/auxiliaries.txt"
-
-proj <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile)
-
-
-# get alignment statistics
-alignmentStats(proj)
-
-
-# quantify alignments
-gr <- GRanges(seq=paste("chr",1:3,sep=""), IRanges(start=1000*1:3, width=500))
-names(gr) <- paste(seqnames(gr), start(gr), sep=":")
-gr
-
-qCount(proj, gr)
+\dontrun{
+    # see qCount, qMeth and qProfile manual pages for examples
+    example(qCount)
+    example(qMeth)
+    example(qProfile)
+}
 }

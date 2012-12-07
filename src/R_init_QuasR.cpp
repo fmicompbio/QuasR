@@ -9,7 +9,6 @@ extern "C" {
 #endif
 
 #include <R_ext/Rdynload.h>
-#include "hello_world.h"
 #include "split_sam_chr.h"
 #include "cat_bam.h"
 #include "idxstats_bam.h"
@@ -23,8 +22,6 @@ extern "C" {
 #include "nucleotide_alignment_frequencies.h"
 
 static const R_CallMethodDef callMethods[] = {
-    /* hello_world.c */
-    {"helloWorld", (DL_FUNC) &hello_world, 1},
     /* split_sam_chr.c */
     {"splitSamChr", (DL_FUNC) &split_sam_chr, 2},
     /* cat_bam.c */

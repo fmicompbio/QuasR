@@ -160,7 +160,9 @@ createGenomicAlignmentsController <- function(params){
     indexDir <- paste(proj@genome,proj@alnModeID,sep=".")
   }else if(proj@genomeFormat=="BSgenome"){
     if(!(proj@genome %in% installed.packages()[,'Package'])){stop("The genome package ",proj@genome," is not installed")}
-    if(!(paste(proj@genome,proj@alnModeID,sep=".") %in% installed.packages()[,'Package'])){stop("The genome index package ",paste(proj@genome,proj@alnModeID,sep=".")," is not installed")}
+    if(is.na(proj@snpFile)){
+      if(!(paste(proj@genome,proj@alnModeID,sep=".") %in% installed.packages()[,'Package'])){stop("The genome index package ",paste(proj@genome,proj@alnModeID,sep=".")," is not installed")}
+    }
 
     indexDir <- system.file("alignmentIndex",package=paste(proj@genome,proj@alnModeID,sep="."))
   }else{stop("Fatal error 4778493")}

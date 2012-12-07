@@ -167,19 +167,12 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
   \code{\link[Rbowtie]{Rbowtie}} package
 }
 \examples{
-# copy example data to current working directory
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
-
-# Single-end experiment
-sampleFile1 <- "extdata/samples_rna_single.txt"
-genomeFile <- "extdata/hg19sub.fa"
-proj1 <- qAlign(sampleFile1, genomeFile)
-proj1
-
-# Paired-end experiment
-sampleFile2 <- "extdata/samples_rna_paired.txt"
-proj2 <- qAlign(sampleFile2, genomeFile)
-proj2
+\dontrun{
+    # see qCount, qMeth and qProfile manual pages for examples
+    example(qCount)
+    example(qMeth)
+    example(qProfile)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
