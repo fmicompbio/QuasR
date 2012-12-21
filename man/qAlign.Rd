@@ -62,7 +62,8 @@ qAlign(sampleFile,
   \item{alignmentParameter}{a optional string containing command line
     parameters to be used for the aligner, to overrule the default
     alignment parameters used by \code{QuasR}. Please use with caution;
-    some alignment parameters may brake assumptions made by \code{QuasR}.}
+    some alignment parameters may brake assumptions made by
+    \code{QuasR}. Default parameters are listed in \sQuote{Details}.}
   \item{projectName}{an optional name for the alignment project.}
   \item{alignmentsDir}{the directory to be used for storing alignments
     (bam files). If set to \code{NULL} (default), bam files will be
@@ -145,6 +146,17 @@ qAlign(sampleFile,
 
   If \code{bisulfite} is set to \dQuote{dir} or \dQuote{undir}, reads
   will be C-to-T converted and aligned to a similarly converted genome.
+
+  If \code{alignmentParameter} is \code{NULL} (recommended),
+  \code{qAlign} will select default parameters that are suitable for the
+  experiment type. Please note that for bisulfite or allele-specific
+  experiments, each read is aligned multiple times, and resulting
+  alignments need to be combined. This requires special settings for the
+  alignment parameters that are not recommended to be changed. For
+  \sQuote{simple} experiments (neither bisulfite, allele-specific, nor
+  spliced), alignments are generated using the parameters \dQuote{-m
+  maxHits --best --strata}. This will align reads with up to
+  \dQuote{maxHits} best hits in the genome and selects one of them randomly.
 }
 \value{
   A \code{\link[QuasR]{qProject}} object.

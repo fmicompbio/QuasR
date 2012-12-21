@@ -1,0 +1,53 @@
+citHeader("Please use the QuasR reference below to cite the software itself. If you were using qAlign with Rbowtie as aligner, it can be cited as Langmead et al. (2009) (unspliced alignments) or Au et al. (2010) (spliced alignments).")
+
+desc <- packageDescription("QuasR")
+vers <- paste("R package version", desc$Version)
+
+citEntry(entry="unpublished",
+	 title="QuasR: Quantify and Annotate Short Reads in R",
+	 author=personList(as.person("Anita Lerch"),
+			   as.person("Dimos Gaiditzis"),
+			   as.person("Michael B Stadler")),
+	 #journal="",
+	 year=2012,
+	 note=vers,
+	 textVersion=paste("Anita Lerch, Dimos Gaiditzis and Michael Stadler (2012). QuasR: Quantify and Annotate Short Reads in R.",vers,"(unpublished)")
+)
+
+citEntry(entry="article",
+	 title="Ultrafast and memory-efficient alignment of short DNA sequences to the human genome",
+	 author=personList(as.person("Ben Langmead"),
+	                   as.person("Cole Trapnell"),
+   			   as.person("Mihai Pop"),
+			   as.person("Steven L Salzberg")),
+	 journal="Genome Biology",
+	 volume="10",
+	 number="3",
+	 pages="R25",
+	 year=2009,
+	 note="PMID:19261174",
+	 doi="http://dx.doi.org/10.1186/gb-2009-10-3-r25",
+	 textVersion="Langmead B, Trapnell C, Pop M, Salzberg SL. Ultrafast and memory-efficient alignment of short DNA sequences to the human genome. Genome Biology 10(3):R25 (2009)."
+)
+
+citEntry(entry="article",
+	 title="Detection of splice junctions from paired-end RNA-seq data by SpliceMap",
+	 author=personList(as.person("Kin Fai Au"),
+	                   as.person("Hui Jiang"),
+			   as.person("Lan Lin"),
+			   as.person("Yi Xing"),
+			   as.person("Wing Hung Wong")),
+	 journal="Nucleic Acids Research",
+	 volume="38",
+	 number="14",
+	 pages="4570--4578",
+	 year=2010,
+	 note="PMID:20371516",
+	 doi="http://dx.doi.org/10.1093/nar/gkq211",
+	 textVersion="Au KF, Jiang H, Lin L, Xing Y, Wong WH. Detection of splice junctions from paired-end RNA-seq data by SpliceMap. Nucleic Acids Research, 38(14):4570-8 (2010)."
+)
+
+citFooter("This free open-source software implements academic
+research by the authors and co-workers. If you use it,
+please support the project by citing the appropriate
+journal articles.")

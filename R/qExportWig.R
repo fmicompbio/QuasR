@@ -94,11 +94,9 @@ qExportWig <- function(proj,
     fact <- rep(1,n)
     if(scaling) {
         message("collecting mapping statistics for scaling...", appendLF=FALSE)
-        tmp <- alignmentStats(proj)
+        tmp <- alignmentStats(proj, collapseBySample=collapseBySample)
         N <- tmp[grepl(":genome$",rownames(tmp)),'mapped']
         names(N) <- sub(":genome$","",names(N))
-        if(collapseBySample)
-            N <- sapply(split(N, as.factor(proj@alignments$SampleName))[unique(proj@alignments$SampleName)], sum)    
         #fact <- min(N) /N
         fact <- mean(N) /N
         message("done")

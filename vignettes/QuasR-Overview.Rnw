@@ -9,6 +9,7 @@
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{hyperref} % remove to suppress links
+\usepackage[utf8x]{inputenc}
 
 
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
@@ -40,7 +41,7 @@
 %\title{An Introduction to \QuasR{}}
 \title{An Introduction to \raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: November 23, 2012. Compiled: \today}
+\date{Modified: December 21, 2012. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
@@ -52,6 +53,7 @@
 
 <<options,echo=FALSE>>=
 options(width=65)
+options('useFancyQuotes' = FALSE)
 @
 
 \tableofcontents
@@ -96,7 +98,7 @@ library(Gviz)
 
 \subsection{How to get help}
 Most questions about \QuasR{} will hopefully be answered by the documentation or references. If you've run into a question which isn't addressed by the documentation, or you've found a conflict between the documentation and software itself, then there is an active support community which can offer help.
-The authors of the package (maintainer: \Schunk{maintainer("QuasR")}) always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements. 
+The authors of the package (maintainer: \Sexpr{maintainer("QuasR")}) always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements. 
 Any other questions or problems concerning \QuasR{} should be sent to the Bioconductor mailing list \url{bioconductor@stat.math.ethz.ch}. To subscribe to the mailing list, see \url{https://stat.ethz.ch/mailman/listinfo/bioconductor}. Please send requests for general assistance and advice to the mailing list rather than to the individual authors. Users posting to the mailing list for the first time should read the helpful posting guide at \url{http://www.bioconductor.org/doc/postingGuide.html}. Note that each function in \QuasR{} has it's own help page, as described in the section \ref{sec:Rintro}. Mailing list etiquette requires that you read the relevant help page carefully before posting a problem to the list.
 
 

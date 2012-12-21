@@ -188,9 +188,9 @@ qProfile <-
                           })
             if(collapseBySample) {
                 res <- lapply(split(seq_along(res), factor(samples,levels=unique(samples))),
-                              function(i) list(R=do.call("+", lapply(res[i],"[[","R")),
-                                               U=do.call("+", lapply(res[i],"[[","U")),
-                                               A=do.call("+", lapply(res[i],"[[","A"))))
+                              function(i) list(R=Reduce("+", lapply(res[i],"[[","R")),
+                                               U=Reduce("+", lapply(res[i],"[[","U")),
+                                               A=Reduce("+", lapply(res[i],"[[","A"))))
             }
             nms <- paste(rep(names(res),each=3),c("R","U","A"),sep="_")
             res <- do.call(c, res)
@@ -204,7 +204,7 @@ qProfile <-
                           })
             if(collapseBySample) {
                 res <- lapply(split(seq_along(res), factor(samples,levels=unique(samples))),
-                              function(i) do.call("+", res[i]))
+                              function(i) Reduce("+", res[i]))
             }
         }
 
