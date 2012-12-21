@@ -399,7 +399,7 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
         #message("removing C's overlapping SNPs...", appendLF=FALSE)
         snpL <- scan(snpFile, what=list(chr="", pos=1L, R="", A=""), quiet=TRUE)
         snp <- GRanges(snpL$chr, IRanges(start=snpL$pos, width=nchar(snpL$R)))
-        ikeep <- !(GRanges(chr, IRanges(start=resL$position,width=Cwidth)) %in% snp)
+        ikeep <- !overlapsAny(GRanges(chr, IRanges(start=resL$position,width=Cwidth)), snp)
         resL <- lapply(resL, "[", ikeep)
         #message(sprintf("removed %d C's, done",sum(!ikeep)))
         
