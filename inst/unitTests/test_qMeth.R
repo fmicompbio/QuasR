@@ -156,7 +156,7 @@ test_partial_meth <- function(){
     
     checkTrue(all(mcols(methAllC)[,1] == mcols(methAllC)[,2] | 0 == mcols(methAllC)[,2]),
               "Test1 partial-methylated directed, mode=allC")
-    CpG <- methAllC %in% methCpG
+    CpG <- overlapsAny(methAllC, methCpG)
     checkTrue(all(0 == mcols(methAllC)[!CpG,2]),
               "Test2 partial-methylated directed, mode=allC")
     

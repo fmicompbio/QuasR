@@ -238,23 +238,29 @@ test_allelic_paired <- function(){
     snp <- read.delim(snpFile, header=F, colClasses=c("factor", "numeric","character","character"))
     snp <- GRanges(seqnames=snp$V1, ranges=IRanges(start=snp$V2, width=1))
     # check XV tag
-    if(!all(aln[mcols(aln)$XV == "R"] %in% snp)){
-        rSnp <- aln[mcols(aln)$XV == "R"][aln[mcols(aln)$XV == "R"] %in% snp]
-        rNoSnp <- aln[mcols(aln)$XV == "R"][!aln[mcols(aln)$XV == "R"] %in% snp]
+    r_aln <- aln[mcols(aln)$XV == "R"]
+    r_idx <- overlapsAny(r_aln, snp)
+    if(!all(r_idx)){
+        rSnp <- r_aln[r_idx]
+        rNoSnp <- r_aln[!r_idx]
         checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
-    if(!all(aln[mcols(aln)$XV == "A"] %in% snp)){
-        aSnp <- aln[mcols(aln)$XV == "A"][aln[mcols(aln)$XV == "A"] %in% snp]
-        aNoSnp <- aln[mcols(aln)$XV == "A"][!aln[mcols(aln)$XV == "A"] %in% snp]
+    a_aln <- aln[mcols(aln)$XV == "A"]
+    a_idx <- overlapsAny(a_aln, snp)
+    if(!all(a_idx)){
+        aSnp <- a_aln[a_idx]
+        aNoSnp <- a_aln[!a_idx]
         checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
-    checkTrue(all(!aln[mcols(aln)$XV == "U"] %in% snp),
+    u_aln <- aln[mcols(aln)$XV == "U"]
+    u_idx <- overlapsAny(u_aln, snp)
+    checkTrue(all(!u_idx),
               "Test XV tag: No read with tag XV=U should overlap a snp")
 
     # alignments with wrong XV tag
-    uSnp <- aln[mcols(aln)$XV == "U"][aln[mcols(aln)$XV == "U"] %in% snp]
+    uSnp <- u_aln[u_idx]
 }
 
 test_allelic_single <- function(){
@@ -286,17 +292,23 @@ test_allelic_single <- function(){
     snp <- read.delim(snpFile, header=F, colClasses=c("factor", "numeric","character","character"))
     snp <- GRanges(seqnames=snp$V1, ranges=IRanges(start=snp$V2, width=1))
     # check XV tag
-    checkTrue(all(aln[mcols(aln)$XV == "R"] %in% snp),
+    r_aln <- aln[mcols(aln)$XV == "R"]
+    r_idx <- overlapsAny(r_aln, snp)
+    checkTrue(all(r_idx),
               "Test XV tag: All read with tag XV=R should overlap a snp")
-    checkTrue(all(!aln[mcols(aln)$XV == "U"] %in% snp),
+    u_aln <- aln[mcols(aln)$XV == "U"]
+    u_idx <- overlapsAny(u_aln, snp)
+    checkTrue(all(!u_idx),
               "Test XV tag: No read with tag XV=U should overlap a snp")
-    checkTrue(all(aln[mcols(aln)$XV == "A"] %in% snp),
+    a_aln <- aln[mcols(aln)$XV == "A"]
+    a_idx <- overlapsAny(a_aln, snp)
+    checkTrue(all(a_idx),
               "Test XV tag: All read with tag XV=A should overlap a snp")
     
     # alignments with wrong XV tag
-    rNoSnp <- aln[mcols(aln)$XV == "R"][!aln[mcols(aln)$XV == "R"] %in% snp]
-    aNoSnp <- aln[mcols(aln)$XV == "A"][!aln[mcols(aln)$XV == "A"] %in% snp]
-    uSnp <- aln[mcols(aln)$XV == "U"][aln[mcols(aln)$XV == "U"] %in% snp]
+    rNoSnp <- r_aln[!r_idx]
+    aNoSnp <- a_aln[!a_idx]
+    uSnp <- u_aln[u_idx]
 }
 
 test_spliced_paired <- function(){
@@ -722,15 +734,19 @@ test_bisulfit_dir_allelic_paired <- function(){
     names(snp) <- c("seqnames","position","R","A")
     snp <- GRanges(seqnames=snp$seqnames, ranges=IRanges(start=snp$position, width=1), Ref=snp$R, Alt=snp$A)
     # check XV tag
-    if(!all(aln[mcols(aln)$XV == "R"] %in% snp)){
-        rSnp <- aln[mcols(aln)$XV == "R"][aln[mcols(aln)$XV == "R"] %in% snp]
-        rNoSnp <- aln[mcols(aln)$XV == "R"][!aln[mcols(aln)$XV == "R"] %in% snp]
+    r_aln <- aln[mcols(aln)$XV == "R"]
+    r_idx <- overlapsAny(r_aln, snp)
+    if(!all(r_idx)){
+        rSnp <- r_aln[r_idx]
+        rNoSnp <- r_aln[!r_idx]
         checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
-    if(!all(aln[mcols(aln)$XV == "A"] %in% snp)){
-        aSnp <- aln[mcols(aln)$XV == "A"][aln[mcols(aln)$XV == "A"] %in% snp]
-        aNoSnp <- aln[mcols(aln)$XV == "A"][!aln[mcols(aln)$XV == "A"] %in% snp]
+    a_aln <- aln[mcols(aln)$XV == "A"]
+    a_idx <- overlapsAny(a_aln, snp)
+    if(!all(a_idx)){
+        aSnp <- a_aln[a_idx]
+        aNoSnp <- a_aln[!a_idx]
         checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
@@ -765,19 +781,25 @@ test_bisulfit_dir_allelic_single <- function(){
     names(snp) <- c("seqnames","position","R","A")
     snp <- GRanges(seqnames=snp$seqnames, ranges=IRanges(start=snp$position, width=1), Ref=snp$R, Alt=snp$A)
     # check XV tag
-    if(!all(aln[mcols(aln)$XV == "R"] %in% snp)){
-        rSnp <- aln[mcols(aln)$XV == "R"][aln[mcols(aln)$XV == "R"] %in% snp]
-        rNoSnp <- aln[mcols(aln)$XV == "R"][!aln[mcols(aln)$XV == "R"] %in% snp]
+    r_aln <- aln[mcols(aln)$XV == "R"]
+    r_idx <- overlapsAny(r_aln, snp)
+    if(!all(r_idx)){
+        rSnp <- r_aln[r_idx]
+        rNoSnp <- r_aln[!r_idx]
         checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
-    if(!all(aln[mcols(aln)$XV == "A"] %in% snp)){
-        aSnp <- aln[mcols(aln)$XV == "A"][aln[mcols(aln)$XV == "A"] %in% snp]
-        aNoSnp <- aln[mcols(aln)$XV == "A"][!aln[mcols(aln)$XV == "A"] %in% snp]
+    a_aln <- aln[mcols(aln)$XV == "A"]
+    a_idx <- overlapsAny(a_aln, snp)
+    if(!all(a_idx)){
+        aSnp <- a_aln[a_idx]
+        aNoSnp <- a_aln[!a_idx]
         checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
-    uSnp <- aln[mcols(aln)$XV == "U"] [aln[mcols(aln)$XV == "U"] %in% snp]
+    u_aln <- aln[mcols(aln)$XV == "U"]
+    u_idx <- overlapsAny(u_aln, snp)
+    uSnp <- u_aln[u_idx]
     checkTrue(all(uSnp[strand(uSnp) == "+"] %in% snp[mcols(snp)$Ref == "C"]),
               "Test XV tag: Read with tag XV=U should overlap only snp of type C to T")
     checkTrue(all(uSnp[strand(uSnp) == "-"] %in% snp[mcols(snp)$Ref == "G"]),
