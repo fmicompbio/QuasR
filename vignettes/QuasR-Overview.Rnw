@@ -9,7 +9,6 @@
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{hyperref} % remove to suppress links
-\usepackage[utf8x]{inputenc}
 
 
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
