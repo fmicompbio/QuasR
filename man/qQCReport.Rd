@@ -62,6 +62,9 @@ of available input (fasta, fastq or bam files).
     \item{\emph{Mapping statistics}}{shows fractions of reads that were
       (un)mappable to the reference genome. This plot is available for
       bam input.}
+    \item{\emph{Library complexity}}{shows fractions of unique
+      read(-pair) alignment positions, as a measure of the complexity in
+      the sequencing library. This plot is available for bam input.}
     \item{\emph{Mismatch frequency}}{shows the frequency and position
       (relative to the read sequence) of mismatches in the alignments
       against the reference genome. The plot is available for bam input.}
@@ -99,13 +102,14 @@ of available input (fasta, fastq or bam files).
   contain the data used to generate each of the QC plots. Available
   components are (depending on input data, see \sQuote{Details} above):
   \itemize{
-    \item{\emph{qualByCycle}}{quality score boxplot}
-    \item{\emph{nuclByCycle}}{nucleotide frequency plot}
-    \item{\emph{duplicated}}{duplication level plot}
-    \item{\emph{mappings}}{mapping statistics barplot} 
-    \item{\emph{errorsByCycle}}{mismatch frequency plot} 
-    \item{\emph{mismatchTypes}}{mismatch type plot} 
-    \item{\emph{fragDistribution}}{fragment size distribution plot} 
+    \item{\emph{qualByCycle}:}{ quality score boxplot}
+    \item{\emph{nuclByCycle}:}{ nucleotide frequency plot}
+    \item{\emph{duplicated}:}{ duplication level plot}
+    \item{\emph{mappings}:}{ mapping statistics barplot}
+    \item{\emph{uniqueness}:}{ library complexity barplot}
+    \item{\emph{errorsByCycle}:}{ mismatch frequency plot}
+    \item{\emph{mismatchTypes}:}{ mismatch type plot}
+    \item{\emph{fragDistribution}:}{ fragment size distribution plot}
   }
 }
 

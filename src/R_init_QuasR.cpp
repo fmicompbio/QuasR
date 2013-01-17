@@ -51,7 +51,7 @@ static const R_CallMethodDef callMethods[] = {
     /* export_wig.c */
     {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 11},
     /* nucleotide_alignment_frequencies.c */
-    {"nucleotideAlignmentFrequencies", (DL_FUNC) &nucleotide_alignment_frequencies, 5},
+    {"nucleotideAlignmentFrequencies", (DL_FUNC) &nucleotide_alignment_frequencies, 6},
     {NULL, NULL, 0}
 };
 

@@ -9,6 +9,7 @@
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{hyperref} % remove to suppress links
+%\usepackage[utf8x]{inputenc}
 
 
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
@@ -148,7 +149,7 @@ This is a quick overview of what an analysis could look like for users preferrin
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 @
 
-The sequence files to be analyzed are listed in \Rcode{sampleFile} (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the \Rpackage{BSgenome.Hsapiens.UCSC.hg19} package).
+The sequence files to be analyzed are listed in \Rcode{sampleFile} (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the \Rpackage{BSgenome.Hsapiens.UCSC.hg19} package). Make sure that you have sufficient disk space, both in your \R{} temporary directory (\Rcode{tempdir}) as well as to store the resulting alignments (see section \ref{sec:qAlign}).
 <<SampleSession2, eval=TRUE>>=
 sampleFile <- "extdata/samples_chip_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
@@ -365,7 +366,7 @@ file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 \subsubsection{Align reads using the \Rfunction{qAlign} function}
 We assume that the sequence reads have already been pre-processed as described in section \ref{sec:workflowPreprocess}. Also, a sample file (section \ref{sec:SampleFile}) that lists all sequence files to be analyzed has been prepared. A \fasta{} file with the reference genome sequence(s) is also available (section \ref{sec:refGenome}), as well as a auxiliary file for alignment of reads that failed to match the reference genome (section \ref{sec:AuxFile}).
 
-By default, newly generated \bam{} files will be stored at the location of the input sequence files, which should be writable and have sufficient capacity (an alternative location can be specified using the \Rfunarg{alignmentsDir} argument). We start by aligning the reads using \Rfunction{qAlign}:
+By default, newly generated \bam{} files will be stored at the location of the input sequence files, which should be writable and have sufficient capacity (an alternative location can be specified using the \Rfunarg{alignmentsDir} argument). Make also sure that you have sufficient temporary disk space for intermediate files in \Rcode{tempdir()} (see section \ref{sec:qAlign}). We start by aligning the reads using \Rfunction{qAlign}:
 <<ChIP_qAlign, eval=TRUE>>=
 sampleFile <- "extdata/samples_chip_single.txt"
 auxFile <- "extdata/auxiliaries.txt"
@@ -707,6 +708,8 @@ The alignment program is set by \Rfunarg{aligner}, and parameters by \Rfunarg{ma
 
 For each input sequence file listed in \Rfunarg{sampleFile}, one \bam{} file with alignments to the reference genome will be generated, and an additional one for each auxiliary sequence file listed in \Rfunarg{auxiliaryFile}. By default, these \bam{} files are stored at the same location as the sequence files, unless a different location is specified under \Rfunarg{alignmentsDir}. If compatible alignment files are found at this location, they will not be regenerated, which allows re-use of the same sequencing samples in multiple analysis projects by listing them in several project-specific \Rfunarg{sampleFile}s.
 
+The alignment process produces temporary files, such as decompressed input sequence files or raw alignment files before conversion to \bam{} format, which can be several times the size of the input sequence files. These temporary files are stored in the directory specified by \Rfunarg{cacheDir}, which defaults to the \R{} process temporary directory returned by \Rcode{tempdir()}. The location of \Rcode{tempdir()} can be set using environment variables (see \Rcode{?tempdir}).
+
 \Rfunction{qAlign} returns a \Robject{qProject} object that contains all file names and paths, as well as all alignment parameters necessary for further analysis (see section \ref{sec:qProject} for methods to access the information contained in a \Robject{qProject} object).
 
 
@@ -756,23 +759,30 @@ QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout=FALSE)
 @
 \end{center}
 
-\item \textbf{Mismatch frequency} shows the frequency and position (relative to the read sequence) of mismatches in the alignments against the reference genome. The plot is available for bam input.
+\item \textbf{Library complexity} shows fractions of unique read(-pair) alignment positions. This plot is available for bam input.
 \begin{center}
 <<qcplotsFig5, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+QuasR:::plotUniqueness(qcdat1$raw$unique, a4layout=FALSE)
+@
+\end{center}
+
+\item \textbf{Mismatch frequency} shows the frequency and position (relative to the read sequence) of mismatches in the alignments against the reference genome. The plot is available for bam input.
+\begin{center}
+<<qcplotsFig6, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
 QuasR:::plotErrorsByCycle(qcdat1$raw$mm, lmat=rbind(1:2))
 @
 \end{center}
 
 \item \textbf{Mismatch types} shows the frequency of read bases that caused mismatches in the alignments to the reference genome, separately for each genome base. This plot is available for bam input. 
 \begin{center}
-<<qcplotsFig6, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+<<qcplotsFig7, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
 QuasR:::plotMismatchTypes(qcdat1$raw$mm, lmat=rbind(1:2))
 @
 \end{center}
 
 \item \textbf{Fragment size} shows the distribution of fragment sizes inferred from aligned read pairs. This plot is available for paired-end bam input.
 \begin{center}
-<<qcplotsFig7, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
+<<qcplotsFig8, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
 QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat=rbind(1:2))
 @
 \end{center}

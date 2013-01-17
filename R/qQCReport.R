@@ -55,7 +55,8 @@ calcMmInformation <- function(filename, genome, chunkSize){
                              dim=c(5,5,30),
                              dimnames=list(ref=c("A","C","G","T","N"),
                                            read=c("A","C","G","T","N"))),
-                       rep(NA,100))
+                       rep(NA,100),
+                       rep(NA,2))
         return(mmDist)
     }
         
@@ -85,13 +86,14 @@ calcMmInformation <- function(filename, genome, chunkSize){
     # allocate result vector for "nucleotideAlignmentFrequencies" function
     mmDist <- list(integer(25*1000), # mismatch distribution read1 
                    integer(25*1000), # mismatch distribution read2
-                   integer(10000)) # fragment length distribution
+                   integer(10000), # fragment length distribution
+                   integer(2)) # uniqueness (unique/total)
     set.seed(0)
     for(s in sample(length(gr))){
         refseq <- as.character(getSeq(ref, gr[s], as.character=F))
         reftid <- as.integer(match(seqnames(gr[s]), names(trg)) - 1)
         refstart <- start(gr[s])
-        len <- .Call("nucleotideAlignmentFrequencies", filename, refseq, reftid, refstart, mmDist, PACKAGE="QuasR")
+        len <- .Call("nucleotideAlignmentFrequencies", filename, refseq, reftid, refstart, mmDist, as.integer(chunkSize), PACKAGE="QuasR")
         if(len > maxLen)
             maxLen <- len
         if(sum(mmDist[[1]][1:25]) >= chunkSize || sum(mmDist[[2]][1:25]) >= chunkSize)
@@ -110,7 +112,7 @@ calcMmInformation <- function(filename, genome, chunkSize){
                                   read=c("A","C","G","T","N"),
                                   pos=1:maxLen))
     names(mmDist[[3]]) <- c(1:(length(mmDist[[3]])-1), paste(">", length(mmDist[[3]])-1, sep=""))
-    names(mmDist) <- c("NucleotidMismatchRead1","NucleotidMismatchRead2","FragmentLength")
+    names(mmDist) <- c("NucleotidMismatchRead1","NucleotidMismatchRead2","FragmentLength", "Uniqueness")
     return(mmDist)
 }
 
@@ -200,15 +202,19 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         }
 
         if(input@paired == "no") {
+            unique <- lapply(distL,"[[", 4)
             frag <- NULL
             mm <- lapply(distL,"[[", 1)
         } else {
+            unique <- lapply(distL,"[[", 4)
             frag <- lapply(distL,"[[", 3)
             names(frag) <- mapLabel
             mm <- do.call(c, lapply(distL,"[", c(1,2)))      
         }
+        names(unique) <- mapLabel
         names(mm) <- label
     } else {
+        unique <- NULL
         mm <- NULL
         frag <- NULL
     }
@@ -221,7 +227,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
 
     # Plot
     message("creating QC plots")
-    plotdata <- list(raw=list(qa=qa, mm=mm, frag=frag, mapdata=NULL))
+    plotdata <- list(raw=list(qa=qa, mm=mm, frag=frag, unique=unique, mapdata=NULL))
     if(!is.null(qa)){
         if(filetype == "fastq"){
             if(is.null(pdfFilename))
@@ -256,7 +262,13 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         plotdata[['mappings']] <- plotMappings(mapdata, ...)
     }
 
-    if(!is.null(mm)){        
+    if(!is.null(unique)){
+        if(is.null(pdfFilename))
+            dev.new()
+        plotdata[['uniqueness']] <- plotUniqueness(unique, ...)
+    }
+        
+    if(!is.null(mm)){
         if(is.null(pdfFilename))
             dev.new()
         plotdata[['errorsByCycle']] <- plotErrorsByCycle(mm, ...)
@@ -501,6 +513,51 @@ plotMappings <- function(mapdata, cols=c("#006D2C","#E41A1C"), a4layout=TRUE) {
 
 
     invisible(mapdata)
+}
+
+plotUniqueness <- function(data, cols=c("#ff8c00","#4682b4"), a4layout=TRUE) {
+    data <- do.call(rbind, data)
+    nr <- nrow(data)
+ 
+    if(nr > 1L)
+        data <- data[nr:1,]
+    
+    data[,2] <- data[,2] - data[,1]
+    colnames(data) <- c("unique","non-unique")
+    
+    # set page layout
+    if(a4layout)
+        layout(rbind(c(0,1),c(0,2),c(0,0)), widths=c(2,3), heights=c(2, nr+2, max(28-nr,0.5)))
+    else
+        layout(rbind(c(0,1),c(0,2)), widths=c(2,3), heights=c(2, nr+2))
+    
+    # draw legend
+    par(mar=c(0,1,0,3)+.1)
+    plot(0:1, 0:1, type="n", xlab="", ylab="", axes=FALSE)
+    legend(x="center", xjust=.5, yjust=.5, bty='n', x.intersp=0.25,
+           fill=cols, ncol=length(cols), legend=colnames(data))
+    
+    # draw bars
+    par(mar=c(5,1,0,3)+.1)
+    mp <- barplot(t(data/rowSums(data))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA,
+                  ylim=c(0,nrow(data)+2), names.arg=rep("",nrow(data)),
+                  main='', xlab='Percent of unique alignment positions', ylab='', xpd=NA)
+
+    # draw bar annotation
+    cxy <- par('cxy')
+    text(x=rep(par('usr')[1]+cxy[1]/3, nrow(data)), y=mp, col="white", adj=c(0,0.5),
+         label=sprintf("%.1f%%",data[,'unique']/rowSums(data)*100), xpd=NA)
+    text(x=rep(mean(par('usr')[1:2]), nrow(data)), y=mp, col="white", adj=c(0.5,0.5),
+         label=sprintf("total=%.3g",data[,'unique']+data[,'non-unique']), xpd=NA)
+    text(x=rep(par('usr')[2]-cxy[1]/5, nrow(data)), y=mp, col="white", adj=c(1,0.5),
+         label=sprintf("%.1f%%",data[,'non-unique']/rowSums(data)*100), xpd=NA)
+    
+    # draw sample names
+    text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
+         label=truncStringToPlotWidth(rownames(data), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+    
+    
+    invisible(data)
 }
 
 plotErrorsByCycle <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {

@@ -2,7 +2,6 @@
 #include "extract_unmapped_reads.h"
 #include <stdlib.h>
 
-
 /*! @typedef
   @abstract Structure to provid the data to the bam_fetch() functions.
   @field mm_dist    Vector containing the frequencies
@@ -10,6 +9,9 @@
   @field end        End of the reference sequence in the genome
   @field ref        The reference sequence
   @field len        Maximal length of the reads
+  @field count_aln  Counted alignment for uniqueness
+  @field chunk_size The total chunk size
+  @field pos_lst    Vector containing the char pointer
  */
 typedef struct {
     int *mm_dist;
@@ -21,6 +23,9 @@ typedef struct {
     int end;
     const char * ref;
     int len;
+    int count_aln;
+    int chunk_size;
+    char ** pos_lst;
 } fetch_param;
 
 /*! @function
@@ -62,6 +67,14 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
 	// NACNGNNNTNNNNNNN -> A=0, C=1, G=2, T=3, N=4
 	static int bit2idx[16] = { 4, 0, 1, 4, 2, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4 };
 
+        // save position and isize in string --> uniqueness
+        if(((b->core.flag & BAM_FREAD2) == 0) && (fparam->count_aln < fparam->chunk_size)){
+            char * pos_str = (char *)R_Calloc(15, char);
+            sprintf(pos_str, "%i_%i", (int)b->core.pos, (int)b->core.isize);
+            fparam->pos_lst[ fparam->count_aln ] = pos_str;
+            fparam->count_aln++;
+        }        
+
 	// get length of the query sequence
 	qlen = bam_cigar2qlen(&b->core, cigar);
 	if(fparam->len < qlen)
@@ -79,6 +92,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
 	    	fparam->frag_dist[fparam->frag_dist_len - 1] += 1; 
 	}
 
+        // parse cigar string
 	for (i = y = 0, x = b->core.pos-start; i < b->core.n_cigar; ++i) {
 	    l = cigar[i]>>4, op = cigar[i]&0xf;
 	    if (op == BAM_CMATCH || op == BAM_CEQUAL || op == BAM_CDIFF) {
@@ -121,6 +135,12 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
     return 0;
 }
 
+// Compare function for qsort of c string array.
+int compare (const void * a, const void * b)
+{
+    return strcmp(*(char **)a, *(char **)b);
+}
+
 /*! @function
   @abstract  Counts the nucleotide alignments frequencies by cycle in regions.
   @param  bamfile        Name of the bamfile
@@ -130,7 +150,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
   @param  mmDist         Vector containing the frequencies
   @return                Vector of the frequencies
  */
-SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refChr, SEXP refStart, SEXP mmDist)
+SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refChr, SEXP refStart, SEXP mmDist, SEXP chunkSize)
 {
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
@@ -159,7 +179,13 @@ SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refCh
     if(!Rf_isInteger(VECTOR_ELT(mmDist,2))){
         Rf_error("'mmDist[[2]]' must be integer");
     }
-    //int *mm_dist = INTEGER(mmDist);
+    if(!Rf_isInteger(VECTOR_ELT(mmDist,3))){
+        Rf_error("'mmDist[[3]]' must be integer");
+    }
+
+    // check chunkSize paramter
+    if(!Rf_isInteger(chunkSize) || Rf_length(refChr) != 1)
+        Rf_error("'chunkSize' must be integer(1)");
 
     // open bam file
     samfile_t *fp = 0;
@@ -189,15 +215,36 @@ SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refCh
     fparam.ref = ref;
     fparam.len = 0;
 
+    fparam.count_aln = 0;
+    fparam.chunk_size = INTEGER(chunkSize)[0];
+    fparam.pos_lst = (char **) R_Calloc(fparam.chunk_size,  char *);
+
     // set fetch function
     bam_fetch_f fetch_func = _nucleotide_alignment_frequencies;
 
     // execute fetch
     bam_fetch(fp->x.bam, idx, tid, start, end, &fparam, fetch_func);
 
+    // count unique start position and fragment length
+    int unique = 0;
+    if(fparam.count_aln > 0){
+        qsort(fparam.pos_lst, fparam.count_aln, sizeof(char **), compare);
+        unique = 1;
+        for(int i = 1; i < fparam.count_aln; i++){
+            if(strcmp(fparam.pos_lst[i-1], fparam.pos_lst[i]) != 0)
+                unique++;
+        }
+    }
+    int *uniqueness = INTEGER(VECTOR_ELT(mmDist,3));
+    uniqueness[0] += unique;
+    uniqueness[1] += fparam.count_aln;
+
     // clean up
     samclose(fp);
     bam_index_destroy(idx);
+    for(int i = 0; i < fparam.count_aln; i++)
+        R_Free(fparam.pos_lst[i]);
+    R_Free(fparam.pos_lst);
 
     if(fparam.len == 0)
 	return  Rf_ScalarInteger(0);

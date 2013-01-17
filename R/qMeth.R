@@ -43,14 +43,18 @@ qMeth <-
 
         samples <- proj@alignments$SampleName
         nsamples <- length(samples)
-        bamfiles <-
-            if(reference=="genome")
-                proj@alignments$FileName
-            else if(!is.na(i <- match(reference, proj@auxAlignments$AuxName)))
-                proj@auxAlignments[i, 'FileName']
-            else
-                stop("unknown 'reference', should be one of: 'genome', ",
-                     paste(sprintf("'%s'", proj@auxAlignments$AuxName), collapse=", "))
+        if(reference=="genome") {
+            bamfiles <- proj@alignments$FileName
+            referenceFormat <- proj@genomeFormat
+            referenceSource <- proj@genome
+        } else if(!is.na(i <- match(reference, rownames(proj@auxAlignments)))) {
+            bamfiles <- proj@auxAlignments[i, ]
+            referenceFormat <- "file"
+            referenceSource <- proj@aux[i,'FileName']
+        } else {
+            stop("unknown 'reference', should be one of: ",
+                 paste(sprintf("'%s'", c("genome",rownames(proj@auxAlignments))), collapse=", "))
+        }
         mode <- match.arg(mode)
 
         
@@ -75,6 +79,7 @@ qMeth <-
             stop("'collapseByQueryRegion' must be FALSE for variant detection mode")
         if(mode=="var" && !is.na(proj@snpFile))
             stop("allele-specific mode cannot be combined with variant detection mode")
+
 
         # all query chromosomes present in all bamfiles?
         trTab <- table(unlist(lapply(scanBamHeader(bamfiles), function(bh) names(bh$targets))))
@@ -131,8 +136,8 @@ qMeth <-
                                                                                                  query[taskIByQuery[[i]]],
                                                                                                  collapseByQueryRegion,
                                                                                                  mode,
-                                                                                                 proj@genomeFormat,
-                                                                                                 proj@genome,
+                                                                                                 referenceFormat,
+                                                                                                 referenceSource,
                                                                                                  proj@snpFile,
                                                                                                  keepZero))
             # combine and reorder chunks
@@ -156,8 +161,8 @@ qMeth <-
             resL <- myapply(seq_len(nChunk),
                             function(i) detectVariantsBamfilesRegionsSingleChromosome(taskBamfiles[[i]],
                                                                                       query[taskIByQuery[[i]]],
-                                                                                      proj@genomeFormat,
-                                                                                      proj@genome,
+                                                                                      referenceFormat,
+                                                                                      referenceSource,
                                                                                       keepZero))
             # combine and reorder chunks
             # ...rbind chunks for the same sample
@@ -181,8 +186,8 @@ qMeth <-
                                                                                            query[taskIByQuery[[i]]],
                                                                                            collapseByQueryRegion,
                                                                                            mode,
-                                                                                           proj@genomeFormat,
-                                                                                           proj@genome,
+                                                                                           referenceFormat,
+                                                                                           referenceSource,
                                                                                            keepZero))
             # combine and reorder chunks
             # ...rbind chunks for the same sample
@@ -201,11 +206,11 @@ qMeth <-
         }
 
         if(asGRanges) {
-            if(proj@genomeFormat=="file") {
-                si <- seqinfo(scanFaIndex(proj@genome))
+            if(referenceFormat=="file") {
+                si <- seqinfo(scanFaIndex(referenceSource))
             } else {
-                library(proj@genome, character.only=TRUE)
-                gnmObj <- get(ls(sprintf("package:%s", proj@genome)))
+                library(referenceSource, character.only=TRUE)
+                gnmObj <- get(ls(sprintf("package:%s", referenceSource)))
                 si <- seqinfo(gnmObj)
             }
             res <- GRanges(seqnames=res$chr, IRanges(start=res$start, end=res$end),
