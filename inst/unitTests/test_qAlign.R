@@ -178,7 +178,7 @@ test_bisulfit_single <- function(){
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
     checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
-              "Test left read position")
+              paste("Test left read position:", readInfo[1,8],readInfo[1,3],readInfo[1,5], start(aln)[1]))
     checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
     checkTrue(all(readInfo[,9] == seqnames(aln)),
@@ -198,7 +198,7 @@ test_bisulfit_single <- function(){
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
     checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
-              "Test left read position")
+              paste("Test left read position:", readInfo[1,8],readInfo[1,3],readInfo[1,5], start(aln)[1]))
     checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
     checkTrue(all(readInfo[,9] == seqnames(aln)),
