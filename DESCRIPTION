@@ -7,7 +7,7 @@ Author: Anita Lerch, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
 Depends: R (>= 2.15.0), parallel, GenomicRanges, Rbowtie (>= 0.99.0)
 Imports: methods, zlibbioc, BiocGenerics, IRanges, BiocInstaller, Biobase, Biostrings, GenomicRanges, BSgenome, Rsamtools, GenomicFeatures, ShortRead
-Suggests: rtracklayer, Gviz, RUnit
+Suggests: Rsamtools, rtracklayer, Gviz, RUnit
 LinkingTo: Rsamtools
 Description: This package provides a framework for the quantification and analysis of Short Reads. It covers a complete workflow starting from raw sequence reads, over creation of alignments and quality control plots, to the quantification of genomic regions of interest.
 License: GPL-2

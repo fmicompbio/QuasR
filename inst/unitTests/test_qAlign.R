@@ -6,8 +6,6 @@ test_downloadBSgenome <- function()
         clObj <<- makeCluster(2)
     }
 
-    library(Rsamtools)
-    
     td <- tempfile()
     checkTrue(dir.create(td, recursive=T), "Temporary directory could not be created")
 

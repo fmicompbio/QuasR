@@ -1,10 +1,11 @@
+library(Rsamtools)
+
 #     if("sampleFileAuxPaired" %in% ls())
 
 createProjectPairedMode <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    library(Rsamtools)
 
     # Create Samfile without XV tag
     samfile <- tempfile()
@@ -64,7 +65,6 @@ createProjectAllelic <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    library(Rsamtools)
 
     # Create samfile with XV tag
     samfile <- tempfile()
@@ -108,7 +108,6 @@ createProjectSingleMode <- function(allelic=FALSE){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    library(Rsamtools)
     
     # Create Bam File
     samfile_plus <- tempfile()
@@ -222,7 +221,6 @@ createTranscriptDb <- function()
 }
 
 createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit=NULL, transcript=NULL, format="fastq"){
-    library(Rsamtools)
     genome <- scanFa(genomeFile)
     destination <- tempfile(tmpdir=destDir)
     filename1 <- ifelse(format=="fastq", 
