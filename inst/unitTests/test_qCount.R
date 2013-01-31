@@ -666,9 +666,10 @@ test_query_transcriptDB <- function()
     }
 
     ## Load data
+    td <- tempdir()
     genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    project <- qAlign(sampleFile, genome, splicedAlignment=TRUE, clObj=clObj)
+    project <- qAlign(sampleFile, genome, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
 
     ## Create query objects    
     gtfRegion <- createGtfRegion()
@@ -735,13 +736,14 @@ test_collapseBySample_GRanges <- function()
     }
 
     ## Load data
+    td <- tempdir()
     genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
     snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
     gtfRegion <- createGtfRegion()
 
     ## Non Allelic
-    project <- qAlign(sampleFile, genome, clObj=clObj)
+    project <- qAlign(sampleFile, genome, alignmentsDir=td, clObj=clObj)
     res <- qCount(project, gtfRegion, collapseBySample=T)
     
     length(project)
@@ -755,7 +757,7 @@ test_collapseBySample_GRanges <- function()
               "Test collapseBySample; Collapse counts are not equal.")
 
     ## Allelic
-    project <- qAlign(sampleFile, genome, snpFile=snpFile, clObj=clObj)
+    project <- qAlign(sampleFile, genome, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     res <- qCount(project, gtfRegion, collapseBySample=T)
     
     length(project)
@@ -776,10 +778,11 @@ test_auxiliaryName <- function()
     }
 
     ## Load data
+    td <- tempdir()
     genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
     ## Test aux counts
     auxRegion <- createAuxRegion()

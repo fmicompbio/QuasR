@@ -1,11 +1,10 @@
-library(Rsamtools)
-
 #     if("sampleFileAuxPaired" %in% ls())
 
 createProjectPairedMode <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
+    library(Rsamtools)
 
     # Create Samfile without XV tag
     samfile <- tempfile()
@@ -56,7 +55,8 @@ createProjectPairedMode <- function(){
     cat(">chrV\t10\tC\tG", file=snp, append=FALSE)
 
     # qAlign
-    project <- qAlign(samplefile, genome, paired="fr", clObj=clObj)
+    td <- tempdir()
+    project <- qAlign(samplefile, genome, paired="fr", alignmentsDir=td, clObj=clObj)
     
     return(project)
 }
@@ -65,6 +65,7 @@ createProjectAllelic <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
+    library(Rsamtools)
 
     # Create samfile with XV tag
     samfile <- tempfile()
@@ -98,8 +99,9 @@ createProjectAllelic <- function(){
     snp <- tempfile(fileext=".txt")
     cat(">chrV\t10\tC\tG", file=snp, append=FALSE)     
     
-    # qAlign
-    project <- qAlign(samplefile, genome, snpFile=snp, paired="fr", clObj=clObj)
+    # 
+    td <- tempdir()
+    project <- qAlign(samplefile, genome, snpFile=snp, paired="fr", alignmentsDir=td, clObj=clObj)
     
     return(project)
 }
@@ -108,6 +110,7 @@ createProjectSingleMode <- function(allelic=FALSE){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
+    library(Rsamtools)
     
     # Create Bam File
     samfile_plus <- tempfile()
@@ -146,11 +149,12 @@ createProjectSingleMode <- function(allelic=FALSE){
                            SampleName=c("Sample", "Sample"), stringsAsFactors=F),
                 sep="\t", quote=F, row.names=F, file=samplefile)            
     
-    # qAlign          
+    # qAlign
+    td <- tempdir()
     if(!allelic)
-        project <- qAlign(samplefile, genome, paired="no", clObj=clObj)
+        project <- qAlign(samplefile, genome, paired="no", alignmentsDir=td, clObj=clObj)
     else
-        project <- qAlign(samplefile, genome, snpFile=snp, paired="no", clObj=clObj)        
+        project <- qAlign(samplefile, genome, snpFile=snp, paired="no", alignmentsDir=td, clObj=clObj)        
     return(project)
 }
 
@@ -221,6 +225,7 @@ createTranscriptDb <- function()
 }
 
 createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit=NULL, transcript=NULL, format="fastq"){
+    library(Rsamtools)
     genome <- scanFa(genomeFile)
     destination <- tempfile(tmpdir=destDir)
     filename1 <- ifelse(format=="fastq", 

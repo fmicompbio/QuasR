@@ -38,10 +38,11 @@ test_md5subsum <- function()
 }
 
 test_alignmentStats <- function()
-{
+{    
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
+    td <- tempdir()
     genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
@@ -49,26 +50,26 @@ test_alignmentStats <- function()
     resSoll <- matrix(c(95000,95000,
                         2339,3609,
                         258,505), nrow=2, ncol=3)
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     res <- alignmentStats(project)
     checkTrue(all(resSoll == res))
     
     resSoll <- matrix(c(95000,95000,5386,5386,
                         2339,3609,251,493,
                         258,505,7,12), nrow=4, ncol=3)
-    project <- qAlign(sampleFile, genomeFile, auxFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, auxFile, alignmentsDir=td, clObj=clObj)
     res <- alignmentStats(project)
     checkTrue(all(resSoll == res))
     
     resSoll <- matrix(c(95000,95000,
                         2339,3609,
                         258,505), nrow=2, ncol=3)
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     res <- alignmentStats(alignments(project)$genome$FileName)
     checkTrue(all(resSoll == res))
     
     resSoll <- matrix(c(95000,2339,258), nrow=1, ncol=3)
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     res <- alignmentStats(alignments(project)$genome$FileName[1])
     checkTrue(all(resSoll == res))
 }

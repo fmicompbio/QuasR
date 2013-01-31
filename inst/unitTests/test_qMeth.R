@@ -10,7 +10,7 @@ test_un_meth_paired <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="dir", clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
 
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated directed, mode=allC")
@@ -21,7 +21,7 @@ test_un_meth_paired <- function(){
     meth <- qMeth(project, mode="CpGcomb")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated directed, mode=CpGcomb")
     
-    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="undir", clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated undirected, mode=allC")
@@ -44,7 +44,7 @@ test_un_meth_single <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingleBisUn, genomeFile, bisulfit="undir", clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated undirected, mode=allC")
@@ -65,7 +65,7 @@ test_full_meth_paired <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="dir", clObj=clObj)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
 
     meth <- qMeth(project, mode="allC")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated directed, mode=allC")
@@ -79,7 +79,7 @@ test_full_meth_paired <- function(){
     meth <- qMeth(project, mode="var")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated, mode=var")
     
-    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="undir", clObj=clObj)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated undirected, mode=allC")
@@ -103,7 +103,7 @@ test_full_meth_single <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingle, genomeFile, bisulfit="undir", clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingle, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC", keepZero=FALSE)
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated undirected, mode=allC")
@@ -129,7 +129,7 @@ test_partial_meth <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
     genome <- scanFa(genomeFile)
     
     methAllC <- qMeth(project, mode="allC")

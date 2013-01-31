@@ -48,7 +48,7 @@ qMeth <-
             referenceFormat <- proj@genomeFormat
             referenceSource <- proj@genome
         } else if(!is.na(i <- match(reference, rownames(proj@auxAlignments)))) {
-            bamfiles <- proj@auxAlignments[i, ]
+            bamfiles <- unlist(proj@auxAlignments[i, ], use.names=FALSE)
             referenceFormat <- "file"
             referenceSource <- proj@aux[i,'FileName']
         } else {

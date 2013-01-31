@@ -4,11 +4,12 @@ test_exportWig <- function()
         clObj <<- makeCluster(2)
     }
     library(rtracklayer)
+    td <- tempdir()
     genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
     
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     wigfiles <- tempfile(fileext=rep(".wig",2))
     res <- qExportWig(project, wigfiles, scaling=F)
     wig <- lapply(wigfiles, function(wf) suppressWarnings(import.wig(wf, asRangedData=F)))
@@ -18,7 +19,7 @@ test_exportWig <- function()
     
     # paired and halfInsert shift
     sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_paired.txt")
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     wigfiles <- tempfile(fileext=rep(".wig",2))
     res <- qExportWig(project, wigfiles, scaling=F)
     wig <- lapply(wigfiles, function(wf) suppressWarnings(import.wig(wf, asRangedData=F)))

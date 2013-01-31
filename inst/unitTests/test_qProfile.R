@@ -6,10 +6,10 @@ test_qProfile <- function()
     if(!"gtfRegion" %in% ls(envir=.GlobalEnv)){
         gtfRegion <<- createGtfRegion()
     }    
-    
+    td <- tempdir()
     genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
     sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     
     query <- resize(gtfRegion, fix="start", width=200)
     query <- query[!duplicated(query)]
@@ -46,7 +46,7 @@ test_qProfile <- function()
 
     # test smart shift
     sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_paired.txt")
-    project <- qAlign(sampleFile, genomeFile, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     pr <- qProfile(project, query, upstream=0, downstream=199, shift="halfInsert")
     cnt <- qCount(project, query, shift="halfInsert")
     checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
