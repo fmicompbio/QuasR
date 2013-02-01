@@ -21,7 +21,10 @@ test <- function(dir, pattern = "^test_.*\\.R$")
         }
     }
     
+    # copy example data to current working directory
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
     source(system.file(package="QuasR", "unitTests", "help_function.R"))
+    
     require("RUnit", quietly=TRUE) || stop("RUnit package not found")
     RUnit_opts <- getOption("RUnit", list())
     RUnit_opts$verbose <- 0L

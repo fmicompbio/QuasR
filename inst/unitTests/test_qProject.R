@@ -4,9 +4,9 @@ test_subset_project <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
 
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     len <- length(project)
@@ -32,9 +32,9 @@ test_length <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
     
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     checkTrue(4 == length(project))
@@ -49,17 +49,17 @@ test_genome <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
     
     ## check without auxFile
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(genomeFile == genome(project))
+    checkTrue(normalizePath(genomeFile) == genome(project))
 
     ## check with auxFile
     project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(genomeFile == genome(project))
+    checkTrue(normalizePath(genomeFile) == genome(project))
 }
 
 test_auxiliary <- function()
@@ -68,9 +68,9 @@ test_auxiliary <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
     
     ## check without auxFile
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
@@ -87,9 +87,9 @@ test_alignment <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
     
     ## check without auxFile
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
@@ -110,9 +110,9 @@ test_show <- function()
         clObj <<- makeCluster(2)
     }
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
     
     ## check without auxFile
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)

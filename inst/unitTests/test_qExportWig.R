@@ -5,9 +5,9 @@ test_exportWig <- function()
     }
     library(rtracklayer)
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
+    sampleFile <- file.path("extdata", "samples_chip_single.txt")
     
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     wigfiles <- tempfile(fileext=rep(".wig",2))
@@ -18,7 +18,7 @@ test_exportWig <- function()
     checkTrue(all(mcols(wig[[2]])$score == res[,3]))
     
     # paired and halfInsert shift
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_paired.txt")
+    sampleFile <- file.path("extdata", "samples_rna_paired.txt")
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     wigfiles <- tempfile(fileext=rep(".wig",2))
     res <- qExportWig(project, wigfiles, scaling=F)

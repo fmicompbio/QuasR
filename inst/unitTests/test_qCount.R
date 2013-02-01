@@ -667,8 +667,8 @@ test_query_transcriptDB <- function()
 
     ## Load data
     td <- tempdir()
-    genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
+    genome <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
     project <- qAlign(sampleFile, genome, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
 
     ## Create query objects    
@@ -737,9 +737,9 @@ test_collapseBySample_GRanges <- function()
 
     ## Load data
     td <- tempdir()
-    genome <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_rna_single.txt")
-    snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+    genome <- file.path("extdata", "hg19sub.fa")
+    sampleFile <- file.path("extdata", "samples_rna_single.txt")
+    snpFile <- file.path("extdata", "hg19sub_snp.txt")
     gtfRegion <- createGtfRegion()
 
     ## Non Allelic
@@ -779,9 +779,9 @@ test_auxiliaryName <- function()
 
     ## Load data
     td <- tempdir()
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
-    sampleFile <- system.file(package="QuasR", "extdata", "samples_chip_single.txt")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
+    auxFile <- file.path("extdata", "auxiliaries.txt")
+    sampleFile <- file.path("extdata", "samples_chip_single.txt")
     project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
     ## Test aux counts

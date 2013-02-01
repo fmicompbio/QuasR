@@ -62,7 +62,7 @@ test_downloadBSgenome <- function()
 
 test_normal_paired <- function(){
     if(!"sampleFileGenomePaired" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePaired <<- createReads(genomeFile, td, paired=TRUE)
     }
@@ -85,7 +85,7 @@ test_normal_paired <- function(){
 
 test_normal_single <- function(){
     if(!"sampleFileGenomeSingle" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomeSingle <<- createReads(genomeFile, td, paired=FALSE)
     }
@@ -108,7 +108,7 @@ test_normal_single <- function(){
 
 test_bisulfit_paired <- function(){
     if(!"sampleFileGenomePairedBisPartial" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         unMethRanges <<- scanFaIndex(genomeFile)
         partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
@@ -160,7 +160,7 @@ test_bisulfit_paired <- function(){
 
 test_bisulfit_single <- function(){
     if(!"sampleFileGenomeSingleBisPartial" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         unMethRanges <<- scanFaIndex(genomeFile)
         partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
@@ -212,8 +212,8 @@ test_bisulfit_single <- function(){
 
 test_allelic_paired <- function(){
     if(!"sampleFileGenomePairedAllele" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-        snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
+        snpFile <- file.path("extdata", "hg19sub_snp.txt")
         td <<- tempdir()
         sampleFileGenomePairedAllele <<- createReads(genomeFile, td, paired=TRUE, snpFile=snpFile)
     }
@@ -265,8 +265,8 @@ test_allelic_paired <- function(){
 
 test_allelic_single <- function(){
     if(!"sampleFileGenomeSingleAllele" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-        snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
+        snpFile <- file.path("extdata", "hg19sub_snp.txt")
         td <<- tempdir()
         sampleFileGenomeSingleAllele <<- createReads(genomeFile, td, paired=FALSE, snpFile=snpFile)
     }
@@ -313,7 +313,7 @@ test_allelic_single <- function(){
 
 test_spliced_paired <- function(){
     if(!"sampleFileGenomePaired" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePaired <<- createReads(genomeFile, td, paired=TRUE)
     }
@@ -336,7 +336,7 @@ test_spliced_paired <- function(){
 
 test_spliced_single <- function(){
     if(!"sampleFileGenomeSingle" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomeSingle <<- createReads(genomeFile, td, paired=FALSE)
     }
@@ -359,15 +359,15 @@ test_spliced_single <- function(){
 
 test_aux_normal_paired <- function(){
     if(!"sampleFileAuxPaired" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxPaired <<- createReads(auxGenomeFile, td, paired=TRUE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -385,15 +385,15 @@ test_aux_normal_paired <- function(){
 
 test_aux_normal_single <- function(){
     if(!"sampleFileAuxSingle" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxSingle <<- createReads(auxGenomeFile, td, paired=FALSE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -411,15 +411,15 @@ test_aux_normal_single <- function(){
 
 test_aux_bisulfit_undir_paired <- function(){
     if(!"sampleFileAuxPaired" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxPaired <<- createReads(auxGenomeFile, td, paired=TRUE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -437,15 +437,15 @@ test_aux_bisulfit_undir_paired <- function(){
 
 test_aux_bisulfit_undir_single <- function(){
     if(!"sampleFileAuxSingle" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxSingle <<- createReads(auxGenomeFile, td, paired=FALSE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -463,15 +463,15 @@ test_aux_bisulfit_undir_single <- function(){
 
 test_aux_spliced_paired <- function(){
     if(!"sampleFileAuxPaired" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxPaired <<- createReads(auxGenomeFile, td, paired=TRUE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -489,15 +489,15 @@ test_aux_spliced_paired <- function(){
 
 test_aux_spliced_single <- function(){
     if(!"sampleFileAuxSingle" %in% ls(envir=.GlobalEnv)){
-        auxGenomeFile <<- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+        auxGenomeFile <<- file.path("extdata", "NC_001422.1.fa")
         td <<- tempdir()
         sampleFileAuxSingle <<- createReads(auxGenomeFile, td, paired=FALSE)
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-    auxFile <<- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+    genomeFile <<- file.path("extdata", "hg19sub.fa")
+    auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
@@ -515,7 +515,7 @@ test_aux_spliced_single <- function(){
 
 test_normal_paired_fasta <- function(){
     if(!"sampleFileGenomePairedFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=TRUE, format="fasta")
     }
@@ -538,7 +538,7 @@ test_normal_paired_fasta <- function(){
 
 test_normal_single_fasta <- function(){    
     if(!"sampleFileGenomeSingleFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=FALSE, format="fasta")
     }
@@ -561,7 +561,7 @@ test_normal_single_fasta <- function(){
 
 test_bisulfit_dir_paired_fasta <- function(){
     if(!"sampleFileGenomePairedFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=TRUE, format="fasta")
     }
@@ -585,7 +585,7 @@ test_bisulfit_dir_paired_fasta <- function(){
 
 test_bisulfit_dir_single_fasta <- function(){
     if(!"sampleFileGenomeSingleFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=FALSE, format="fasta")
     }
@@ -609,14 +609,14 @@ test_bisulfit_dir_single_fasta <- function(){
 
 test_allelic_paired_fasta <- function(){
     if(!"sampleFileGenomePairedFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=TRUE, format="fasta")
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    snpFile <<- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+    snpFile <<- file.path("extdata", "hg19sub_snp.txt")
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T, 
@@ -635,14 +635,14 @@ test_allelic_paired_fasta <- function(){
 
 test_allelic_single_fasta <- function(){
     if(!"sampleFileGenomeSingleFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomeSingleFasta <<- createReads(genomeFile, td, paired=FALSE, format="fasta")
     }
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    snpFile <<- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+    snpFile <<- file.path("extdata", "hg19sub_snp.txt")
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
@@ -661,7 +661,7 @@ test_allelic_single_fasta <- function(){
 
 test_spliced_paired_fasta <- function(){
     if(!"sampleFileGenomePairedFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=TRUE, format="fasta")
     }
@@ -684,7 +684,7 @@ test_spliced_paired_fasta <- function(){
 
 test_spliced_single_fasta <- function(){
     if(!"sampleFileGenomeSingleFasta" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePairedFasta <<- createReads(genomeFile, td, paired=FALSE, format="fasta")
     }
@@ -707,8 +707,8 @@ test_spliced_single_fasta <- function(){
 
 test_bisulfit_dir_allelic_paired <- function(){
     if(!"sampleFileGenomePairedAllele" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-        snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
+        snpFile <- file.path("extdata", "hg19sub_snp.txt")
         td <<- tempdir()
         sampleFileGenomePairedAllele <<- createReads(genomeFile, td, paired=TRUE, snpFile=snpFile)
     }
@@ -754,8 +754,8 @@ test_bisulfit_dir_allelic_paired <- function(){
 
 test_bisulfit_dir_allelic_single <- function(){
     if(!"sampleFileGenomeSingleAllele" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
-        snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
+        snpFile <- file.path("extdata", "hg19sub_snp.txt")
         td <<- tempdir()
         sampleFileGenomeSingleAllele <<- createReads(genomeFile, td, paired=FALSE, snpFile=snpFile)
     }
@@ -808,7 +808,7 @@ test_bisulfit_dir_allelic_single <- function(){
 
 test_maxHits <- function(){
     if(!"sampleFileGenomePaired" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePaired <<- createReads(genomeFile, td, paired=TRUE)
     }
@@ -818,12 +818,12 @@ test_maxHits <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, maxHits=100, alignmentsDir=td, clObj=clObj)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
 
-    snpFile <- system.file(package="QuasR", "extdata", "hg19sub_snp.txt")
+    snpFile <- file.path("extdata", "hg19sub_snp.txt")
     project <- qAlign(sampleFileGenomePaired, genomeFile, snpFile=snpFile, maxHits=100, alignmentsDir=td, clObj=clObj)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
     
     if(!"sampleFileGenomePairedBisPartial" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         unMethRanges <<- scanFaIndex(genomeFile)
         partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))

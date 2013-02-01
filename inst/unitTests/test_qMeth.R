@@ -2,7 +2,7 @@ source(system.file(package="QuasR", "unitTests", "help_function.R"))
 
 test_un_meth_paired <- function(){
     if(!"sampleFileGenomePairedBisUn" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         unMethRanges <<- scanFaIndex(genomeFile)
         sampleFileGenomePairedBisUn <<- createReads(genomeFile, td, paired=TRUE, bisulfit=unMethRanges)
@@ -35,7 +35,7 @@ test_un_meth_paired <- function(){
 
 test_un_meth_single <- function(){
     if(!"sampleFileGenomeSingleBisUn" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         # unmethylated C expect the CpG of methRanges
         unMethRanges <<- scanFaIndex(genomeFile)
@@ -58,7 +58,7 @@ test_un_meth_single <- function(){
 
 test_full_meth_paired <- function(){
     if(!"sampleFileGenomePaired" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomePaired <<- createReads(genomeFile, td, paired=TRUE)
     }
@@ -96,7 +96,7 @@ test_full_meth_paired <- function(){
 
 test_full_meth_single <- function(){
     if(!"sampleFileGenomeSingle" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         sampleFileGenomeSingle <<- createReads(genomeFile, td, paired=FALSE)
     }
@@ -120,7 +120,7 @@ test_full_meth_single <- function(){
 
 test_partial_meth <- function(){
     if(!"sampleFileGenomePairedBisPartial" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- system.file(package="QuasR", "extdata", "hg19sub.fa")
+        genomeFile <<- file.path("extdata", "hg19sub.fa")
         td <<- tempdir()
         unMethRanges <<- scanFaIndex(genomeFile)
         partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))

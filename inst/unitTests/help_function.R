@@ -185,7 +185,7 @@ createTilingRegion <- function()
 createGtfRegion <- function()
 {
     require("rtracklayer")
-    annotationFile <- system.file(package="QuasR", "extdata", "hg19sub_annotation.gtf")
+    annotationFile <- file.path("extdata", "hg19sub_annotation.gtf")
     gtfRegion <- import.gff(annotationFile, format="gtf", asRangedData=F,
                             feature.type="exon")
     names(gtfRegion) <- mcols(gtfRegion)$gene_name
@@ -194,14 +194,14 @@ createGtfRegion <- function()
 
 createGenomeRegion <- function()
 {
-    genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
+    genomeFile <- file.path("extdata", "hg19sub.fa")
     genomeRegion <- scanFaIndex(genomeFile)
     return(genomeRegion)
 }
 
 createAuxRegion <- function()
 {
-    auxGenomeFile <- system.file(package="QuasR", "extdata", "NC_001422.1.fa")
+    auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
     auxRegion <- scanFaIndex(auxGenomeFile)
     return(auxRegion)
 }
@@ -209,7 +209,7 @@ createAuxRegion <- function()
 createTranscriptDb <- function()
 {
     require("GenomicFeatures")
-    annotationFile <- system.file(package="QuasR", "extdata", "hg19sub_annotation.gtf")
+    annotationFile <- file.path("extdata", "hg19sub_annotation.gtf")
     genomeRegion <- createGenomeRegion()
     chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                             length=end(genomeRegion),
