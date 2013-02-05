@@ -2,7 +2,7 @@ displayNames <- function(proj) { # create unique names for each sequence file
     if(!inherits(proj, "qProject", which=FALSE))
         stop("'proj' must be an object of type 'qProject' (returned by 'qAlign')")
     samples <- proj@alignments$SampleName
-    ndigits <- ceiling(length(samples)/10)
+    ndigits <- nchar(as.character(length(samples)))
     sprintf(paste("s%0",ndigits,"i_%s",sep=""),seq_along(samples),samples)
 }
 
