@@ -125,10 +125,10 @@ test_bisulfit_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
+    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
-              "Test right read position")              
+    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+              "Test right read position")            
     checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     # check if strand corrspond to converted genome
@@ -145,9 +145,9 @@ test_bisulfit_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
+    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
+    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
     checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
@@ -177,10 +177,10 @@ test_bisulfit_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
+    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
-              "Test right read position")              
+    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+              "Test right read position")            
     checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     
@@ -197,10 +197,10 @@ test_bisulfit_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,3], readInfo[,5]) == start(aln)),
+    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(readInfo[,8]=="l", readInfo[,4], readInfo[,6]) == end(aln)),
-              "Test right read position")              
+    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+              "Test right read position")           
     checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     
