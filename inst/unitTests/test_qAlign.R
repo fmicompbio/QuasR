@@ -39,19 +39,19 @@ test_downloadBSgenome <- function()
 #     checkTrue(suppressWarnings(require("BSgenome.Dmelanogaster.UCSC.dm3", quietly=TRUE)), 
 #               "BSgenome already installed in the temporary directory")
 #     project <- NULL
-#     project <- qAlign(samplefile, "BSgenome.Dmelanogaster.UCSC.dm3", paired="fr", alignmentsDir=td, clObj=clObj)
+#     project <- qAlign(samplefile, "BSgenome.Dmelanogaster.UCSC.dm3", paired="fr", alignmentsDir=td, clObj=NULL)
 #     checkTrue(is(project, "qProject"), "qAlign (1) did not run successfully")
     
 # 	checkTrue(!suppressWarnings(require("BSgenome.Ecoli.NCBI.20080805", lib.loc=td, quietly=TRUE)), 
 #               "BSgenome already installed in the temporary directory")
 #     project <- NULL
-#     project <- qAlign(samplefile, "BSgenome.Ecoli.NCBI.20080805", paired="fr", alignmentsDir=td, lib.loc=td, clObj=clObj)
+#     project <- qAlign(samplefile, "BSgenome.Ecoli.NCBI.20080805", paired="fr", alignmentsDir=td, lib.loc=td, clObj=NULL)
 #     checkTrue(is(project, "qProject"), "qAlign (1) did not run successfully")
 #     
 #     checkTrue(require("BSgenome.Ecoli.NCBI.20080805", lib.loc=td, quietly=TRUE), 
 #               "BSgenome should be installed now in the temporary directory")
 #     project <- NULL
-#     project <- qAlign(samplefile, "BSgenome.Ecoli.NCBI.20080805", paired="fr", alignmentsDir=td, lib.loc=td, clObj=clObj)
+#     project <- qAlign(samplefile, "BSgenome.Ecoli.NCBI.20080805", paired="fr", alignmentsDir=td, lib.loc=td, clObj=NULL)
 #     checkTrue(is(project, "qProject"), "qAlign (2) did not run successfully")
     
 #     detach("package:BSgenome.Ecoli.NCBI.20080805", unload=T)
@@ -118,7 +118,7 @@ test_bisulfit_paired <- function(){
         clObj <<- makeCluster(2)
     }
     ## Dir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
 
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -138,7 +138,7 @@ test_bisulfit_paired <- function(){
 
     
     ## Undir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -170,7 +170,7 @@ test_bisulfit_single <- function(){
         clObj <<- makeCluster(2)
     }
     ## Dir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -194,7 +194,7 @@ test_bisulfit_single <- function(){
               "Test if strand correspond to the coverted genome")
     
     ## Undir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -228,7 +228,7 @@ test_allelic_paired <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T, 
                                    param=ScanBamParam(what="qname", tag="XV"))
@@ -281,7 +281,7 @@ test_allelic_single <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(what="qname", tag="XV"))
@@ -328,7 +328,7 @@ test_spliced_paired <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePaired, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -351,7 +351,7 @@ test_spliced_single <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingle, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingle, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -376,7 +376,7 @@ test_aux_normal_paired <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -402,7 +402,7 @@ test_aux_normal_single <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -428,7 +428,7 @@ test_aux_bisulfit_undir_paired <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -454,7 +454,7 @@ test_aux_bisulfit_undir_single <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -480,7 +480,7 @@ test_aux_spliced_paired <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -506,7 +506,7 @@ test_aux_spliced_single <- function(){
     }
     genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
-    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
     alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
@@ -530,7 +530,7 @@ test_normal_paired_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, alignmentsDir=td, clObj=NULL)
 
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -553,7 +553,7 @@ test_normal_single_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -576,7 +576,7 @@ test_bisulfit_dir_paired_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -600,7 +600,7 @@ test_bisulfit_dir_single_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -625,7 +625,7 @@ test_allelic_paired_fasta <- function(){
         clObj <<- makeCluster(2)
     }
     snpFile <<- file.path("extdata", "hg19sub_snp.txt")
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T, 
                                    param=ScanBamParam(what="qname", tag="XV"))
@@ -651,7 +651,7 @@ test_allelic_single_fasta <- function(){
         clObj <<- makeCluster(2)
     }
     snpFile <<- file.path("extdata", "hg19sub_snp.txt")
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(what="qname", tag="XV"))
@@ -676,7 +676,7 @@ test_spliced_paired_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -699,7 +699,7 @@ test_spliced_single_fasta <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -724,7 +724,7 @@ test_bisulfit_dir_allelic_paired <- function(){
         clObj <<- makeCluster(2)
     }
 
-    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag=c("XV","NM")))
@@ -771,7 +771,7 @@ test_bisulfit_dir_allelic_single <- function(){
         clObj <<- makeCluster(2)
     }
     
-    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
                                    param=ScanBamParam(tag="NM"))
@@ -823,11 +823,11 @@ test_maxHits <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
         clObj <<- makeCluster(2)
     }
-    project <- qAlign(sampleFileGenomePaired, genomeFile, maxHits=100, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, maxHits=100, alignmentsDir=td, clObj=NULL)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
 
     snpFile <- file.path("extdata", "hg19sub_snp.txt")
-    project <- qAlign(sampleFileGenomePaired, genomeFile, snpFile=snpFile, maxHits=100, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, snpFile=snpFile, maxHits=100, alignmentsDir=td, clObj=NULL)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
     
     if(!"sampleFileGenomePairedBisPartial" %in% ls(envir=.GlobalEnv)){
@@ -837,7 +837,7 @@ test_maxHits <- function(){
         partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
         sampleFileGenomePairedBisPartial <<- createReads(genomeFile, td, paired=TRUE, bisulfit=partialMethRanges)
     }
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", maxHits=100, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", maxHits=100, alignmentsDir=td, clObj=NULL)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
 }
 
