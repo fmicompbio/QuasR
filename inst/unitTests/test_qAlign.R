@@ -177,8 +177,12 @@ test_bisulfit_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
-              "Test left read position")
+    checkVar <- readInfo[,3] == start(aln) | readInfo[,5] == start(aln)
+    checkTrue(all(checkVar), 
+              paste("Test left read position:", readInfo[!checkVar,8][1],
+                    readInfo[!checkVar,3][1],readInfo[!checkVar,5][1], start(aln)[!checkVar][1]))
+    #checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    #          "Test left read position")
     checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")            
     checkTrue(all(readInfo[,9] == seqnames(aln)),
@@ -197,8 +201,12 @@ test_bisulfit_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
-              "Test left read position")
+    checkVar <- readInfo[,3] == start(aln) | readInfo[,5] == start(aln)
+    checkTrue(all(checkVar), 
+              paste("Test left read position:", readInfo[!checkVar,8][1],
+                    readInfo[!checkVar,3][1],readInfo[!checkVar,5][1], start(aln)[!checkVar][1]))
+    #checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    #          "Test left read position")
     checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")           
     checkTrue(all(readInfo[,9] == seqnames(aln)),
