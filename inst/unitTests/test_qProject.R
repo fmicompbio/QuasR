@@ -55,11 +55,11 @@ test_genome <- function()
     
     ## check without auxFile
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(normalizePath(genomeFile) == genome(project))
+    checkTrue(normalizePath(genomeFile) == normalizePath(genome(project)))
 
     ## check with auxFile
     project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(normalizePath(genomeFile) == genome(project))
+    checkTrue(normalizePath(genomeFile) == normalizePath(genome(project)))
 }
 
 test_auxiliary <- function()
