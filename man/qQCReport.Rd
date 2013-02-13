@@ -64,7 +64,10 @@ of available input (fasta, fastq or bam files).
       bam input.}
     \item{\emph{Library complexity}}{shows fractions of unique
       read(-pair) alignment positions, as a measure of the complexity in
-      the sequencing library. This plot is available for bam input.}
+      the sequencing library. Please note that this measure is not
+      independent from the total number of reads in a library, and is best
+      compared between libraries of similar sizes. This plot is
+      available for bam input.}
     \item{\emph{Mismatch frequency}}{shows the frequency and position
       (relative to the read sequence) of mismatches in the alignments
       against the reference genome. The plot is available for bam input.}
