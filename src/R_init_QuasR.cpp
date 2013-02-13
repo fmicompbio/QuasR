@@ -3,6 +3,7 @@
 
 #include "merge_reorder_sam.h"
 #include "quantify_methylation.h"
+#include "count_junctions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,8 @@ static const R_CallMethodDef callMethods[] = {
     /* count_alignments.c */
     {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 9},
     {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 9},
+    /* count_junctions.cpp */
+    {"countJunctions", (DL_FUNC) &count_junctions, 5},
     /* profile_alignments.c */
     {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 14},
     {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 14},
