@@ -7,7 +7,7 @@ Quantify alignments from sequencing data.
 \usage{
 qCount(proj, 
        query,
-       reportLevel=c(NULL, "gene", "exon","promoter"),
+       reportLevel=c(NULL, "gene", "exon","promoter","junction"),
        selectReadPosition=c("start", "end"),
        shift=0L,
        orientation=c("any", "same", "opposite"),
@@ -25,14 +25,17 @@ qCount(proj,
     \code{\link[GenomicRanges]{GRangesList}} or 
     \code{\link[GenomicFeatures]{TranscriptDb}} with the regions to be
     quantified. The type of \code{query} will determine the mode of
-    quantification (see \sQuote{Details}).}
-  \item{reportLevel}{level of quantification for a \code{query} of type
-    \code{TranscriptDb}, one of
+    quantification (see \sQuote{Details}). For
+    \code{reportLevel="junction"}, \code{query} is ignored and can also
+    be \code{NULL}.}
+  \item{reportLevel}{level of quantification (\code{query} of type
+    \code{TranscriptDb} or \code{NULL}), one of
     \itemize{
       \item \code{gene} (default): one value per gene
       \item \code{exon}: one value per exon
       \item \code{promoter}: one value per promoter
-      %\item \code{exonJunction} : one count per exon junction
+      \item \code{junction}: one count per detected exon-exon junction
+      (\code{query} will be ignored in this case)
     }
   }
   \item{selectReadPosition}{defines the part of the alignment that has
@@ -125,6 +128,14 @@ qCount(proj,
     \pkg{GenomicFeatures} is used with default arguments to extract
     promoter regions around transcript start sites, e.g. to quantify
     alignments inf a ChIP-seq experiment.
+    \item any of the above or \code{NULL} for
+    \code{reportLevel="junction"}: The \code{query} argument is ignored
+    if \code{reportLevel} is set to \code{"junction"}, and \code{qCount}
+    will count the number of alignments supporting each exon-exon
+    junction detected in any of the samples in \code{proj}. The
+    arguments \code{selectReadPosition}, \code{shift},
+    \code{orientation}, \code{useRead} and \code{mask} will have no
+    effect in this quantification mode.
   }
 
   The additional arguments allow to fine-tune the quantification:
@@ -195,24 +206,33 @@ qCount(proj,
 }
 \value{
   A \code{matrix} with effective query regions width in the first
-  column, and alignment counts in subsequent columns.
+  column, and alignment counts in subsequent columns, or a
+  \code{GRanges} object if \code{reportLevel="junction"}.
 
-  The effective query region width is calculated by the number of
-  unique, non-masked bases in the reference sequence that contributed to
-  the count of this query name. An effective width of zero indicates
-  that the region was fully masked and will have zero counts in all
-  samples.
+  The effective query region width returned as first column in the
+  matrix is calculated by the number of unique, non-masked bases in the
+  reference sequence that contributed to the count of this query
+  name. An effective width of zero indicates that the region was fully
+  masked and will have zero counts in all samples.
   
-  The alignment counts are contained from column two onwards. For
-  projects with allele-specific quantification, i.e. if a file with
-  single nucleotide polymorphisms was supplied to the \code{snpFile}
-  argument of \code{\link[QuasR]{qAlign}}, there will be three columns
-  per bam file (number of alignments for Reference, Unknown and
-  Alternative genotypes, with suffixed _R, _U and _A). Otherwise there
-  is a single columns per bam file.
+  The alignment counts in the matrix are contained from column two
+  onwards. For projects with allele-specific quantification, i.e. if a
+  file with single nucleotide polymorphisms was supplied to the
+  \code{snpFile} argument of \code{\link[QuasR]{qAlign}}, there will be
+  three columns per bam file (number of alignments for Reference,
+  Unknown and Alternative genotypes, with suffixed _R, _U and
+  _A). Otherwise there is a single columns per bam file.
   
   If \code{collapseBySample}=\code{TRUE}, groups of bam files with identical 
   sample name are combined by summing their alignment counts.
+
+  For \code{reportLevel="junction"}, the return value is a
+  \code{GRanges} object. The start and end coordinates correspond to the
+  first and last base in each detected intron. Plus- and minus-strand
+  alignments are quantified separately, so that in an unstranded RNA-seq
+  experiment, the same intron may be represented twice; once for each
+  strand. The counts for each sample are contained in the \code{mcols}
+  of the \code{GRanges} object.
 }
 %\references{
 %% ~put references to the literature/web site here ~
@@ -285,6 +305,10 @@ txdb <- makeTranscriptDbFromGFF(annotationFile,
 
 res4 <- qCount(proj, txdb, reportLevel="gene")
 res4
+
+# exon-exon junctions
+res5 <- qCount(proj, NULL, reportLevel="junction")
+res5
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

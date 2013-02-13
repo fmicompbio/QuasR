@@ -41,7 +41,7 @@
 %\title{An Introduction to \QuasR{}}
 \title{An Introduction to \raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: December 21, 2012. Compiled: \today}
+\date{Modified: February 13, 2013. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
@@ -560,6 +560,24 @@ geneRPKM
 @
 Please note the RPKM values in our example are higher than what you would usually get for a real RNA-seq dataset. The values here are artificially scaled up because our example data contains reads only for a small number of genes.
 
+
+Exon-exon junctions can be quantified by setting \Rcode{reportLevel="junction"}. In this case, \Rfunction{qCount} will ignore the \Rfunarg{query} argument and scan all alignments for any detected splices, which are returned as a \Robject{GRanges} object: The region start and end coordinates correspond to the first and last bases of the intron, and the counts are returned in the \Rcode{mcols()} of the \Robject{GRanges} object. Alignments that are identically spliced but reside on opposite strands will be quantified separately. In an unstranded RNA-seq experiment, this may give rise to two counts for the same intron, one each for the supporting alignments on plus and minus strands.
+<<RNA_junction, eval=TRUE>>=
+exonJunctions <- qCount(proj2, NULL, reportLevel="junction")
+exonJunctions
+@
+
+About half of the exon-exon junctions detected in this sample datset correspond to known introns; they tend to be the ones with higher coverage:
+<<RNA_junction2, eval=TRUE>>=
+knownIntrons <- unlist(intronsByTranscript(txdb))
+isKnown <- overlapsAny(exonJunctions, knownIntrons, type="equal")
+table(isKnown)
+
+tapply(rowSums(as.matrix(mcols(exonJunctions))),
+       isKnown, summary)
+@ 
+%boxplot(rowSums(as.matrix(mcols(exonJunctions))) ~ isKnown)
+
 % acquire 'qcdat2' for qQCReport examples from a paired-end experiment
 <<RNA_qcplot1, eval=TRUE, echo=FALSE>>=
 qcdat2 <- qQCReport(proj2unspl, pdfFilename="qc_report.pdf")
@@ -759,7 +777,7 @@ QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout=FALSE)
 @
 \end{center}
 
-\item \textbf{Library complexity} shows fractions of unique read(-pair) alignment positions. This plot is available for bam input.
+\item \textbf{Library complexity} shows fractions of unique read(-pair) alignment positions. Please note that this measure is not independent from the total number of reads in a library, and is best compared between libraries of similar sizes. This plot is available for bam input.
 \begin{center}
 <<qcplotsFig5, eval=TRUE, echo=FALSE, fig=TRUE, height=4, width=8>>=
 QuasR:::plotUniqueness(qcdat1$raw$unique, a4layout=FALSE)
@@ -824,12 +842,13 @@ How an alignment overlap with a query region is defined can be controlled by the
 \end{itemize}
 
 \subsubsection{Running modes of \Rfunction{qCount}}
-The features to be quantified are specified by the \Rfunarg{query} argument. At the same time, the type of \Rfunarg{query} select the mode of quantification. \Rfunction{qCount} supports three different types of \Rfunarg{query} arguments and implements three corresponding quantification types, which primarily differ in the way they deal with redundancy, such as query bases that are contained in more than one query region:
+The features to be quantified are specified by the \Rfunarg{query} argument. At the same time, the type of \Rfunarg{query} selects the mode of quantification. \Rfunction{qCount} supports three different types of \Rfunarg{query} arguments and implements three corresponding quantification types, which primarily differ in the way they deal with redundancy, such as query bases that are contained in more than one query region. A fourth quantification mode allows counting of alignments supporting exon-exon juctions:
 
 \begin{itemize}
   \item \Robject{GRanges} query: Overlapping alignments are counted separately for each coordinate region in the query object. If multiple regions have identical names, their counts will be summed, counting each alignment only once even if it overlaps more than one of these regions. Alignments may however be counted more than once if they overlap multiple regions with different names. This mode is for example used to quantify ChIP-seq alignments in promoter regions (see section \ref{sec:ChIP} on page \pageref{code:ChIP_qCount}), or gene expression levels in an RNA-seq experiment (using a 'query' with exon regions named by gene).
   \item \Robject{GRangesList} query: Alignments are counted and summed for each list element in the query object if they overlap with any of the regions contained in the list element. The order of the list elements defines a hierarchy for quantification: Alignment will only be counted for the first element (the one with the lowest index in the query) that they overlap, but not for any potential further list elements containing overlapping regions. This mode can be used to hierarchically and uniquely count (assign) each alignment to a one of several groups of regions (the elements in the query), for example to estimate the fractions of different classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA, mRNA, etc.)
   \item \Robject{TranscriptDb} query: Used to extract regions from annotation and report alignment counts depending on the value of the \Rfunarg{reportLevel} argument. If \Rcode{reportLevel="exon"}, alignments overlapping each exon in the query are counted. If \Rcode{reportLevel="gene"}, alignment counts for all exons of a gene will be summed, counting each alignment only once even if it overlaps multiple annotated exons of a gene. These are useful to calculate exon or gene expression levels in RNA-seq experiments based on the annotation in a \Robject{TranscriptDB} object. If \Rcode{reportLevel="promoter"}, the \Rfunction{promoters} function from package \Rpackage{GenomicFeatures} is used with default arguments to extract promoter regions around transcript start sites, e.g. to quantify alignments inf a ChIP-seq experiment.
+  \item any of the above or \Rcode{NULL} for \Rcode{reportLevel="junction"}: The \Rfunarg{query} argument is ignored if \Rfunarg{reportLevel} is set to \Rcode{"junction"}, and \Rfunction{qCount} will count the number of alignments supporting each exon-exon junction detected in any of the samples in \Robject{proj}. The arguments \Rfunarg{selectReadPosition}, \Rfunarg{shift}, \Rfunarg{orientation}, \Rfunarg{useRead} and \Rfunarg{mask} will have no effect in this quantification mode.
 \end{itemize}
 
 
