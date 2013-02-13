@@ -147,7 +147,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     # check if the genome is a BSgenome.
     if(genome %in% installed.packages(lib.loc=lib.loc)[,'Package']){
       # BSgenome is already installed, load it
-      if(!require(genome, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)){stop("Fatal error 23434")}
+      if(!require(genome, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)){stop("The BSgenome ",genome," is installed but cannot be loaded. The version of the BSgenome might be too old",call.=FALSE)}
 
       proj@genome <- genome
       proj@genomeFormat <- "BSgenome"

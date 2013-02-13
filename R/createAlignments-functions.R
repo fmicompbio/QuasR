@@ -226,18 +226,18 @@ createGenomicAlignmentsController <- function(params){
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }else{
-      # in the case of BSgenome, flush it because it is needed by SpliceMap
-      if(proj@genomeFormat=="BSgenome"){
-        if(!require(paste(proj@genome,proj@alnModeID,sep="."), character.only=TRUE, quietly=TRUE)){stop("Could not load the genome index package ",paste(proj@genome,proj@alnModeID,sep="."))}
-        genomeObj <- get(ls(sprintf("package:%s", proj@genome))) # access the BSgenome
-        fastaFilepath <- tempfile(tmpdir=cacheDir, fileext=".fa")
-        print(paste("Writing BSgenome to disk on",Sys.info()['nodename'],":",fastaFilepath))
-        BSgenomeSeqToFasta(genomeObj, fastaFilepath)  # flush the BSgenome to disk
-        on.exit(unlink(fastaFilepath),add = TRUE)
-      }else{
-        fastaFilepath <- proj@genome
-      }
       if(is.na(proj@snpFile)){
+        # in the case of BSgenome, flush it because it is needed by SpliceMap
+        if(proj@genomeFormat=="BSgenome"){
+          if(!require(paste(proj@genome,proj@alnModeID,sep="."), character.only=TRUE, quietly=TRUE)){stop("Could not load the genome index package ",paste(proj@genome,proj@alnModeID,sep="."))}
+          genomeObj <- get(ls(sprintf("package:%s", proj@genome))) # access the BSgenome
+          fastaFilepath <- tempfile(tmpdir=cacheDir, fileext=".fa")
+          print(paste("Writing BSgenome to disk on",Sys.info()['nodename'],":",fastaFilepath))
+          BSgenomeSeqToFasta(genomeObj, fastaFilepath)  # flush the BSgenome to disk
+          on.exit(unlink(fastaFilepath),add = TRUE)
+        }else{
+          fastaFilepath <- proj@genome
+        }
         align_RbowtieSpliced(fastaFilepath,indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir)
       }else{
         proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
@@ -295,7 +295,7 @@ createGenomicAlignmentsController <- function(params){
   # save the info file for the bam file
   write.table(bamInfo,paste(proj@alignments$FileName[sampleNr],"txt",sep="."),sep="\t",quote=FALSE,col.names=FALSE)
 
-  print(paste("Genomic alignments for sample ",sampleNr," (",proj@reads$SampleName[sampleNr],") have been sucessfully created on ",Sys.info()['nodename'],sep=""))
+  print(paste("Genomic alignments for sample ",sampleNr," (",proj@reads$SampleName[sampleNr],") have been successfully created on ",Sys.info()['nodename'],sep=""))
 
   # if one process stops due to an error, catch it, concatenate the message with specific information about
   # the compute node and then print it to the log file. this procedure provides the information about which
@@ -382,7 +382,7 @@ createAuxAlignmentsController <- function(params){
     bamInfo <- qProjectBamInfo(proj,sampleNr,j)
     write.table(bamInfo,paste(proj@auxAlignments[j,sampleNr],"txt",sep="."),sep="\t",quote=FALSE,col.names=FALSE)
 
-    print(paste("Auxiliary alignments ",j," for sample ",sampleNr," (",proj@reads$SampleName[sampleNr],") have been sucessfully created on ",Sys.info()['nodename'],sep=""))
+    print(paste("Auxiliary alignments ",j," for sample ",sampleNr," (",proj@reads$SampleName[sampleNr],") have been successfully created on ",Sys.info()['nodename'],sep=""))
 
   }
 
