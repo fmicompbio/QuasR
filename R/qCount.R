@@ -183,7 +183,7 @@ qCount <-
             if(inherits(query,"GRanges")) {
                 if(!is.null(names(query)) && length(query) > length(unique(names(query)))) {
                     # remove redundancy from 'query' by names
-                    tmpquery <- reduce(split(query, names(query)))
+                    tmpquery <- reduce(split(query, names(query))[unique(names(query))])
                     flatquery <- unlist(tmpquery, use.names=FALSE)
                     querynames <- rep(names(tmpquery), elementLengths(tmpquery))
                     rm(tmpquery)
@@ -298,7 +298,7 @@ qCount <-
                 myapply <- function(...) {
                     ret <- clusterMap(clObj, ..., SIMPLIFY=FALSE, .scheduling="dynamic")
                     ## fuse
-                    iBySample <- split(seq_along(ret),names(ret))
+                    iBySample <- split(seq_along(ret),names(ret))[unique(names(ret))]
                     names(ret) <- NULL
                     if(!is.na(proj@snpFile)){
                         ret <- do.call(cbind, lapply(iBySample, function(i) do.call(rbind, ret[i])))
@@ -373,7 +373,7 @@ qCount <-
             ## collapse (sum) counts by 'querynames'
             if(length(querynames)>length(unique(querynames))) {
                 message("collapsing counts by query name...", appendLF=FALSE)
-                iByQuery <- split(seq_len(nrow(res)),querynames)
+                iByQuery <- split(seq_len(nrow(res)),querynames)[unique(querynames)]
                 res <- do.call(rbind, lapply(iByQuery, function(i) colSums(res[i,1:ncol(res),drop=FALSE])))
                 rownames(res) <- querynames <- names(iByQuery)
                 message("done")
