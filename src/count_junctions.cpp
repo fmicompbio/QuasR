@@ -200,17 +200,17 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
 	    uniqueJunctions.insert(it->first);
 	n = uniqueJunctions.size();
 	SEXP junctionNames, countR, countU, countA;
-	PROTECT(junctionNames = allocVector(STRSXP, n));
-	PROTECT(countR = allocVector(INTSXP, n));
-	PROTECT(countU = allocVector(INTSXP, n));
-	PROTECT(countA = allocVector(INTSXP, n));
+	PROTECT(junctionNames = Rf_allocVector(STRSXP, n));
+	PROTECT(countR = Rf_allocVector(INTSXP, n));
+	PROTECT(countU = Rf_allocVector(INTSXP, n));
+	PROTECT(countA = Rf_allocVector(INTSXP, n));
 
 	//    allocate and fill in count vectors
 	i=0;
 	map<string,int>::iterator cit;
 	for(set<string>::iterator it=uniqueJunctions.begin(); it!=uniqueJunctions.end(); ++it) {
 	    // id
-	    SET_STRING_ELT(junctionNames, i, mkChar((*it).c_str()));
+	    SET_STRING_ELT(junctionNames, i, Rf_mkChar((*it).c_str()));
 	    // R
 	    cit = jinfo.junctionsR.find(*it);
 	    INTEGER(countR)[i] = (cit == jinfo.junctionsR.end()) ? 0 : cit->second;
@@ -225,32 +225,32 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
 	}
 
 	//    build list
-	PROTECT(count = allocVector(VECSXP, 4));
-	PROTECT(attrib = allocVector(STRSXP, 4));
+	PROTECT(count = Rf_allocVector(VECSXP, 4));
+	PROTECT(attrib = Rf_allocVector(STRSXP, 4));
 
-	SET_STRING_ELT(attrib, 0, mkChar("id"));
-	SET_STRING_ELT(attrib, 1, mkChar("R"));
-	SET_STRING_ELT(attrib, 2, mkChar("U"));
-	SET_STRING_ELT(attrib, 3, mkChar("A"));
+	SET_STRING_ELT(attrib, 0, Rf_mkChar("id"));
+	SET_STRING_ELT(attrib, 1, Rf_mkChar("R"));
+	SET_STRING_ELT(attrib, 2, Rf_mkChar("U"));
+	SET_STRING_ELT(attrib, 3, Rf_mkChar("A"));
 	SET_VECTOR_ELT(count, 0, junctionNames);
 	SET_VECTOR_ELT(count, 1, countR);
 	SET_VECTOR_ELT(count, 2, countU);
 	SET_VECTOR_ELT(count, 3, countA);
-	setAttrib(count, R_NamesSymbol, attrib);
+	Rf_setAttrib(count, R_NamesSymbol, attrib);
 	UNPROTECT(6);
 
     } else {
 	// store results in named vector SEXP
 	n = jinfo.junctionsU.size();
 	i=0;
-	PROTECT(count = allocVector(INTSXP, n));
-	PROTECT(attrib = allocVector(STRSXP, n));
+	PROTECT(count = Rf_allocVector(INTSXP, n));
+	PROTECT(attrib = Rf_allocVector(STRSXP, n));
 	for(map<string,int>::iterator it=jinfo.junctionsU.begin(); it!=jinfo.junctionsU.end(); ++it) {
 	    INTEGER(count)[i] = it->second;
-	    SET_STRING_ELT(attrib, i, mkChar(it->first.c_str()));
+	    SET_STRING_ELT(attrib, i, Rf_mkChar(it->first.c_str()));
 	    i++;
 	}
-	setAttrib(count, R_NamesSymbol, attrib);
+	Rf_setAttrib(count, R_NamesSymbol, attrib);
 	UNPROTECT(2);
     }
 
