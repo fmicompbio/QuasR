@@ -99,7 +99,7 @@ int _bam_cat(int nfn, char * const *fn, const bam_header_t *h, const char* outba
             Rf_error("[%s] ERROR: fail to open file '%s'.\n", __func__, fn[i]);
             return -1;
         }
-        if (in->open_mode != 'r') return -1;
+        if (in->is_write) return -1;
         
         old = bam_header_read(in);
 		if (h == 0 && i == 0) bam_header_write(fp, old);
@@ -110,11 +110,10 @@ int _bam_cat(int nfn, char * const *fn, const bam_header_t *h, const char* outba
         }
         
         j=0;
+        fp_file=fp->fp;
 #ifdef _USE_KNETFILE
-        fp_file=fp->x.fpw;
-        while ((len = knet_read(in->x.fpr, buf, BUF_SIZE)) > 0) {
+        while ((len = knet_read(in->fp, buf, BUF_SIZE)) > 0) {
 #else  
-        fp_file=fp->file;
         while (!feof(in->file) && (len = fread(buf, 1, BUF_SIZE, in->file)) > 0) {
 #endif
             if(len<es){
