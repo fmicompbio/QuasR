@@ -59,6 +59,7 @@ all:bam_cat
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "samtools/knetfile.h"
 #include "samtools/bgzf.h"
 #include "samtools/bam.h"
 #include "cat_bam.h"
