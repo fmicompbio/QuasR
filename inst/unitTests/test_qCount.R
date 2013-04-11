@@ -71,7 +71,7 @@ test_shift <- function()
     
     # qCount with interger as shift
     
-    aln <- readBamGappedAlignments(project@alignments$FileName)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
@@ -157,7 +157,7 @@ test_orientation <- function()
     project
     
     # qCount with orientation, query strand
-    aln <- readBamGappedAlignments(project@alignments$FileName)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
@@ -237,8 +237,8 @@ test_useRead <- function()
     project
 
     # qCount with useRead
-    aln <- readBamGappedAlignments(project@alignments$FileName, 
-                                   param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=T, isSecondMateRead=F)))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, 
+                                  param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=T, isSecondMateRead=F)))
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
@@ -253,7 +253,7 @@ test_useRead <- function()
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="first")[,-1]
     checkTrue(all(resSoll == res), "Test 2: qCount with useRead")
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, 
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, 
                                    param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=F, isSecondMateRead=T)))
     
     resSoll <- rep(0,99)

@@ -173,7 +173,7 @@ test_partial_meth <- function(){
               "Test2 partial-methylated directed, mode=CpGcomb")
 
     # check total read counts
-    aln <- readBamGappedAlignments(project@alignments$FileName)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName)
     cov_plus <- coverage(aln[strand(aln) == "+"])
     cov_minus <- coverage(aln[strand(aln) == "-"])
     mcols(methAllC)$cov_plus <- unlist(lapply(seq_along(cov_plus), function(i){

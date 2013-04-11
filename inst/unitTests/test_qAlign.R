@@ -71,7 +71,7 @@ test_normal_paired <- function(){
     }
     project <- qAlign(sampleFileGenomePaired, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -94,7 +94,7 @@ test_normal_single <- function(){
     }
     project <- qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -120,8 +120,8 @@ test_bisulfit_paired <- function(){
     ## Dir
     project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
 
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -140,8 +140,8 @@ test_bisulfit_paired <- function(){
     ## Undir
     project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -172,8 +172,8 @@ test_bisulfit_single <- function(){
     ## Dir
     project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -196,8 +196,8 @@ test_bisulfit_single <- function(){
     ## Undir
     project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -230,8 +230,8 @@ test_allelic_paired <- function(){
     }
     project <- qAlign(sampleFileGenomePairedAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T, 
-                                   param=ScanBamParam(what="qname", tag="XV"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
+                                  param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -283,8 +283,8 @@ test_allelic_single <- function(){
     }
     project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(what="qname", tag="XV"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -330,7 +330,7 @@ test_spliced_paired <- function(){
     }
     project <- qAlign(sampleFileGenomePaired, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -353,7 +353,7 @@ test_spliced_single <- function(){
     }
     project <- qAlign(sampleFileGenomeSingle, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -378,8 +378,8 @@ test_aux_normal_paired <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -404,8 +404,8 @@ test_aux_normal_single <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -430,8 +430,8 @@ test_aux_bisulfit_undir_paired <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -456,8 +456,8 @@ test_aux_bisulfit_undir_single <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -482,8 +482,8 @@ test_aux_spliced_paired <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -508,8 +508,8 @@ test_aux_spliced_single <- function(){
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readBamGappedAlignments(alignments(project)$aux[1,1], use.names=T)
+    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -532,7 +532,7 @@ test_normal_paired_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, alignmentsDir=td, clObj=clObj)
 
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -555,7 +555,7 @@ test_normal_single_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -578,8 +578,8 @@ test_bisulfit_dir_paired_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -602,8 +602,8 @@ test_bisulfit_dir_single_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -627,8 +627,8 @@ test_allelic_paired_fasta <- function(){
     snpFile <<- file.path("extdata", "hg19sub_snp.txt")
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T, 
-                                   param=ScanBamParam(what="qname", tag="XV"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
+                                  param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -653,8 +653,8 @@ test_allelic_single_fasta <- function(){
     snpFile <<- file.path("extdata", "hg19sub_snp.txt")
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(what="qname", tag="XV"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -678,7 +678,7 @@ test_spliced_paired_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -701,7 +701,7 @@ test_spliced_single_fasta <- function(){
     }
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T)
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -726,8 +726,8 @@ test_bisulfit_dir_allelic_paired <- function(){
 
     project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag=c("XV","NM")))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag=c("XV","NM")))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -773,8 +773,8 @@ test_bisulfit_dir_allelic_single <- function(){
     
     project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readBamGappedAlignments(project@alignments$FileName, use.names=T,
-                                   param=ScanBamParam(tag="NM"))
+    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+                                  param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
