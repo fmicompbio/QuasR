@@ -16,6 +16,7 @@ qProfile(proj,
          auxiliaryName=NULL,
          mask=NULL,
          collapseBySample=TRUE,
+         includeSpliced=TRUE,
          maxInsertSize=500L,
          clObj=NULL)
 }
@@ -77,6 +78,9 @@ qProfile(proj,
     Details).}
   \item{collapseBySample}{if \code{TRUE} (the default), sum alignment
     counts from bam files with the same sample name.}
+  \item{includeSpliced}{if \code{TRUE} (the default), include spliced
+    alignments when counting. A spliced alignment is defined as an
+    alignment with a gap in the read of at least 60 bases.}
   \item{maxInsertSize}{Maximal fragment size of the paired-end experiment. 
     This parameter is used if \code{shift="halfInsert"} and will
     ensure that query regions are made wide enough to emcompass all

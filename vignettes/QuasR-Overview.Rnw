@@ -41,7 +41,7 @@
 %\title{An Introduction to \QuasR{}}
 \title{An Introduction to \raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: February 13, 2013. Compiled: \today}
+\date{Modified: May 4, 2013. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
@@ -561,7 +561,7 @@ geneRPKM
 Please note the RPKM values in our example are higher than what you would usually get for a real RNA-seq dataset. The values here are artificially scaled up because our example data contains reads only for a small number of genes.
 
 
-Exon-exon junctions can be quantified by setting \Rcode{reportLevel="junction"}. In this case, \Rfunction{qCount} will ignore the \Rfunarg{query} argument and scan all alignments for any detected splices, which are returned as a \Robject{GRanges} object: The region start and end coordinates correspond to the first and last bases of the intron, and the counts are returned in the \Rcode{mcols()} of the \Robject{GRanges} object. Alignments that are identically spliced but reside on opposite strands will be quantified separately. In an unstranded RNA-seq experiment, this may give rise to two counts for the same intron, one each for the supporting alignments on plus and minus strands.
+Exon-exon junctions can be quantified by setting \Rcode{reportLevel="junction"}. In this case, \Rfunction{qCount} will ignore the \Rfunarg{query} argument and scan all alignments for any detected splices, which are returned as a \Robject{GRanges} object: The region start and end coordinates correspond to the first and last bases of the intron, and the counts are returned in the \Rcode{mcols()} of the \Robject{GRanges} object. Alignments that are identically spliced but reside on opposite strands will be quantified separately. In an unstranded RNA-seq experiment, this may give rise to two separate counts for the same intron, one each for the supporting alignments on plus and minus strands.
 <<RNA_junction, eval=TRUE>>=
 exonJunctions <- qCount(proj2, NULL, reportLevel="junction")
 exonJunctions
@@ -577,6 +577,12 @@ tapply(rowSums(as.matrix(mcols(exonJunctions))),
        isKnown, summary)
 @ 
 %boxplot(rowSums(as.matrix(mcols(exonJunctions))) ~ isKnown)
+
+When quantifying exon junctions, only spliced alignments will be included in the quantification. It is also possible to only include unspliced alignments in the quantification, for example when counting exon body alignments that complement the exon junction alignments. This can be done using the \Rfunarg{includeSpliced} argument from \Rfunction{qCount}:
+<<RNA_includeSpliced, eval=TRUE>>=
+exonBodyLevels <- qCount(proj2, txdb, reportLevel="exon", includeSpliced=FALSE)
+summary(exonLevels - exonBodyLevels)
+@
 
 % acquire 'qcdat2' for qQCReport examples from a paired-end experiment
 <<RNA_qcplot1, eval=TRUE, echo=FALSE>>=
@@ -833,12 +839,13 @@ If calling \Rfunction{alignmentStats} on the bam files directly as in the first 
 \Rfunction{qCount} is the workhorse for counting alignments that overlap query regions. Usage and details on parameters can be obtained from the \Rcode{qCount} function documentation. Two aspects that are of special importance are also discussed here:
 
 \subsubsection{Determination of overlap}
-How an alignment overlap with a query region is defined can be controlled by the following four arguments of \Rfunction{qCount}:
+How an alignment overlap with a query region is defined can be controlled by the following arguments of \Rfunction{qCount}:
 \begin{itemize}
   \item \Rfunarg{selectReadPosition} specifies the read base that serves as a reference for overlaps with query regions. The alignment position of that base, eventually after shifting (see below), needs to be contained in the query region for an overlap. \Rfunarg{selectReadPosition} can be set to \Rcode{"start"} (the default) or \Rcode{"end"}, which refer to  the biological start (5\'-end) and end (3\'-end) of the read. For example, the \Rcode{"start"} of a read aligned to the plus strand is the leftmost base in the alignment (the one with the lowest coordinate), and the \Rcode{"end"} of a read aligned to the minus strand is also its leftmost base in the alignment.
   \item \Rfunarg{shift} allows shifting of alignments towards their 3\'-end prior to overlap determination and counting. This can be helpful to increase resolution of ChIP-seq experiments by moving alignments by half the immuno-precipitated fragment size towards the middle of fragments. \Rfunarg{shift} can either contain \Rcode{"integer"} values that specify the shift size, or for paired-end experiments, it can be set to the keyword \Rcode{"halfInsert"}, which will estimate the true fragment size from the distance between aligned read pairs and shift the alignments accordingly.
   \item \Rfunarg{orientation} controls the interpretation of alignment strand relative to the strand of the query region. The default value \Rcode{"any"} will count all overlapping alignments, irrespective of the strand. This setting is for example used in an unstranded RNA-seq experiment where both sense and antisense reads are generated from an mRNA. A value of \Rcode{"same"} will only count the alignments on the same strand as the query region (e.g. in a stranded RNA-seq experiment), and \Rcode{"opposite"} will only count the alignments on the opposite strand from the query region (e.g. to quantify anti-sense transcription in a stranded RNA-seq experiment).
   \item \Rfunarg{useRead} only applies to paired-end experiments and allows to quantify either all alignments (\Rcode{useRead="any"}), or only the first (\Rcode{useRead="first"}) or last (\Rcode{useRead="last"}) read from each read pair or read group. Note that for \Rcode{useRead="any"} (the default), an alignment pair that is fully contained within a query region will contribute two counts to the value of that region.
+  \item \Rfunarg{includeSpliced}: When set to \Rcode{FALSE}, spliced alignments will be excluded from the quantification. This could be useful for example to avoid redundant counting of reads when the spliced alignments are quantified separately using \Rfunarg{reportLevel="junction"}.   
 \end{itemize}
 
 \subsubsection{Running modes of \Rfunction{qCount}}

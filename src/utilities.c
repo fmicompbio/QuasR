@@ -1,5 +1,33 @@
 #include "utilities.h"
 
+/*! @function
+ @abstract  check if bam1_t *hit is a spliced alignment (gap in read >= MIN_INTRON_LENGTH).
+ @param     hit     the alignment
+ @return    true (1) or false (0)
+ */
+int _isSpliced(const bam1_t *hit){
+    uint32_t *cigar = bam1_cigar(hit);
+    int i = 0; // current position of cigar operations
+    int l; // length of current cigar operation
+    int op; // current cigar operation type
+    
+    // loop over cigar operations
+    for (i = 0; i < hit->core.n_cigar; ++i) {
+        
+        l = cigar[i]>>4, op = cigar[i]&0xf;
+        
+        if (op == BAM_CREF_SKIP || op == BAM_CDEL) {
+            // read skips reference region -> spliced alignment
+            if(l >= MIN_INTRON_LENGTH)
+                return 1;
+        }
+    }
+    
+    return 0;
+}
+
+
+
 // reverse string
 // original function copy from utilities.c of Rsamtools
 void _reverse(char *buf, int len){

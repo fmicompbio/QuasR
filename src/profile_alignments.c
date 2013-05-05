@@ -30,6 +30,7 @@
   @field readBitMask  select first/last read from a multi-read experiment
   @field selectReadPosition  weight of alignment on "s"tart or "e"nd
   @field allelic      allelic true(1) or false(0)
+  @field includeSpliced  count spliced alignments true(1) or false(0)
 */
 typedef struct {
     int *sumU;
@@ -46,6 +47,7 @@ typedef struct {
     int readBitMask;
     char selectReadPosition;
     int allelic;
+    int includeSpliced;
 } regionProfile;
 
 
@@ -94,6 +96,10 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     static double shift = 0;
     static int pos = 0, relpos = 0;
 
+    // skip alignment if rinfo->includeSpliced == false and alignmend is spliced
+    if(rinfo->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & rinfo->readBitMask) == 0)
         return 0;
@@ -156,7 +162,7 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
  */
 int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP start, SEXP end, SEXP refpos,
                                SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                               SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown){
+                               SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced){
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -188,7 +194,7 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
        && Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0] != 'e')
         Rf_error("The value of 'selectReadPosition' not supportet.");
 
-    // check parameters readBitMask, shift, broaden, maxWidth
+    // check parameters readBitMask, shift, broaden, maxWidth, includeSpliced
     if(!Rf_isInteger(readBitMask) || Rf_length(readBitMask) != 1)
         Rf_error("'readBitMask' must be of type integer(1)");
     if(!Rf_isInteger(shift) && Rf_length(shift) != 1)
@@ -201,6 +207,8 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
         Rf_error("'maxUp' must be of type integer(1)");
     if(!Rf_isInteger(maxDown) && Rf_length(maxDown) != 1)
         Rf_error("'maxDown' must be of type integer(1)");
+    if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
+        Rf_error("'includeSpliced' must be of type logical(1)");
 
     return 0;
 }
@@ -225,15 +233,16 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
   @param  broaden             extend query region for bam_fetch to catch alignments with overlaps due to shifting
   @param  maxUp               maximal upstream length of region
   @param  maxDown             maximal downstream length of region
+  @param  includeSpliced      also count spliced alignments
   @return          vector of length maxWidth with alignment counts per relative position in regions
  */
 SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                     SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown){
+                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced){
 
     // check parameters
     _verify_profile_parameters(bamfile, profileids, tid, start, end, refpos, selstrand, regstrand,
-                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown);
+                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced);
     
     // open bam file
     samfile_t *fin = 0;
@@ -273,7 +282,8 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
     rprof.readBitMask = INTEGER(readBitMask)[0];
     rprof.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rprof.allelic = 0;
-    
+    rprof.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
+   
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
     if(INTEGER(shift)[0] == SMART_SHIFT)
@@ -310,10 +320,10 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
 
 SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                 SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown){
+                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced){
     // check parameters
     _verify_profile_parameters(bamfile, profileids, tid, start, end, refpos, selstrand, regstrand,
-                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown);
+                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced);
     
     // open bam file
     samfile_t *fin = 0;
@@ -357,6 +367,7 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
     rprof.readBitMask = INTEGER(readBitMask)[0];
     rprof.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rprof.allelic = 1;
+    rprof.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
 
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);

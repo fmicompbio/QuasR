@@ -15,6 +15,7 @@ qProfile <-
              auxiliaryName=NULL,
              mask=NULL,
              collapseBySample=TRUE,
+             includeSpliced=TRUE,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -173,7 +174,8 @@ qProfile <-
                            broaden=broaden,
                            allelic=!is.na(proj@snpFile),
                            maxUp=maxUp,
-                           maxDown=maxDown))
+                           maxDown=maxDown,
+                           includeSpliced=includeSpliced))
         message("done")
         
         ## fuse by input file, rename and collapse by sample
@@ -218,7 +220,7 @@ qProfile <-
 ## profile alignments (with the C-function) for single bamfile, multiple regions, single shift
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectReadPosition,
-                              orientation, useRead, broaden, allelic, maxUp, maxDown)
+                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced)
 {
     tryCatch({ # try catch block contains whole function
         
@@ -253,11 +255,13 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         ## count alignments by position
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
-                             selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, PACKAGE="QuasR"))
+                             selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
+                             PACKAGE="QuasR"))
             colnames(count) <- as.character(seq(-maxUp, maxDown, by=1))
         } else {
             count <- lapply(.Call(profileAlignmentsAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
-                                  selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, PACKAGE="QuasR"),
+                                  selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
+                                  PACKAGE="QuasR"),
                             function(x) {
                                 x <- t(x)
                                 colnames(x) <- as.character(seq(-maxUp, maxDown, by=1))

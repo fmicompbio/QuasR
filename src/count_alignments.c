@@ -3,7 +3,7 @@
   
   Counts the alignments in regions, which fulfill specific criteria.
   
-  @author:    Anita Lerch
+  @author:    Anita Lerch, Michael Stadler
   @date:      2011-08-17
   @copyright: Friedrich Miescher Institute for Biomedical Research, Switzerland
   @license: GPLv3
@@ -26,6 +26,7 @@
   @field readBitMask  select first/last read from a multi-read experiment
   @field selectReadPosition  weight of alignment on "s"tart or "e"nd
   @field allelic      allelic true(1) or false(0)
+  @field includeSpliced  count spliced alignments true(1) or false(0)
 */
 typedef struct {
     int sumU;
@@ -38,6 +39,7 @@ typedef struct {
     int readBitMask;
     char selectReadPosition;
     int allelic;
+    int includeSpliced;
 } regionInfoSums;
 
 
@@ -85,6 +87,10 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     static double shift = 0;
     static int pos = 0;
 
+    // skip alignment if rinfo->includeSpliced == false and alignmend is spliced
+    if(rinfo->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & rinfo->readBitMask) == 0)
         return 0;
@@ -139,7 +145,7 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
   @return       0 if successful
  */
 int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP strand,
-                      SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden){
+                      SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -164,7 +170,7 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
        && Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0] != 'e')
         Rf_error("The value of 'selectReadPosition' not supportet.");
 
-    // check parameter readBitMask, shift, broaden
+    // check parameter readBitMask, shift, broaden, includeSpliced
     if(!Rf_isInteger(readBitMask) || Rf_length(readBitMask) != 1)
         Rf_error("'readBitMask' must be of type integer(1)");
     if(!Rf_isInteger(shift) && Rf_length(shift) != 1)
@@ -173,23 +179,31 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'broaden' must be of type integer(1)");
     if(INTEGER(broaden)[0] < 0)
         Rf_error("'broaden' must be a positive value.");
+    if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
+        Rf_error("'includeSpliced' must be of type logical(1)");
 
     return 0;
 }
 
 /*! @function
   @abstract  Counts the alignments in regions, which fit the strand, overlap type and shift criteria.
-  @param  bamfile   Name of the bamfile
-  @param  regions       Coordinates of fetch regions
-  @param  selectReadPosition  Type of the overlap criterion
-  @param  shift         Shift size of the reads
+  @param  bamfile             Name of the bamfile
+  @param  tid                 target region identifier
+  @param  start               target region start
+  @param  end                 target region end
+  @param  strand              target region strand
+  @param  selectReadPosition  alignment ancored at start/end
+  @param  readBitMask         select first/second/any read in a paired-end experiment
+  @param  shift               shift size
+  @param  broaden             extend query region for bam_fetch to catch alignments with overlaps due to shifting
+  @param  includeSpliced      also count spliced alignments
   @return               Vector of the alignment counts
  */
 SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
-                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden){
+                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced);
     
     // open bam file
     samfile_t *fin = 0;
@@ -214,6 +228,7 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
     rinfo.shift = INTEGER(shift)[0];
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 0;
+    rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
     
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
@@ -252,10 +267,10 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
 }
 
 SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
-                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden){
+                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced);
     
     // open bam file
     samfile_t *fin = 0;
@@ -280,6 +295,7 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     rinfo.shift = INTEGER(shift)[0];
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 1;
+    rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
 
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);

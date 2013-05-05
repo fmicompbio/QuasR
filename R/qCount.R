@@ -14,6 +14,7 @@ qCount <-
              auxiliaryName=NULL,
              mask=NULL,
              collapseBySample=TRUE,
+             includeSpliced=TRUE,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -342,7 +343,8 @@ qCount <-
                            orientation=orientation,
                            useRead=useRead,
                            broaden=broaden,
-                           allelic=!is.na(proj@snpFile)))
+                           allelic=!is.na(proj@snpFile),
+                           includeSpliced=includeSpliced))
             message("done")
 
         
@@ -427,7 +429,8 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic) {
 
 ## count alignments (with the C-function) for single bamfile, single shift, and single set of regions
 ## return a numeric vector with length(regions) elements (same order as regions)
-countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation, useRead, broaden, allelic)
+countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
+                            useRead, broaden, allelic, includeSpliced)
 {
     tryCatch({ # try catch block goes through the whole function
         
@@ -461,10 +464,12 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         ## get counts
         if(!allelic) {
             count <- .Call(countAlignmentsNonAllelic, bamfile, tid, start, end, strand,
-                           selectReadPosition, readBitMask, shift, broaden, PACKAGE="QuasR")
+                           selectReadPosition, readBitMask, shift, broaden, includeSpliced,
+                           PACKAGE="QuasR")
         } else {
             count <- as.matrix(as.data.frame(.Call(countAlignmentsAllelic, bamfile, tid, start, end, strand,
-                                                   selectReadPosition, readBitMask, shift, broaden, PACKAGE="QuasR")))
+                                                   selectReadPosition, readBitMask, shift, broaden, includeSpliced,
+                                                   PACKAGE="QuasR")))
         }
      
         return(count)
@@ -483,7 +488,7 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
 ## using a per-base-coverage vector approach
 ##     shift the read, broaden fetch region,
 ## return a numeric vector with length(regions) elements (same order as regions)
-countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shift=0L, broaden=0L)
+countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shift=0L, broaden=0L, includeSpliced=TRUE)
 {
     ## check if region are located on one chromosme
     seqName <- unique(seqnames(regions))
@@ -513,7 +518,9 @@ countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shi
     )
     
     ## call c-function
-    cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end), regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, PACKAGE="QuasR")
+    cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end),
+                 regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, includeSpliced,
+                 PACKAGE="QuasR")
     
     return(cnt)
 }

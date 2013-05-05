@@ -658,7 +658,7 @@ test_query_GRangesList_allelic <- function()
     checkTrue(all(resSoll == res), "GRangesList Test 6: qCount allele specific with masking and orientation=same")
 }
 
-# query with TranscriptDB; test parameters: collapseBySample, reportLevel, mask
+# query with TranscriptDB; test parameters: collapseBySample, reportLevel, mask, includeSpliced
 test_query_transcriptDB <- function()
 {
     if(!"clObj" %in% ls(envir=.GlobalEnv)){
@@ -712,6 +712,14 @@ test_query_transcriptDB <- function()
     resGr <- resGr[sort(rownames(resGr)),]
     checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 4")
     
+    # junction, includeSpliced
+    exGr <- GRanges(c("chr1","chr1","chr1","chr1"),
+                    IRanges(start=c(11720,12322,14043,14363), end=c(12212,12518,14165,14512)))
+    resE <- qCount(project, exGr, collapseBySample=FALSE)
+    resEU <- qCount(project, exGr, collapseBySample=FALSE, includeSpliced=FALSE)
+    inGr <- GRanges(c("chr1","chr1"), IRanges(start=c(12213,14166), end=c(12321,14362)), strand=c("+","+"))
+    resJ <- qCount(project, NULL, reportLevel="junction", collapseBySample=FALSE)
+    checkTrue(all((resE - resEU)[c(1,3),-1] == as.matrix(mcols(resJ[match(inGr, resJ)]))), "junction/includeSpliced Test 1")
     
     ## TranscriptDB vs GRanges with masked region
     resTxdb <- qCount(project, txdb, collapseBySample=F, mask=mask, reportLevel="gene")

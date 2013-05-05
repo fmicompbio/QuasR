@@ -3,7 +3,7 @@
 
   Counts alignments in a given set of regions which are located in a subspace of the genome
  
-  @author:    Anita Lerch
+  @author:    Anita Lerch, Michael Stadler
   @date:      2011-08-17
   @copyright: Friedrich Miescher Institute for Biomedical Research, Switzerland
   @license: GPLv3
@@ -15,10 +15,11 @@
 
 /*! @typedef
   @abstract Structure to provid the data to the bam_fetch() functions.
-  @field cov_plus   Coverage vector for plus strand
-  @field cov_minus  Coverage vector for minus strand
-  @field start      Start of the fetch region
-  @field end        End of the fetch region
+  @field cov_plus        Coverage vector for plus strand
+  @field cov_minus       Coverage vector for minus strand
+  @field start           Start of the fetch region
+  @field end             End of the fetch region
+  @field includeSpliced  Include spliced alignments in coverage
  */
 typedef struct {
     int* cov_plus;
@@ -26,6 +27,7 @@ typedef struct {
     int start; // offset
     int end;   // offset+width
     int shift; // shift of the reads
+    int includeSpliced;
 } fetch_param;
 
 
@@ -40,6 +42,10 @@ static int _add_start_to_coverage_vector(const bam1_t *hit, void *data)
     fetch_param *fparam = (fetch_param*)data;
     static int start_pos = 0;
 
+    // skip alignment if fparam->includeSpliced == false and alignmend is spliced
+    if(fparam->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
     if(((hit->core.flag & BAM_FREVERSE) != 16)){
 	// plus strand, start position of the read on left side
 	start_pos = (int)hit->core.pos + fparam->shift;
@@ -66,6 +72,10 @@ static int _add_end_to_coverage_vector(const bam1_t *hit, void *data)
     fetch_param *fparam = (fetch_param*)data;
     static int end_pos = 0;
 
+    // skip alignment if fparam->includeSpliced == false and alignmend is spliced
+    if(fparam->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
     if(((hit->core.flag & BAM_FREVERSE) != 16)){
 	// plus strand, end position of the read on right side
 	end_pos = (int)bam_calend(&hit->core, bam1_cigar(hit)) + fparam->shift;
@@ -92,6 +102,10 @@ static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
     fetch_param *fparam = (fetch_param*)data;
     static int mid_pos = 0;
 
+    // skip alignment if fparam->includeSpliced == false and alignmend is spliced
+    if(fparam->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
     if(hit->core.isize > 0){
 	// leftmost fragment
         mid_pos = (int)floor((double)hit->core.pos + ((double)hit->core.isize-1)/2);
@@ -112,18 +126,20 @@ static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
 
 /*! @function
   @abstract  Counts alignments in a given set of regions which are located in a subspace of the genome
-  @param  bam_in        Name of the bamfile
-  @param  idx_in        Name of the bam index file without the '.bai' extension
-  @param  tid           Reference sequence name identifier of the bamfile
-  @param  min_regions   Minimum coordinate of regions
-  @param  max_regions   Maximum coordinate of regions
-  @param  regions       Coordinates of fetch regions
-  @param  shift         Shift size of the reads 
-  @param  broaden       Broaden size of the regions
-  @param  overlap_type  Type of the overlap criterion
-  @return               Vector of the alignment counts
+  @param  bam_in          Name of the bamfile
+  @param  idx_in          Name of the bam index file without the '.bai' extension
+  @param  tid             Reference sequence name identifier of the bamfile
+  @param  min_regions     Minimum coordinate of regions
+  @param  max_regions     Maximum coordinate of regions
+  @param  regions         Coordinates of fetch regions
+  @param  shift           Shift size of the reads
+  @param  broaden         Broaden size of the regions
+  @param  overlap_type    Type of the overlap criterion
+  @param  includeSpliced  Include spliced alignments in coverage
+  @return                 Vector of the alignment counts
  */
-SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_regions, SEXP max_regions, SEXP regions, SEXP shift, SEXP broaden, SEXP overlap_type)
+SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_regions, SEXP max_regions, SEXP regions,
+                                 SEXP shift, SEXP broaden, SEXP overlap_type, SEXP includeSpliced)
 {
     // check bam_in and idx_in parameters
     if(!IS_CHARACTER(bam_in) || LENGTH(bam_in) != 1)
@@ -148,7 +164,7 @@ SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_r
 	Rf_error("failed to open BAM index file: '%s'", translateChar(STRING_ELT(bam_in, 0)));
     }
 
-    // check parameter stranded, overlap type, shift and minoverlap
+    // check parameter stranded, overlap type, shift, minoverlap and includeSpliced
     if(!IS_CHARACTER(overlap_type) || LENGTH(overlap_type) != 1)
         Rf_error("'overlap_type' must be of type character(1)");
     if(!IS_INTEGER(tid) && LENGTH(tid) != 1)
@@ -163,7 +179,9 @@ SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_r
         Rf_error("'broaden' must be integer(1)");
     if(INTEGER(broaden)[0] < 0)
         Rf_error("'broaden' must be a positive value.");
-        
+    if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
+        Rf_error("'includeSpliced' must be of type logical(1)");
+    
     // check parameter region and get direct pointer to the elements
     SEXP start = _getListElement(regions, "start");
     SEXP end = _getListElement(regions, "end");
@@ -215,6 +233,7 @@ SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_r
     fparam.start = cov_start;
     fparam.end = cov_end;
     fparam.shift = INTEGER(shift)[0];
+    fparam.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
 
     // run fetch
     bam_fetch(fin->x.bam, idx, 
