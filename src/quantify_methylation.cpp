@@ -222,7 +222,70 @@ int _verify_parameters(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP reg
 }
 
 
-/*! @function
+/*!
+  @function  _scanSeqForCG
+  @abstract  scan dna sequence ('seq') for presence of C's and G's and initialize output arrays (outputPlus, ouputMinus)
+             according to the analysis mode (mode_int)
+  @param  mode          analysis mode:
+                          mode == 0 : only C's in CpG context (+/- strands collapsed)
+                                  1 : only C's in CpG context (+/- strands separate)
+                                  2 : all C's (+/- strands separate)
+                                  3 : SNP detection, only C's in CpG context (+/- strands separate) --> should never come here (see detect_SNPs)
+  @param  seq           character array with target DNA sequence
+  @param  seqlen        length of seq
+  @param  leftextension offset of output arrays to account for alignments that are partially outside of region of interest
+  @param  outputPlus    pointer to bool array with true at positions to be quantified on the plus strand
+  @param  outputMinus   pointer to bool array with true at positions to be quantified on the minus strand
+  @param  pnOutputPlus  pointer to int (number of true values in outputPlus)
+  @param  pnOutputMinus pointer to int (number of true values in outputMinus)
+  @param  pnOutput      pointer to int (number of true values in total)
+
+  @return       0 if successful
+ */
+int _scanSeqForCG(int mode, const char* seq, int seqlen, int leftextension, bool* outputPlus, bool* outputMinus,
+		  int* pnOutputPlus, int* pnOutputMinus, int* pnOutput)
+{
+    int i=0, nOutputPlus=0, nOutputMinus=0, nOutput=0;
+
+    if(mode == 2) {
+	// all C's (+/- strands separate)
+	for(i=0; i<seqlen; i++) {
+	    if(seq[i]=='C' || seq[i]=='c') {
+		outputPlus[i+leftextension] = true;
+		nOutputPlus++;
+	    } else if(seq[i]=='G' || seq[i]=='g') {
+		outputMinus[i+leftextension] = true;
+		nOutputMinus++;
+	    }
+	}
+	nOutput = nOutputPlus + nOutputMinus;
+    
+    } else if((mode == 1) || (mode == 0)) {
+	// only C's in CpG context (+/- strands separate) OR
+	// only C's in CpG context (+/- strands collapsed)
+	for(i=0; i<seqlen-1; i++)
+	    if((seq[i]=='C' || seq[i]=='c') && (seq[i+1]=='G' || seq[i+1]=='g')) {
+		outputPlus[i+leftextension] = true;
+		outputMinus[i+1+leftextension] = true;
+		nOutputPlus++;
+	    }
+	nOutput = (mode == 1) ? 2*nOutputPlus : nOutputPlus;
+
+    } else {
+	Rf_error("unknown mode '%d', should be one of 0, 1, or 2.\n", mode);
+	return 1;
+    }
+
+    (*pnOutputPlus) = nOutputPlus;
+    (*pnOutputMinus) = nOutputMinus;
+    (*pnOutput) = nOutput;
+
+    return 0;
+}
+
+
+/*!
+  @function  quantify_methylation
   @abstract  parse bis-seq alignments and quantify methylation states
   @param  infiles        character vector with one or several bam file names (counts will be summed)
   @param  regionChr      character(1) with target sequence (chromosome) name
@@ -277,35 +340,7 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
     data.offset = start - leftextension;
 
     // scan seq and initialize counters
-    if(mode_int == 2) {
-	// all C's (+/- strands separate)
-	for(i=0; i<seqlen; i++) {
-	    if(seq[i]=='C' || seq[i]=='c') {
-		outputPlus[i+leftextension] = true;
-		nOutputPlus++;
-	    } else if(seq[i]=='G' || seq[i]=='g') {
-		outputMinus[i+leftextension] = true;
-		nOutputMinus++;
-	    }
-	}
-	nOutput = nOutputPlus + nOutputMinus;
-    
-    } else if((mode_int == 1) || (mode_int == 0)) {
-	// only C's in CpG context (+/- strands separate) OR
-	// only C's in CpG context (+/- strands collapsed)
-	for(i=0; i<seqlen-1; i++)
-	    if((seq[i]=='C' || seq[i]=='c') && (seq[i+1]=='G' || seq[i+1]=='g')) {
-		outputPlus[i+leftextension] = true;
-		outputMinus[i+1+leftextension] = true;
-		nOutputPlus++;
-	    }
-	nOutput = (mode_int == 1) ? 2*nOutputPlus : nOutputPlus;
-
-    } else {
-	Rf_error("unknown mode '%d', should be one of 0, 1, or 2.\n", mode_int);
-	return R_NilValue;
-    }
-
+    _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
 
     // loop over infiles and add to counters
     bam1_t *hit = bam_init1();
@@ -636,36 +671,7 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     data.offset = start - leftextension;
 
     // scan seq and initialize counters
-    if(mode_int == 2) {
-	// all C's (+/- strands separate)
-	for(i=0; i<seqlen; i++) {
-	    if(seq[i]=='C' || seq[i]=='c') {
-		outputPlus[i+leftextension] = true;
-		nOutputPlus++;
-	    } else if(seq[i]=='G' || seq[i]=='g') {
-		outputMinus[i+leftextension] = true;
-		nOutputMinus++;
-	    }
-	}
-	nOutput = nOutputPlus + nOutputMinus;
-    
-    } else if((mode_int == 1) || (mode_int == 0)) {
-	// only C's in CpG context (+/- strands separate) OR
-	// only C's in CpG context (+/- strands collapsed)
-	for(i=0; i<seqlen-1; i++)
-	    if((seq[i]=='C' || seq[i]=='c') && (seq[i+1]=='G' || seq[i+1]=='g')) {
-		outputPlus[i+leftextension] = true;
-		outputMinus[i+1+leftextension] = true;
-		nOutputPlus++;
-	    }
-	nOutput = (mode_int == 1) ? 2*nOutputPlus : nOutputPlus;
-
-    } else {
-	Rf_error("unknown mode '%d', should be one of 0, 1, or 2.\n", mode_int);
-	return R_NilValue;
-    }
-
-
+    _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
 
     // loop over infiles and add to counters
     bam1_t *hit = bam_init1();
