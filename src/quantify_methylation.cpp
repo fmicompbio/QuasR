@@ -23,7 +23,7 @@ inline char baseIntToChar(const int x) {
 }
 */
 
-typedef struct {
+typedef struct { // for use with addHitToCounts(), bam_fetch callback function of quantify_methylation()
     int *Tp;  // total      (plus)
     int *Mp;  // methylated (plus)
     int *Tm;  // total      (minus)
@@ -33,7 +33,8 @@ typedef struct {
     int offset; // region offset
 } methCounters;
 
-typedef struct { // count (mis-)matches on opposite strand (on the strand that was not altered in the bisulfite conversion)
+typedef struct { // for use with addHitToSNP(), bam_fetch callback function of detect_SNVs()
+    // count (mis-)matches on opposite strand (on the strand that was not altered in the bisulfite conversion)
     unsigned int *match;
     unsigned int *total;
     bool *targetC;
@@ -41,7 +42,7 @@ typedef struct { // count (mis-)matches on opposite strand (on the strand that w
     int offset; // region offset
 } snpCounters;
 
-typedef struct {
+typedef struct { // for use with addHitToCountsAllele(), bam_fetch callback function of quantify_methylation_allele()
     int *Tp[3];  // total      (plus, R/U/A)
     int *Mp[3];  // methylated (plus, R/U/A)
     int *Tm[3];  // total      (minus, R/U/A)
@@ -66,7 +67,7 @@ const inline int alleleFlagToInt(char xv) {
     return xvi;
 }
 
-static int addHitToCounts(const bam1_t *hit, void *data) {
+static int addHitToCounts(const bam1_t *hit, void *data) { // bam_fetch callback function of quantify_methylation()
   // REMARKS:
   //   assume ungapped read-global alignment
   //   count events separately for +/- strands (collapse strands during output if necessary)
@@ -113,7 +114,7 @@ static int addHitToCounts(const bam1_t *hit, void *data) {
 }
 
 
-static int addHitToSNP(const bam1_t *hit, void *data) {
+static int addHitToSNP(const bam1_t *hit, void *data) { // bam_fetch callback function of detect_SNVs()
     // REMARKS:
     //   assume ungapped read-global alignment
     //   hit->core.pos and count vectors are zero-based (add one during output)
@@ -152,7 +153,7 @@ static int addHitToSNP(const bam1_t *hit, void *data) {
 }
 
 
-static int addHitToCountsAllele(const bam1_t *hit, void *data) {
+static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch callback function of quantify_methylation_allele()
   // REMARKS:
   //   assume ungapped read-global alignment
   //   count events separately for +/- strands (collapse strands during output if necessary) and for allele flag (R/U/A)
@@ -192,16 +193,16 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) {
   return 0;
 }
 
-SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-			  SEXP seqstring, SEXP mode, SEXP returnZero) {
-    /*
-      mode == 0 : only C's in CpG context (+/- strands collapsed)
-              1 : only C's in CpG context (+/- strands separate)
-	      2 : all C's (+/- strands separate)
-              3 : SNP detection, only C's in CpG context (+/- strands separate) --> should never come here (see detect_SNPs)
-    */
 
-    // declare and validate parameters
+/*! @function
+  @abstract  verify the parameters of the quantify_methylation, detect_SNPs, quantify_methylation_allele functions
+  @param  bamfile        Name of the bamfile
+
+  @return       0 if successful
+ */
+int _verify_parameters(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
+		       SEXP seqstring, SEXP mode, SEXP returnZero){
+
     if (!Rf_isString(infiles))
 	Rf_error("'infiles' must be a character vector");
     if (!Rf_isString(regionChr) || 1 != Rf_length(regionChr))
@@ -212,11 +213,38 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
         Rf_error("'regionStart' must be integer(1)");
     if (!Rf_isString(seqstring) || 1 != Rf_length(seqstring))
 	Rf_error("'seqstring' must be a single character value");
-    if (!Rf_isInteger(mode) || 1 != Rf_length(mode))
+    if (mode!=NULL && (!Rf_isInteger(mode) || 1 != Rf_length(mode)))
         Rf_error("'mode' must be integer(1)");
     if (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero))
         Rf_error("'returnZero' must be logical(1)");
 
+    return 0;
+}
+
+
+/*! @function
+  @abstract  parse bis-seq alignments and quantify methylation states
+  @param  infiles        character vector with one or several bam file names (counts will be summed)
+  @param  regionChr      character(1) with target sequence (chromosome) name
+  @param  regionChrLen   integer(1) with the length of the target sequence (chromosome)
+  @param  regionStart    integer(1) with position on target sequence (chromosome) to start quantification of methylation states
+                         ('regionEnd' is defined by the regionStart + strlen(seqstring))
+  @param  seqstring      character(1) with the reference sequence [regionStart, ...] on regionChr
+  @param  mode           analysis mode:
+                             mode == 0 : only C's in CpG context (+/- strands collapsed)
+                                     1 : only C's in CpG context (+/- strands separate)
+                                     2 : all C's (+/- strands separate)
+                                     3 : SNP detection, only C's in CpG context (+/- strands separate) --> should never come here (see detect_SNPs)
+  @param  returnZero     if true, keep C's with zero counts in the return value
+
+  @return list containing five vectors (one element for each C or CpG) with chr, position, strand, total and methylated counts
+ */
+SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
+			  SEXP seqstring, SEXP mode, SEXP returnZero) {
+    // validate arguments
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero);
+
+    // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
@@ -416,20 +444,10 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
 SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
 		 SEXP seqstring, SEXP returnZero) {
 
-    // declare and validate parameters
-    if (!Rf_isString(infiles))
-	Rf_error("'infiles' must be a character vector");
-    if (!Rf_isString(regionChr) || 1 != Rf_length(regionChr))
-	Rf_error("'regionChr' must be a single character value");
-    if (!Rf_isInteger(regionChrLen) || 1 != Rf_length(regionChrLen))
-	Rf_error("'regionChrLen' must be integer(1)");
-    if (!Rf_isInteger(regionStart) || 1 != Rf_length(regionStart))
-        Rf_error("'regionStart' must be integer(1)");
-    if (!Rf_isString(seqstring) || 1 != Rf_length(seqstring))
-	Rf_error("'seqstring' must be a single character value");
-    if (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero))
-        Rf_error("'returnZero' must be logical(1)");
+    // validate arguments
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, NULL, returnZero);
 
+    // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0);
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
@@ -563,22 +581,10 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
 	      2 : all C's (+/- strands separate)
     */
 
-    // declare and validate parameters
-    if (!Rf_isString(infiles))
-	Rf_error("'infiles' must be a character vector");
-    if (!Rf_isString(regionChr) || 1 != Rf_length(regionChr))
-	Rf_error("'regionChr' must be a single character value");
-    if (!Rf_isInteger(regionChrLen) || 1 != Rf_length(regionChrLen))
-	Rf_error("'regionChrLen' must be integer(1)");
-    if (!Rf_isInteger(regionStart) || 1 != Rf_length(regionStart))
-        Rf_error("'regionStart' must be integer(1)");
-    if (!Rf_isString(seqstring) || 1 != Rf_length(seqstring))
-	Rf_error("'seqstring' must be a single character value");
-    if (!Rf_isInteger(mode) || 1 != Rf_length(mode))
-        Rf_error("'mode' must be integer(1)");
-    if (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero))
-        Rf_error("'returnZero' must be logical(1)");
+    // validate arguments
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero);
 
+    // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
