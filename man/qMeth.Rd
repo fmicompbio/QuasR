@@ -61,7 +61,10 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
   have been generated in converted (three-letter) sequence space for
   example by \code{\link[QuasR]{qAlign}}. A methylated event corresponds to a C/C
   match in the alignment, an unmethylated event to a T/C mismatch (or G/G
-  matches and A/G mismatches on the opposite strand).
+  matches and A/G mismatches on the opposite strand). For paired-end
+  samples, the part of the left fragment alignment that overlaps
+  with the right fragment alignment is ignored, preventing the
+  use of redundant information coming from the same molecule.
 
   Both directed (\code{bisulfite}=\dQuote{dir}) and undirected
   (\code{bisulfite}=\dQuote{undir}) experimental protocols are supported

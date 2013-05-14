@@ -58,7 +58,6 @@ typedef struct { // for use with addHitToCountsSingleAlignments(), bam_fetch cal
     vector<int> Cid;  // vector of C (DNA base) identifiers
     vector<char> strand; // vector of strands
     vector<int> meth; // vector of methylation status (0 or 1)
-    //int currAid;      // current alignment identifier
     bool *op; // output     (plus)
     bool *om; // output     (minus)
     int offset; // region offset
@@ -87,15 +86,21 @@ static int addHitToCounts(const bam1_t *hit, void *data) { // bam_fetch callback
   //   bam_calend() return zero-based, exclusive end
   static uint8_t *hitseq=NULL;
   static unsigned long int i=0;
+  static unsigned long int iend=0;
   static int j=0;
   static methCounters *cnt = NULL;
 
   hitseq = bam1_seq(hit);
   cnt = (methCounters*) data;
+  iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
+
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+      // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
+      iend = hit->core.mpos - cnt->offset;
 
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
       //Rprintf("\nminus strand alignment %d-%d (offset %d), id=%s\n", hit->core.pos+1, bam_calend(&(hit->core), bam1_cigar(hit)), cnt->offset, bam1_qname(hit));
-    for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->om[i]) {                   //  target base is 'G'
 	  //char Twobit2base[] = {'X', 'A', 'C', 'X', 'G', 'X', 'X', 'X', 'T', 'X', 'X', 'X', 'X', 'X', 'X', 'N'};
 	  //Rprintf("  adding to genomic position %d (read pos %d has %c)\n", i+cnt->offset+1, j+1, Twobit2base[bam1_seqi(hitseq, j)]);
@@ -109,7 +114,7 @@ static int addHitToCounts(const bam1_t *hit, void *data) { // bam_fetch callback
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
       //Rprintf("\nplus strand alignment %d-%d (offset %d), id=%s\n", hit->core.pos+1, bam_calend(&(hit->core), bam1_cigar(hit)), cnt->offset, bam1_qname(hit));
-    for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->op[i]) {                    //  target base is 'C'
 	  //char Twobit2base[] = {'X', 'A', 'C', 'X', 'G', 'X', 'X', 'X', 'T', 'X', 'X', 'X', 'X', 'X', 'X', 'N'};
 	  //Rprintf("  adding to genomic position %d (read pos %d has %c)\n", i+cnt->offset+1, j+1, Twobit2base[bam1_seqi(hitseq, j)]);
@@ -132,14 +137,20 @@ static int addHitToSNP(const bam1_t *hit, void *data) { // bam_fetch callback fu
     //   hit->core.pos and count vectors are zero-based (add one during output)
     static uint8_t *hitseq=NULL;
     static unsigned long int i=0;
+    static unsigned long int iend=0;
     static int j=0;
     static snpCounters *cnt = NULL;
 
     hitseq = bam1_seq(hit);
     cnt = (snpCounters*) data;
+    iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
+
+    if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+	// left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
+	iend = hit->core.mpos - cnt->offset;
 
     if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for C-C matches on opposite strand)
-	for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+	for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
 	    if(cnt->targetC[i]) {                 //  target base is 'C'
 		if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C'
 		    cnt->total[i]++;
@@ -150,7 +161,7 @@ static int addHitToSNP(const bam1_t *hit, void *data) { // bam_fetch callback fu
 	    }
 
     } else {                                   // alignment on plus strand (look for G-G matches on opposite strand)
-	for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+	for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
 	    if(cnt->targetG[i]) {                 // target base is 'G'
 		if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G'
 		    cnt->total[i]++;
@@ -172,15 +183,21 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch ca
   //   hit->core.pos and count vectors are zero-based (add one during output)
   static uint8_t *hitseq=NULL;
   static unsigned long int i=0;
+  static unsigned long int iend=0;
   static int j=0, a=0;
   static methCountersAllele *cnt = NULL;
 
   hitseq = bam1_seq(hit);
   cnt = (methCountersAllele*) data;
+  iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
   a = alleleFlagToInt((char)*(uint8_t*)(bam_aux_get(hit,"XV") + 1));
 
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+      // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
+      iend = hit->core.mpos - cnt->offset;
+
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
-    for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->om[i]) {                   //  target base is 'G'
 	if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G'
 	  cnt->Tm[a][i]++;
@@ -191,7 +208,7 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch ca
       }
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
-    for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->op[i]) {                    //  target base is 'C'
 	if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C'
 	  cnt->Tp[a][i]++;
@@ -214,27 +231,28 @@ static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // ba
   //   bam_calend() return zero-based, exclusive end
   static uint8_t *hitseq=NULL;
   static unsigned long int i=0;
+  static unsigned long int iend=0;
   static int j=0;
   static methCountersSingleAlignments *cnt = NULL;
 
   hitseq = bam1_seq(hit);
   cnt = (methCountersSingleAlignments*) data;
+  iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
 
-  // increase current alignment identifier
-  //cnt->currAid++;
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+      // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
+      iend = hit->core.mpos - cnt->offset;
 
   // scan alignment
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
-      for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+      for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
 	  if(cnt->om[i]) {                   //  target base is 'G'
 	      if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G' (methylated)
-		  //cnt->aid.push_back( cnt->currAid );
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
 		  cnt->Cid.push_back( i );
 		  cnt->strand.push_back( '-' );
 		  cnt->meth.push_back( 1 );
 	      } else if(bam1_seqi(hitseq, j)==1) { //  query base is 'A' (unmethylated)
-		  //cnt->aid.push_back( cnt->currAid );
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
 		  cnt->Cid.push_back( i );
 		  cnt->strand.push_back( '-' );
@@ -243,16 +261,14 @@ static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // ba
 	  }
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
-      for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+      for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
 	  if(cnt->op[i]) {                    //  target base is 'C'
 	      if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C' (methylated)
-		  //cnt->aid.push_back( cnt->currAid );
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
 		  cnt->Cid.push_back( i );
 		  cnt->strand.push_back( '+' );
 		  cnt->meth.push_back( 1 );
 	      } else if(bam1_seqi(hitseq, j)==8) { //  query base is 'T' (unmethylated)
-		  //cnt->aid.push_back( cnt->currAid );
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
 		  cnt->Cid.push_back( i );
 		  cnt->strand.push_back( '+' );
@@ -961,7 +977,6 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
     int nOutputPlus = 0, nOutputMinus = 0, nOutput = 0;
     int leftextension = (start < MAX_READ_LENGTH ? start : MAX_READ_LENGTH);
     methCountersSingleAlignments data;
-    //data.currAid = 0;
     data.op = outputPlus;
     data.om = outputMinus;
     data.offset = start - leftextension;
