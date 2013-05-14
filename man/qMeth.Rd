@@ -5,7 +5,8 @@
 Quantify methylation of cytosines from bisulfite sequencing data.
 }
 \usage{
-qMeth(proj, query=NULL, mode=c("CpGcomb","CpG","allC","var"),
+qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
+      mode=c("CpGcomb","CpG","allC","var"),
       collapseBySample=TRUE, collapseByQueryRegion=FALSE,
       asGRanges=TRUE, mask=NULL, reference="genome",
       keepZero=TRUE, clObj=NULL)
@@ -16,6 +17,10 @@ qMeth(proj, query=NULL, mode=c("CpGcomb","CpG","allC","var"),
     quantified. If \code{NULL}, all available target sequences (e.g. the
     whole genome) will be analyzed. Available target sequences are
     extracted from the header of the first bam file.}
+  \item{reportLevel}{report results combined for C's
+    (\code{reportLevel}=\dQuote{C}}, the default) or individually for single
+    alignments (\code{reportLevel}=\dQuote{alignment}). The latter imposes
+    further restrictions on some arguments (see \sQuote{Details}).
   \item{mode}{cytosine quantification mode, one of:
     \itemize{
       \item \code{CpGcomb} : only C's in CpG context (strands combined)
@@ -62,6 +67,15 @@ qMeth(proj, query=NULL, mode=c("CpGcomb","CpG","allC","var"),
   (\code{bisulfite}=\dQuote{undir}) experimental protocols are supported
   by \code{\link[QuasR]{qAlign}} and \code{qMeth}.
 
+  By default, results are returned per C nucleotide. If
+  \code{reportLevel}=\dQuote{alignment}, results are reported separately
+  for individual alignments. In that case, \code{query} has to be a
+  \code{GRanges} object with exactly one region, \code{mode} has to be
+  either \dQuote{CpG} or \dQuote{allC}, the arguments
+  \code{collapseByQueryRegion}, \code{asGRanges}, \code{mask} and
+  \code{keepZero} have no effect and allele-specific projects are
+  treated in the same way as normal (non-allele specific) projects.
+  
   Using the parameter \code{mode}, quantification can be limited to
   cytosines in CpG context, and counts obtained for the two cytosines on
   opposite strands within a single CpG can be combined (summed).
@@ -89,8 +103,8 @@ qMeth(proj, query=NULL, mode=c("CpGcomb","CpG","allC","var"),
   not be split into multiple chunks.
 }
 \value{
-  A \code{GRanges} object if \code{asGRanges}=\code{TRUE}, otherwise
-  a \code{data.frame}.
+  For \code{reportLevel}=\dQuote{C}, a \code{GRanges} object if
+  \code{asGRanges}=\code{TRUE}, otherwise a \code{data.frame}.
 
   Each row contains the coordinates of individual cytosines for
   \code{collapseByQueryRegion}=\code{FALSE} or query regions
@@ -112,7 +126,21 @@ qMeth(proj, query=NULL, mode=c("CpGcomb","CpG","allC","var"),
   a single set of total and methylated count columns.
 
   If \code{mode}=\dQuote{var}, the _T and _M columns correspond to total
-  and matching alignments overlapping the guanine paired to the cytosine.
+  and matching alignments overlapping the guanine paired to the
+  cytosine.
+
+  For \code{reportLevel}=\dQuote{alignment}, a \code{list} with one
+  element per bam file or sample (depending on
+  \code{collapseBySample}. Each list element is another list with the
+  elements:
+  \itemize{
+    \item \code{aid}: character vector with unique alignment identifiers
+    \item \code{Cid}: integer vector with genomic coordinate of C base
+    \item \code{strand}: character vector with the strand of the C base
+    \item \code{meth}: integer vector with methylation state for
+    alignment and C defined by \code{aid} and \code{Cid}. The values are
+    1 for methylated or 0 for unmethylated states.
+  }
 }
 %\references{
 %% ~put references to the literature/web site here ~

@@ -51,6 +51,7 @@ static const R_CallMethodDef callMethods[] = {
     {"quantifyMethylation", (DL_FUNC) &quantify_methylation, 7},
     {"detectSNVs", (DL_FUNC) &detect_SNVs, 6},
     {"quantifyMethylationAllele", (DL_FUNC) &quantify_methylation_allele, 7},
+    {"quantifyMethylationSingleAlignments", (DL_FUNC) &quantify_methylation_singleAlignments, 6},
     /* export_wig.c */
     {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 11},
     /* nucleotide_alignment_frequencies.c */

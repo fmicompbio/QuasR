@@ -52,6 +52,18 @@ typedef struct { // for use with addHitToCountsAllele(), bam_fetch callback func
     int offset; // region offset
 } methCountersAllele;
 
+typedef struct { // for use with addHitToCountsSingleAlignments(), bam_fetch callback function of quantify_methylation_singleAlignments()
+    //vector<int> aid;  // vector of alignment identifiers
+    vector<string> aid;  // vector of alignment identifiers
+    vector<int> Cid;  // vector of C (DNA base) identifiers
+    vector<char> strand; // vector of strands
+    vector<int> meth; // vector of methylation status (0 or 1)
+    //int currAid;      // current alignment identifier
+    bool *op; // output     (plus)
+    bool *om; // output     (minus)
+    int offset; // region offset
+} methCountersSingleAlignments;
+
 const inline int alleleFlagToInt(char xv) {
     static int xvi;
     switch(xv) {
@@ -194,6 +206,65 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch ca
 }
 
 
+static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // bam_fetch callback function of quantify_methylation_singleAlignments()
+  // REMARKS:
+  //   assume ungapped read-global alignment
+  //   count events separately for +/- strands (collapse strands during output if necessary)
+  //   hit->core.pos and count vectors are zero-based (add one during output)
+  //   bam_calend() return zero-based, exclusive end
+  static uint8_t *hitseq=NULL;
+  static unsigned long int i=0;
+  static int j=0;
+  static methCountersSingleAlignments *cnt = NULL;
+
+  hitseq = bam1_seq(hit);
+  cnt = (methCountersSingleAlignments*) data;
+
+  // increase current alignment identifier
+  //cnt->currAid++;
+
+  // scan alignment
+  if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
+      for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+	  if(cnt->om[i]) {                   //  target base is 'G'
+	      if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G' (methylated)
+		  //cnt->aid.push_back( cnt->currAid );
+		  cnt->aid.push_back( string(bam1_qname(hit)) );
+		  cnt->Cid.push_back( i );
+		  cnt->strand.push_back( '-' );
+		  cnt->meth.push_back( 1 );
+	      } else if(bam1_seqi(hitseq, j)==1) { //  query base is 'A' (unmethylated)
+		  //cnt->aid.push_back( cnt->currAid );
+		  cnt->aid.push_back( string(bam1_qname(hit)) );
+		  cnt->Cid.push_back( i );
+		  cnt->strand.push_back( '-' );
+		  cnt->meth.push_back( 0 );
+	      }
+	  }
+
+  } else {                                   // alignment on plus strand (look for C-T mismatches)
+      for(i=hit->core.pos-cnt->offset, j=0; i<bam_calend(&(hit->core), bam1_cigar(hit))-cnt->offset; i++, j++)
+	  if(cnt->op[i]) {                    //  target base is 'C'
+	      if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C' (methylated)
+		  //cnt->aid.push_back( cnt->currAid );
+		  cnt->aid.push_back( string(bam1_qname(hit)) );
+		  cnt->Cid.push_back( i );
+		  cnt->strand.push_back( '+' );
+		  cnt->meth.push_back( 1 );
+	      } else if(bam1_seqi(hitseq, j)==8) { //  query base is 'T' (unmethylated)
+		  //cnt->aid.push_back( cnt->currAid );
+		  cnt->aid.push_back( string(bam1_qname(hit)) );
+		  cnt->Cid.push_back( i );
+		  cnt->strand.push_back( '+' );
+		  cnt->meth.push_back( 0 );
+	      }
+	  }
+  }
+
+  return 0;
+}
+
+
 /*! @function
   @abstract  verify the parameters of the quantify_methylation, detect_SNPs, quantify_methylation_allele functions
   @param  bamfile        Name of the bamfile
@@ -215,7 +286,7 @@ int _verify_parameters(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP reg
 	Rf_error("'seqstring' must be a single character value");
     if (mode!=NULL && (!Rf_isInteger(mode) || 1 != Rf_length(mode)))
         Rf_error("'mode' must be integer(1)");
-    if (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero))
+    if (returnZero!=NULL && (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero)))
         Rf_error("'returnZero' must be logical(1)");
 
     return 0;
@@ -843,3 +914,141 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     UNPROTECT(11);
     return(res);
 }
+
+/*!
+  @function  quantify_methylation_singleAlignments
+  @abstract  parse bis-seq alignments and quantify methylation states (report results for individual reads)
+  @param  infiles        character vector with one or several bam file names (results will be pooled)
+  @param  regionChr      character(1) with target sequence (chromosome) name
+  @param  regionChrLen   integer(1) with the length of the target sequence (chromosome)
+  @param  regionStart    integer(1) with position on target sequence (chromosome) to start quantification of methylation states
+                         ('regionEnd' is defined by the regionStart + strlen(seqstring))
+  @param  seqstring      character(1) with the reference sequence [regionStart, ...] on regionChr
+  @param  mode           analysis mode:
+                             mode == 0 : *NOT ALLOWED HERE* only C's in CpG context (+/- strands collapsed)
+                                     1 : only C's in CpG context (+/- strands separate)
+                                     2 : all C's (+/- strands separate)
+                                     3 : *NOT ALLOWED HERE* SNP detection, only C's in CpG context (+/- strands separate)
+
+  @return list containing elements:
+           aid    : integer vector with unique alignment identifiers
+           Cid    : integer vector with unique C identifiers (C's in seqstring)
+           meth   : integer vector with 1 (methylated) or 0 (unmethylated)
+           // Cinfo  : character vector with annotation information for unique Cid's
+ */
+SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
+					   SEXP seqstring, SEXP mode) {
+    // validate arguments
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, NULL);
+
+    // declare parameters
+    const char *target_name = Rf_translateChar(STRING_ELT(regionChr, 0));
+    const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
+    int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
+	start = Rf_asInteger(regionStart) - 1, seqlen = strlen(seq), end = 0;
+    end = start + seqlen; // end: 0-based, exclusive
+
+    if(mode_int != 1 && mode_int != 2)
+	Rf_error("'mode' (%d) must be 1 or 2 for quantify_methylation_singleAlignments.\n", mode_int);
+
+    const char **inf = (const char**) R_Calloc(nbIn, char*);
+    for(i=0; i<nbIn; i++)
+	inf[i] = Rf_translateChar(STRING_ELT(infiles, i));
+
+    bool *outputPlus = NULL, *outputMinus = NULL;
+    outputPlus = (bool*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, bool);
+    outputMinus = (bool*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, bool);
+    int nOutputPlus = 0, nOutputMinus = 0, nOutput = 0;
+    int leftextension = (start < MAX_READ_LENGTH ? start : MAX_READ_LENGTH);
+    methCountersSingleAlignments data;
+    //data.currAid = 0;
+    data.op = outputPlus;
+    data.om = outputMinus;
+    data.offset = start - leftextension;
+
+    // scan seq and initialize counters
+    _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
+
+    // loop over infiles and add to counters
+    bam1_t *hit = bam_init1();
+    samfile_t *fin;
+    bam_index_t *idx;
+
+    for(i=0; i<nbIn; i++) {
+	fin = _bam_tryopen(inf[i], "rb", NULL);
+	idx = bam_index_load(inf[i]); // load BAM index
+	if (idx == 0)
+	    Rf_error("BAM index for '%s' unavailable\n", inf[i]);
+
+
+	// get target id
+	tid = 0;
+	while(strcmp(fin->header->target_name[tid], target_name) && tid+1<fin->header->n_targets)
+	    tid++;
+
+	if(strcmp(fin->header->target_name[tid], target_name))
+	    Rf_error("could not find target '%s' in bam header of '%s'.\n", target_name, inf[i]);
+
+
+	// call addHitToCountsSingleAlignments on all alignments in region
+	bam_fetch(fin->x.bam, idx, tid, start, end, &data, &addHitToCountsSingleAlignments);
+
+
+	// clean bam file objects
+	bam_index_destroy(idx);
+	samclose(fin);
+    }
+
+    bam_destroy1(hit);
+
+
+    // allocate result objects
+    int resLength = data.aid.size();
+    if(resLength != data.Cid.size() || resLength != data.meth.size())
+	Rf_error("result structures are incompatible (%d/%d/%d); fatal error in quantify_methylation_singleAlignments\n",
+		 resLength, data.Cid.size(), data.meth.size());
+    SEXP resAid, resCid, resStrand, resMeth, res, resNames, strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-");
+    //PROTECT(resAid    = Rf_allocVector(INTSXP, resLength));
+    PROTECT(resAid    = Rf_allocVector(STRSXP, resLength));
+    PROTECT(resCid    = Rf_allocVector(INTSXP, resLength));
+    PROTECT(resStrand = Rf_allocVector(STRSXP, resLength));
+    PROTECT(resMeth   = Rf_allocVector(INTSXP, resLength));
+    PROTECT(res       = Rf_allocVector(VECSXP, 4));
+    PROTECT(resNames  = Rf_allocVector(STRSXP, 4));
+
+    // fill in results objects
+    //memcpy( INTEGER(resAid),  data.aid.data(),  sizeof(int)*resLength );
+    memcpy( INTEGER(resCid),  data.Cid.data(),  sizeof(int)*resLength );
+    memcpy( INTEGER(resMeth), data.meth.data(), sizeof(int)*resLength );
+    for(i=0; i<resLength; i++) {
+	SET_STRING_ELT(resAid,    i, Rf_mkChar(data.aid[i].c_str()));
+	SET_STRING_ELT(resStrand, i, data.strand[i]=='-' ? strandMinus : strandPlus);
+    }
+    
+    // transform C (DNA base) identifiers to genomic positions
+    int *Cid = INTEGER(resCid);
+    for(i=0; i<resLength; i++)
+	Cid[i] += data.offset + 1;
+
+    // combine results into list
+    SET_VECTOR_ELT(res, 0, resAid);
+    SET_VECTOR_ELT(res, 1, resCid);
+    SET_VECTOR_ELT(res, 2, resStrand);
+    SET_VECTOR_ELT(res, 3, resMeth);
+
+    SET_STRING_ELT(resNames, 0, Rf_mkChar("aid"));
+    SET_STRING_ELT(resNames, 1, Rf_mkChar("Cid"));
+    SET_STRING_ELT(resNames, 2, Rf_mkChar("strand"));
+    SET_STRING_ELT(resNames, 3, Rf_mkChar("meth"));
+    Rf_setAttrib(res, R_NamesSymbol, resNames);
+
+    // clean up
+    R_Free(inf);
+    R_Free(outputPlus);
+    R_Free(outputMinus);
+
+    // return
+    UNPROTECT(6);
+    return(res);
+}
+

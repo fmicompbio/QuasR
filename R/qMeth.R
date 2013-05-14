@@ -1,20 +1,21 @@
-# proj      : qProject object
-# query     : NULL (whole genome)
-#             GRanges object (only quantify C's in these regions)
-# mode      : "allC"            : all C's (+/- strands separate)
-#             "CpG"             : only C's in CpG context (+/- strands separate)
-#             "CpGcomb"(default): only C's in CpG context (+/- strands collapsed)
-#             "var"             : variant detection (all C's, +/- strands separate)
+# proj       : qProject object
+# query      : NULL (whole genome)
+#              GRanges object (only quantify C's in these regions)
+# reportLevel: "C" or "alignment"
+# mode       : "allC"            : all C's (+/- strands separate)
+#              "CpG"             : only C's in CpG context (+/- strands separate)
+#              "CpGcomb"(default): only C's in CpG context (+/- strands collapsed)
+#              "var"             : variant detection (all C's, +/- strands separate)
 # collapseBySample : combine (sum) counts from bamfiles with the same sample name
 # collapseByQueryRegion : combine (sum) counts for C's per query region
-# asGRanges : return value as GRanges object or data.frame
-# mask      : mask genomic regions (e.g. unmappable regions)
-# reference : source of bam files ("genome" or AuxName)
-# keepZero  : return C's with total==0 in results
-# clObj     : cluster object for parallelization
+# asGRanges  : return value as GRanges object or data.frame
+# mask       : mask genomic regions (e.g. unmappable regions)
+# reference  : source of bam files ("genome" or AuxName)
+# keepZero   : return C's with total==0 in results
+# clObj      : cluster object for parallelization
 #
-# value     : if asGRanges==TRUE, GRanges object with one region per quantified C and two metadata columns per sample (_T, _M)
-#             else, data.frame with one row per quantified C and in the columns the coordinates of the C, as well as two count (_T, _M) per sample
+# value      : if asGRanges==TRUE, GRanges object with one region per quantified C and two metadata columns per sample (_T, _M)
+#              else, data.frame with one row per quantified C and in the columns the coordinates of the C, as well as two count (_T, _M) per sample
 
 # TODO:
 # - support for gapped aligments (parsing of cigar strings at C level)
@@ -24,6 +25,7 @@
 qMeth <-
     function(proj,
              query=NULL,
+             reportLevel=c("C","alignment"),
              mode=c("CpGcomb","CpG","allC","var"),
              collapseBySample=TRUE,
              collapseByQueryRegion=FALSE,
@@ -55,12 +57,15 @@ qMeth <-
             stop("unknown 'reference', should be one of: ",
                  paste(sprintf("'%s'", c("genome",rownames(proj@auxAlignments))), collapse=", "))
         }
+        reportLevel <- match.arg(reportLevel)
         mode <- match.arg(mode)
 
         
         ## validate parameters -------------------------------------------------------------------------------
         # 'query' is correct type?
         if(is.null(query)) {
+            if(reportLevel=="alignment")
+                stop("'query' must be an object of type 'GRanges' with length 1 for reportLevel='alignment'")
             tr <- scanBamHeader(bamfiles[1])[[1]]$targets
             query <- GRanges(names(tr), IRanges(start=1, end=tr))
         } else if(!inherits(query,"GRanges")) {
@@ -80,6 +85,12 @@ qMeth <-
         if(mode=="var" && !is.na(proj@snpFile))
             stop("allele-specific mode cannot be combined with variant detection mode")
 
+        if(reportLevel=="alignment") {
+            if(!(mode %in% c("CpG","allC")))
+                stop("'mode' must be 'CpG' or 'allC' for reportLevel='alignment'")
+            if(length(query)!=1)
+                stop("'query' must be an object of type 'GRanges' with length 1 for reportLevel='alignment'")
+        }
 
         # all query chromosomes present in all bamfiles?
         trTab <- table(unlist(lapply(scanBamHeader(bamfiles), function(bh) names(bh$targets))))
@@ -91,6 +102,8 @@ qMeth <-
 
         ## apply 'mask' to query -----------------------------------------------------------------------------
         if(!is.null(mask)) {
+            if(reportLevel=="alignment")
+                warning("ignoring 'mask' for reportLevel='alignment'")
             stop("'mask' (masking of query regions, e.g. unmappable genomic regions) is not implemented yet")
         }
         
@@ -129,7 +142,19 @@ qMeth <-
 
 
         ## quantify methylation  -----------------------------------------------------------------------------
-        if(!is.na(proj@snpFile)) {
+        if(reportLevel=="alignment") {
+            # ...per alignment reporting mode: list(nSamples) of list(3) with "aid","Cid","meth" elements
+            resL <- myapply(seq_len(nChunk), #nChunk is always equal to nChunkBamfile (length(taskBamfiles))
+                            function(i) quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments(taskBamfiles[[i]],
+                                                                                                           query[taskIByQuery[[i]]],
+                                                                                                           collapseByQueryRegion,
+                                                                                                           mode,
+                                                                                                           referenceFormat,
+                                                                                                           referenceSource))
+            names(resL) <- sampleNames
+            res <- resL
+            
+        } else if(!is.na(proj@snpFile)) {
             # allele-bis-mode: 6 columns per sample in output (TR, MR, TU, MU, TA, MA) -------------
             resL <- myapply(seq_len(nChunk),
                             function(i) quantifyMethylationBamfilesRegionsSingleChromosomeAllele(taskBamfiles[[i]],
@@ -205,7 +230,7 @@ qMeth <-
             colnames(res)[5:ncol(res)] <- sprintf("%s_%s",rep(sampleNames,each=2),c("T","M"))
         }
 
-        if(asGRanges) {
+        if(asGRanges && reportLevel!="alignment") {
             if(referenceFormat=="file") {
                 si <- seqinfo(scanFaIndex(referenceSource))
             } else {
@@ -278,6 +303,43 @@ detectVariantsBamfilesRegionsSingleChromosome <-
         res
     }
 
+
+# quantify methylation for (report for INDIVIDUAL ALIGMENTS):
+#  - multiple bamfiles (will allways be collapsed)
+#  - a single region
+#  - mode (defines which and how C's are quantified)
+#  - referenceFormat and reference (access to sequence at 'regions')
+# return a list(4) with elements "aid","Cid","strand","meth"
+quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
+    function(bamfiles, regions, collapseByQueryRegion, mode=c("CpG","allC"), referenceFormat, reference) {
+        ## verify parameters
+        if(length(regions) != 1)
+            stop("'regions' must be of length 1 for 'quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments'")
+        mode <- c("CpG"=1L,"allC"=2L)[match.arg(mode)]
+        chr <- as.character(unique(seqnames(regions)))
+        regionsStart <- as.integer(start(regions))
+        regionsEnd   <- as.integer(end(regions))
+        regionsGr    <- GRanges(chr, IRanges(start=regionsStart, end=regionsEnd))
+        
+        
+        ## get sequence string from...
+        if(referenceFormat=="file") { # genome file
+            chrLen <- as.integer(seqlengths(scanFaIndex(reference))[chr])
+            seqstr <- as.character(scanFa(reference, regionsGr)[[1]])
+
+        } else {                      # BSgenome object
+            library(reference, character.only=TRUE)
+            referenceObj <- get(ls(sprintf("package:%s", reference))) # access the BSgenome
+            chrLen <- as.integer(length(referenceObj[[chr]]))
+            seqstr <- getSeq(referenceObj, regionsGr, as.character=TRUE)
+        }
+
+        
+        ## call CPP function (multiple bam files, single region)
+        resL <- .Call("quantifyMethylationSingleAlignments", bamfiles, chr, chrLen, regionsStart, seqstr, mode);
+
+        return(resL)
+    }
 
 # quantify methylation for:
 #  - multiple bamfiles (will allways be collapsed)

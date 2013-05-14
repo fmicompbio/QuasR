@@ -643,6 +643,8 @@ qMeth(proj3, query=promRegSel, collapseByQueryRegion=TRUE,
       collapseBySample=TRUE)
 @
 
+Finally, \Rfunction{qMeth} allows the retrieval of methylation states for individual molecules (per alignment). This is done by using a \Rfunarg{query} containing a single genomic region (typically small, such as a PCR amplicon) and setting \Rcode{reportLevel="alignment"}. In that case, the return value of \Rfunction{qMeth} will be a list (over samples) of lists (with four elements giving the identities of alignment, C nucleotide, strand and the methylation state). See the documentation of \Rfunction{qMeth} for more details.
+
 
 \subsection{Allele-specific analysis}
 \label{sec:Allele}

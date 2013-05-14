@@ -7,6 +7,9 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
+#include <vector>
+#include <cstring>
+#include <string>
 #include <stdbool.h>
 #include "samtools/sam.h"
 
@@ -23,6 +26,8 @@ extern "C" {
 		     SEXP seqstring, SEXP returnZero);
     SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
 				     SEXP seqstring, SEXP mode, SEXP returnZero);
+    SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
+					       SEXP seqstring, SEXP mode);
 #ifdef __cplusplus
 }
 #endif
