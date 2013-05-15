@@ -8,18 +8,20 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
         qa <- NULL
         warning("compressed 'fasta' input is not yet supported")
     }else{
+        old.o <- options("srapply_fapply"=NULL) # do not run in parallel within qa
         qa <- switch(as.character(filetype),
-               fastq = {
-                   f <- FastqSampler(filename, n=chunkSize)
-                   reads <- yield(f)
-                   close(f)
-                   qa(reads, label)
-                   },
-               fasta = {
-                   reads <- readFasta(as.character(filename), nrec=chunkSize)
-                   qa(reads, label)
-                   }
-               )
+                     fastq = {
+                         f <- FastqSampler(filename, n=chunkSize)
+                         reads <- yield(f)
+                         close(f)
+                         qa(reads, label)
+                     },
+                     fasta = {
+                         reads <- readFasta(as.character(filename), nrec=chunkSize)
+                         qa(reads, label)
+                     }
+                     )
+        options(old.o)
     }
     return(qa)
 }
@@ -477,8 +479,6 @@ plotDuplicated <- function(qcdata, breaks=c(1:10), lmat=matrix(1:6, nrow=3, byro
 
 plotMappings <- function(mapdata, cols=c("#006D2C","#E41A1C"), a4layout=TRUE) {
     nr <- nrow(mapdata)
-    if(nr > 1L)
-        mapdata <- mapdata[nr:1,]
     
     # set page layout
     if(a4layout)
@@ -486,31 +486,38 @@ plotMappings <- function(mapdata, cols=c("#006D2C","#E41A1C"), a4layout=TRUE) {
     else
         layout(rbind(c(0,1),c(0,2)), widths=c(2,3), heights=c(2, nr+2))
 
-    # draw legend
-    par(mar=c(0,1,0,3)+.1)
-    plot(0:1, 0:1, type="n", xlab="", ylab="", axes=FALSE)
-    legend(x="center", xjust=.5, yjust=.5, bty='n', x.intersp=0.25,
-           fill=cols, ncol=length(cols), legend=colnames(mapdata))
+    lapply(seq(1, nr, by=32), function(i) {
+        mapdataChunk <- mapdata[min(nr,i+32-1):i, , drop=FALSE]
 
-    # draw bars
-    par(mar=c(5,1,0,3)+.1)
-    mp <- barplot(t(mapdata/rowSums(mapdata))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA,
-                  ylim=c(0,nrow(mapdata)+2), names.arg=rep("",nrow(mapdata)),
-                  main='', xlab='Percent of sequences', ylab='', xpd=NA)
+        if(a4layout && nr>32 && nrow(mapdataChunk)<32)
+            mapdataChunk <- rbind(mapdataChunk, matrix(NA, ncol=2, nrow=32-nrow(mapdataChunk)))
+        
+        # draw legend
+        par(mar=c(0,1,0,3)+.1)
+        plot(0:1, 0:1, type="n", xlab="", ylab="", axes=FALSE)
+        legend(x="center", xjust=.5, yjust=.5, bty='n', x.intersp=0.25,
+               fill=cols, ncol=length(cols), legend=colnames(mapdataChunk), xpd=NA)
 
-    # draw bar annotation
-    cxy <- par('cxy')
-    text(x=rep(par('usr')[1]+cxy[1]/3, nrow(mapdata)), y=mp, col="white", adj=c(0,0.5),
-         label=sprintf("%.1f%%",mapdata[,'mapped']/rowSums(mapdata)*100), xpd=NA)
-    text(x=rep(mean(par('usr')[1:2]), nrow(mapdata)), y=mp, col="white", adj=c(0.5,0.5),
-         label=sprintf("total=%.3g",mapdata[,'mapped']+mapdata[,'unmapped']), xpd=NA)
-    text(x=rep(par('usr')[2]-cxy[1]/5, nrow(mapdata)), y=mp, col="white", adj=c(1,0.5),
-         label=sprintf("%.1f%%",mapdata[,'unmapped']/rowSums(mapdata)*100), xpd=NA)
+        # draw bars
+        par(mar=c(5,1,0,3)+.1)
+        ymax <- nrow(mapdataChunk)*1.25
+        mp <- barplot(t(mapdataChunk/rowSums(mapdataChunk))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA,
+                      ylim=c(0,ymax), names.arg=rep("",nrow(mapdataChunk)),
+                      main='', xlab='Percent of sequences', ylab='', xpd=NA)
 
-    # draw sample names
-    text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
-         label=truncStringToPlotWidth(rownames(mapdata), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+        # draw bar annotation
+        cxy <- par('cxy')
+        text(x=rep(par('usr')[1]+cxy[1]/3, nrow(mapdataChunk)), y=mp, col="white", adj=c(0,0.5),
+             label=sprintf("%.1f%%",mapdataChunk[,'mapped']/rowSums(mapdataChunk)*100), xpd=NA)
+        text(x=rep(mean(par('usr')[1:2]), nrow(mapdataChunk)), y=mp, col="white", adj=c(0.5,0.5),
+             label=sprintf("total=%.3g",mapdataChunk[,'mapped']+mapdataChunk[,'unmapped']), xpd=NA)
+        text(x=rep(par('usr')[2]-cxy[1]/5, nrow(mapdataChunk)), y=mp, col="white", adj=c(1,0.5),
+             label=sprintf("%.1f%%",mapdataChunk[,'unmapped']/rowSums(mapdataChunk)*100), xpd=NA)
 
+        # draw sample names
+        text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
+             label=truncStringToPlotWidth(rownames(mapdataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+    })
 
     invisible(mapdata)
 }
@@ -519,9 +526,6 @@ plotUniqueness <- function(data, cols=c("#ff8c00","#4682b4"), a4layout=TRUE) {
     data <- do.call(rbind, data)
     nr <- nrow(data)
  
-    if(nr > 1L)
-        data <- data[nr:1,]
-    
     data[,2] <- data[,2] - data[,1]
     colnames(data) <- c("unique","non-unique")
     
@@ -531,31 +535,38 @@ plotUniqueness <- function(data, cols=c("#ff8c00","#4682b4"), a4layout=TRUE) {
     else
         layout(rbind(c(0,1),c(0,2)), widths=c(2,3), heights=c(2, nr+2))
     
-    # draw legend
-    par(mar=c(0,1,0,3)+.1)
-    plot(0:1, 0:1, type="n", xlab="", ylab="", axes=FALSE)
-    legend(x="center", xjust=.5, yjust=.5, bty='n', x.intersp=0.25,
-           fill=cols, ncol=length(cols), legend=colnames(data))
-    
-    # draw bars
-    par(mar=c(5,1,0,3)+.1)
-    mp <- barplot(t(data/rowSums(data))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA,
-                  ylim=c(0,nrow(data)+2), names.arg=rep("",nrow(data)),
-                  main='', xlab='Percent of unique alignment positions', ylab='', xpd=NA)
+    lapply(seq(1, nr, by=32), function(i) {
+        dataChunk <- data[min(nr,i+32-1):i, , drop=FALSE]
 
-    # draw bar annotation
-    cxy <- par('cxy')
-    text(x=rep(par('usr')[1]+cxy[1]/3, nrow(data)), y=mp, col="white", adj=c(0,0.5),
-         label=sprintf("%.1f%%",data[,'unique']/rowSums(data)*100), xpd=NA)
-    text(x=rep(mean(par('usr')[1:2]), nrow(data)), y=mp, col="white", adj=c(0.5,0.5),
-         label=sprintf("total=%.3g",data[,'unique']+data[,'non-unique']), xpd=NA)
-    text(x=rep(par('usr')[2]-cxy[1]/5, nrow(data)), y=mp, col="white", adj=c(1,0.5),
-         label=sprintf("%.1f%%",data[,'non-unique']/rowSums(data)*100), xpd=NA)
+        if(a4layout && nr>32 && nrow(dataChunk)<32)
+            dataChunk <- rbind(dataChunk, matrix(NA, ncol=2, nrow=32-nrow(dataChunk)))
+
+        # draw legend
+        par(mar=c(0,1,0,3)+.1)
+        plot(0:1, 0:1, type="n", xlab="", ylab="", axes=FALSE)
+        legend(x="center", xjust=.5, yjust=.5, bty='n', x.intersp=0.25,
+               fill=cols, ncol=length(cols), legend=colnames(dataChunk), xpd=NA)
     
-    # draw sample names
-    text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
-         label=truncStringToPlotWidth(rownames(data), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+        # draw bars
+        par(mar=c(5,1,0,3)+.1)
+        ymax <- nrow(dataChunk)*1.25
+        mp <- barplot(t(dataChunk/rowSums(dataChunk))*100, horiz=TRUE, beside=FALSE, col=cols, border=NA,
+                      ylim=c(0,ymax), names.arg=rep("",nrow(dataChunk)),
+                      main='', xlab='Percent of unique alignment positions', ylab='', xpd=NA)
+
+        # draw bar annotation
+        cxy <- par('cxy')
+        text(x=rep(par('usr')[1]+cxy[1]/3, nrow(dataChunk)), y=mp, col="white", adj=c(0,0.5),
+             label=sprintf("%.1f%%",dataChunk[,'unique']/rowSums(dataChunk)*100), xpd=NA)
+        text(x=rep(mean(par('usr')[1:2]), nrow(dataChunk)), y=mp, col="white", adj=c(0.5,0.5),
+             label=sprintf("total=%.3g",dataChunk[,'unique']+dataChunk[,'non-unique']), xpd=NA)
+        text(x=rep(par('usr')[2]-cxy[1]/5, nrow(dataChunk)), y=mp, col="white", adj=c(1,0.5),
+             label=sprintf("%.1f%%",dataChunk[,'non-unique']/rowSums(dataChunk)*100), xpd=NA)
     
+        # draw sample names
+        text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
+             label=truncStringToPlotWidth(rownames(dataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+    })
     
     invisible(data)
 }
