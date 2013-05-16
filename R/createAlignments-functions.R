@@ -109,8 +109,8 @@ createAuxAlignments <- function(proj, clObj){
       for(j in 1:nrow(proj@auxAlignments)){
         if(is.na(proj@auxAlignments[j,i])){
           auxNrs <- c(auxNrs,j)
+          proj@auxAlignments[j,i] <- tempfile(tmpdir=bamDir,pattern=paste(samplePrefix,"_",sep=""),fileext=".bam")
         }
-        proj@auxAlignments[j,i] <- tempfile(tmpdir=bamDir,pattern=paste(samplePrefix,"_",sep=""),fileext=".bam")
       }
       paramsListAux[[length(paramsListAux)+1]] <- list("sampleNr"=i,"auxNrs"=auxNrs,"qProject"=proj,"coresPerNode"=coresPerNode,"logFile"=logFile)
     }
@@ -351,7 +351,7 @@ createAuxAlignmentsController <- function(params){
   }
 
   # for the current sample, create alignments against all the aux files
-  for(j in 1:length(auxNrs)){
+  for(j in auxNrs){
     samFile <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
     bamFileNoUnmapped <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".bam")
 
