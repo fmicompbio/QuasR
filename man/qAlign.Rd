@@ -31,12 +31,14 @@ qAlign(sampleFile,
       (e.g. \dQuote{"BSgenome.Hsapiens.UCSC.hg19"}), which will be
       downloaded automatically from Bioconductor if not present
       \item the name of a fasta sequence file containing one or
-      several sequences (chromosomes) to be used as a reference
+      several sequences (chromosomes) to be used as a reference. The aligner
+      index will be created when neccessary and stored in a default
+      location (see \sQuote{Details}).
     }
   }
   \item{auxiliaryFile}{the name of a text file listing sequences to be
     used as additional targets for alignment of reads not mapping to the
-    reference genome (see \sQuote{Detail}).}
+    reference genome (see \sQuote{Details}).}
   \item{aligner}{selects the aligner program to be used for aligning the
     reads. Currently, only \dQuote{Rbowtie} is supported, which is an R
     wrapper package for \sQuote{bowtie} and \sQuote{SpliceMap} (see
@@ -82,7 +84,12 @@ qAlign(sampleFile,
 }
 \details{
   Before generating new alignments, \code{qAlign} looks for previously
-  generated algnments.
+  generated alignments as well as for an aligner index. If no aligner
+  index exists, it will be automatically created and stored in the same
+  directory as the provided fasta file, or as an R package in the case
+  of a BSgenome reference. The name of this R package will be the same
+  as the BSgenome package name, with an additional suffix from the
+  aligner (e.g. \code{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}).
   
   \code{sampleFile} is a tab-delimited text file listing all the input
   sequences to be included in a given analysis. The file has either two
