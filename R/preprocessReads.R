@@ -74,7 +74,11 @@ preprocessReads <-
         ## parallel execution?
         if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE)) {
             message("preparing to run on ", length(clObj), " nodes...", appendLF=FALSE)
-            myapply <- function(...) do.call(cbind, parallel::clusterMap(clObj, ...))
+            myapply <- function(...) {
+                nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
+                on.exit(.Call(ShortRead:::.set_omp_threads, nthreads))
+                do.call(cbind, parallel::clusterMap(clObj, ...))
+            }
             ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
             if(!all(sapply(ret, function(x) "QuasR" %in% x)))
                 stop("'QuasR' package could not be loaded on all nodes in 'clObj'")

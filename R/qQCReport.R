@@ -8,7 +8,6 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
         qa <- NULL
         warning("compressed 'fasta' input is not yet supported")
     }else{
-        old.o <- options("srapply_fapply"=NULL) # do not run in parallel within qa
         qa <- switch(as.character(filetype),
                      fastq = {
                          f <- FastqSampler(filename, n=chunkSize)
@@ -21,7 +20,6 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
                          qa(reads, label)
                      }
                      )
-        options(old.o)
     }
     return(qa)
 }
@@ -178,9 +176,11 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
     if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE) & length(readFilename)>1) {
         qc1L <- parLapplyLB(clObj,
                             seq(readFilename),
-                            function(i){ 
+                            function(i){
+                                nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
+                                on.exit(.Call(ShortRead:::.set_omp_threads, nthreads))
                                 calcQaInformation(readFilename[i], label[i], filetype, chunkSize) 
-                                })
+                            })
     } else {
         qc1L <- lapply(seq(readFilename),
                        function(i){
