@@ -531,8 +531,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
        projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
-       filesInBamDir <- list.files(bamDir)
-       bamFilesToInspect <- filesInBamDir[nchar(sub(paste(samplePrefix,"\\_[^\\_]+.bam$",sep=""),"",filesInBamDir))==0]
+       filesInBamDir <- list.files(bamDir, pattern=".bam$")
+       bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
        bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
        bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
        bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
@@ -569,8 +569,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           if(is.na(proj@auxAlignments[j,i])){
            if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
            samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
-           filesInBamDir <- list.files(bamDir)
-           bamFilesToInspect <- filesInBamDir[nchar(sub(paste(samplePrefix,"\\_[^\\_]+.bam$",sep=""),"",filesInBamDir))==0]
+           filesInBamDir <- list.files(bamDir, pattern=".bam$")
+           bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
            bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
            bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
            bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
