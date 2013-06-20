@@ -41,7 +41,7 @@ qCount <-
         useRead <- match.arg(useRead)
 
         ## check shift
-        if(shift == "halfInsert") {
+        if(length(shift) == 1 && shift == "halfInsert") {
             if(proj@paired == "no") {
                 stop("'shift=\"halfInsert\"' can only be used for paired-end experiments")
             } else {
