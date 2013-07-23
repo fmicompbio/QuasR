@@ -74,14 +74,14 @@ preprocessReads <-
         ## parallel execution?
         if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE)) {
             message("preparing to run on ", length(clObj), " nodes...", appendLF=FALSE)
-            myapply <- function(...) {
-                nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
-                on.exit(.Call(ShortRead:::.set_omp_threads, nthreads))
-                do.call(cbind, parallel::clusterMap(clObj, ...))
-            }
-            ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
+            myapply <- function(...) do.call(cbind, parallel::clusterMap(clObj, ...))
+            # load libraries on nodes
+            ret <- clusterEvalQ(clObj, library("QuasR"))
             if(!all(sapply(ret, function(x) "QuasR" %in% x)))
                 stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+            # avoid nested parallelization
+            nthreads <- clusterEvalQ(clObj, .Call(ShortRead:::.set_omp_threads, 1L))
+            on.exit(clusterMap(clObj, function(n) .Call(ShortRead:::.set_omp_threads, n), nthreads))
             message("done")
         } else {
             myapply <- mapply
@@ -131,7 +131,7 @@ preprocessSingleReads <-
         message("  filtering ", truncPath(filename, getOption('width')-13))
 
         ## create (temporary) output file name, will be compressed if filecompr!="none"
-        tmpOutputFilename <- if(filecompr!="none") tempfile(pattern="preprocessReadsTemp", tmpdir=dirname(filename)) else outputFilename
+        tmpOutputFilename <- if(filecompr!="none") tempfile(pattern="preprocessReadsTemp") else outputFilename
 
         ## extend R/Lpattern by Ns
         numNs <- 40
@@ -242,8 +242,8 @@ preprocessPairedReads <-
 
         ## create (temporary) output file names, will be compressed if filecompr!="none"
         if(filecompr!="none") {
-            tmpOutputFilename <- tempfile(pattern="preprocessReadsTemp", tmpdir=dirname(filename))
-            tmpOutputFilenameMate <- tempfile(pattern="preprocessReadsTemp", tmpdir=dirname(filenameMate))
+            tmpOutputFilename <- tempfile(pattern="preprocessReadsTemp")
+            tmpOutputFilenameMate <- tempfile(pattern="preprocessReadsTemp")
         } else {
             tmpOutputFilename <- outputFilename
             tmpOutputFilenameMate <- outputFilenameMate
