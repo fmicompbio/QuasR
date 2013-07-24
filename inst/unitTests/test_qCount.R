@@ -75,38 +75,37 @@ test_shift <- function()
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln), end(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 1: qCount with shift and selectReadPosition")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln)+1, end(aln)-1)
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln)+1, end(aln)-1))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=1, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 2: qCount with shift and selectReadPosition")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln)-1, end(aln)+1)
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln)-1, end(aln)+1))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=-1, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 3: qCount with shift and selectReadPosition")
     
-    
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln), start(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 4: qCount with shift and selectReadPosition")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln)+1, start(aln)-1)
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln)+1, start(aln)-1))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=1, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 5: qCount with shift and selectReadPosition")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln)-1, start(aln)+1)
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln)-1, start(aln)+1))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=-1, orientation="any")[,-1]
     checkTrue(all(resSoll == res), "Test 6: qCount with shift and selectReadPosition")
@@ -211,7 +210,7 @@ test_orientation <- function()
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "*")
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln), end(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="same")[,-1]
     checkTrue(all(resSoll == res), "Test 9: qCount with orientation and query strand")
@@ -220,7 +219,7 @@ test_orientation <- function()
     checkTrue(all(resSoll == res), "Test 10: qCount with orientation and query strand")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln), start(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="same")[,-1]
     checkTrue(all(resSoll == res), "Test 11: qCount with orientation and query strand")
@@ -242,13 +241,13 @@ test_useRead <- function()
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln), end(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any", useRead="first")[,-1]
     checkTrue(all(resSoll == res), "Test 1: qCount with useRead")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln), start(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="first")[,-1]
     checkTrue(all(resSoll == res), "Test 2: qCount with useRead")
@@ -257,13 +256,13 @@ test_useRead <- function()
                                    param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=F, isSecondMateRead=T)))
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", start(aln), end(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", start(aln), end(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="any", useRead="last")[,-1]
     checkTrue(all(resSoll == res), "Test 3: qCount with useRead")
     
     resSoll <- rep(0,99)
-    pos <- ifelse(strand(aln)=="+", end(aln), start(aln))
+    pos <- Rle(ifelse(strand(aln)=="+", end(aln), start(aln)))
     resSoll[runValue(pos)] <- runLength(pos)
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="last")[,-1]
     checkTrue(all(resSoll == res), "Test 4: qCount with useRead")
