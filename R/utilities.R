@@ -50,6 +50,28 @@ alignmentStats <-
         return(res)
     }
 
+freeDiskSpace <- function(path) {
+    # return the number of free bytes at 'path' as reported by operating system utilities
+    path <- sub("(\\\\|/)$","",path)
+    res <- NA
+    if(file.exists(path)) {
+        path <- tools::file_path_as_absolute(path)
+        if(.Platform$OS.type == "unix") {
+            ret <- system2("df", shQuote(path), stdout=TRUE)
+            if(grepl("^.*[0-9]+ +[0-9]+ +[0-9]+.*$", perl=TRUE, ret[length(ret)]))
+                res <- as.numeric(sub("^.*[0-9]+ +[0-9]+ +([0-9]+) .*$", "\\1", perl=TRUE, ret[length(ret)])) * 1024
+        } else if (.Platform$OS.type == "windows") {
+            ret <- shell(paste("dir", shQuote(path)), intern=TRUE, translate=TRUE)
+            ret <- ret[nchar(ret)>0]
+            if(grepl("^.* [0-9,]+ bytes free.*$",ret[length(ret)]))
+                res <- as.numeric(gsub(",","",sub("^.* ([0-9,]+) bytes free.*$","\\1",ret[length(ret)])))
+        }
+    } else {
+        warning("'", path, "' does not exist")
+    }
+    return(res)
+}
+
 truncPath <-
     function(path, w=getOption('width')) {
         # always print full basename, but shorten path if longer than w
