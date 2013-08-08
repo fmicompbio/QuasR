@@ -61,7 +61,13 @@ qCount <-
         ## all query chromosomes present in all bamfiles?
         trTab <- table(unlist(lapply(scanBamHeader(bamfiles), function(bh) names(bh$targets))))
         trCommon <- names(trTab)[trTab==length(bamfiles)]
-        if(!is.null(query) && any(f <- !(seqlevels(query) %in% trCommon)))
+        queryseqs <- NULL
+        if(inherits(query,c("GRanges","GRangesList"))) {
+            queryseqs <- seqlevels(query)
+        } else if(inherits(query,"TranscriptDb")) { # only use active sequences
+            queryseqs <- names(isActiveSeq(query))[isActiveSeq(query)]
+        }
+        if(!is.null(query) && any(f <- !(queryseqs %in% trCommon)))
             stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
                          paste(seqlevels(query)[f],collapse=", ")))
 
