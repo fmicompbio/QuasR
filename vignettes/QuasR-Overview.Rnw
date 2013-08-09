@@ -196,7 +196,7 @@ In order to keep track of directory paths during an analysis, \QuasR{} makes use
 
 The \Robject{qProject} object is the main argument passed to subsequent functions such as \Rfunction{qQCReport} and \Rfunction{qCount}. The \Robject{qProject} object contains all necessary information on the current project and eliminates the need to repeatedly enter the same information. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}.
 
-Read quantification (apart from quantification of methylation which has its own function \Rfunction{qMeth}) is done using the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further visualization and analysis. The count table can also be used as input to a statistical analysis using packages such as \Rpackage{edgeR} \cite{edgeR} or \Rpackage{DESeq} \cite{DESeq}.
+Read quantification (apart from quantification of methylation which has its own function \Rfunction{qMeth}) is done using the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further visualization and analysis. The count table can also be used as input to a statistical analysis using packages such as \Rpackage{edgeR} \cite{edgeR}, \Rpackage{DESeq} - \Rpackage{DESeq2} \cite{DESeq}, \Rpackage{TCC} \cite{TCC}, \Rpackage{DEXSeq} \cite{DEXSeq} or \Rpackage{baySeq} \cite{baySeq}.
 
 \vskip 4em
 
