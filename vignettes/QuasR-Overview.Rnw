@@ -3,59 +3,72 @@
 %\VignetteKeywords{XXXKexword}
 %\VignettePackage{QuasR}
 
-\documentclass[10pt]{article}
+\documentclass[12pt]{article}
 
-\usepackage{times}
+<<style, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex(width=80)
+@
+
+\usepackage{cite}
+\usepackage{Sweave}
+%\usepackage{times}
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{url}
-\usepackage[breaklinks]{hyperref} % remove to suppress links
+%\usepackage[breaklinks]{hyperref} % remove to suppress links % already loaded in BiocStyle
 %\usepackage[utf8x]{inputenc}
 
 
-\newcommand{\Rfunction}[1]{{\texttt{#1}}}
-\newcommand{\Robject}[1]{{\texttt{#1}}}
-\newcommand{\Rpackage}[1]{{\textit{#1}}}
+%\newcommand{\Rfunction}[1]{{\texttt{#1}}} % defined in BiocStyle
+%\newcommand{\Robject}[1]{{\texttt{#1}}}   % defined in BiocStyle
+%\newcommand{\Rpackage}[1]{{\textit{#1}}}  % replaced by \Biocpkg, \Biocannopkg, \Biocexptpkg, \CRANpkg and \Rpackagefrom BiocStyle
 \newcommand{\Rmethod}[1]{{\texttt{#1}}}
 \newcommand{\Rfunarg}[1]{{\texttt{#1}}}
-\newcommand{\Rclass}[1]{{\textit{#1}}}
-\newcommand{\Rcode}[1]{{\texttt{#1}}}
+%\newcommand{\Rclass}[1]{{\textit{#1}}}    % defined in BiocStyle
+%\newcommand{\Rcode}[1]{{\texttt{#1}}}     % defined in BiocStyle
 
-\newcommand{\software}[1]{\textsf{#1}}
-\newcommand{\R}{\software{R}}
-\newcommand{\QuasR}{\Rpackage{QuasR}}
+%\newcommand{\software}[1]{\textsf{#1}} % defined in BiocStyle
+%\newcommand{\R}{\software{R}}          % defined in BiocStyle
+%\newcommand{\QuasR}{\Rpackage{QuasR}}  % adjusted to BiocStyle
+%\newcommand{\QuasR}{\Biocpkg{QuasR}}
+\DeclareRobustCommand{\QuasRlogo}{\raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}% use \DeclareRobustCommand instead of \newcommand to avoid premature expansion of \QuasRlogo within by 'titling' package
 \newcommand{\bam}{\texttt{BAM}}
 \newcommand{\fasta}{\texttt{FASTA}}
 \newcommand{\fastq}{\texttt{FASTQ}}
 
-%original
+%original code environment
 %\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
 %\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
 %\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
-\usepackage{Sweave}
-\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
-\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
-\fvset{listparameters={\setlength{\topsep}{0pt}}}
-\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+%code environment used before BiocStyle
+%\usepackage{Sweave}
+%\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
+%\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
+%\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+%\fvset{listparameters={\setlength{\topsep}{0pt}}}
+%\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
 %\title{An Introduction to \QuasR{}}
-\title{An Introduction to \raisebox{-8mm}{\includegraphics[width=45mm]{QuasR-logo.pdf}}}
+\title{An Introduction to \QuasRlogo{}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: May 22 2013. Compiled: \today}
+\date{Modified: August 9 2013. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
 \bibliographystyle{unsrt}
 %\bibliographystyle{plainnat}
 
+<<options, results=hide, echo=FALSE>>=
+#options(width=65)
+options('useFancyQuotes' = FALSE, continue=" ", digits=3)
+@
+
 
 \maketitle
-
-<<options,echo=FALSE>>=
-options(width=65)
-options('useFancyQuotes' = FALSE)
-@
+% BiocStyle uses package titling, which captures \title{} in \thetitle for use in headers
+% since we put an image into \title{}, we have to overwrite \thetitle with plain text
+\renewcommand{\thetitle}{An Introduction to \Rpackage{QuasR}}
 
 \tableofcontents
 
@@ -64,30 +77,30 @@ options('useFancyQuotes' = FALSE)
 
 \section{Introduction}
 
-The \QuasR{} package (short for \underline{Qu}antify and \underline{a}nnotate \underline{s}hort reads in \underline{R}) integrates the functionality of several \R{} packages (such as \Rpackage{IRanges} and \Rpackage{Rsamtools}) and external software (e.g. \software{bowtie}, through the \Rpackage{Rbowtie} package). The package aims to cover the whole analysis workflow of typical ultra-high throughput sequencing experiments, starting from the raw sequence reads, over pre-processing and alignment, up to quantification. A single \R{} script can contain all steps of a complete analysis, making it simple to document, reproduce or share the workflow containing all relevant details.
+The \Biocpkg{QuasR} package (short for \underline{Qu}antify and \underline{a}nnotate \underline{s}hort reads in \underline{R}) integrates the functionality of several \R{} packages (such as \Biocpkg{IRanges} \cite{IRanges} and \Biocpkg{Rsamtools}) and external software (e.g. \software{bowtie}, through the \Biocpkg{Rbowtie} package). The package aims to cover the whole analysis workflow of typical ultra-high throughput sequencing experiments, starting from the raw sequence reads, over pre-processing and alignment, up to quantification. A single \R{} script can contain all steps of a complete analysis, making it simple to document, reproduce or share the workflow containing all relevant details.
 
-The current \QuasR{} release supports the analysis of single read and paired-end ChIP-seq (chromatin immuno-precipitation combined with sequencing), RNA-seq (gene expression profiling by sequencing of RNA) and Bis-seq (measurement of DNA methylation by sequencing of bisulfite-converted genomic DNA) experiments.
+The current \Biocpkg{QuasR} release supports the analysis of single read and paired-end ChIP-seq (chromatin immuno-precipitation combined with sequencing), RNA-seq (gene expression profiling by sequencing of RNA) and Bis-seq (measurement of DNA methylation by sequencing of bisulfite-converted genomic DNA) experiments.
 
 \section{Preliminaries}
 
-\subsection{Citing \QuasR{}}
-If you use \QuasR{} \cite{QuasR} in your work, you can cite it as follows:
+\subsection{Citing \Biocpkg{QuasR}}
+If you use \Biocpkg{QuasR} \cite{QuasR} in your work, you can cite it as follows:
 <<cite, eval=TRUE>>=
 citation("QuasR")
 @
 
 \subsection{Installation}
 \label{sec:Installation}
-\QuasR{} is a package for the \R{} computing environment and it is assumed that you have already installed \R{}. See the \R{} project at \url{http://www.r-project.org}. To install the latest version of \QuasR{}, you will need to be using the latest version of \R{}. \QuasR{} is part of the Bioconductor project at \url{http://www.bioconductor.org}. To get \QuasR{} together with its dependencies you can use
+\Biocpkg{QuasR} is a package for the \R{} computing environment and it is assumed that you have already installed \R{}. See the \R{} project at \url{http://www.r-project.org}. To install the latest version of \Biocpkg{QuasR}, you will need to be using the latest version of \R{}. \Biocpkg{QuasR} is part of the Bioconductor project at \url{http://www.bioconductor.org}. To get \Biocpkg{QuasR} together with its dependencies you can use
 <<install, eval=FALSE>>=
 source("http://www.bioconductor.org/biocLite.R")
 biocLite("QuasR")
 @
 
-Bioconductor works on a 6-monthly official release cycle. As with other Bioconductor packages, there are always two versions of \QuasR{}. Most users will use the current official release version, which will be installed by \Rcode{biocLite} if you are using the current version of \R{}. There is also a developmental version of \QuasR{} that includes new features due for the next official release. The developmental version will be installed if you are using the developmental version of \R{}. The official release version always has an even second number (for example 0.2.1), whereas the developmental version has an odd second number (for example 0.3.6).
+Bioconductor works on a 6-monthly official release cycle. As with other Bioconductor packages, there are always two versions of \Biocpkg{QuasR}. Most users will use the current official release version, which will be installed by \Rcode{biocLite} if you are using the current version of \R{}. There is also a developmental version of \Biocpkg{QuasR} that includes new features due for the next official release. The developmental version will be installed if you are using the developmental version of \R{}. The official release version always has an even second number (for example 0.2.1), whereas the developmental version has an odd second number (for example 0.3.6).
 
-\subsection{Loading of \QuasR{} and other required libraries}
-In order to run the code examples in this vignette, the \QuasR{} library and a few additional libraries need to be loaded:
+\subsection{Loading of \Biocpkg{QuasR} and other required libraries}
+In order to run the code examples in this vignette, the \Biocpkg{QuasR} library and a few additional libraries need to be loaded:
 <<loadLibraries, eval=TRUE>>=
 library(QuasR)
 library(BSgenome)
@@ -98,9 +111,9 @@ library(Gviz)
 @
 
 \subsection{How to get help}
-Most questions about \QuasR{} will hopefully be answered by the documentation or references. If you've run into a question which isn't addressed by the documentation, or you've found a conflict between the documentation and software itself, then there is an active support community which can offer help.
+Most questions about \Biocpkg{QuasR} will hopefully be answered by the documentation or references. If you've run into a question which isn't addressed by the documentation, or you've found a conflict between the documentation and software itself, then there is an active support community which can offer help.
 The authors of the package (maintainer: \Sexpr{maintainer("QuasR")}) always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements. 
-Any other questions or problems concerning \QuasR{} should be sent to the Bioconductor mailing list \url{bioconductor@stat.math.ethz.ch}. To subscribe to the mailing list, see \url{https://stat.ethz.ch/mailman/listinfo/bioconductor}. Please send requests for general assistance and advice to the mailing list rather than to the individual authors. Users posting to the mailing list for the first time should read the helpful posting guide at \url{http://www.bioconductor.org/doc/postingGuide.html}. Note that each function in \QuasR{} has it's own help page, as described in the section \ref{sec:Rintro}. Mailing list etiquette requires that you read the relevant help page carefully before posting a problem to the list.
+Any other questions or problems concerning \Biocpkg{QuasR} should be sent to the Bioconductor mailing list \url{bioconductor@stat.math.ethz.ch}. To subscribe to the mailing list, see \url{https://stat.ethz.ch/mailman/listinfo/bioconductor}. Please send requests for general assistance and advice to the mailing list rather than to the individual authors. Users posting to the mailing list for the first time should read the helpful posting guide at \url{http://www.bioconductor.org/doc/postingGuide.html}. Note that each function in \Biocpkg{QuasR} has it's own help page, as described in the section \ref{sec:Rintro}. Mailing list etiquette requires that you read the relevant help page carefully before posting a problem to the list.
 
 
 \newpage
@@ -109,12 +122,12 @@ Any other questions or problems concerning \QuasR{} should be sent to the Biocon
 \label{sec:Rintro}
 If you already use \R{} and know about its command line interface, just skip this section and continue with section \ref{sec:SampleSession} on page \pageref{sec:SampleSession}.
 
-The structure of this vignette and in particular this section is based on the excellent user guide of the \Rpackage{limma} package, which we would like to hereby acknowledge. \R{} is a program for statistical computing. It is a command-driven language meaning that you have to type commands into it rather than pointing and clicking using a mouse. In this guide it will be assumed that you have successfully downloaded and installed \R{} from \url{http://www.r-project.org} as well as \QuasR{} (see section \ref{sec:Installation}). A good way to get started is to type
+The structure of this vignette and in particular this section is based on the excellent user guide of the \Biocpkg{limma} package, which we would like to hereby acknowledge. \R{} is a program for statistical computing. It is a command-driven language meaning that you have to type commands into it rather than pointing and clicking using a mouse. In this guide it will be assumed that you have successfully downloaded and installed \R{} from \url{http://www.r-project.org} as well as \Biocpkg{QuasR} (see section \ref{sec:Installation}). A good way to get started is to type
 <<help1, eval=FALSE>>=
 help.start()
 @ 
-at the \R{} prompt or, if you're using \R{} for Windows, to follow the drop-down menu items \textit{Help} $\succ$ \textit{Html help}. Following the links \textit{Packages} $\succ$ \Rpackage{QuasR} from the html help page will lead you to the contents page of help topics for functions in \QuasR{}.
-Before you can use any \QuasR{} commands you have to load the package by typing
+at the \R{} prompt or, if you're using \R{} for Windows, to follow the drop-down menu items \textit{Help} $\succ$ \textit{Html help}. Following the links \textit{Packages} $\succ$ \Biocpkg{QuasR} from the html help page will lead you to the contents page of help topics for functions in \Biocpkg{QuasR}.
+Before you can use any \Biocpkg{QuasR} commands you have to load the package by typing
 <<loadQuasRLibrary, eval=FALSE>>=
 library(QuasR)
 @ 
@@ -140,17 +153,17 @@ to get a list of all the objects you have created. You can see the contents of a
 <<printObject, eval=FALSE>>=
 x
 @ 
-We hope that you can use \QuasR{} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \QuasR{} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see \cite{Dalgaard}.
+We hope that you can use \Biocpkg{QuasR} without having to spend a lot of time learning about the \R{} language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in \Biocpkg{QuasR} or in the other Bioconductor packages. For more details about the \R{} language see \textit{An Introduction to R} which is available from the online help. For more background on using \R{} for statistical analysis see \cite{Dalgaard}.
 
 
-\subsection{Sample \QuasR{} session}
+\subsection{Sample \Biocpkg{QuasR} session}
 \label{sec:SampleSession}
-This is a quick overview of what an analysis could look like for users preferring to jump right into an analysis. The example uses data that is provided with the \QuasR{} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
+This is a quick overview of what an analysis could look like for users preferring to jump right into an analysis. The example uses data that is provided with the \Biocpkg{QuasR} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
 <<SampleSession1, eval=TRUE>>=
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 @
 
-The sequence files to be analyzed are listed in \Rcode{sampleFile} (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Rpackage{Rbowtie} package \cite{Rbowtie}) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the \Rpackage{BSgenome.Hsapiens.UCSC.hg19} package). Make sure that you have sufficient disk space, both in your \R{} temporary directory (\Rcode{tempdir}) as well as to store the resulting alignments (see section \ref{sec:qAlign}).
+The sequence files to be analyzed are listed in \Rcode{sampleFile} (see section \ref{sec:SampleFile} on page \pageref{sec:SampleFile} for details). The sequence reads will be aligned using \software{bowtie} \cite{bowtie} (from the \Biocpkg{Rbowtie} package \cite{Rbowtie}) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the \Biocannopkg{BSgenome.Hsapiens.UCSC.hg19} package). Make sure that you have sufficient disk space, both in your \R{} temporary directory (\Rcode{tempdir}) as well as to store the resulting alignments (see section \ref{sec:qAlign}).
 <<SampleSession2, eval=TRUE>>=
 sampleFile <- "extdata/samples_chip_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
@@ -180,8 +193,8 @@ promCounts
 @ 
  
 \newpage
-\section{\QuasR{} Overview}
-The following scheme shows the major components of \QuasR{} and their relationships:
+\section{\Biocpkg{QuasR} Overview}
+The following scheme shows the major components of \Biocpkg{QuasR} and their relationships:
 \begin{figure}[!h]
 \begin{center}
 \includegraphics{QuasR-scheme.png}
@@ -190,17 +203,17 @@ The following scheme shows the major components of \QuasR{} and their relationsh
 \end{center}
 \end{figure}
 
-\QuasR{} works with data (sequences and alignments, reference genome, etc.) that are stored as files on your storage (the gray cylinder on the lower left of Figure \ref{fig:QuasR-scheme}, see section \ref{sec:FileStorage} for details on storage locations). \QuasR{} does not need a database management system, or these files to be named and organized according to a specific scheme.
+\Biocpkg{QuasR} works with data (sequences and alignments, reference genome, etc.) that are stored as files on your storage (the gray cylinder on the lower left of Figure \ref{fig:QuasR-scheme}, see section \ref{sec:FileStorage} for details on storage locations). \Biocpkg{QuasR} does not need a database management system, or these files to be named and organized according to a specific scheme.
 
-In order to keep track of directory paths during an analysis, \QuasR{} makes use of a \Robject{qProject} object that is returned by the \Rfunction{qAlign} function, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome}).
+In order to keep track of directory paths during an analysis, \Biocpkg{QuasR} makes use of a \Robject{qProject} object that is returned by the \Rfunction{qAlign} function, which at the minimum requires two inputs: the name of a samples text file (see section \ref{sec:SampleFile} for details), and the reference genome for the alignments (see section \ref{sec:refGenome}).
 
 The \Robject{qProject} object is the main argument passed to subsequent functions such as \Rfunction{qQCReport} and \Rfunction{qCount}. The \Robject{qProject} object contains all necessary information on the current project and eliminates the need to repeatedly enter the same information. All functions that work on \Robject{qProject} objects can be recognized by their names starting with the letter \textit{q}.
 
-Read quantification (apart from quantification of methylation which has its own function \Rfunction{qMeth}) is done using the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further visualization and analysis. The count table can also be used as input to a statistical analysis using packages such as \Rpackage{edgeR} \cite{edgeR}, \Rpackage{DESeq} - \Rpackage{DESeq2} \cite{DESeq}, \Rpackage{TCC} \cite{TCC}, \Rpackage{DEXSeq} \cite{DEXSeq} or \Rpackage{baySeq} \cite{baySeq}.
+Read quantification (apart from quantification of methylation which has its own function \Rfunction{qMeth}) is done using the \Rfunction{qCount} function: It counts the alignments in regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table (regions in rows, samples in columns) for further visualization and analysis. The count table can also be used as input to a statistical analysis using packages such as \Biocpkg{edgeR} \cite{edgeR}, \Biocpkg{DESeq} \cite{DESeq}, \Biocpkg{DESeq2}, \Biocpkg{TCC} \cite{TCC}, \Biocpkg{DEXSeq} \cite{DEXSeq} or \Biocpkg{baySeq} \cite{baySeq}.
 
 \vskip 4em
 
-In summary, a typical \QuasR{} analysis consists of the following steps (some of them are optional):
+In summary, a typical \Biocpkg{QuasR} analysis consists of the following steps (some of them are optional):
 \begin{quote}
 \begin{itemize}
 \item \Rfunction{preprocessReads} (optional): Remove adapters from start or end of reads, filter out reads of low quality, short length or low complexity (section \ref{sec:workflowPreprocess} on page \pageref{sec:workflowPreprocess}).
@@ -217,13 +230,13 @@ Recurrent example tasks that may be part of any typical analysis are described i
 
 \subsection{File storage locations}
 \label{sec:FileStorage}
-Appart from \Rfunction{qExportWig} and \Rfunction{qQCReport}, which generate wig files and pdf reports, \Rfunction{qAlign} is the only function in \QuasR{} that stores files on the disk (see section \ref{sec:qAlign} for details). All files generated by \Rfunction{qAlign} are listed here by type, together with their default location and how locations can be changed.
+Appart from \Rfunction{qExportWig} and \Rfunction{qQCReport}, which generate wig files and pdf reports, \Rfunction{qAlign} is the only function in \Biocpkg{QuasR} that stores files on the disk (see section \ref{sec:qAlign} for details). All files generated by \Rfunction{qAlign} are listed here by type, together with their default location and how locations can be changed.
 \begin{itemize}
   \item \textit{Temporary files} (default: \Rcode{tempdir()}): Temporary files include reference genomes in \fasta{} format, decompressed input sequence files, and temporary alignments in text format, and can require a large amount of disk space. By default, these files will be written to the temporary directory of the \R{} process (as reported by \Rcode{tempdir()}). If using \Rfunarg{clObj} for parallel processing, this may be the \Rcode{tempdir()} from the cluster node(s). An alternative location can be set using the \Rcode{TMPDIR} environment variable (see \Rcode{?tempdir}).
-  \item \textit{Alignment files (\bam{} format)} (default: same directory as the input sequence files): Alignments against reference genome and auxiliary targets are stored in \bam{} format in the same directory that also contains the input sequence file (listed in \Rfunarg{sampleFile}). Please note that if the input sequence file correspond to a symbolic link, \QuasR{} will follow the link and use the directory of the orignial file instead. An alternative directory can be specified with the \Rfunarg{alignmentsDir} argument from \Rfunction{qAlign}, which will store all \bam{} in that directory even if the input sequence files are located in different directories.
+  \item \textit{Alignment files (\bam{} format)} (default: same directory as the input sequence files): Alignments against reference genome and auxiliary targets are stored in \bam{} format in the same directory that also contains the input sequence file (listed in \Rfunarg{sampleFile}). Please note that if the input sequence file correspond to a symbolic link, \Biocpkg{QuasR} will follow the link and use the directory of the orignial file instead. An alternative directory can be specified with the \Rfunarg{alignmentsDir} argument from \Rfunction{qAlign}, which will store all \bam{} in that directory even if the input sequence files are located in different directories.
   \item \textit{Alignment index files} (default: depends on \Rfunarg{genome} and \Rfunarg{snpFile} arguments): Many alignment tools including \software{bowtie} require an index of the reference sequence to perform alignments. If necessary, \Rfunction{qAlign} will build this index automatically and store it in a default location that depends on the \Rfunarg{genome} argument:
     \begin{itemize}
-      \item \Rcode{BSgenome}: If \Rfunarg{genome} is the name of a \Rpackage{BSgenome} package (such as \nolinkurl{"BSgenome.Hsapiens.UCSC.hg19"}), the index will be stored as a new \R{} package in the default library path (as reported by \Rcode{.libPaths()[1]}, see \Rcode{?install.packages} for details). The name of this index package will be the name of the original \Rpackage{BSgenome} package with a suffix for the index type, for example \nolinkurl{"BSgenome.Hsapiens.UCSC.hg19.Rbowtie"}.
+      \item \Rcode{BSgenome}: If \Rfunarg{genome} is the name of a \Biocpkg{BSgenome} package (such as \nolinkurl{"BSgenome.Hsapiens.UCSC.hg19"}), the index will be stored as a new \R{} package in the default library path (as reported by \Rcode{.libPaths()[1]}, see \Rcode{?install.packages} for details). The name of this index package will be the name of the original \Biocpkg{BSgenome} package with a suffix for the index type, for example \nolinkurl{"BSgenome.Hsapiens.UCSC.hg19.Rbowtie"}.
       \item \fasta{}: If \Rfunarg{genome} refers to a reference genome file in \fasta{} format, the index will be stored in a subdirectory at the same location. Similarly, the indices for files listed in \Rfunarg{auxiliaryFile} are store at the location of these files. For example, the \Rcode{Rbowtie} index for the genome at \nolinkurl{"./genome/mm9.fa"} is stored in \nolinkurl{"./genome/mm9.fa.Rbowtie"}.
       \item \textit{Allele-specific analysis}: A special case is the allele-specific analysis, where reference and alternative alleles listed in \Rfunarg{snpFile} (e.g. \nolinkurl{"./mySNPs.tab"}) are injected into the \Rfunarg{genome} (e.g. \nolinkurl{"BSgenome.Mmusculus.UCSC.mm9"}) to create two variant genomes to be indexed. These indices are saved at the location of the \Rfunarg{snpFile} in a directory named after \Rfunarg{snpFile}, \Rfunarg{genome} and the index type (e.g. \nolinkurl{"./mySNPs.tab.BSgenome.Mmusculus.UCSC.mm9.A.fa.Rbowtie"}).
     \end{itemize}
@@ -235,7 +248,7 @@ Appart from \Rfunction{qExportWig} and \Rfunction{qQCReport}, which generate wig
 \label{sec:exampleTasks}
 \subsection{Create a sample file}
 \label{sec:SampleFile}
-The sample file is a tab-delimited text file with two or three columns. The first row contains the column names: For a single read experiment, these are 'FileName' and 'SampleName'; for a paired-end experiment, these are 'FileName1', 'FileName2' and 'SampleName'. If the first row does not contain the correctly spelled column names, \QuasR{} will not accept the samples file. Subsequent rows contain the input sequence files.
+The sample file is a tab-delimited text file with two or three columns. The first row contains the column names: For a single read experiment, these are 'FileName' and 'SampleName'; for a paired-end experiment, these are 'FileName1', 'FileName2' and 'SampleName'. If the first row does not contain the correctly spelled column names, \Biocpkg{QuasR} will not accept the samples file. Subsequent rows contain the input sequence files.
 
 Here are examples of such sample files for a single read experiment:
 \begin{center}
@@ -263,7 +276,7 @@ rna\_2\_1.fq.bz2 & rna\_2\_2.fq.bz2 & Sample2    \\
 \end{center}
 \vskip 1em
 
-These example files are also contained in the \QuasR{} package and may be used as templates. The path of the files can be determined using:
+These example files are also contained in the \Biocpkg{QuasR} package and may be used as templates. The path of the files can be determined using:
 <<sampleFile, eval=FALSE>>=
 sampleFile1 <- system.file(package="QuasR", "extdata",
                            "samples_chip_single.txt")
@@ -279,17 +292,17 @@ Three file formats are supported for input files (but cannot be mixed within a s
 \begin{itemize}
 \item \textbf{\fasta{}} files have names that end with '.fa', '.fna' or '.fasta'. They contain only sequences (and no base qualities) and will thus by default be aligned on the basis of mismatches (the best alignment is the one with fewest mismatches).
 \item \textbf{\fastq{}} files have names that end with '.fq' or '.fastq'. They contain sequences and corresponding base qualities and will be aligned by default using these qualities.
-\item \textbf{\bam{}} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \QuasR{}, and \QuasR{} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools that are not available within \QuasR{}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \Rfunction{qCount} are fulfilled by the external aligner. In addition, since the data provided to \QuasR{} has already been processed, quality control plots that are based on unprocessed raw data will be missing from the output of \Rfunction{qQCReport}.
+\item \textbf{\bam{}} files have names that end with '.bam'. They can be used if the sequence reads have already been aligned outside of \Biocpkg{QuasR}, and \Biocpkg{QuasR} will only be used for downstream analysis based on the alignments contained in the \bam{} files. This makes it possible to use alignment tools that are not available within \Biocpkg{QuasR}, but making use of this option comes with a risk and should only be used by experienced users. For example, it cannot be guaranteed any more that certain assumptions made by \Rfunction{qCount} are fulfilled by the external aligner. In addition, since the data provided to \Biocpkg{QuasR} has already been processed, quality control plots that are based on unprocessed raw data will be missing from the output of \Rfunction{qQCReport}.
 \end{itemize}
 \textbf{\fasta{}} and \textbf{\fastq{}} files can be compressed with gzip, bzip2 or xz (file extensions '.gz', '.bz2' or 'xz', respectively) and will automatically decompressed when necessary.
 
 \subsubsection*{Consistency of samples within a project}
-The sample file implicitly defines the type of samples contained in the project: \textit{single read} or \textit{paired-end read}, sequences \textit{with} or \textit{without} qualities. This type will have a profound impact on the downstream analysis. For example, it controls whether alignments will be performed in single or paired-end mode, either with or without base qualities. That will also determine availability of certain options for quality control and quantification in \Rfunction{qQCReport} and \Rfunction{qCount}. For consistency, it is therefore required that all samples within a project have the same type; it is not possible to mix both single and paired-end read samples, or \textbf{\fasta{}} and \textbf{\fastq{}} files in a single project (sample file). If necessary, it may be possible to analyse different types of files in separate \QuasR{} projects and combine the derived results at the end.
+The sample file implicitly defines the type of samples contained in the project: \textit{single read} or \textit{paired-end read}, sequences \textit{with} or \textit{without} qualities. This type will have a profound impact on the downstream analysis. For example, it controls whether alignments will be performed in single or paired-end mode, either with or without base qualities. That will also determine availability of certain options for quality control and quantification in \Rfunction{qQCReport} and \Rfunction{qCount}. For consistency, it is therefore required that all samples within a project have the same type; it is not possible to mix both single and paired-end read samples, or \textbf{\fasta{}} and \textbf{\fastq{}} files in a single project (sample file). If necessary, it may be possible to analyse different types of files in separate \Biocpkg{QuasR} projects and combine the derived results at the end.
 
 
 \subsection{Create an auxiliary file (optional)}
 \label{sec:AuxFile}
-By default \QuasR{} aligns reads only to the reference genome. However, it may be interesting to align non-matching reads to further targets, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \QuasR{}, such supplementary reference files are called \textit{auxiliary} references and can be specified to \Rfunction{qAlign} using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qAlign} on page \pageref{sec:qAlign} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns with column names 'FileName' and 'AuxName' in the first row. Additional rows contain names and files of one or several auxiliary references in \fasta{} format.
+By default \Biocpkg{QuasR} aligns reads only to the reference genome. However, it may be interesting to align non-matching reads to further targets, for example to identify contamination from vectors or a different species, or in order to quantify spike-in material not contained in the reference genome. In \Biocpkg{QuasR}, such supplementary reference files are called \textit{auxiliary} references and can be specified to \Rfunction{qAlign} using the \Rfunarg{auxiliaryFile} argument (see section \ref{sec:qAlign} on page \pageref{sec:qAlign} for details). The format of the auxiliary file is similar to the one of the sample file described in section \ref{sec:SampleFile}: It contains two columns with column names 'FileName' and 'AuxName' in the first row. Additional rows contain names and files of one or several auxiliary references in \fasta{} format.
 
 An example auxiliary file looks like this:
 \begin{center}
@@ -303,16 +316,16 @@ NC\_001422.1.fa & phiX174  \\
 \end{center}
 \vskip 1em
 
-and is available from your \QuasR{} installation at
+and is available from your \Biocpkg{QuasR} installation at
 <<auxiliaryFile, eval=TRUE>>=
 auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 @
 
 \subsection{Select the reference genome}
 \label{sec:refGenome}
-Sequence reads are primarily aligned against the reference genome. If necessary, \QuasR{} will create an aligner index for the genome. The reference genome can be provided in one of two different formats:
+Sequence reads are primarily aligned against the reference genome. If necessary, \Biocpkg{QuasR} will create an aligner index for the genome. The reference genome can be provided in one of two different formats:
 \begin{itemize}
-\item{\textbf a string}, referring to the name of a \Rpackage{BSgenome} package:
+\item{\textbf a string}, referring to the name of a \Biocpkg{BSgenome} package:
 <<selectGenomeBSgenome, eval=TRUE>>=
 available.genomes()
 genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
@@ -372,7 +385,7 @@ More details on the \Rfunction{preprocessReads} function can be found in the fun
 
 \subsection{ChIP-seq: Measuring protein-DNA binding and chromatin modifications}
 \label{sec:ChIP}
-Here we show an exemplary single-end ChIP-seq workflow using a small number of reads from a histone 3 lysine 4 trimethyl (H3K4me3) ChIP-seq experiment. This histone modification is known to locate to genomic regions with a high density of CpG dinucleotides (so called CpG islands); about 60\% of mammalian genes have such a CpG island close to their transcript start site. All necessary files are included in the \QuasR{} package, and we start the example workflow by copying those files into the current working directly, into a subfolder called \Rcode{"extdata"}:
+Here we show an exemplary single-end ChIP-seq workflow using a small number of reads from a histone 3 lysine 4 trimethyl (H3K4me3) ChIP-seq experiment. This histone modification is known to locate to genomic regions with a high density of CpG dinucleotides (so called CpG islands); about 60\% of mammalian genes have such a CpG island close to their transcript start site. All necessary files are included in the \Biocpkg{QuasR} package, and we start the example workflow by copying those files into the current working directly, into a subfolder called \Rcode{"extdata"}:
 <<ChIP_copyExtdata, eval=TRUE>>=
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 @
@@ -399,11 +412,11 @@ The \bam{} file names consist of the base name of the sequence file with an adde
 <<ChIP_bamfiles2, eval=TRUE>>=
 list.files("extdata", pattern="^chip_1_1_")[1:3]
 @
-The ``.bai'' file is the \bam{} index used for fast access by genomic coordinate. The ``.txt'' file contains all the parameters used to generate the corresponding \bam{} file. Before new alignments are generated, \Rfunction{qAlign} will look for available ``.txt'' files in default locations (the directory containing the input sequence file, or the value of \Rfunarg{alignmentsDir}), and read their contents to determine if a compatible \bam{} file already exists. A compatible \bam{} file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible \bam{} file is not found, or the ``.txt'' file is missing, \Rfunction{qAlign} will generate a new \bam{} file. It is therefore recommended not to delete the ``.txt'' file - without it, the corresponding \bam{} file will become unusable for \QuasR{}. 
+The ``.bai'' file is the \bam{} index used for fast access by genomic coordinate. The ``.txt'' file contains all the parameters used to generate the corresponding \bam{} file. Before new alignments are generated, \Rfunction{qAlign} will look for available ``.txt'' files in default locations (the directory containing the input sequence file, or the value of \Rfunarg{alignmentsDir}), and read their contents to determine if a compatible \bam{} file already exists. A compatible \bam{} file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible \bam{} file is not found, or the ``.txt'' file is missing, \Rfunction{qAlign} will generate a new \bam{} file. It is therefore recommended not to delete the ``.txt'' file - without it, the corresponding \bam{} file will become unusable for \Biocpkg{QuasR}. 
 
 
 \subsubsection{Create a quality control report}
-\QuasR{} can produce a quality control report in the form of a series of diagnostic plots with details on sequences and alignments (see Figure \ref{fig:QuasR-scheme} on page \pageref{fig:QuasR-scheme}). The plots are generated by calling the \Rfunction{qQCReport} function with the \Robject{qProject} object as argument. \Rfunction{qQCReport} uses \Rpackage{ShortRead} \cite{ShortRead} internally to obtain some of the quality metrics, and some of the plots are inspired by the FastQC quality control tool by Simon Andrews (\url{http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/}). The plots will be stored into a multipage PDF document defined by the \Rfunarg{pdfFilename} argument, or else shown as individual plot windows on the current graphics device. In order to keep the running time reasonably short, some quality metrics are obtained from a random sub-sample of the sequences or alignments.
+\Biocpkg{QuasR} can produce a quality control report in the form of a series of diagnostic plots with details on sequences and alignments (see Figure \ref{fig:QuasR-scheme} on page \pageref{fig:QuasR-scheme}). The plots are generated by calling the \Rfunction{qQCReport} function with the \Robject{qProject} object as argument. \Rfunction{qQCReport} uses \Biocpkg{ShortRead} \cite{ShortRead} internally to obtain some of the quality metrics, and some of the plots are inspired by the FastQC quality control tool by Simon Andrews (\url{http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/}). The plots will be stored into a multipage PDF document defined by the \Rfunarg{pdfFilename} argument, or else shown as individual plot windows on the current graphics device. In order to keep the running time reasonably short, some quality metrics are obtained from a random sub-sample of the sequences or alignments.
 <<ChIP_qcplot1, eval=TRUE, echo=FALSE>>=
 qcdat1 <- qQCReport(proj1, pdfFilename="extdata/qc_report.pdf")
 @ 
@@ -429,7 +442,7 @@ qExportWig(proj1, binsize=100L, scaling=TRUE, collapseBySample=TRUE)
 
 
 \subsubsection{Count alignments using \Rfunction{qCount}}
-Alignments are quantified using \Rfunction{qCount}, for example using a \Rcode{GRanges} object as a query. In our H3K4me3 ChIP-seq example, we expect the reads to occur around the transcript start site of genes. We can therefore construct suitable query regions using genomic intervals around the start sites of known genes. In the code below, this is achieved with help from the \Rpackage{GenomicFeatures} package: We first create a \Rcode{TranscriptDb} object from a ``.gtf'' file with gene annotation. With the \Rfunction{promoters} function, we can then create the \Rcode{GRanges} object with regions to be quantified. Finally, because most genes consist of multiple overlapping transcripts, we select the first transcript for each gene: \label{obj:promRegSel}
+Alignments are quantified using \Rfunction{qCount}, for example using a \Rcode{GRanges} object as a query. In our H3K4me3 ChIP-seq example, we expect the reads to occur around the transcript start site of genes. We can therefore construct suitable query regions using genomic intervals around the start sites of known genes. In the code below, this is achieved with help from the \Biocpkg{GenomicFeatures} package: We first create a \Rcode{TranscriptDb} object from a ``.gtf'' file with gene annotation. With the \Rfunction{promoters} function, we can then create the \Rcode{GRanges} object with regions to be quantified. Finally, because most genes consist of multiple overlapping transcripts, we select the first transcript for each gene: \label{obj:promRegSel}
 <<ChIP_GenomicFeatures, eval=TRUE>>=
 library(GenomicFeatures)
 annotFile <- "extdata/hg19sub_annotation.gtf"
@@ -458,7 +471,7 @@ cnt <- qCount(proj1, promRegSel)
 cnt
 @
 
-The counts returned by \Rfunction{qCount} are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the \Rpackage{Gviz} package:
+The counts returned by \Rfunction{qCount} are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the \Biocpkg{Gviz} package:
 <<ChIP_visualize, eval=TRUE, fig=TRUE, width=8, height=4.5>>=
 gr1 <- import("Sample1.wig.gz", asRangedData=FALSE)
 gr2 <- import("Sample2.wig.gz", asRangedData=FALSE)
@@ -476,7 +489,7 @@ plotTracks(list(axisTrack, dTrack1, dTrack2, txTrack),
 \subsubsection{Create a genomic profile for a set of regions using \Rfunction{qProfile}}
 Given a set of anchor positions in the genome, \Rfunction{qProfile} calculates the number of nearby alignments relative to the anchor position, for example to generate a average profile. The neighborhood around anchor positions can be specified by the \Rfunarg{upstream} and \Rfunarg{downstream} argument. Alignments that are upstream of an anchor position will have a negative relative position, and downstream alignments a positive. The anchor positions are all aligned at position zero in the return value.
 
-Anchor positions will be provided to \Rfunction{qProfile} using the \Rfunarg{query} argument, which takes a \Rcode{GRanges} object. The anchor positions correspond to \Rcode{start()} for regions on ''+'' or ''*'' strands, and to \Rcode{end()} for regions on the ''-'' strand. As mentioned above, we expect H3K4me3 ChIP-seq alignments to be enriched around the transcript start site of genes. We can therefore construct a suitable \Rfunarg{query} object from the start sites of known genes. In the code below, start sites ('start\_codon') are imported from a ''.gtf'' file with the help of the \Rpackage{rtracklayer} package. In addition, 'strand' and 'gene\_name' are also selected for import. Duplicated start sites, e.g. from genes with multiple transcripts, are removed. Finally, all regions are given the name ''TSS'', because \Rfunction{qProfile} combines regions with identical names into a single profile. 
+Anchor positions will be provided to \Rfunction{qProfile} using the \Rfunarg{query} argument, which takes a \Rcode{GRanges} object. The anchor positions correspond to \Rcode{start()} for regions on ''+'' or ''*'' strands, and to \Rcode{end()} for regions on the ''-'' strand. As mentioned above, we expect H3K4me3 ChIP-seq alignments to be enriched around the transcript start site of genes. We can therefore construct a suitable \Rfunarg{query} object from the start sites of known genes. In the code below, start sites ('start\_codon') are imported from a ''.gtf'' file with the help of the \Biocpkg{rtracklayer} package. In addition, 'strand' and 'gene\_name' are also selected for import. Duplicated start sites, e.g. from genes with multiple transcripts, are removed. Finally, all regions are given the name ''TSS'', because \Rfunction{qProfile} combines regions with identical names into a single profile. 
 <<ChIP_rtracklayer, eval=TRUE>>=
 library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
@@ -516,10 +529,10 @@ legend(title="strand", legend=c("same as query","opposite of query"),
        x="topleft", col=c("black","red"), lwd=1.5, bty="n", title.adj=0.1)
 @
 
-\subsubsection{Using a \Rpackage{BSgenome} package as reference genome}
-\QuasR{} also allows using of \Rpackage{BSgenome} packages instead of a \fasta{} file as reference genome (see section \ref{sec:refGenome}). To use a \Rpackage{BSgenome}, the \Rfunarg{genome} argument of \Rfunction{qAlign} is set to a string matching the name of a \Rpackage{BSgenome} package, for example \Rcode{"BSgenome.Hsapiens.UCSC.hg19"}. If that package is not already installed, \Rfunction{qAlign} will check if it is available from \url{bioconductor.org} and download it automatically. The corresponding alignment index will be saved as a new package, named after the original \Rpackage{BSgenome} package and the aligner used to build the index, for example \Rpackage{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}.
+\subsubsection{Using a \Biocpkg{BSgenome} package as reference genome}
+\Biocpkg{QuasR} also allows using of \Biocpkg{BSgenome} packages instead of a \fasta{} file as reference genome (see section \ref{sec:refGenome}). To use a \Biocpkg{BSgenome}, the \Rfunarg{genome} argument of \Rfunction{qAlign} is set to a string matching the name of a \Biocpkg{BSgenome} package, for example \nolinkurl{"BSgenome.Hsapiens.UCSC.hg19"}. If that package is not already installed, \Rfunction{qAlign} will check if it is available from \url{bioconductor.org} and download it automatically. The corresponding alignment index will be saved as a new package, named after the original \Biocpkg{BSgenome} package and the aligner used to build the index, for example \nolinkurl{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}.
 
-The code example below illustrates the use of a \Rpackage{BSgenome} reference genome for the same example data as above. Running it for the first time will take several hours in order to build the aligner index: \label{obj:proj1}
+The code example below illustrates the use of a \Biocpkg{BSgenome} reference genome for the same example data as above. Running it for the first time will take several hours in order to build the aligner index: \label{obj:proj1}
 <<ChIP_BSgenomeProject, eval=FALSE>>=
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 
@@ -536,7 +549,7 @@ proj1
 
 \subsection{RNA-seq: Gene expression profiling}
 \label{sec:RNA}
-In \QuasR{}, an analysis workflow for an RNA-seq dataset is very similar to the one described above for a ChIP-seq experiment. The major difference is that here reads are aligned using \Rcode{splicedAlignment=TRUE}, which will cause \Rfunction{qAlign} to align reads with SpliceMap\cite{SpliceMap}, rather than bowtie\cite{bowtie} (both are contained in the \Rpackage{Rbowtie} package). SpliceMap and \QuasR{} also support spliced paired-end alignments; the \Rfunarg{splicedAlignment} argument can be freely combined with the \Rfunarg{paired} argument.
+In \Biocpkg{QuasR}, an analysis workflow for an RNA-seq dataset is very similar to the one described above for a ChIP-seq experiment. The major difference is that here reads are aligned using \Rcode{splicedAlignment=TRUE}, which will cause \Rfunction{qAlign} to align reads with SpliceMap\cite{SpliceMap}, rather than bowtie\cite{bowtie} (both are contained in the \Biocpkg{Rbowtie} package). SpliceMap and \Biocpkg{QuasR} also support spliced paired-end alignments; the \Rfunarg{splicedAlignment} argument can be freely combined with the \Rfunarg{paired} argument.
 
 We start the example workflow by copying the example data files into the current working directly, into a subfolder called \Rcode{"extdata"}, and then create spliced alignments using \Rfunction{qAlign}:
 <<RNA_qAlign, eval=TRUE>>=
@@ -607,7 +620,7 @@ qcdat2 <- qQCReport(proj2unspl, pdfFilename="qc_report.pdf")
 
 \subsection{Bis-seq: Measuring DNA methylation}
 \label{sec:Bis}
-Sequencing of bisulfite-converted genomic DNA allows detection of methylated cytosines, which in mammalian genomes typically occur un the context of CpG dinucleotides. The treatment of DNA with bisulfite induces deamination of non-methylated cytosines, converting them to uracils. Sequencing and aligning of such bisulfite-converted DNA results in C-to-T mismatches. Both alignment of converted reads, as well as the interpretation of the alignments for calculation of methylation levels require specific approaches and are supported in \QuasR{} by \Rfunction{qAlign} (\Rfunarg{bisulfite} argument, section \ref{sec:qAlign}) and \Rfunction{qMeth} (section \ref{sec:qMeth}), respectively.
+Sequencing of bisulfite-converted genomic DNA allows detection of methylated cytosines, which in mammalian genomes typically occur un the context of CpG dinucleotides. The treatment of DNA with bisulfite induces deamination of non-methylated cytosines, converting them to uracils. Sequencing and aligning of such bisulfite-converted DNA results in C-to-T mismatches. Both alignment of converted reads, as well as the interpretation of the alignments for calculation of methylation levels require specific approaches and are supported in \Biocpkg{QuasR} by \Rfunction{qAlign} (\Rfunarg{bisulfite} argument, section \ref{sec:qAlign}) and \Rfunction{qMeth} (section \ref{sec:qMeth}), respectively.
 
 We start the analysis by copying the example data files into the current working directly, into a subfolder called \Rcode{"extdata"}. Then, bisulfite-specific alignment is selected in \Rfunction{qAlign} by setting \Rfunarg{bisulfite} to \Rcode{"dir"} for a directional experiment, or to \Rcode{"undir"} for an undirectional Bis-seq experiment:
 <<Bis_qAlign, eval=TRUE>>=
@@ -663,7 +676,7 @@ Finally, \Rfunction{qMeth} allows the retrieval of methylation states for indivi
 
 \subsection{Allele-specific analysis}
 \label{sec:Allele}
-All experiment types supported by \QuasR{} (ChIP-seq, RNA-seq and Bis-seq; only alignments to the genome, but not to auxiliaries) can also be analyzed in an allele-specific manner. For this, a file containing genomic location and the two alleles of known sequence polymorphisms has to be provided to the \Rfunarg{snpFile} argument of \Rfunction{qAlign}. The file is in tab-delimited text format without a header and contains four columns with chromosome name, position, reference allele and alternative allele. 
+All experiment types supported by \Biocpkg{QuasR} (ChIP-seq, RNA-seq and Bis-seq; only alignments to the genome, but not to auxiliaries) can also be analyzed in an allele-specific manner. For this, a file containing genomic location and the two alleles of known sequence polymorphisms has to be provided to the \Rfunarg{snpFile} argument of \Rfunction{qAlign}. The file is in tab-delimited text format without a header and contains four columns with chromosome name, position, reference allele and alternative allele. 
 
 Below is an example of a SNP file, also available from \Rcode{system.file(package="QuasR", "extdata", "hg19sub\_snp.txt")}:
 \begin{center}
@@ -680,7 +693,7 @@ chr1 & 19341 & G & A \\
 \end{center}
 \vskip 1em
 
-For a given locus, either reference or alternative allele may but does not have to be identical to the sequence of the reference genome (\Robject{genomeFile} in this case). To avoid an alignment bias, all reads are aligned separately to each of the two new genomes, which \QuasR{} generates by \textit{injecting} the SNPs listed in \Robject{snpFile} into the reference genome. Finally, the two alignment files are combined, only retaining the best alignment for each read. While this procedure takes more than twice as long as aligning against a single genome, it has the advantage to correctly align reads even in regions of high SNP density and has been shown to produce more accurate results.
+For a given locus, either reference or alternative allele may but does not have to be identical to the sequence of the reference genome (\Robject{genomeFile} in this case). To avoid an alignment bias, all reads are aligned separately to each of the two new genomes, which \Biocpkg{QuasR} generates by \textit{injecting} the SNPs listed in \Robject{snpFile} into the reference genome. Finally, the two alignment files are combined, only retaining the best alignment for each read. While this procedure takes more than twice as long as aligning against a single genome, it has the advantage to correctly align reads even in regions of high SNP density and has been shown to produce more accurate results.
 
 While combining alignments, each read is classified into one of three groups (stored in the \bam{} files under the \texttt{XV} tag):
 \begin{itemize}
@@ -690,7 +703,7 @@ While combining alignments, each read is classified into one of three groups (st
 \end{itemize}
 Using these alignment classifications, the \Rfunction{qCount} and \Rfunction{qMeth} functions will produce three counts instead of a single count; one for each class. The column names will be suffixed by \texttt{\_R}, \texttt{\_U} and \texttt{\_A}.
 
-The examples below use data provided with the \QuasR{} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
+The examples below use data provided with the \Biocpkg{QuasR} package, which is first copied to the current working directory, into a subfolder called \Rcode{"extdata"}:
 <<Alelle_Extdata, eval=TRUE>>=
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 @
@@ -722,8 +735,8 @@ head(qMeth(proj3SNP, mode="CpGcomb", collapseBySample=TRUE))
 
 
 \newpage
-\section{Description of Individual \QuasR{} Functions}
-Please refer to the \QuasR{} reference manual or the function documentation (e.g. using \Rcode{?qAlign}) for a complete description of \QuasR{} functions. The descriptions provided below are meant to give and overview over all functions and summarize the purpose of each one.
+\section{Description of Individual \Biocpkg{QuasR} Functions}
+Please refer to the \Biocpkg{QuasR} reference manual or the function documentation (e.g. using \Rcode{?qAlign}) for a complete description of \Biocpkg{QuasR} functions. The descriptions provided below are meant to give and overview over all functions and summarize the purpose of each one.
 
 \subsection{\Rfunction{preprocessReads}}
 \label{sec:preprocessReads}
@@ -731,7 +744,7 @@ The \Rfunction{preprocessReads} function can be used to prepare the input sequen
 \begin{quote}
 \begin{enumerate}
 \item \textbf{Truncate reads}: remove nucleotides from the start and/or end of each read.
-\item \textbf{Trim adapters}: remove nucleotides at the beginning and/or end of each read that match to a defined (adapter) sequence. The adapter trimming is done by calling \Rfunction{trimLRPatterns} from the \Rpackage{Biostrings} package \cite{Biostrings}.
+\item \textbf{Trim adapters}: remove nucleotides at the beginning and/or end of each read that match to a defined (adapter) sequence. The adapter trimming is done by calling \Rfunction{trimLRPatterns} from the \Biocpkg{Biostrings} package \cite{Biostrings}.
 \item \textbf{Filter out low quality reads}: Filter out reads that fulfill any of the filtering criteria (contain more than \Rfunarg{nBases} \texttt{N} bases, are shorter than \Rfunarg{minLength} or have a dinucleotide complexity of less than \Rfunarg{complexity}-times the average complexity of the human genome sequence).
 \end{enumerate}
 \end{quote}
@@ -843,7 +856,7 @@ alignmentStats(unlist(alignments(proj1)$aux))
 # using a qProject object
 alignmentStats(proj1)
 @
-If calling \Rfunction{alignmentStats} on the bam files directly as in the first two expressions of the above example, the returned numbers correspond exactly to what you would obtain by the ``idxstats'' function from Samtools, only that the latter would report them separately for each target sequence, while \Rfunction{alignmentStats} sums them for each \bam{} file. These numbers correctly state that there are zero unmapped reads in the auxiliary \bam{} files. However, if calling \Rfunction{alignmentStats} on a \Robject{qProject} object, it will report 7 and 12 unmapped reads in the auxiliary \bam{} files. This is because \Rfunction{alignmentStats} is aware that unmapped reads are removed from auxiliary \bam{} files by \QuasR{}, but can be calculated from the total number of reads to be aligned to the auxiliary target, which equals the number of unmapped reads in the corresponding genomic \bam{} file.
+If calling \Rfunction{alignmentStats} on the bam files directly as in the first two expressions of the above example, the returned numbers correspond exactly to what you would obtain by the ``idxstats'' function from Samtools, only that the latter would report them separately for each target sequence, while \Rfunction{alignmentStats} sums them for each \bam{} file. These numbers correctly state that there are zero unmapped reads in the auxiliary \bam{} files. However, if calling \Rfunction{alignmentStats} on a \Robject{qProject} object, it will report 7 and 12 unmapped reads in the auxiliary \bam{} files. This is because \Rfunction{alignmentStats} is aware that unmapped reads are removed from auxiliary \bam{} files by \Biocpkg{QuasR}, but can be calculated from the total number of reads to be aligned to the auxiliary target, which equals the number of unmapped reads in the corresponding genomic \bam{} file.
 
 
 \subsection{\Rfunction{qExportWig}}
@@ -871,7 +884,7 @@ The features to be quantified are specified by the \Rfunarg{query} argument. At 
 \begin{itemize}
   \item \Robject{GRanges} query: Overlapping alignments are counted separately for each coordinate region in the query object. If multiple regions have identical names, their counts will be summed, counting each alignment only once even if it overlaps more than one of these regions. Alignments may however be counted more than once if they overlap multiple regions with different names. This mode is for example used to quantify ChIP-seq alignments in promoter regions (see section \ref{sec:ChIP} on page \pageref{code:ChIP_qCount}), or gene expression levels in an RNA-seq experiment (using a 'query' with exon regions named by gene).
   \item \Robject{GRangesList} query: Alignments are counted and summed for each list element in the query object if they overlap with any of the regions contained in the list element. The order of the list elements defines a hierarchy for quantification: Alignment will only be counted for the first element (the one with the lowest index in the query) that they overlap, but not for any potential further list elements containing overlapping regions. This mode can be used to hierarchically and uniquely count (assign) each alignment to a one of several groups of regions (the elements in the query), for example to estimate the fractions of different classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA, mRNA, etc.)
-  \item \Robject{TranscriptDb} query: Used to extract regions from annotation and report alignment counts depending on the value of the \Rfunarg{reportLevel} argument. If \Rcode{reportLevel="exon"}, alignments overlapping each exon in the query are counted. If \Rcode{reportLevel="gene"}, alignment counts for all exons of a gene will be summed, counting each alignment only once even if it overlaps multiple annotated exons of a gene. These are useful to calculate exon or gene expression levels in RNA-seq experiments based on the annotation in a \Robject{TranscriptDB} object. If \Rcode{reportLevel="promoter"}, the \Rfunction{promoters} function from package \Rpackage{GenomicFeatures} is used with default arguments to extract promoter regions around transcript start sites, e.g. to quantify alignments inf a ChIP-seq experiment.
+  \item \Robject{TranscriptDb} query: Used to extract regions from annotation and report alignment counts depending on the value of the \Rfunarg{reportLevel} argument. If \Rcode{reportLevel="exon"}, alignments overlapping each exon in the query are counted. If \Rcode{reportLevel="gene"}, alignment counts for all exons of a gene will be summed, counting each alignment only once even if it overlaps multiple annotated exons of a gene. These are useful to calculate exon or gene expression levels in RNA-seq experiments based on the annotation in a \Robject{TranscriptDB} object. If \Rcode{reportLevel="promoter"}, the \Rfunction{promoters} function from package \Biocpkg{GenomicFeatures} is used with default arguments to extract promoter regions around transcript start sites, e.g. to quantify alignments inf a ChIP-seq experiment.
   \item any of the above or \Rcode{NULL} for \Rcode{reportLevel="junction"}: The \Rfunarg{query} argument is ignored if \Rfunarg{reportLevel} is set to \Rcode{"junction"}, and \Rfunction{qCount} will count the number of alignments supporting each exon-exon junction detected in any of the samples in \Robject{proj}. The arguments \Rfunarg{selectReadPosition}, \Rfunarg{shift}, \Rfunarg{orientation}, \Rfunarg{useRead} and \Rfunarg{mask} will have no effect in this quantification mode.
 \end{itemize}
 
@@ -905,8 +918,8 @@ When using \Rfunction{qMeth} in a allele-specific quantification (see also secti
 
 \section{Session information}
 The output in this vignette was produced under:
-<<sessionInfo>>=
-sessionInfo()
+<<sessionInfo, results=tex, echo=FALSE>>=
+toLatex(sessionInfo())
 @
 
 <<cleanUp, eval=TRUE, echo=FALSE>>=
