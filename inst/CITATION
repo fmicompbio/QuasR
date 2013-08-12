@@ -6,12 +6,12 @@ vers <- paste("R package version", desc$Version)
 citEntry(entry="unpublished",
 	 title="QuasR: Quantify and Annotate Short Reads in R",
 	 author=personList(as.person("Anita Lerch"),
-			   as.person("Dimos Gaiditzis"),
+			   as.person("Dimos Gaidatzis"),
 			   as.person("Michael B Stadler")),
 	 #journal="",
 	 year=2012,
 	 note=vers,
-	 textVersion=paste("Anita Lerch, Dimos Gaiditzis and Michael Stadler (2012). QuasR: Quantify and Annotate Short Reads in R.",vers,"(unpublished)")
+	 textVersion=paste("Anita Lerch, Dimos Gaidatzis and Michael Stadler (2012). QuasR: Quantify and Annotate Short Reads in R.",vers,"(unpublished)")
 )
 
 citEntry(entry="article",

@@ -52,9 +52,11 @@ qAlign(sampleFile,
     \code{ff} (fw/fw) or \code{rf} (rev/fw).}
   \item{splicedAlignment}{if \code{TRUE}, reads will be aligned by
     SpliceMap to produce spliced alignments (without using a database of
-    known exon-exon junctions). The option can only be used for reads
-    with a minimal length of 50nt. Using this option will increase
-    alignment times roughly by a factor of ten.}
+    known exon-exon junctions). Using splicedAlignment=TRUE will
+    increase alignment times roughly by a factor of ten. The option can
+    only be used for reads with a minimal length of 50nt; SpliceMap
+    ignores reads that are shorter. Such short reads will not be
+    contained in the BAM file, neither as mapped or unmapped reads.}
   \item{snpFile}{the name of a text file listing single nucleotide
     polymorphisms to be used for allele-specific alignment and
     quantification (see \sQuote{Details}).}
