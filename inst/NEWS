@@ -3,6 +3,8 @@ CHANGES IN VERSION 1.2.0
 
 NEW FEATURES
 
+    o new miRNA-seq sample data; vignette has now workflows for ChIP-seq, RNA-seq, smRNA-seq/miRNA-seq, Bis-seq and allele-specific analysis
+
     o qMeth can report methylation states for individual molecules (reportLevel="alignment")
 
     o qCount/qProfile gain argument to ignore spliced reads in counting
