@@ -1,0 +1,2 @@
+FileName	SampleName
+mirna_1.fa	miRNAs
