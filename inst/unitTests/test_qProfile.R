@@ -1,13 +1,28 @@
+# initialization of QuasR test environment
+# allows: runTestFile("test_file.R", rngKind="default", rngNormalKind="default", verbose=1L)
+if(!existsFunction("createFastaReads"))
+    source(system.file(package="QuasR", "unitTests", "help_function.R"))
+
+if(!file.exists("./extdata"))
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+gtfRegion <- createGtfRegion()
+td <- tempdir()
+genomeFile <- file.path("extdata", "hg19sub.fa")
+
+.setUp <- function() { # runs before each test_...()
+    # make sure clObj exists and is a working cluster object
+    if(!exists("clObj", envir=.GlobalEnv) ||
+       !inherits(clObj, "cluster") ||
+       inherits(try(all(unlist(clusterEvalQ(clObj, TRUE))), silent=TRUE), "try-error")) {
+        clObj <<- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
+        clusterEvalQ(clObj, library("QuasR"))
+    }
+}
+
+
 test_qProfile <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    if(!"gtfRegion" %in% ls(envir=.GlobalEnv)){
-        gtfRegion <<- createGtfRegion()
-    }    
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
     sampleFile <- file.path("extdata", "samples_chip_single.txt")
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     

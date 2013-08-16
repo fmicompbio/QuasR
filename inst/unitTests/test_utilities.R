@@ -1,3 +1,12 @@
+# initialization of QuasR test environment
+# allows: runTestFile("test_file.R", rngKind="default", rngNormalKind="default", verbose=1L)
+if(!existsFunction("createFastaReads"))
+    source(system.file(package="QuasR", "unitTests", "help_function.R"))
+
+if(!file.exists("./extdata"))
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+
 test_md5subsum <- function()
 {
     # check if md5subsum is the same when called several times
@@ -39,9 +48,7 @@ test_md5subsum <- function()
 
 test_alignmentStats <- function()
 {    
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
+    clObj <- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
     td <- tempdir()
     genomeFile <- file.path("extdata", "hg19sub.fa")
     auxFile <- file.path("extdata", "auxiliaries.txt")
@@ -72,4 +79,7 @@ test_alignmentStats <- function()
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     res <- alignmentStats(alignments(project)$genome$FileName[1])
     checkTrue(all(resSoll == res))
+
+    stopCluster(clObj)
+    rm(clObj)
 }

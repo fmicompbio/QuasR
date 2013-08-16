@@ -1,16 +1,42 @@
-source(system.file(package="QuasR", "unitTests", "help_function.R"))
+# initialization of QuasR test environment
+# allows: runTestFile("test_file.R", rngKind="default", rngNormalKind="default", verbose=1L)
+if(!existsFunction("createFastaReads"))
+    source(system.file(package="QuasR", "unitTests", "help_function.R"))
+
+if(!file.exists("./extdata"))
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+library(Rsamtools)
+
+genomeFile <- file.path("extdata", "hg19sub.fa")
+genome <- scanFa(genomeFile)
+td <- tempdir()
+unMethRanges <- scanFaIndex(genomeFile)
+partialMethRanges <- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
+
+sampleFileGenomeSingle <- createReads(genomeFile, td, paired=FALSE)
+sampleFileGenomePaired <- createReads(genomeFile, td, paired=TRUE)
+
+sampleFileGenomePairedBisPartial <- createReads(genomeFile, td, paired=TRUE, bisulfit=partialMethRanges)
+
+sampleFileGenomeSingleBisUn <- createReads(genomeFile, td, paired=FALSE, bisulfit=unMethRanges)
+sampleFileGenomePairedBisUn <- createReads(genomeFile, td, paired=TRUE, bisulfit=unMethRanges)
+
+
+
+.setUp <- function() { # runs before each test_...()
+    # make sure clObj exists and is a working cluster object
+    if(!exists("clObj", envir=.GlobalEnv) ||
+       !inherits(clObj, "cluster") ||
+       inherits(try(all(unlist(clusterEvalQ(clObj, TRUE))), silent=TRUE), "try-error")) {
+        clObj <<- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
+        clusterEvalQ(clObj, library("QuasR"))
+    }
+}
+
 
 test_un_meth_paired <- function(){
-    if(!"sampleFileGenomePairedBisUn" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- file.path("extdata", "hg19sub.fa")
-        td <<- tempdir()
-        unMethRanges <<- scanFaIndex(genomeFile)
-        sampleFileGenomePairedBisUn <<- createReads(genomeFile, td, paired=TRUE, bisulfit=unMethRanges)
-    }
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
 
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated directed, mode=allC")
@@ -21,7 +47,7 @@ test_un_meth_paired <- function(){
     meth <- qMeth(project, mode="CpGcomb")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated directed, mode=CpGcomb")
     
-    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated undirected, mode=allC")
@@ -34,17 +60,7 @@ test_un_meth_paired <- function(){
 }
 
 test_un_meth_single <- function(){
-    if(!"sampleFileGenomeSingleBisUn" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- file.path("extdata", "hg19sub.fa")
-        td <<- tempdir()
-        # unmethylated C expect the CpG of methRanges
-        unMethRanges <<- scanFaIndex(genomeFile)
-        sampleFileGenomeSingleBisUn <<- createReads(genomeFile, td, paired=FALSE, bisulfit=unMethRanges)
-    }
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    project <- qAlign(sampleFileGenomeSingleBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomeSingleBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(0 == mcols(meth)[,2]), "Test un-methylated undirected, mode=allC")
@@ -57,15 +73,7 @@ test_un_meth_single <- function(){
 }
 
 test_full_meth_paired <- function(){
-    if(!"sampleFileGenomePaired" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- file.path("extdata", "hg19sub.fa")
-        td <<- tempdir()
-        sampleFileGenomePaired <<- createReads(genomeFile, td, paired=TRUE)
-    }
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
 
     meth <- qMeth(project, mode="allC")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated directed, mode=allC")
@@ -79,7 +87,7 @@ test_full_meth_paired <- function(){
     meth <- qMeth(project, mode="var")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated, mode=var")
     
-    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated undirected, mode=allC")
@@ -95,15 +103,7 @@ test_full_meth_paired <- function(){
 }
 
 test_full_meth_single <- function(){
-    if(!"sampleFileGenomeSingle" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- file.path("extdata", "hg19sub.fa")
-        td <<- tempdir()
-        sampleFileGenomeSingle <<- createReads(genomeFile, td, paired=FALSE)
-    }
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    project <- qAlign(sampleFileGenomeSingle, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=NULL)
+    project <- qAlign(sampleFileGenomeSingle, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC", keepZero=FALSE)
     checkTrue(all(mcols(meth)[,1] == mcols(meth)[,2]), "Test full-methylated undirected, mode=allC")
@@ -119,18 +119,7 @@ test_full_meth_single <- function(){
 }
 
 test_partial_meth <- function(){
-    if(!"sampleFileGenomePairedBisPartial" %in% ls(envir=.GlobalEnv)){
-        genomeFile <<- file.path("extdata", "hg19sub.fa")
-        td <<- tempdir()
-        unMethRanges <<- scanFaIndex(genomeFile)
-        partialMethRanges <<- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
-        sampleFileGenomePairedBisPartial <<- createReads(genomeFile, td, paired=TRUE, bisulfit=partialMethRanges)
-    }
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=NULL)
-    genome <- scanFa(genomeFile)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
     
     methAllC <- qMeth(project, mode="allC")
     # check all C and G found

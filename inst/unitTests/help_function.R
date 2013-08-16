@@ -1,4 +1,70 @@
-#     if("sampleFileAuxPaired" %in% ls())
+### helper functions used by QuasR's unit test functions
+
+# Fragment design
+# Left Adapter  ATACTG
+# Insert        TGTGACAGACCTCGGGGCCACATGCACTGACTCCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGTC
+# Right Adapter ATCTCGTATGCCGTCTTCTGCTTG
+createFastaReads <- function(){ # create two temporary fasta files and return file names
+    faFileName1 <- tempfile(fileext=".fa")
+    faFile1 <-file(faFileName1, open="w")
+    writeLines(c(">seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", # onlyInsert
+                 ">seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", # low compexity, 2N
+                 ">seq3", "AAAATACTGTGTGACAGACCTCGGGGCCACATGCAC", # A.., LAdapter
+                 ">seq4", "ATACTGTGTGACAGACCTCGGGGCCACATGCACTGA", # LAdapter
+                 ">seq5", "TGTGACAGACCTCGGGGCCACATGCACTGACTCCTC", # Insert
+                 ">seq6", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAAAA", # LAdapter, noInsert, RAdapter, A..
+                 ">seq7", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAANN", # LAdapter, noInsert, RAdapter, A.., 2N
+                 ">seq8", "ATACTGGAGGTCATCTCGTATGCCGTCTTCTGCTTG", # LAdapter, shortInsert, RAdapter
+                 ">seq9", "TGACAGACCTCGGGGCCAC"),                 # shortLength
+               con=faFile1)
+    close(faFile1)
+    
+    faFileName2 <- tempfile(fileext=".fa")
+    faFile2 <-file(faFileName2, open="w")
+    writeLines(c(">seq1", "AAAAAAAAAAAAAAAAAAA",                  # low compexity
+                 ">seq2", "TCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGG", # low compexity, shortLength
+                 ">seq3", "CTCCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCC", # onlyInsert
+                 ">seq4", "GAGGTCATCTCGTATGCCGTCTTCTGCTTGAAAAAA", # RAdapter
+                 ">seq5", "AGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGTC", # Insert
+                 ">seq6", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAAAA", # LAdapter, noInsert, RAdapter, A..
+                 ">seq7", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAANN", # LAdapter, noInsert, RAdapter, A.., 2N
+                 ">seq8", "AAAAATACTGGAGGTCATCTCGTATGCCGTCTTCTG", # A.., LAdapter, shortInsert, RAdapter
+                 ">seq9", "CAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGT"),# Insert
+               con=faFile2)
+    close(faFile1)
+    return(c(faFileName1, faFileName2))
+}
+
+createFastqReads <- function(){ # create two temporary fastq files and return file names
+    fqFileName1 <- tempfile(fileext=".fq")
+    fqFile1 <- file(fqFileName1, open="w")
+    writeLines(c("@seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", "+", "5..49<494*<49493####################",
+                 "@seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "+", "+4544944444444######################",
+                 "@seq3", "AAAATACTGTGTGACAGACCTCGGGGCCACATGCAC", "+", "BCCBCCBBB60>CA;5;@BB@A6+;8@BC?0:B@/=",
+                 "@seq4", "ATACTGTGTGACAGACCTCGGGGCCACATGCACTGA", "+", "BCBBB>ACBCCCBCC@BCC@*7@82=BBBB1>CABC",
+                 "@seq5", "TGTGACAGACCTCGGGGCCACATGCACTGACTCCTC", "+", "BA?AB??60>A6?0BBBB95>057;@*.<(434;+4",
+                 "@seq6", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAAAA", "+", "+BCCCCBCCCBACB:?BBCCCCCCBCBC>;(>BBB@",
+                 "@seq7", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAANN", "+", "####################################",
+                 "@seq8", "ATACTGGAGGTCATCTCGTATGCCGTCTTCTGCTTG", "+", "(33(;?B@AB43*,/;9(6</7>5;<##########",
+                 "@seq9", "TGACAGACCTCGGGGCCAC",                  "+", "###################"),
+               con=fqFile1)
+    close(fqFile1)
+    
+    fqFileName2 <- tempfile(fileext=".fq")
+    fqFile2 <- file(fqFileName2, open="w")    
+    writeLines(c("@seq1", "AAAAAAAAAAAAAAAAAAA",                  "+", "3@?3/>9A8@A1-*/4@BB",
+                 "@seq2", "TCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGG", "+", "4-093<##############################",
+                 "@seq3", "CTCCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCC", "+", "CB?(8=(<A/<=-(07+7&883@#############",
+                 "@seq4", "GAGGTCATCTCGTATGCCGTCTTCTGCTTGAAAAAA", "+", "5..49<494*<4949#####################",
+                 "@seq5", "AGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGTC", "+", "+45449444444########################",
+                 "@seq6", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAAAA", "+", "BCCBCCBBB60>CA;5;@BB@A6+;8@BC?0:B@A<",
+                 "@seq7", "ATACTGATCTCGTATGCCGTCTTCTGCTTGAAAANN", "+", "BCBBB>ACBCCCBCC@BCC@*7@82=BBBB1>CABB",
+                 "@seq8", "AAAAATACTGGAGGTCATCTCGTATGCCGTCTTCTG", "+", "BA?AB??60>A6?0BBBB95>057;@*.<(434;@B",
+                 "@seq9", "CAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGT", "+", "+BCCCCBCCCBACB:?BBCCCCCCBCBC>;(>B@4;"),
+               con=fqFile2)
+    close(fqFile2)
+    return(c(fqFileName1, fqFileName2))
+}
 
 createProjectPairedMode <- function(){
     if(!"clObj" %in% ls(envir=.GlobalEnv)){

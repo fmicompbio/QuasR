@@ -1,124 +1,81 @@
+# initialization of QuasR test environment
+# allows: runTestFile("test_file.R", rngKind="default", rngNormalKind="default", verbose=1L)
+if(!file.exists("./extdata"))
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
+td <- tempdir()
+genomeFile <- file.path("extdata", "hg19sub.fa")
+sampleFile <- file.path("extdata", "samples_rna_single.txt")
+auxFile <- file.path("extdata", "auxiliaries.txt")
+
+clObj <- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
+projectGenome <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
+projectGenomeAux <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
+stopCluster(clObj)
+rm(clObj)
+
+
 test_subset_project <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
+    len <- length(projectGenome)
+    projectGenomeS1 <- projectGenome[1:2]
+    checkTrue(len/2 == length(projectGenomeS1))
+    projectGenomeS2 <- projectGenome[3:4]    
+    checkTrue(len/2 == length(projectGenomeS2))
 
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    len <- length(project)
-    projectS1 <- project[1:2]
-    checkTrue(len/2 == length(projectS1))
-    projectS2 <- project[3:4]    
-    checkTrue(len/2 == length(projectS2))
-
-    suppressWarnings(checkIdentical(project[1], project["Sample1"]))
-    suppressWarnings(checkIdentical(project[3], project["Sample2"]))
+    suppressWarnings(checkIdentical(projectGenome[1], projectGenome["Sample1"]))
+    suppressWarnings(checkIdentical(projectGenome[3], projectGenome["Sample2"]))
     
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    len <- length(project)
-    projectS1 <- project[1:2]
-    checkTrue(len/2 == length(projectS1))
-    projectS2 <- project[3:4]
-    checkTrue(len/2 == length(projectS2))
+    len <- length(projectGenomeAux)
+    projectGenomeAuxS1 <- projectGenomeAux[1:2]
+    checkTrue(len/2 == length(projectGenomeAuxS1))
+    projectGenomeAuxS2 <- projectGenomeAux[3:4]
+    checkTrue(len/2 == length(projectGenomeAuxS2))
 }
 
 test_length <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
+    checkTrue(4 == length(projectGenome))
     
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(4 == length(project))
-    
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(4 == length(project))
+    checkTrue(4 == length(projectGenomeAux))
 }
 
 test_genome <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
-    
     ## check without auxFile
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(normalizePath(genomeFile) == normalizePath(genome(project)))
+    checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenome)))
 
     ## check with auxFile
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(normalizePath(genomeFile) == normalizePath(genome(project)))
+    checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenomeAux)))
 }
 
 test_auxiliary <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
-    
     ## check without auxFile
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(0 == nrow(auxiliaries(project)))
+    checkTrue(0 == nrow(auxiliaries(projectGenome)))
     
     ## check with auxFile
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    checkTrue(1 == nrow(auxiliaries(project)))
+    checkTrue(1 == nrow(auxiliaries(projectGenomeAux)))
 }
 
 test_alignment <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
-    
     ## check without auxFile
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    aln <- alignments(project)
+    aln <- alignments(projectGenome)
     checkTrue(4 == nrow(aln$genome))
     checkTrue(0 == nrow(aln$aux))
     
     ## check with auxFile
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    aln <- alignments(project)
+    aln <- alignments(projectGenomeAux)
     checkTrue(4 == nrow(aln$genome))
     checkTrue(4 == ncol(aln$aux))
 }
 
 test_show <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
-    
     ## check without auxFile
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
-    show(project)
+    show(projectGenome)
     
     ## check with auxFile
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
-    show(project)
+    show(projectGenomeAux)
 }

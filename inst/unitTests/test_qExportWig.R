@@ -1,8 +1,12 @@
+# initialization of QuasR test environment
+# allows: runTestFile("test_file.R", rngKind="default", rngNormalKind="default", verbose=1L)
+if(!file.exists("./extdata"))
+    file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+
 test_exportWig <- function()
 {
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
+    clObj <- makeCluster(2)
+
     library(rtracklayer)
     td <- tempdir()
     genomeFile <- file.path("extdata", "hg19sub.fa")
@@ -25,4 +29,6 @@ test_exportWig <- function()
     wig <- lapply(wigfiles, function(wf) suppressWarnings(import.wig(wf, asRangedData=F)))
     res <- qCount(project, wig[[1]], shift="halfInsert", collapseBySample=F)
     checkTrue(all(mcols(wig[[1]])$score == res[,2]/2))
+
+    stopCluster(clObj)
 }
