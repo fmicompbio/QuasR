@@ -29,16 +29,29 @@ sampleFileAuxPaired <- createReads(auxGenomeFile, td, paired=TRUE)
 sampleFileGenomeSingleFasta <- createReads(genomeFile, td, paired=FALSE, format="fasta")
 sampleFileGenomePairedFasta <- createReads(genomeFile, td, paired=TRUE, format="fasta")
 
-.setUp <- function() { # runs before each test_...()
-    # make sure clObj exists and is a working cluster object
-    if(!exists("clObj", envir=.GlobalEnv) ||
-       !inherits(clObj, "cluster") ||
-       inherits(try(all(unlist(clusterEvalQ(clObj, TRUE))), silent=TRUE), "try-error")) {
-        clObj <<- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
-        clusterEvalQ(clObj, library("QuasR"))
+#.setUp <- function() { # runs before each test_...()
+#    # make sure clObj exists and is a working cluster object
+#    if(!exists("clObj", envir=.GlobalEnv) ||
+#       !inherits(clObj, "cluster") ||
+#       inherits(try(all(unlist(clusterEvalQ(clObj, TRUE))), silent=TRUE), "try-error")) {
+#        clObj <<- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
+#        clusterEvalQ(clObj, library("QuasR"))
+#    }
+#}
+
+# tests sporadically fail if clObj is not freshly generated for each test_...()
+.setUp <- function() {
+    if(exists("clObj", envir=.GlobalEnv) && inherits(clObj, "cluster") &&
+       !inherits(try(all(unlist(clusterEvalQ(clObj, TRUE))), silent=TRUE), "try-error")) {
+        stopCluster(get("clObj", envir=.GlobalEnv))
     }
+    clObj <<- makeCluster(getOption("QuasR_nb_cluster_nodes",2))
 }
 
+.tearDown <- function() {
+    stopCluster(get("clObj", envir=.GlobalEnv))
+    rm(clObj, envir=.GlobalEnv)
+}
 
 
 test_normal_paired <- function(){
