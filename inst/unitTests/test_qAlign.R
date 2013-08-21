@@ -17,8 +17,8 @@ sampleFileGenomePaired <- createReads(genomeFile, td, paired=TRUE)
 unMethRanges <- scanFaIndex(genomeFile)
 partialMethRanges <- narrow(unMethRanges, start=5000, end=c(15000,10000,15000))
 
-sampleFileGenomeSingleBisPartial <- createReads(genomeFile, td, paired=FALSE, bisulfit=partialMethRanges)
-sampleFileGenomePairedBisPartial <- createReads(genomeFile, td, paired=TRUE, bisulfit=partialMethRanges)
+sampleFileGenomeSingleBisPartial <- createReads(genomeFile, td, paired=FALSE, bisulfite=partialMethRanges)
+sampleFileGenomePairedBisPartial <- createReads(genomeFile, td, paired=TRUE, bisulfite=partialMethRanges)
 
 sampleFileGenomeSingleAllele <- createReads(genomeFile, td, paired=FALSE, snpFile=snpFile)
 sampleFileGenomePairedAllele <- createReads(genomeFile, td, paired=TRUE, snpFile=snpFile)
@@ -84,9 +84,9 @@ test_normal_single <- function(){
               "Test seqname")
 }
 
-test_bisulfit_paired <- function(){
+test_bisulfite_paired_dir <- function(){
     ## Dir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
 
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -103,10 +103,11 @@ test_bisulfit_paired <- function(){
     nm0 <- mcols(aln)$NM == 0
     checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")
+}
 
-    
+test_bisulfite_paired_undir <- function(){
     ## Undir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -126,9 +127,9 @@ test_bisulfit_paired <- function(){
               "Test if strand correspond to the coverted genome")    
 }
 
-test_bisulfit_single <- function(){
+test_bisulfite_single_dir <- function(){
     ## Dir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -150,9 +151,11 @@ test_bisulfit_single <- function(){
     nm0 <- mcols(aln)$NM == 0
     checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")
-    
+}
+
+test_bisulfite_single_undir <- function(){
     ## Undir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -325,7 +328,7 @@ test_aux_normal_single <- function(){
               "Test seqname")    
 }
 
-test_aux_bisulfit_undir_paired <- function(){
+test_aux_bisulfite_undir_paired <- function(){
     #genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
@@ -343,7 +346,7 @@ test_aux_bisulfit_undir_paired <- function(){
               "Test seqname")
 }
 
-test_aux_bisulfit_undir_single <- function(){
+test_aux_bisulfite_undir_single <- function(){
     #genomeFile <<- file.path("extdata", "hg19sub.fa")
     auxFile <<- file.path("extdata", "auxiliaries.txt")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
@@ -427,8 +430,8 @@ test_normal_single_fasta <- function(){
               "Test seqname")
 }
 
-test_bisulfit_dir_paired_fasta <- function(){
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+test_bisulfite_dir_paired_fasta <- function(){
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -443,8 +446,8 @@ test_bisulfit_dir_paired_fasta <- function(){
               "Test seqname")
 }
 
-test_bisulfit_dir_single_fasta <- function(){
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
+test_bisulfite_dir_single_fasta <- function(){
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -525,8 +528,8 @@ test_spliced_single_fasta <- function(){
               "Test seqname")
 }
 
-test_bisulfit_dir_allelic_paired <- function(){
-    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+test_bisulfite_dir_allelic_paired <- function(){
+    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag=c("XV","NM")))
@@ -562,8 +565,8 @@ test_bisulfit_dir_allelic_paired <- function(){
     }
 }
 
-test_bisulfit_dir_allelic_single <- function(){
-    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfit="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+test_bisulfite_dir_allelic_single <- function(){
+    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -606,33 +609,37 @@ test_bisulfit_dir_allelic_single <- function(){
               "Test XV tag: Read with tag XV=U should overlap only snp of type G to A")
 }
 
-test_maxHits <- function(){
+test_maxHits_simple <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, maxHits=100, alignmentsDir=td, clObj=clObj)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
+}
 
+test_maxHits_snps <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, snpFile=snpFile, maxHits=100, alignmentsDir=td, clObj=clObj)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
-    
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfit="undir", maxHits=100, alignmentsDir=td, clObj=clObj)
+}
+
+test_maxHits_bisulfite <- function(){
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", maxHits=100, alignmentsDir=td, clObj=clObj)
     checkTrue(0 == alignmentStats(project)[,"unmapped"])
 }
 
 # Not supported
 # test_aux_allelic_paired <- function(){}
 # test_aux_allelic_single <- function(){}
-# test_aux_bisulfit_dir_allelic_paired <- function(){}
-# test_aux_bisulfit_dir_allelic_single <- function(){}
-# test_aux_bisulfit_undir_allelic_paired <- function(){}
-# test_aux_bisulfit_undir_allelic_single <- function(){}
+# test_aux_bisulfite_dir_allelic_paired <- function(){}
+# test_aux_bisulfite_dir_allelic_single <- function(){}
+# test_aux_bisulfite_undir_allelic_paired <- function(){}
+# test_aux_bisulfite_undir_allelic_single <- function(){}
 # test_aux_spliced_allelic_paired <- function(){}
 # test_aux_spliced_allelic_single <- function(){}
 
 # Not tested yet
-# test_bisulfit_undir_allelic_paired <- function(){}
-# test_bisulfit_undir_allelic_single <- function(){}
+# test_bisulfite_undir_allelic_paired <- function(){}
+# test_bisulfite_undir_allelic_single <- function(){}
 # test_spliced_allelic_paired <- function(){}
 # test_spliced_allelic_single <- function(){}
-# test_aux_bisulfit_dir_paired <- function(){}
-# test_aux_bisulfit_dir_single <- function(){}
+# test_aux_bisulfite_dir_paired <- function(){}
+# test_aux_bisulfite_dir_single <- function(){}
 # test_normal_paired_ff <- function(){}
 # test_normal_paired_rf <- function(){}

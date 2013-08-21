@@ -290,7 +290,7 @@ createTranscriptDb <- function()
     return(txdb)
 }
 
-createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit=NULL, transcript=NULL, format="fastq"){
+createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfite=NULL, transcript=NULL, format="fastq"){
     library(Rsamtools)
     genome <- scanFa(genomeFile)
     destination <- tempfile(tmpdir=destDir)
@@ -322,11 +322,11 @@ createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit
         names(genome) <- paste(names(genome), "R", sep="-")
     }
     
-    if(!is.null(bisulfit)){
+    if(!is.null(bisulfite)){
         CpG <- lapply(seq_along(genome), function(i){
             seq <- genome[[i]]
             seqnames <- unlist(strsplit(names(genome[i]), "-"))[1]
-            ranges <- ranges(bisulfit[seqnames(bisulfit) == seqnames])
+            ranges <- ranges(bisulfite[seqnames(bisulfite) == seqnames])
             mask <- Mask(mask.width=length(seq), start=start(ranges), end=end(ranges))
             masks(seq) <- mask
             start(matchPattern("CG", seq))
@@ -373,7 +373,7 @@ createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit
         read1 <- as(read1,"XStringSet")
         read2 <- reverseComplement(as(read2,"XStringSet"))
         # swap half of the pairs
-        if(!is.null(bisulfit)){
+        if(!is.null(bisulfite)){
             names(read1) <- paste(ids, "b", "l", sep="_")
             names(read2) <- paste(ids, "b", "r", sep="_")
         }        
@@ -382,7 +382,7 @@ createReads <- function(genomeFile, destDir, paired=TRUE, snpFile=NULL, bisulfit
         sread2 <- append(read2[swap!=1], read1[swap==1])
         sids <- c(ids[swap!=1], ids[swap==1])
         # add qname
-        if(is.null(bisulfit)){
+        if(is.null(bisulfite)){
             names(sread1) <- paste(sids, swap, "/1", sep="_")
             names(sread2) <- paste(sids, swap, "/2", sep="_")
         }
