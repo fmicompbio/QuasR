@@ -86,7 +86,7 @@ test_normal_single <- function(){
 
 test_bisulfite_paired_dir <- function(){
     ## Dir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
 
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -107,7 +107,7 @@ test_bisulfite_paired_dir <- function(){
 
 test_bisulfite_paired_undir <- function(){
     ## Undir
-    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -129,7 +129,7 @@ test_bisulfite_paired_undir <- function(){
 
 test_bisulfite_single_dir <- function(){
     ## Dir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -155,7 +155,7 @@ test_bisulfite_single_dir <- function(){
 
 test_bisulfite_single_undir <- function(){
     ## Undir
-    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -431,7 +431,7 @@ test_normal_single_fasta <- function(){
 }
 
 test_bisulfite_dir_paired_fasta <- function(){
-    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -447,7 +447,7 @@ test_bisulfite_dir_paired_fasta <- function(){
 }
 
 test_bisulfite_dir_single_fasta <- function(){
-    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
@@ -529,7 +529,7 @@ test_spliced_single_fasta <- function(){
 }
 
 test_bisulfite_dir_allelic_paired <- function(){
-    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag=c("XV","NM")))
@@ -566,7 +566,7 @@ test_bisulfite_dir_allelic_paired <- function(){
 }
 
 test_bisulfite_dir_allelic_single <- function(){
-    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
     aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
