@@ -12,6 +12,10 @@ projectAllelic <- createProjectAllelic()
 projectSingleAllelic <- createProjectSingleMode(allelic=TRUE)
 tilingRegion <- createTilingRegion()
 gtfRegion <- createGtfRegion()
+td <- tempdir()
+genomeFile <- file.path("extdata", "hg19sub.fa")
+sampleFile <- file.path("extdata", "samples_rna_single.txt")
+snpFile <- file.path("extdata", "hg19sub_snp.txt")
 
 .setUp <- function() { # runs before each test_...()
     # make sure clObj exists and is a working cluster object
@@ -25,13 +29,10 @@ gtfRegion <- createGtfRegion()
 
 
 ## Test the counts parameter shift, selectReadPosition
-test_shift <- function()
-{
+test_shift <- function() {
     project <- projectPaired
-
     
     ## qCount with SmartShift
-    
     #fr R1->left R2->right
     query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "+")
     resSoll <- rep(0,20)
@@ -94,7 +95,6 @@ test_shift <- function()
     
     
     ## qCount with interger as shift
-    
     aln <- readGAlignmentsFromBam(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
@@ -135,13 +135,8 @@ test_shift <- function()
     checkTrue(all(resSoll == res), "Test 6: qCount with shift and selectReadPosition")
 }
 
-## Test the counts parameter shift in allelic mode
-test_shift_allelic <- function()
-{
+test_shift_allelic <- function(){
     project <- projectAllelic
-
-    
-    ## qCount allele specific
     query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "+")
     
     # no shift
@@ -171,13 +166,8 @@ test_shift_allelic <- function()
     checkTrue(all(resSoll == res[,3]), "Test 10: qCount allele specific")
 }
    
-## Test the counts parameter orientation
-test_orientation <- function()
-{
+test_orientation <- function() {
     project <- projectPaired
-
-    
-    ## qCount with orientation, query strand
     aln <- readGAlignmentsFromBam(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
@@ -250,13 +240,8 @@ test_orientation <- function()
     checkTrue(all(resSoll == res), "Test 12: qCount with orientation and query strand")
 }
 
-## Test the counts parameter useRead
-test_useRead <- function()
-{
+test_useRead <- function() {
     project <- projectPaired
-
-
-    ## qCount with useRead
     aln <- readGAlignmentsFromBam(project@alignments$FileName, 
                                   param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=T, isSecondMateRead=F)))
     
@@ -289,13 +274,9 @@ test_useRead <- function()
     checkTrue(all(resSoll == res), "Test 4: qCount with useRead")
 }
 
-## Test the counts parameter maxInsertSize
-test_maxInsertSize <- function()
-{
+test_maxInsertSize <- function() {
     project <- projectPaired
 
-    
-    ## qCount with maxInsertSize 
     query <- GRanges(c("chrV"), IRanges(start=1:20, width=1), "*")
     resSoll <- rep(0,20)
     #resSoll[c(10, 30, 46, 50, 70, 74, 86, 94)] <- c(4,4,2,2,2,2,2,2)
@@ -307,9 +288,7 @@ test_maxInsertSize <- function()
     checkTrue(all(resSoll == res), "Test 2: qCount with maxInsertSize")
 }
 
-## query with GRanges and mask
-test_query_GRanges <- function()
-{
+test_query_GRanges <- function() {
     project <- projectSingle
     
     ## NO masking
@@ -428,10 +407,7 @@ test_query_GRanges <- function()
     checkTrue(all(resSoll == res), "GRanges Test 16: qCount with masking and orientation=same")
 }    
     
-# query with GRangesList and mask 
-# (hierarchically non overlapping region and reduce by queryrowname)
-test_query_GRangesList <- function()
-{
+test_query_GRangesList <- function() {
     project <- projectSingle
     
     region <- tilingRegion
@@ -456,7 +432,6 @@ test_query_GRangesList <- function()
     res <- qCount(project, regionList, collapseBySample=F, orientation="same")
     checkTrue(all(resSoll == res), "GRangesList Test 3: qCount orientation=same")
 
-    
     ## Masking Test 1
     mask <- tilingRegion[names(tilingRegion) == "H4"]
     
@@ -501,9 +476,7 @@ test_query_GRangesList <- function()
 
 }
 
-# Allelic query with GRanges and mask
-test_query_GRanges_allelic <- function()
-{
+test_query_GRanges_allelic <- function() {
     project <- projectSingleAllelic
     
     ## NO masking
@@ -591,10 +564,7 @@ test_query_GRanges_allelic <- function()
     checkTrue(all(resSoll == res), "GRanges Test 12: qCount allele specific with masking and orientation=same")
 }
 
-# Allelic query with GRangesList and mask 
-# (hierarchically non overlapping region and reduce by queryrowname)
-test_query_GRangesList_allelic <- function()
-{
+test_query_GRangesList_allelic <- function() {
     project <- projectSingleAllelic
 
     region <- tilingRegion
@@ -645,19 +615,9 @@ test_query_GRangesList_allelic <- function()
     checkTrue(all(resSoll == res), "GRangesList Test 6: qCount allele specific with masking and orientation=same")
 }
 
-# query with TranscriptDB; test parameters: collapseBySample, reportLevel, mask, includeSpliced
-test_query_transcriptDB <- function()
-{
-    ## Load data
-    td <- tempdir()
-    genome <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    project <- qAlign(sampleFile, genome, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
-
-    ## Create txDb
+test_query_transcriptDB <- function() {
+    project <- qAlign(sampleFile, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     txdb <- createTranscriptDb()
-    
-    ## Create mask objects
     mask <- gtfRegion[mcols(gtfRegion)$gene_name == "TNFRSF18"]
     
     
@@ -715,19 +675,11 @@ test_query_transcriptDB <- function()
     
 }
 
-test_collapseBySample_GRanges <- function()
-{
-    ## Load data
-    td <- tempdir()
-    genome <- file.path("extdata", "hg19sub.fa")
-    sampleFile <- file.path("extdata", "samples_rna_single.txt")
-    snpFile <- file.path("extdata", "hg19sub_snp.txt")
-
+test_collapseBySample_GRanges <- function() {
     ## Non Allelic
-    project <- qAlign(sampleFile, genome, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     res <- qCount(project, gtfRegion, collapseBySample=T)
     
-    length(project)
     projectS1 <- project[1:2]
     resS1 <- qCount(projectS1, gtfRegion, collapseBySample=T)
     
@@ -738,10 +690,9 @@ test_collapseBySample_GRanges <- function()
               "Test collapseBySample; Collapse counts are not equal.")
 
     ## Allelic
-    project <- qAlign(sampleFile, genome, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
+    project <- qAlign(sampleFile, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     res <- qCount(project, gtfRegion, collapseBySample=T)
     
-    length(project)
     projectS1 <- project[1:2]
     resS1 <- qCount(projectS1, gtfRegion, collapseBySample=T)
     
@@ -752,14 +703,9 @@ test_collapseBySample_GRanges <- function()
               "Test collapseBySample; Collapse counts are not equal for allelic.")
 }
 
-test_auxiliaryName <- function()
-{
-    ## Load data
-    td <- tempdir()
-    genomeFile <- file.path("extdata", "hg19sub.fa")
-    auxFile <- file.path("extdata", "auxiliaries.txt")
-    sampleFile <- file.path("extdata", "samples_chip_single.txt")
-    project <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
+test_auxiliaryName <- function() {
+    project <- qAlign(file.path("extdata", "samples_chip_single.txt"), genomeFile,
+                      auxiliaryFile=file.path("extdata", "auxiliaries.txt"), alignmentsDir=td, clObj=clObj)
     
     ## Test aux counts
     auxRegion <- createAuxRegion()
