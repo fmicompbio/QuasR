@@ -63,9 +63,9 @@ qCount <-
         trCommon <- names(trTab)[trTab==length(bamfiles)]
         queryseqs <- NULL
         if(inherits(query,c("GRanges","GRangesList"))) {
-            queryseqs <- seqlevels(query)
+            queryseqs <- seqlevelsInUse(query)
         } else if(inherits(query,"TranscriptDb")) { # only use active sequences
-            queryseqs <- names(isActiveSeq(query))[isActiveSeq(query)]
+            queryseqs <- seqlevels(query) # isActiveSeq is depricated; no seqlevelsInUse for TranscriptDb yet
         }
         if(!is.null(query) && any(f <- !(queryseqs %in% trCommon)))
             stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
