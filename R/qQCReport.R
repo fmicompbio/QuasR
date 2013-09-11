@@ -123,14 +123,18 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
     if(inherits(input, "qProject", which=FALSE)){
         filetype <- input@samplesFormat
         if(input@paired == "no"){
-            readFilename <- as.character(input@reads$FileName)
-            label <- sprintf("%i. %s", 1:nrow(input@reads), basename(as.character(input@reads$FileName)))
+            readFilename <- if(filetype == "bam") as.character(input@alignments$FileName) else as.character(input@reads$FileName)
+            label <- sprintf("%i. %s", 1:length(readFilename), basename(readFilename))  
             mapLabel <- label
         } else {
-            readFilename <- as.character(rbind(input@reads$FileName1, input@reads$FileName2))
-            label <- sprintf("%i(R%i). %s",rep(1:nrow(input@reads),each=2), 1:2, basename(as.character(rbind(input@reads$FileName1, input@reads$FileName2))))
-            mapLabel <- sprintf("%i. %s",1:nrow(input@reads), basename(as.character(input@reads$FileName1)))
-
+            if(filetype == "bam"){
+                readFilename <- as.character(rbind(input@alignments$FileName, input@alignments$FileName))
+                mapLabel <- sprintf("%i. %s",1:ncol(readFilename), basename(as.character(input@alignments$FileName)))
+            } else {
+                readFilename <- as.character(rbind(input@reads$FileName1, input@reads$FileName2))
+                mapLabel <- sprintf("%i. %s",1:ncol(readFilename), basename(as.character(input@reads$FileName1)))
+            }
+            label <- sprintf("%i(R%i). %s",rep(1:ncol(readFilename),each=2), 1:2, basename(readFilename))
         }
         alnFilename <- input@alignments$FileName
         if(input@genomeFormat == "BSgenome"){
