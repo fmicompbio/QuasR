@@ -79,11 +79,11 @@ SEXP split_sam_chr(SEXP samFile, SEXP outDir)
   }
   if(j != k){
     fin->header->text[k] = '\0';
-    fin->header->l_text = strlen(fin->header->text);
+    fin->header->l_text = (uint32_t)strlen(fin->header->text);
   }
 
   // allocate memory for a list of filehandles (n+1 because of the unaligned reads)
-  samfile_t **foutList = (samfile_t**)calloc((fin->header->n_targets+1), sizeof(samfile_t*));
+  samfile_t **foutList = (samfile_t**)calloc((size_t)(fin->header->n_targets+1), sizeof(samfile_t*));
 
   // open the output file handles (n+1 due to the unaligned reads)
   int i;

@@ -30,16 +30,20 @@ typedef struct { // for use with addHitToCounts(), bam_fetch callback function o
     int *Mm;  // methylated (minus)
     bool *op; // output     (plus)
     bool *om; // output     (minus)
-    int offset; // region offset
+    uint32_t offset; // region offset
+    uint8_t mapqMin; // minimum mapping quality (MAPQ >= mapqMin)
+    uint8_t mapqMax; // maximum mapping quality (MAPQ <= mapqMax)
 } methCounters;
 
 typedef struct { // for use with addHitToSNP(), bam_fetch callback function of detect_SNVs()
     // count (mis-)matches on opposite strand (on the strand that was not altered in the bisulfite conversion)
-    unsigned int *match;
-    unsigned int *total;
+    int *match;
+    int *total;
     bool *targetC;
     bool *targetG;
-    int offset; // region offset
+    uint32_t offset; // region offset
+    uint8_t mapqMin; // minimum mapping quality (MAPQ >= mapqMin)
+    uint8_t mapqMax; // maximum mapping quality (MAPQ <= mapqMax)
 } snpCounters;
 
 typedef struct { // for use with addHitToCountsAllele(), bam_fetch callback function of quantify_methylation_allele()
@@ -49,18 +53,22 @@ typedef struct { // for use with addHitToCountsAllele(), bam_fetch callback func
     int *Mm[3];  // methylated (minus, R/U/A)
     bool *op; // output     (plus)
     bool *om; // output     (minus)
-    int offset; // region offset
+    uint32_t offset; // region offset
+    uint8_t mapqMin; // minimum mapping quality (MAPQ >= mapqMin)
+    uint8_t mapqMax; // maximum mapping quality (MAPQ <= mapqMax)
 } methCountersAllele;
 
 typedef struct { // for use with addHitToCountsSingleAlignments(), bam_fetch callback function of quantify_methylation_singleAlignments()
     //vector<int> aid;  // vector of alignment identifiers
     vector<string> aid;  // vector of alignment identifiers
-    vector<int> Cid;  // vector of C (DNA base) identifiers
+    vector<uint32_t> Cid;  // vector of C (DNA base) identifiers
     vector<char> strand; // vector of strands
     vector<int> meth; // vector of methylation status (0 or 1)
     bool *op; // output     (plus)
     bool *om; // output     (minus)
-    int offset; // region offset
+    uint32_t offset; // region offset
+    uint8_t mapqMin; // minimum mapping quality (MAPQ >= mapqMin)
+    uint8_t mapqMax; // maximum mapping quality (MAPQ <= mapqMax)
 } methCountersSingleAlignments;
 
 const inline int alleleFlagToInt(char xv) {
@@ -85,22 +93,27 @@ static int addHitToCounts(const bam1_t *hit, void *data) { // bam_fetch callback
   //   hit->core.pos and count vectors are zero-based (add one during output)
   //   bam_calend() return zero-based, exclusive end
   static uint8_t *hitseq=NULL;
-  static unsigned long int i=0;
-  static unsigned long int iend=0;
+  static uint32_t i=0;
+  static uint32_t iend=0;
   static int j=0;
   static methCounters *cnt = NULL;
 
-  hitseq = bam1_seq(hit);
   cnt = (methCounters*) data;
+
+  // skip alignment if mapping quality not in specified range
+  if(hit->core.qual < cnt->mapqMin || hit->core.qual > cnt->mapqMax)
+      return 0;
+    
+  hitseq = bam1_seq(hit);
   iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
 
-  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > (const uint32_t)(hit->core.mpos) - cnt->offset))
       // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
-      iend = hit->core.mpos - cnt->offset;
+      iend = (uint32_t)(hit->core.mpos) - cnt->offset;
 
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
       //Rprintf("\nminus strand alignment %d-%d (offset %d), id=%s\n", hit->core.pos+1, bam_calend(&(hit->core), bam1_cigar(hit)), cnt->offset, bam1_qname(hit));
-    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+    for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->om[i]) {                   //  target base is 'G'
 	  //char Twobit2base[] = {'X', 'A', 'C', 'X', 'G', 'X', 'X', 'X', 'T', 'X', 'X', 'X', 'X', 'X', 'X', 'N'};
 	  //Rprintf("  adding to genomic position %d (read pos %d has %c)\n", i+cnt->offset+1, j+1, Twobit2base[bam1_seqi(hitseq, j)]);
@@ -114,7 +127,7 @@ static int addHitToCounts(const bam1_t *hit, void *data) { // bam_fetch callback
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
       //Rprintf("\nplus strand alignment %d-%d (offset %d), id=%s\n", hit->core.pos+1, bam_calend(&(hit->core), bam1_cigar(hit)), cnt->offset, bam1_qname(hit));
-    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+    for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->op[i]) {                    //  target base is 'C'
 	  //char Twobit2base[] = {'X', 'A', 'C', 'X', 'G', 'X', 'X', 'X', 'T', 'X', 'X', 'X', 'X', 'X', 'X', 'N'};
 	  //Rprintf("  adding to genomic position %d (read pos %d has %c)\n", i+cnt->offset+1, j+1, Twobit2base[bam1_seqi(hitseq, j)]);
@@ -136,21 +149,26 @@ static int addHitToSNP(const bam1_t *hit, void *data) { // bam_fetch callback fu
     //   assume ungapped read-global alignment
     //   hit->core.pos and count vectors are zero-based (add one during output)
     static uint8_t *hitseq=NULL;
-    static unsigned long int i=0;
-    static unsigned long int iend=0;
+    static uint32_t i=0;
+    static uint32_t iend=0;
     static int j=0;
     static snpCounters *cnt = NULL;
 
-    hitseq = bam1_seq(hit);
     cnt = (snpCounters*) data;
+
+    // skip alignment if mapping quality not in specified range
+    if(hit->core.qual < cnt->mapqMin || hit->core.qual > cnt->mapqMax)
+        return 0;
+    
+    hitseq = bam1_seq(hit);
     iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
 
-    if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+    if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > (uint32_t)(hit->core.mpos) - cnt->offset))
 	// left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
-	iend = hit->core.mpos - cnt->offset;
+	iend = (uint32_t)(hit->core.mpos) - cnt->offset;
 
     if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for C-C matches on opposite strand)
-	for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+	for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
 	    if(cnt->targetC[i]) {                 //  target base is 'C'
 		if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C'
 		    cnt->total[i]++;
@@ -161,7 +179,7 @@ static int addHitToSNP(const bam1_t *hit, void *data) { // bam_fetch callback fu
 	    }
 
     } else {                                   // alignment on plus strand (look for G-G matches on opposite strand)
-	for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+	for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
 	    if(cnt->targetG[i]) {                 // target base is 'G'
 		if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G'
 		    cnt->total[i]++;
@@ -182,22 +200,27 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch ca
   //   count events separately for +/- strands (collapse strands during output if necessary) and for allele flag (R/U/A)
   //   hit->core.pos and count vectors are zero-based (add one during output)
   static uint8_t *hitseq=NULL;
-  static unsigned long int i=0;
-  static unsigned long int iend=0;
+  static uint32_t i=0;
+  static uint32_t iend=0;
   static int j=0, a=0;
   static methCountersAllele *cnt = NULL;
 
-  hitseq = bam1_seq(hit);
   cnt = (methCountersAllele*) data;
+
+  // skip alignment if mapping quality not in specified range
+  if(hit->core.qual < cnt->mapqMin || hit->core.qual > cnt->mapqMax)
+      return 0;
+    
+  hitseq = bam1_seq(hit);
   iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
   a = alleleFlagToInt((char)*(uint8_t*)(bam_aux_get(hit,"XV") + 1));
 
-  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > (uint32_t)(hit->core.mpos) - cnt->offset))
       // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
-      iend = hit->core.mpos - cnt->offset;
+      iend = (uint32_t)(hit->core.mpos) - cnt->offset;
 
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
-    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+    for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->om[i]) {                   //  target base is 'G'
 	if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G'
 	  cnt->Tm[a][i]++;
@@ -208,7 +231,7 @@ static int addHitToCountsAllele(const bam1_t *hit, void *data) { // bam_fetch ca
       }
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
-    for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+    for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
       if(cnt->op[i]) {                    //  target base is 'C'
 	if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C'
 	  cnt->Tp[a][i]++;
@@ -230,22 +253,27 @@ static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // ba
   //   hit->core.pos and count vectors are zero-based (add one during output)
   //   bam_calend() return zero-based, exclusive end
   static uint8_t *hitseq=NULL;
-  static unsigned long int i=0;
-  static unsigned long int iend=0;
+  static uint32_t i=0;
+  static uint32_t iend=0;
   static int j=0;
   static methCountersSingleAlignments *cnt = NULL;
 
-  hitseq = bam1_seq(hit);
   cnt = (methCountersSingleAlignments*) data;
+
+  // skip alignment if mapping quality not in specified range
+  if(hit->core.qual < cnt->mapqMin || hit->core.qual > cnt->mapqMax)
+      return 0;
+    
+  hitseq = bam1_seq(hit);
   iend = bam_calend(&(hit->core), bam1_cigar(hit)) - cnt->offset;
 
-  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > hit->core.mpos - cnt->offset))
+  if ((hit->core.flag & BAM_FPROPER_PAIR) && (hit->core.isize > 0) && (iend > (uint32_t)(hit->core.mpos) - cnt->offset))
       // left fragment of a paired alignment --> make sure iend does not overlap alignment of right fragment
-      iend = hit->core.mpos - cnt->offset;
+      iend = (uint32_t)(hit->core.mpos) - cnt->offset;
 
   // scan alignment
   if (hit->core.flag & BAM_FREVERSE) {       // alignment on minus strand (reads are reverse complemented, look for G-A mismatches)
-      for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+      for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
 	  if(cnt->om[i]) {                   //  target base is 'G'
 	      if(bam1_seqi(hitseq, j)==4) {        //  query base is 'G' (methylated)
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
@@ -261,7 +289,7 @@ static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // ba
 	  }
 
   } else {                                   // alignment on plus strand (look for C-T mismatches)
-      for(i=hit->core.pos-cnt->offset, j=0; i<iend; i++, j++)
+      for(i=(uint32_t)(hit->core.pos)-cnt->offset, j=0; i<iend; i++, j++)
 	  if(cnt->op[i]) {                    //  target base is 'C'
 	      if(bam1_seqi(hitseq, j)==2) {        //  query base is 'C' (methylated)
 		  cnt->aid.push_back( string(bam1_qname(hit)) );
@@ -288,7 +316,7 @@ static int addHitToCountsSingleAlignments(const bam1_t *hit, void *data) { // ba
   @return       0 if successful
  */
 int _verify_parameters(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-		       SEXP seqstring, SEXP mode, SEXP returnZero){
+		       SEXP seqstring, SEXP mode, SEXP returnZero, SEXP mapqMin, SEXP mapqMax){
 
     if (!Rf_isString(infiles))
 	Rf_error("'infiles' must be a character vector");
@@ -304,6 +332,12 @@ int _verify_parameters(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP reg
         Rf_error("'mode' must be integer(1)");
     if (returnZero!=NULL && (!Rf_isLogical(returnZero) || 1 != Rf_length(returnZero)))
         Rf_error("'returnZero' must be logical(1)");
+        
+    // check MAPQ parameters
+    if(!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
+        Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
+    if(!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
+        Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
 
     return 0;
 }
@@ -386,20 +420,22 @@ int _scanSeqForCG(int mode, const char* seq, int seqlen, int leftextension, bool
                                      2 : all C's (+/- strands separate)
                                      3 : SNP detection, only C's in CpG context (+/- strands separate) --> should never come here (see detect_SNPs)
   @param  returnZero     if true, keep C's with zero counts in the return value
+  @param  mapqMin        minimal mapping quality to count alignment (MAPQ >= mapqMin)
+  @param  mapqMax        maximum mapping quality to count alignment (MAPQ <= mapqMax)
 
   @return list containing five vectors (one element for each C or CpG) with chr, position, strand, total and methylated counts
  */
 SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-			  SEXP seqstring, SEXP mode, SEXP returnZero) {
+			  SEXP seqstring, SEXP mode, SEXP returnZero, SEXP mapqMin, SEXP mapqMax) {
     // validate arguments
-    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero);
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero, mapqMin, mapqMax);
 
     // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
     int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
-	start = Rf_asInteger(regionStart) - 1, seqlen = strlen(seq), end = 0;
+	start = Rf_asInteger(regionStart) - 1, end = 0, seqlen = (int)strlen(seq);
     end = start + seqlen; // end: 0-based, exclusive
     bool keepZero = Rf_asLogical(returnZero);
 
@@ -424,7 +460,9 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
     data.Mm = cntMinusM;
     data.op = outputPlus;
     data.om = outputMinus;
-    data.offset = start - leftextension;
+    data.offset = (uint32_t)(start - leftextension);
+    data.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    data.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // scan seq and initialize counters
     _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
@@ -506,7 +544,7 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
 	for(i=leftextension; i<seqlen+leftextension; i++) {
 	    if(outputPlus[i] && (keepZero || cntPlusT[i]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandPlus);
 		resT_int[j] = cntPlusT[i];
 		resM_int[j] = cntPlusM[i];
@@ -514,7 +552,7 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
 	    }
 	    if(outputMinus[i] && (keepZero || cntMinusT[i]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandMinus);
 		resT_int[j] = cntMinusT[i];
 		resM_int[j] = cntMinusM[i];
@@ -527,7 +565,7 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
 	for(i=leftextension; i<seqlen-1+leftextension; i++) {
 	    if(outputPlus[i] && (keepZero || cntPlusT[i]>0 || cntMinusT[i+1]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandAny);
 		resT_int[j] = cntPlusT[i] + cntMinusT[i+1];
 		resM_int[j] = cntPlusM[i] + cntMinusM[i+1];
@@ -564,17 +602,17 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
 }
 
 SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-		 SEXP seqstring, SEXP returnZero) {
+		 SEXP seqstring, SEXP returnZero, SEXP mapqMin, SEXP mapqMax) {
 
     // validate arguments
-    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, NULL, returnZero);
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, NULL, returnZero, mapqMin, mapqMax);
 
     // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0);
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
     int i = 0, j = 0, tid = 0, nbIn = Rf_length(infiles),
-	start = Rf_asInteger(regionStart) - 1, seqlen = strlen(seq), end = 0;
+	start = Rf_asInteger(regionStart) - 1, seqlen = (int)strlen(seq), end = 0;
     end = start + seqlen; // end: 0-based, exclusive
     bool keepZero = Rf_asLogical(returnZero);
 
@@ -582,9 +620,9 @@ SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionSta
     for(i=0; i<nbIn; i++)
 	inf[i] = Rf_translateChar(STRING_ELT(infiles, i));
 
-    unsigned int *cntMatch = NULL, *cntTotal = NULL;
-    cntMatch = (unsigned int*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, unsigned int);
-    cntTotal = (unsigned int*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, unsigned int);
+    int *cntMatch = NULL, *cntTotal = NULL;
+    cntMatch = (int*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, int);
+    cntTotal = (int*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, int);
     bool *targetC = NULL, *targetG = NULL;
     targetC = (bool*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, bool);
     targetG = (bool*) R_Calloc(seqlen + 2*MAX_READ_LENGTH, bool);
@@ -595,7 +633,9 @@ SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionSta
     data.total   = cntTotal;
     data.targetC = targetC;
     data.targetG = targetG;
-    data.offset  = start - leftextension;
+    data.offset  = (uint32_t)(start - leftextension);
+    data.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    data.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // only C's or G's in CpG context
     for(i=0; i<seqlen-1; i++)
@@ -665,7 +705,7 @@ SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionSta
     for(i=leftextension; i<seqlen+leftextension; i++) {
 	if((targetC[i] || targetG[i]) && (keepZero || cntTotal[i]>0)) {
 	    SET_STRING_ELT(resChr, j, regionChrFirst);
-	    resPos_int[j] = i + data.offset + 1;
+	    resPos_int[j] = i + (int)(data.offset) + 1;
 	    resMatch_int[j] = cntMatch[i];
 	    resTotal_int[j] = cntTotal[i];
 	    j++;
@@ -696,7 +736,7 @@ SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionSta
 }
 
 SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-				 SEXP seqstring, SEXP mode, SEXP returnZero) {
+				 SEXP seqstring, SEXP mode, SEXP returnZero, SEXP mapqMin, SEXP mapqMax) {
     /*
       mode == 0 : only C's in CpG context (+/- strands collapsed)
               1 : only C's in CpG context (+/- strands separate)
@@ -704,14 +744,14 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     */
 
     // validate arguments
-    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero);
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero, mapqMin, mapqMax);
 
     // declare parameters
     SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
     int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
-	start = Rf_asInteger(regionStart) - 1, seqlen = strlen(seq), end = 0;
+	start = Rf_asInteger(regionStart) - 1, seqlen = (int)strlen(seq), end = 0;
     end = start + seqlen; // end: 0-based, exclusive
     bool keepZero = Rf_asLogical(returnZero);
 
@@ -755,7 +795,9 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     data.Mm[2] = cntMinusMA;
     data.op = outputPlus;
     data.om = outputMinus;
-    data.offset = start - leftextension;
+    data.offset = (uint32_t)(start - leftextension);
+    data.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    data.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // scan seq and initialize counters
     _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
@@ -844,7 +886,7 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
 	for(i=leftextension; i<seqlen+leftextension; i++) {
 	    if(outputPlus[i] && (keepZero || cntPlusTR[i]>0 || cntPlusTU[i]>0 || cntPlusTA[i]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandPlus);
 		resTR_int[j] = cntPlusTR[i];
 		resTU_int[j] = cntPlusTU[i];
@@ -856,7 +898,7 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
 	    }
 	    if(outputMinus[i] && (keepZero || cntMinusTR[i]>0 || cntMinusTU[i]>0 || cntMinusTA[i]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandMinus);
 		resTR_int[j] = cntMinusTR[i];
 		resTU_int[j] = cntMinusTU[i];
@@ -875,7 +917,7 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
 				 cntPlusTR[i]>0 || cntPlusTU[i]>0 || cntPlusTA[i]>0 ||
 				 cntMinusTR[i+1]>0 || cntMinusTU[i+1]>0 || cntMinusTA[i+1]>0)) {
 		SET_STRING_ELT(resChr, j, regionChrFirst);
-		resPos_int[j] = i + data.offset + 1;
+		resPos_int[j] = i + (int)(data.offset) + 1;
 		SET_STRING_ELT(resStrand, j, strandAny);
 		resTR_int[j] = cntPlusTR[i] + cntMinusTR[i+1];
 		resTU_int[j] = cntPlusTU[i] + cntMinusTU[i+1];
@@ -945,6 +987,8 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
                                      1 : only C's in CpG context (+/- strands separate)
                                      2 : all C's (+/- strands separate)
                                      3 : *NOT ALLOWED HERE* SNP detection, only C's in CpG context (+/- strands separate)
+  @param  mapqMin        minimal mapping quality to count alignment (MAPQ >= mapqMin)
+  @param  mapqMax        maximum mapping quality to count alignment (MAPQ <= mapqMax)
 
   @return list containing elements:
            aid    : integer vector with unique alignment identifiers
@@ -953,15 +997,15 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
            // Cinfo  : character vector with annotation information for unique Cid's
  */
 SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-					   SEXP seqstring, SEXP mode) {
+					   SEXP seqstring, SEXP mode, SEXP mapqMin, SEXP mapqMax) {
     // validate arguments
-    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, NULL);
+    _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, NULL, mapqMin, mapqMax);
 
     // declare parameters
     const char *target_name = Rf_translateChar(STRING_ELT(regionChr, 0));
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
-    int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
-	start = Rf_asInteger(regionStart) - 1, seqlen = strlen(seq), end = 0;
+    int i = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
+	start = Rf_asInteger(regionStart) - 1, seqlen = (int)strlen(seq), end = 0;
     end = start + seqlen; // end: 0-based, exclusive
 
     if(mode_int != 1 && mode_int != 2)
@@ -979,7 +1023,9 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
     methCountersSingleAlignments data;
     data.op = outputPlus;
     data.om = outputMinus;
-    data.offset = start - leftextension;
+    data.offset = (uint32_t)(start - leftextension);
+    data.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    data.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // scan seq and initialize counters
     _scanSeqForCG(mode_int, seq, seqlen, leftextension, outputPlus, outputMinus, &nOutputPlus, &nOutputMinus, &nOutput);
@@ -1018,7 +1064,7 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
 
 
     // allocate result objects
-    int resLength = data.aid.size();
+    R_xlen_t resLength = (R_xlen_t)data.aid.size();
     if(resLength != data.Cid.size() || resLength != data.meth.size())
 	Rf_error("result structures are incompatible (%d/%d/%d); fatal error in quantify_methylation_singleAlignments\n",
 		 resLength, data.Cid.size(), data.meth.size());
@@ -1033,11 +1079,11 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
 
     // fill in results objects
     //memcpy( INTEGER(resAid),  data.aid.data(),  sizeof(int)*resLength );
-    memcpy( INTEGER(resCid),  data.Cid.data(),  sizeof(int)*resLength );
-    memcpy( INTEGER(resMeth), data.meth.data(), sizeof(int)*resLength );
+    memcpy( INTEGER(resCid),  data.Cid.data(),  sizeof(int)*(size_t)resLength );
+    memcpy( INTEGER(resMeth), data.meth.data(), sizeof(int)*(size_t)resLength );
     for(i=0; i<resLength; i++) {
-	SET_STRING_ELT(resAid,    i, Rf_mkChar(data.aid[i].c_str()));
-	SET_STRING_ELT(resStrand, i, data.strand[i]=='-' ? strandMinus : strandPlus);
+	SET_STRING_ELT(resAid,    i, Rf_mkChar(data.aid[(size_t)i].c_str()));
+	SET_STRING_ELT(resStrand, i, data.strand[(size_t)i]=='-' ? strandMinus : strandPlus);
     }
     
     // transform C (DNA base) identifiers to genomic positions

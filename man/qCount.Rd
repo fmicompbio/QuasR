@@ -16,6 +16,8 @@ qCount(proj,
        mask=NULL,
        collapseBySample=TRUE,
        includeSpliced=TRUE,
+       mapqMin=0L,
+       mapqMax=255L,
        maxInsertSize=500L,
        clObj=NULL)
 }
@@ -84,6 +86,14 @@ qCount(proj,
   \item{includeSpliced}{if \code{TRUE} (the default), include spliced
     alignments when counting. A spliced alignment is defined as an
     alignment with a gap in the read of at least 60 bases.}
+  \item{mapqMin}{minimal mapping quality of alignments to be included when
+    counting (mapping quality must be greater than or equal to
+    \code{mapqMin}). Valid values are between 0 and 255. The default (0)
+    will include all alignments.}
+  \item{mapqMax}{maximal mapping quality of alignments to be included when
+    counting (mapping quality must be less than or equal to \code{mapqMax}).
+    Valid values are between 0 and 255. The default (255) will include
+    all alignments.}
   \item{maxInsertSize}{Maximal fragment size of the paired-end experiment. 
     This parameter is used if \code{shift="halfInsert"} and will
     ensure that query regions are made wide enough to emcompass all
@@ -173,6 +183,13 @@ qCount(proj,
   count the alignments on the opposite strand from the query region
   (e.g. to quantify anti-sense transcription in a stranded RNA-seq
   experiment).
+  
+  \code{includeSpliced} can be used to include or exclude spliced
+  alignments. \code{mapqMin} and \code{mapqMax} allow to select alignments
+  based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
+  take integer values between 0 and 255 and equal to
+  \eqn{-10 log10 Pr(mapping position is wrong)}, rounded to the nearest
+  integer. A value 255 indicates that the mapping quality is not available.
 
   In paired-end experiments, \code{useRead} allows to quantify either
   all alignments (\code{useRead="any"}), or only the first

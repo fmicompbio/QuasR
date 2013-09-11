@@ -74,7 +74,7 @@ SEXP idxstats_bam(SEXP inBam)
 	khint_t k;
 	khash_t(i) *h = idx->index[i];
 	SET_STRING_ELT(refnames, i, mkChar(header->target_name[i]));
-	INTEGER(reflengths)[i] = header->target_len[i];
+	INTEGER(reflengths)[i] = (int)(header->target_len[i]);
 	k = kh_get(i, h, BAM_MAX_BIN);
 	if (k != kh_end(h)){
 	    INTEGER(mapped)[i] = (int)kh_val(h, k).list[1].u;
@@ -87,7 +87,7 @@ SEXP idxstats_bam(SEXP inBam)
     SET_STRING_ELT(refnames, i, mkChar("*"));
     INTEGER(reflengths)[i] = 0;
     INTEGER(mapped)[i] = 0;
-    INTEGER(unmapped)[i] = (long long)idx->n_no_coor;	
+    INTEGER(unmapped)[i] = (int)idx->n_no_coor;	
     
     SET_STRING_ELT(attrib, 0, mkChar("seqname"));
     SET_STRING_ELT(attrib, 1, mkChar("seqlength"));

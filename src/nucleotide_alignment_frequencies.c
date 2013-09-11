@@ -16,9 +16,9 @@
 typedef struct {
     int *mm_dist;
     int *mm_dist2;
-    unsigned int mm_dist_len;
+    R_len_t mm_dist_len;
     int *frag_dist;
-    unsigned int frag_dist_len;
+    R_len_t frag_dist_len;
     int start;
     int end;
     const char * ref;
@@ -167,7 +167,7 @@ SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refCh
     if(!Rf_isInteger(refStart) && Rf_length(refStart) != 1)
 	Rf_error("'refStart' must be of type integer(1)");
     int start = INTEGER(refStart)[0] - 1; // 0-based start
-    int end = start + strlen(ref);
+    int end = start + (int)(strlen(ref));
 
     // check mmDist parameter
     if(!Rf_isInteger(VECTOR_ELT(mmDist,0))){
@@ -228,7 +228,7 @@ SEXP nucleotide_alignment_frequencies(SEXP bamfile, SEXP refSequence, SEXP refCh
     // count unique start position and fragment length
     int unique = 0;
     if(fparam.count_aln > 0){
-        qsort(fparam.pos_lst, fparam.count_aln, sizeof(char **), compare);
+        qsort(fparam.pos_lst, (size_t)(fparam.count_aln), sizeof(char **), compare);
         unique = 1;
         for(int i = 1; i < fparam.count_aln; i++){
             if(strcmp(fparam.pos_lst[i-1], fparam.pos_lst[i]) != 0)

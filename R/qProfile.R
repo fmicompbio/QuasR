@@ -16,6 +16,8 @@ qProfile <-
              mask=NULL,
              collapseBySample=TRUE,
              includeSpliced=TRUE,
+             mapqMin=0L,
+             mapqMax=255L,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -175,7 +177,9 @@ qProfile <-
                            allelic=!is.na(proj@snpFile),
                            maxUp=maxUp,
                            maxDown=maxDown,
-                           includeSpliced=includeSpliced))
+                           includeSpliced=includeSpliced,
+                           mapqmin=as.integer(mapqMin)[1],
+                           mapqmax=as.integer(mapqMax)[1]))
         message("done")
         
         ## fuse by input file, rename and collapse by sample
@@ -220,7 +224,8 @@ qProfile <-
 ## profile alignments (with the C-function) for single bamfile, multiple regions, single shift
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectReadPosition,
-                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced)
+                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced,
+                              mapqmin, mapqmax)
 {
     tryCatch({ # try catch block contains whole function
         
@@ -256,12 +261,12 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                              selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                             PACKAGE="QuasR"))
+                             mapqmin, mapqmax, PACKAGE="QuasR"))
             colnames(count) <- as.character(seq(-maxUp, maxDown, by=1))
         } else {
             count <- lapply(.Call(profileAlignmentsAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                                   selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                                  PACKAGE="QuasR"),
+                                  mapqmin, mapqmax, PACKAGE="QuasR"),
                             function(x) {
                                 x <- t(x)
                                 colnames(x) <- as.character(seq(-maxUp, maxDown, by=1))

@@ -10,14 +10,14 @@ char * _bamseq(const bam1_t * bam, int reverse_comp)
         'T', 'W', 'Y', 'H', 'K', 'D', 'B', 'N'
     };
 
-    const uint32_t len = bam->core.l_qseq;
+    const uint32_t len = (uint32_t)(bam->core.l_qseq);
     const unsigned char *seq = bam1_seq(bam);
     char *s = R_Calloc(len + 1, char);
     for (uint32_t i = 0; i < len; ++i)
         s[i] = key[bam1_seqi(seq, i)];
     if (reverse_comp){
-        _complement(s, len);
-        _reverse(s, len);
+        _complement(s, (int)len);
+        _reverse(s, (int)len);
     }
     s[len] = '\0';
     return s;
@@ -27,13 +27,13 @@ char * _bamseq(const bam1_t * bam, int reverse_comp)
 // function copied from io_sam.c of Rsamtools
 char * _bamqual(const bam1_t * bam, int reverse)
 {
-    const uint32_t len = bam->core.l_qseq;
+    const uint32_t len = (uint32_t)(bam->core.l_qseq);
     const unsigned char *bamq = bam1_qual(bam);
     char *s = R_Calloc(len + 1, char);
     for (uint32_t i = 0; i < len; ++i)
-        s[i] = bamq[i] + 33;
+        s[i] = (char)(bamq[i] + 33);
     if (reverse)
-        _reverse(s, len);
+        _reverse(s, (int)len);
     s[len] = '\0';
     return s;
 }

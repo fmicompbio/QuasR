@@ -17,6 +17,8 @@ qProfile(proj,
          mask=NULL,
          collapseBySample=TRUE,
          includeSpliced=TRUE,
+         mapqMin=0L,
+         mapqMax=255L,
          maxInsertSize=500L,
          clObj=NULL)
 }
@@ -81,6 +83,14 @@ qProfile(proj,
   \item{includeSpliced}{if \code{TRUE} (the default), include spliced
     alignments when counting. A spliced alignment is defined as an
     alignment with a gap in the read of at least 60 bases.}
+  \item{mapqMin}{minimal mapping quality of alignments to be included when
+    counting (mapping quality must be greater than or equal to
+    \code{mapqMin}). Valid values are between 0 and 255. The default (0)
+    will include all alignments.}
+  \item{mapqMax}{maximal mapping quality of alignments to be included when
+    counting (mapping quality must be less than or equal to \code{mapqMax}).
+    Valid values are between 0 and 255. The default (255) will include
+    all alignments.}
   \item{maxInsertSize}{Maximal fragment size of the paired-end experiment. 
     This parameter is used if \code{shift="halfInsert"} and will
     ensure that query regions are made wide enough to emcompass all

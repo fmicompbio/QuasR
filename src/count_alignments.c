@@ -27,6 +27,8 @@
   @field selectReadPosition  weight of alignment on "s"tart or "e"nd
   @field allelic      allelic true(1) or false(0)
   @field includeSpliced  count spliced alignments true(1) or false(0)
+  @field mapqMin      minimum mapping quality (MAPQ >= mapqMin)
+  @field mapqMax      maximum mapping quality (MAPQ <= mapqMax)
 */
 typedef struct {
     int sumU;
@@ -40,6 +42,8 @@ typedef struct {
     char selectReadPosition;
     int allelic;
     int includeSpliced;
+    uint8_t mapqMin;
+    uint8_t mapqMax;
 } regionInfoSums;
 
 
@@ -89,6 +93,10 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
 
     // skip alignment if rinfo->includeSpliced == false and alignmend is spliced
     if(rinfo->includeSpliced == 0 && _isSpliced(hit) == 1)
+        return 0;
+    
+    // skip alignment if mapping quality not in specified range
+    if(hit->core.qual < rinfo->mapqMin || hit->core.qual > rinfo->mapqMax)
         return 0;
     
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
@@ -145,7 +153,8 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
   @return       0 if successful
  */
 int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP strand,
-                      SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
+                      SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
+                      SEXP mapqMin, SEXP mapqMax){
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -181,6 +190,12 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'broaden' must be a positive value.");
     if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
         Rf_error("'includeSpliced' must be of type logical(1)");
+        
+    // check MAPQ parameters
+    if(!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
+        Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
+    if(!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
+        Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
 
     return 0;
 }
@@ -197,13 +212,16 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
   @param  shift               shift size
   @param  broaden             extend query region for bam_fetch to catch alignments with overlaps due to shifting
   @param  includeSpliced      also count spliced alignments
+  @param  mapqMin             minimal mapping quality to count alignment (MAPQ >= mapqMin)
+  @param  mapqMax             maximum mapping quality to count alignment (MAPQ <= mapqMax)
   @return               Vector of the alignment counts
  */
 SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
-                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
+                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
+                                  SEXP mapqMin, SEXP mapqMax){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced, mapqMin, mapqMax);
     
     // open bam file
     samfile_t *fin = 0;
@@ -229,6 +247,8 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 0;
     rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
+    rinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    rinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
@@ -267,10 +287,11 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
 }
 
 SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
-                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced){
+                                  SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
+                                  SEXP mapqMin, SEXP mapqMax){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced, mapqMin, mapqMax);
     
     // open bam file
     samfile_t *fin = 0;
@@ -296,6 +317,8 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 1;
     rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
+    rinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    rinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);

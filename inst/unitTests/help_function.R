@@ -67,10 +67,7 @@ createFastqReads <- function(){ # create two temporary fastq files and return fi
 }
 
 createProjectPairedMode <- function(){
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    library(Rsamtools)
+    require(Rsamtools)
 
     # Create Samfile without XV tag
     samfile <- tempfile()
@@ -122,16 +119,13 @@ createProjectPairedMode <- function(){
 
     # qAlign
     td <- tempdir()
-    project <- qAlign(samplefile, genome, paired="fr", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(samplefile, genome, paired="fr", alignmentsDir=td)
     
     return(project)
 }
 
 createProjectAllelic <- function(){
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    library(Rsamtools)
+    require(Rsamtools)
 
     # Create samfile with XV tag
     samfile <- tempfile()
@@ -167,16 +161,13 @@ createProjectAllelic <- function(){
     
     # 
     td <- tempdir()
-    project <- qAlign(samplefile, genome, snpFile=snp, paired="fr", alignmentsDir=td, clObj=clObj)
+    project <- qAlign(samplefile, genome, snpFile=snp, paired="fr", alignmentsDir=td)
     
     return(project)
 }
 
 createProjectSingleMode <- function(allelic=FALSE){
-    if(!"clObj" %in% ls(envir=.GlobalEnv)){
-        clObj <<- makeCluster(2)
-    }
-    library(Rsamtools)
+    require(Rsamtools)
     
     # Create Bam File
     samfile_plus <- tempfile()
@@ -190,10 +181,10 @@ createProjectSingleMode <- function(allelic=FALSE){
     for(pos in 1:791){
         cat("\n", file=samfile_plus, append=T)
         cat("\n", file=samfile_minus, append=T)
-        cat(paste("seq1\t0\tchrV", pos, "255", "10M", "*\t0\t0\t*\t*", c("XV:A:R","XV:A:A","XV:A:U"), 
+        cat(paste("seq1\t0\tchrV", pos, pos %% 256, "10M", "*\t0\t0\t*\t*", c("XV:A:R","XV:A:A","XV:A:U"), 
                   sep="\t", collapse="\n"), 
             file=samfile_plus, append=T)
-        cat(paste("seq1\t16\tchrV", pos, "255", "10M", "*\t0\t0\t*\t*", c("XV:A:R","XV:A:A","XV:A:U"),
+        cat(paste("seq1\t16\tchrV", pos, pos %% 256, "10M", "*\t0\t0\t*\t*", c("XV:A:R","XV:A:A","XV:A:U"),
                   sep="\t", collapse="\n"), 
             file=samfile_minus, append=T)            
     }
@@ -218,9 +209,9 @@ createProjectSingleMode <- function(allelic=FALSE){
     # qAlign
     td <- tempdir()
     if(!allelic)
-        project <- qAlign(samplefile, genome, paired="no", alignmentsDir=td, clObj=clObj)
+        project <- qAlign(samplefile, genome, paired="no", alignmentsDir=td)
     else
-        project <- qAlign(samplefile, genome, snpFile=snp, paired="no", alignmentsDir=td, clObj=clObj)        
+        project <- qAlign(samplefile, genome, snpFile=snp, paired="no", alignmentsDir=td)        
     return(project)
 }
 

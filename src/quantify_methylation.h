@@ -21,13 +21,13 @@ extern "C" {
 #include "utilities.h"
 
     SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-			      SEXP seqstring, SEXP mode, SEXP returnZero);
+			      SEXP seqstring, SEXP mode, SEXP returnZero, SEXP mapqMin, SEXP mapqMax);
     SEXP detect_SNVs(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-		     SEXP seqstring, SEXP returnZero);
+		     SEXP seqstring, SEXP returnZero, SEXP mapqMin, SEXP mapqMax);
     SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-				     SEXP seqstring, SEXP mode, SEXP returnZero);
+				     SEXP seqstring, SEXP mode, SEXP returnZero, SEXP mapqMin, SEXP mapqMax);
     SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP regionStart,
-					       SEXP seqstring, SEXP mode);
+					       SEXP seqstring, SEXP mode, SEXP mapqMin, SEXP mapqMax);
 #ifdef __cplusplus
 }
 #endif

@@ -12,6 +12,8 @@
 # mask       : mask genomic regions (e.g. unmappable regions)
 # reference  : source of bam files ("genome" or AuxName)
 # keepZero   : return C's with total==0 in results
+# mapqMin    : minimal mapping quality
+# mapqMax    : maximal mapping quality
 # clObj      : cluster object for parallelization
 #
 # value      : if asGRanges==TRUE, GRanges object with one region per quantified C and two metadata columns per sample (_T, _M)
@@ -33,6 +35,8 @@ qMeth <-
              mask=NULL,
              reference="genome",
              keepZero=TRUE,
+             mapqMin=0L,
+             mapqMax=255L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
         # 'proj' is correct type?
@@ -150,7 +154,9 @@ qMeth <-
                                                                                                            collapseByQueryRegion,
                                                                                                            mode,
                                                                                                            referenceFormat,
-                                                                                                           referenceSource))
+                                                                                                           referenceSource,
+                                                                                                           as.integer(mapqMin)[1],
+                                                                                                           as.integer(mapqMax)[1]))
             names(resL) <- sampleNames
             res <- resL
             
@@ -164,7 +170,9 @@ qMeth <-
                                                                                                  referenceFormat,
                                                                                                  referenceSource,
                                                                                                  proj@snpFile,
-                                                                                                 keepZero))
+                                                                                                 keepZero,
+                                                                                                 as.integer(mapqMin)[1],
+                                                                                                 as.integer(mapqMax)[1]))
             # combine and reorder chunks
             # ...rbind chunks for the same sample
             resL <- lapply(split(seq_len(nChunk),rep(seq_len(nChunkBamfile),each=nChunkQuery)),
@@ -188,7 +196,9 @@ qMeth <-
                                                                                       query[taskIByQuery[[i]]],
                                                                                       referenceFormat,
                                                                                       referenceSource,
-                                                                                      keepZero))
+                                                                                      keepZero,
+                                                                                      as.integer(mapqMin)[1],
+                                                                                      as.integer(mapqMax)[1]))
             # combine and reorder chunks
             # ...rbind chunks for the same sample
             resL <- lapply(split(seq_len(nChunk),rep(seq_len(nChunkBamfile),each=nChunkQuery)),
@@ -213,7 +223,9 @@ qMeth <-
                                                                                            mode,
                                                                                            referenceFormat,
                                                                                            referenceSource,
-                                                                                           keepZero))
+                                                                                           keepZero,
+                                                                                           as.integer(mapqMin)[1],
+                                                                                           as.integer(mapqMax)[1]))
             # combine and reorder chunks
             # ...rbind chunks for the same sample
             resL <- lapply(split(seq_len(nChunk),rep(seq_len(nChunkBamfile),each=nChunkQuery)),
@@ -253,7 +265,7 @@ qMeth <-
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+2*nSamples vectors: chr, start, end, strand of C, counts of T (total) and M (match) reads
 detectVariantsBamfilesRegionsSingleChromosome <-
-    function(bamfiles, regions, referenceFormat, reference, keepZero) {
+    function(bamfiles, regions, referenceFormat, reference, keepZero, mapqmin, mapqmax) {
         ## verify parameters
         if(length(chr <- as.character(unique(seqnames(regions)))) != 1)
             stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
@@ -282,7 +294,8 @@ detectVariantsBamfilesRegionsSingleChromosome <-
 
         ## call CPP function (multiple bam files, single region)
         #message("detecting single nucleotide variations...", appendLF=FALSE)
-        resL <- .Call("detectSNVs", bamfiles, chr, chrLen, regionsStart, seqstr, keepZero, PACKAGE="QuasR")
+        resL <- .Call("detectSNVs", bamfiles, chr, chrLen, regionsStart, seqstr,
+                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
         #message("done")
 
 
@@ -311,7 +324,8 @@ detectVariantsBamfilesRegionsSingleChromosome <-
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a list(4) with elements "aid","Cid","strand","meth"
 quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
-    function(bamfiles, regions, collapseByQueryRegion, mode=c("CpG","allC"), referenceFormat, reference) {
+    function(bamfiles, regions, collapseByQueryRegion, mode=c("CpG","allC"), referenceFormat, reference,
+             mapqmin, mapqmax) {
         ## verify parameters
         if(length(regions) != 1)
             stop("'regions' must be of length 1 for 'quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments'")
@@ -336,7 +350,8 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
 
         
         ## call CPP function (multiple bam files, single region)
-        resL <- .Call("quantifyMethylationSingleAlignments", bamfiles, chr, chrLen, regionsStart, seqstr, mode);
+        resL <- .Call("quantifyMethylationSingleAlignments", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
+                      mapqmin, mapqmax, PACKAGE="QuasR")
 
         return(resL)
     }
@@ -348,7 +363,8 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+2*nSamples vectors: chr, start, end, strand of C, counts of T (total) and M (methylated) reads
 quantifyMethylationBamfilesRegionsSingleChromosome <-
-    function(bamfiles, regions, collapseByRegion, mode=c("CpGcomb","CpG","allC"), referenceFormat, reference, keepZero) {
+    function(bamfiles, regions, collapseByRegion, mode=c("CpGcomb","CpG","allC"), referenceFormat, reference,
+             keepZero, mapqmin, mapqmax) {
         ## verify parameters
         if(length(chr <- as.character(unique(seqnames(regions)))) != 1)
             stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
@@ -379,7 +395,8 @@ quantifyMethylationBamfilesRegionsSingleChromosome <-
 
         ## call CPP function (multiple bam files, single region)
         #message("quantifying methylation...", appendLF=FALSE)
-        resL <- .Call("quantifyMethylation", bamfiles, chr, chrLen, regionsStart, seqstr, mode, keepZero, PACKAGE="QuasR")
+        resL <- .Call("quantifyMethylation", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
+                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
         #message("done")
 
 
@@ -427,7 +444,8 @@ quantifyMethylationBamfilesRegionsSingleChromosome <-
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+6*nSamples vectors: chr, start, end, strand of C, counts of TR, TU, TA (total) and MR, MU, MA (methylated) reads
 quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
-    function(bamfiles, regions, collapseByRegion, mode=c("CpGcomb","CpG","allC"), referenceFormat, reference, snpFile, keepZero) {
+    function(bamfiles, regions, collapseByRegion, mode=c("CpGcomb","CpG","allC"), referenceFormat, reference, snpFile,
+             keepZero, mapqmin, mapqmax) {
         ## verify parameters
         if(length(chr <- as.character(unique(seqnames(regions)))) != 1)
             stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
@@ -458,7 +476,8 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
 
         ## call CPP function (multiple bam files, single region)
         #message("quantifying methylation...", appendLF=FALSE)
-        resL <- .Call("quantifyMethylationAllele", bamfiles, chr, chrLen, regionsStart, seqstr, mode, keepZero, PACKAGE="QuasR")
+        resL <- .Call("quantifyMethylationAllele", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
+                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
         #message("done")
 
 

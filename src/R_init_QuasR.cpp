@@ -38,20 +38,20 @@ static const R_CallMethodDef callMethods[] = {
     /* remove_unmapped_from_sam.c */
     {"removeUnmappedFromSamAndConvertToBam", (DL_FUNC) &remove_unmapped_from_sam_and_convert_to_bam, 2},
     /* count_alignments.c */
-    {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 10},
-    {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 10},
+    {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 12},
+    {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 12},
     /* count_junctions.cpp */
-    {"countJunctions", (DL_FUNC) &count_junctions, 5},
+    {"countJunctions", (DL_FUNC) &count_junctions, 7},
     /* profile_alignments.c */
-    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 15},
-    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 15},
+    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 17},
+    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 17},
     /* count_alignments_subregions.c */
     {"countAlignmentsSubregions", (DL_FUNC) &count_alignments_subregions, 10},
     /* quantify_methylation.cpp */
-    {"quantifyMethylation", (DL_FUNC) &quantify_methylation, 7},
-    {"detectSNVs", (DL_FUNC) &detect_SNVs, 6},
-    {"quantifyMethylationAllele", (DL_FUNC) &quantify_methylation_allele, 7},
-    {"quantifyMethylationSingleAlignments", (DL_FUNC) &quantify_methylation_singleAlignments, 6},
+    {"quantifyMethylation", (DL_FUNC) &quantify_methylation, 9},
+    {"detectSNVs", (DL_FUNC) &detect_SNVs, 8},
+    {"quantifyMethylationAllele", (DL_FUNC) &quantify_methylation_allele, 9},
+    {"quantifyMethylationSingleAlignments", (DL_FUNC) &quantify_methylation_singleAlignments, 8},
     /* export_wig.c */
     {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 11},
     /* nucleotide_alignment_frequencies.c */

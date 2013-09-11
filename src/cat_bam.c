@@ -113,7 +113,7 @@ int _bam_cat(int nfn, char * const *fn, const bam_header_t *h, const char* outba
         j=0;
         fp_file=fp->fp;
 #ifdef _USE_KNETFILE
-        while ((len = knet_read(in->fp, buf, BUF_SIZE)) > 0) {
+        while ((len = (int)knet_read(in->fp, buf, BUF_SIZE)) > 0) {
 #else  
         while (!feof(in->file) && (len = fread(buf, 1, BUF_SIZE, in->file)) > 0) {
 #endif
@@ -123,14 +123,14 @@ int _bam_cat(int nfn, char * const *fn, const bam_header_t *h, const char* outba
                     Rf_error("[%s] ERROR: truncated file?: '%s'.\n", __func__, fn[i]);
                     return -1;
                 }
-                fwrite(ebuf, 1, len, fp_file);
+                fwrite(ebuf, 1, (size_t)len, fp_file);
                 memcpy(ebuf,ebuf+len,diff);
                 memcpy(ebuf+diff,buf,len);
             } else {
                 if(j!=0) fwrite(ebuf, 1, es, fp_file);
                 len-= es;
                 memcpy(ebuf,buf+len,es);
-                fwrite(buf, 1, len, fp_file);
+                fwrite(buf, 1, (size_t)len, fp_file);
             }
             j=1;
         }

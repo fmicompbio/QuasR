@@ -42,7 +42,7 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
         if (!(hit->core.flag & BAM_FUNMAP)) { // skip unmapped reads
             // get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
 	        if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
-		        hitPos = bam_calend(&(hit->core), bam1_cigar(hit)) - 1 - tcov->shift;
+		        hitPos = (int32_t)(bam_calend(&(hit->core), bam1_cigar(hit))) - 1 - tcov->shift;
     	    else                               // alignment on plus strand
     	        hitPos = hit->core.pos + tcov->shift;
         } else {
@@ -89,8 +89,8 @@ void output_current_target(targetCoverage *tcov, int compr, double fact, gzFile 
 
 void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile gzfh, FILE *fh) {
     // assumes that tcov->cTid has been set to the new value
-    tcov->cTlen = bh->target_len[tcov->cTid];
-    tcov->cTbin = ceil((double)(tcov->cTlen) /tcov->bs);
+    tcov->cTlen = (int32_t)(bh->target_len[tcov->cTid]);
+    tcov->cTbin = (int32_t)(ceil((double)(tcov->cTlen) /tcov->bs));
     if(compr)
 	gzprintf(gzfh, "fixedStep chrom=%s start=1 step=%d span=%d\n", bh->target_name[tcov->cTid], tcov->bs, tcov->bs);
     else

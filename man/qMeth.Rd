@@ -9,7 +9,7 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
       mode=c("CpGcomb","CpG","allC","var"),
       collapseBySample=TRUE, collapseByQueryRegion=FALSE,
       asGRanges=TRUE, mask=NULL, reference="genome",
-      keepZero=TRUE, clObj=NULL)
+      keepZero=TRUE, mapqMin=0L, mapqMax=255L, clObj=NULL)
 }
 \arguments{
   \item{proj}{a \code{qProject} object from a bisulfite sequencing experiment}
@@ -47,6 +47,14 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
     one alignment will be returned; \code{keepZero} must be \code{TRUE}
     if multiple samples have the same sample name and
     \code{collapseBySample} is \code{TRUE}.}
+  \item{mapqMin}{minimal mapping quality of alignments to be included when
+    counting (mapping quality must be greater than or equal to
+    \code{mapqMin}). Valid values are between 0 and 255. The default (0)
+    will include all alignments.}
+  \item{mapqMax}{maximal mapping quality of alignments to be included when
+    counting (mapping quality must be less than or equal to \code{mapqMax}).
+    Valid values are between 0 and 255. The default (255) will include
+    all alignments.}
   \item{clObj}{a cluster object to be used for parallel processing of
     multiple files (see \sQuote{Details}).}
 }
@@ -95,6 +103,12 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
   expected, independent on the methylation state of the cytosine. A
   reduced fraction of alignments matching the reference are indicative
   of sequence variations in the sequenced sample.
+
+  \code{mapqMin} and \code{mapqMax} allow to select alignments
+  based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
+  take integer values between 0 and 255 and equal to
+  \eqn{-10 log10 Pr(mapping position is wrong)}, rounded to the nearest
+  integer. A value 255 indicates that the mapping quality is not available.
 
   If an object that inherits from class \code{cluster} is provided to
   the \code{clObj} argument, for example an object returned by

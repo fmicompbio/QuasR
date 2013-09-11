@@ -28,7 +28,31 @@ snpFile <- file.path("extdata", "hg19sub_snp.txt")
 }
 
 
-## Test the counts parameter shift, selectReadPosition
+## Test alignment selection based on mapping quality
+test_mapq <- function() {
+  project <- projectSingle
+  
+  query <- GRanges(c("chrV"), IRanges(start=1, width=800))
+
+  checkException(qCount(project, query, mapqMin=-1))
+  checkException(qCount(project, query, mapqMax=256))
+  
+  mapq <- scanBam(alignments(project)$genome$FileName[1])[[1]]$mapq
+  mapq[is.na(mapq)] <- 255
+  
+  for(mymin in seq(10,250,by=40))
+    checkTrue(qCount(project[1], query, mapqMin=mymin)[1,2] == sum(mapq >= mymin))
+  
+  for(mymax in seq(10,250,by=40))
+    checkTrue(qCount(project[1], query, mapqMax=mymax)[1,2] == sum(mapq <= mymax))
+  
+  for(mycut in seq(10,250,by=40))
+    checkIdentical(length(mapq) - qCount(project[1], query, mapqMax=mycut)[1,2],
+                   qCount(project[1], query, mapqMin=mycut+1)[1,2])
+  
+}
+
+## Test parameter shift, selectReadPosition
 test_shift <- function() {
     project <- projectPaired
     

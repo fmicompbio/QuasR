@@ -14,6 +14,8 @@ using namespace std;
   @field junctionsA   map<string,int> with junction counts (allelic Alternative)
   @field tname        target name string
   @field allelic      allelic true(1) or false(0)
+  @field mapqMin      minimum mapping quality (MAPQ >= mapqMin)
+  @field mapqMax      maximum mapping quality (MAPQ <= mapqMax)
  */
 typedef struct {
     map<string,int> junctionsU;
@@ -21,6 +23,8 @@ typedef struct {
     map<string,int> junctionsA;
     char* tname;
     int allelic;
+    uint8_t mapqMin;
+    uint8_t mapqMax;
 } fetch_param;
 
 
@@ -34,6 +38,10 @@ static int _addJunction(const bam1_t *hit, void *data){
     static uint8_t *xv_ptr = 0;
     fetch_param *jinfo = (fetch_param*)data;
 
+    // skip alignment if mapping quality not in specified range
+    if(hit->core.qual < jinfo->mapqMin || hit->core.qual > jinfo->mapqMax)
+        return 0;
+    
     //ostringstream ss;
     //static string jid; // junction identifier, of the form "chromosome:first_intronic_base:last_intronic_base:strand"
     static char strbuffer[1024];
@@ -126,10 +134,12 @@ static int _addJunction(const bam1_t *hit, void *data){
   @param   start     integer vector of target region start coordinates
   @param   end       integer vector of target region end coordinates
   @param   allelic   logical(1) to indicate allelic/non-allelic counting
+  @param   mapqMin   minimal mapping quality to count alignment (MAPQ >= mapqMin)
+  @param   mapqMax   maximum mapping quality to count alignment (MAPQ <= mapqMax)
   @return            allelic==FALSE: named vector of the junctions counts (names of the form "chromosome:first_intronic_base:last_intronic_base:strand")
                      allelic==TRUE: list of length 4 (names, R, U and A junction counts)
  */
-SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic) {
+SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic, SEXP mapqMin, SEXP mapqMax) {
     // check parameters
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -141,6 +151,10 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
         Rf_error("'end' must be of type integer");
     if(!Rf_isLogical(allelic) || Rf_length(allelic) != 1)
         Rf_error("'allelic' must be of type logical(1)");
+    if(!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
+        Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
+    if(!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
+        Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
 
     // open bam file
     samfile_t *fin = 0;
@@ -165,6 +179,8 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
 	jinfo.allelic = 1;
     else
 	jinfo.allelic = 0;
+    jinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    jinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
     // select bam_fetch callback function
     bam_fetch_f fetch_func = _addJunction;
@@ -187,7 +203,8 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
     bam_index_destroy(idx);
 
     SEXP count,  attrib;
-    int n, i;
+    R_xlen_t n;
+    int i;
     if(jinfo.allelic == 1) {
 	// store results in list SEXP
 	//    get complete set of unique junctions
@@ -198,7 +215,7 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
 	    uniqueJunctions.insert(it->first);
 	for(map<string,int>::iterator it=jinfo.junctionsA.begin(); it!=jinfo.junctionsA.end(); ++it)
 	    uniqueJunctions.insert(it->first);
-	n = uniqueJunctions.size();
+	n = (R_xlen_t)(uniqueJunctions.size());
 	SEXP junctionNames, countR, countU, countA;
 	PROTECT(junctionNames = Rf_allocVector(STRSXP, n));
 	PROTECT(countR = Rf_allocVector(INTSXP, n));
@@ -241,7 +258,7 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic)
 
     } else {
 	// store results in named vector SEXP
-	n = jinfo.junctionsU.size();
+	n = (R_xlen_t)(jinfo.junctionsU.size());
 	i=0;
 	PROTECT(count = Rf_allocVector(INTSXP, n));
 	PROTECT(attrib = Rf_allocVector(STRSXP, n));

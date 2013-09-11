@@ -15,6 +15,8 @@ qCount <-
              mask=NULL,
              collapseBySample=TRUE,
              includeSpliced=TRUE,
+             mapqMin=0L,
+             mapqMax=255L,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -114,7 +116,9 @@ qCount <-
             resL <- myapply(countJunctionsOneBamfile,
                             bamfile=bamfiles,
                             targets=taskTargets,
-                            MoreArgs=list(allelic=!is.na(proj@snpFile)))
+                            MoreArgs=list(allelic=!is.na(proj@snpFile),
+                                          mapqmin=as.integer(mapqMin)[1],
+                                          mapqmax=as.integer(mapqMax)[1]))
             message("done")
 
             ## make result rectangular and collapse (sum) counts by sample if necessary
@@ -350,7 +354,9 @@ qCount <-
                            useRead=useRead,
                            broaden=broaden,
                            allelic=!is.na(proj@snpFile),
-                           includeSpliced=includeSpliced))
+                           includeSpliced=includeSpliced),
+                           mapqmin=as.integer(mapqMin)[1],
+                           mapqmax=as.integer(mapqMax)[1])
             message("done")
 
         
@@ -407,7 +413,7 @@ qCount <-
 
 ## count junctions (with the C-function) for single bamfile and optionally selected target sequences
 ## return a named vector with junction elements (names of the form "chromosome:first_intronic_base:last_intronic_base:strand")
-countJunctionsOneBamfile <- function(bamfile, targets, allelic) {
+countJunctionsOneBamfile <- function(bamfile, targets, allelic, mapqmin, mapqmax) {
     tryCatch({ # try catch block goes through the whole function
         # prepare region vectors
         bh <- scanBamHeader(bamfile)[[1]]$targets
@@ -421,7 +427,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic) {
         start <- rep(0L, length(tid)) # samtool library has 0-based inclusiv start
         end <- unname(bh) ## samtool library has 0-based exclusiv end
         # count junctions
-        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, PACKAGE="QuasR")
+        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, mapqmin, mapqmax, PACKAGE="QuasR")
         return(count)
 
     }, error = function(ex) {
@@ -436,7 +442,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic) {
 ## count alignments (with the C-function) for single bamfile, single shift, and single set of regions
 ## return a numeric vector with length(regions) elements (same order as regions)
 countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
-                            useRead, broaden, allelic, includeSpliced)
+                            useRead, broaden, allelic, includeSpliced, mapqmin, mapqmax)
 {
     tryCatch({ # try catch block goes through the whole function
         
@@ -471,11 +477,11 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         if(!allelic) {
             count <- .Call(countAlignmentsNonAllelic, bamfile, tid, start, end, strand,
                            selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                           PACKAGE="QuasR")
+                           mapqmin, mapqmax, PACKAGE="QuasR")
         } else {
             count <- as.matrix(as.data.frame(.Call(countAlignmentsAllelic, bamfile, tid, start, end, strand,
                                                    selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                                                   PACKAGE="QuasR")))
+                                                   mapqmin, mapqmax, PACKAGE="QuasR")))
         }
      
         return(count)

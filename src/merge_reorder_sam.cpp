@@ -220,7 +220,7 @@ int samFile::advance(int id) {
     }
 
     //cout << "\t" << nr << " alignments parsed, new top: " << (queue.empty() ? -1 : queue.top().id) << endl;
-    return queue.size();
+    return (int)(queue.size());
 }
 
 // output all stored alignments for 'id' and remove them from memory, store unmapped reads in 'unmapped'
@@ -274,7 +274,7 @@ int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<
 	    currenttop = mapped[i];
 	    i++;
 	} else {
-	    currenttop = mapped[rand() % count];
+	    currenttop = mapped[(unsigned long)(rand()) % count];
 	    i = count;
 	}
 
@@ -327,7 +327,7 @@ int samFile::flush_unmapped(int id, ofstream &outfh, map<int, string> &unmapped,
     numberFlushed = 0;
 
     if(n==0) {
-	numberFlushed = unmapped.size();
+	numberFlushed = (int)(unmapped.size());
 
 	for(it=unmapped.begin(); it != unmapped.end(); it++)
 	    outfh << it->second << '\n';
@@ -555,7 +555,7 @@ int _fix_identical_locus(vector<idLine> &mapped){
 	}
 	locus_it = locus.find(key);
       	if(locus_it == locus.end()){
-	    locus.insert(pair<string,int>(key,i));
+	    locus.insert(pair<string,int>(key,(const int)i));
        	} else {
 	    // remove one of the duplicated location
 	    if(rm_first){
@@ -563,7 +563,7 @@ int _fix_identical_locus(vector<idLine> &mapped){
 		mapped.insert(mapped.begin()+locus_it->second, curr);
 		mapped.erase(mapped.begin()+locus_it->second+1);
 	    }
-	    mapped.erase(mapped.begin()+i);
+	    mapped.erase(mapped.begin()+(const long)i);
 	    rm_first = !rm_first;
 	    i--;
 	}
@@ -684,7 +684,7 @@ int _fix_half_mapper(vector<idLine> &mapped, map<int, string> &unmapped){
 	    else
 		line1 = mapped[i].line;
 	    // remove
-	    mapped.erase(it+i);
+	    mapped.erase(it+(const long)i);
 	    i--;
 	}
      }
@@ -822,13 +822,13 @@ int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
 	    if(countR > maxhits) // over mapped
 		_make_unmapped_alignment(id, mappedR[0], unmapped, false, false);
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedR[rand() % countR], 'R');
+		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(rand() % countR)], 'R');
 	} else{
 	    // alternate less mismatch
 	    if(countA > maxhits) // over mapped
 		_make_unmapped_alignment(id, mappedA[0], unmapped, false, false);
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedA[rand() % countA], 'A');
+		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(rand() % countA)], 'A');
 	}
     } else {
 	// both same number of mismatch
@@ -836,9 +836,9 @@ int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
 	    _make_unmapped_alignment(id, mappedR[0], unmapped, false, false);
 	else if(countR > 0 && countA > 0){
 	    if(allele)
-		n += flush_allele(id, outfh, unmapped, mappedR[rand() % countR], 'U');
+		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(rand() % countR)], 'U');
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedA[rand() % countA], 'U');
+		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(rand() % countA)], 'U');
 	    allele = !allele; // switch allele 
 	}
     }

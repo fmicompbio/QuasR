@@ -57,7 +57,7 @@ SEXP convert_reads_id_bis_rc(SEXP inFile, SEXP outFile, SEXP fromToCharacter, SE
     if(convert){
 	// create translation array
 	translate[(int)from - offset] = to; // convert capital letter
-	translate[(int)from - offset + 'a' -offset] = to + 'a' -offset; // convert small letter
+	translate[(int)from - offset + 'a' -offset] = to + 'a' -(char)offset; // convert small letter
     }
 
     while ((l = kseq_read(seq)) >= 0){
@@ -79,9 +79,9 @@ SEXP convert_reads_id_bis_rc(SEXP inFile, SEXP outFile, SEXP fromToCharacter, SE
 
         // reverse complement seq and reverse quality
         if(Rf_asLogical(reverseComplement)){
-            _complement(seq->seq.s, seq->seq.l);
-            _reverse(seq->seq.s, seq->seq.l);
-            _reverse(seq->qual.s, seq->qual.l);
+            _complement(seq->seq.s, (int)(seq->seq.l));
+            _reverse(seq->seq.s, (int)(seq->seq.l));
+            _reverse(seq->qual.s, (int)(seq->qual.l));
         }
         
 	// write seq-name and convert sequence
