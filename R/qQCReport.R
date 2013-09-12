@@ -129,12 +129,13 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         } else {
             if(filetype == "bam"){
                 readFilename <- as.character(rbind(input@alignments$FileName, input@alignments$FileName))
-                mapLabel <- sprintf("%i. %s",1:ncol(readFilename), basename(as.character(input@alignments$FileName)))
+                label <- sprintf("%i(R%i). %s",rep(1:nrow(input@alignments),each=2), 1:2, basename(readFilename))
+                mapLabel <- sprintf("%i. %s",1:nrow(input@alignments), basename(as.character(input@alignments$FileName)))
             } else {
                 readFilename <- as.character(rbind(input@reads$FileName1, input@reads$FileName2))
-                mapLabel <- sprintf("%i. %s",1:ncol(readFilename), basename(as.character(input@reads$FileName1)))
+                label <- sprintf("%i(R%i). %s",rep(1:nrow(input@reads),each=2), 1:2, basename(readFilename))
+                mapLabel <- sprintf("%i. %s",1:nrow(input@reads), basename(as.character(input@reads$FileName1)))
             }
-            label <- sprintf("%i(R%i). %s",rep(1:ncol(readFilename),each=2), 1:2, basename(readFilename))
         }
         alnFilename <- input@alignments$FileName
         if(input@genomeFormat == "BSgenome"){
