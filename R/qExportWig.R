@@ -16,6 +16,8 @@
 # tracknames : names for display in track header
 # log2p1     : transform alignment count by log2(x+1)
 # colors     : colors for tracks
+# mapqMin    : minimum mapping quality (MAPQ >= mapqMin)
+# mapqMax    : maximum mapping quality (MAPQ <= mapqMax)
 qExportWig <- function(proj,
                        file=NULL,
                        collapseBySample=TRUE,
@@ -25,7 +27,9 @@ qExportWig <- function(proj,
                        scaling=TRUE,
                        tracknames=NULL,
                        log2p1=FALSE,
-                       colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"))
+                       colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"),
+                       mapqMin=0L,
+                       mapqMax=255L)
 {
     # validate parameters
     # ...proj
@@ -111,6 +115,15 @@ qExportWig <- function(proj,
     if(length(colors) < n)
         colors <- colorRampPalette(colors)(n)
     colors <- apply(col2rgb(colors),2,paste,collapse=",")
+
+    # ...mapping qualities
+    if(length(mapqMin) != 1 || !is.integer(mapqMin) || any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
+        stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
+    mapqMin <- rep(mapqMin,n)
+    if(length(mapqMax) != 1 || !is.integer(mapqMax) || any(is.na(mapqMax)) || min(mapqMax) < 0L || max(mapqMax) > 255L)
+        stop("'mapqMax' must be of type integer(1) and have a values between 0 and 255")
+    mapqMax <- rep(mapqMax,n)
+
     
     # generate the wig file(s)
     message("start creating wig file(s)...")
@@ -119,7 +132,7 @@ qExportWig <- function(proj,
         .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(file[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
-              as.character(colors[i]), as.logical(compress[i]), PACKAGE="QuasR")
+              as.character(colors[i]), as.logical(compress[i]), mapqMin[i], mapqMax[i], PACKAGE="QuasR")
     })
     message("done")
     

@@ -13,7 +13,8 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
            shift=0L, strand=c("*","+","-"), scaling=TRUE,
            tracknames=NULL, log2p1=FALSE,
            colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A",
-                    "#66A61E", "#E6AB02", "#A6761D", "#666666"))
+                    "#66A61E", "#E6AB02", "#A6761D", "#666666"),
+           mapqMin=0L, mapqMax=255L)
 }
 
 \arguments{
@@ -47,6 +48,14 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   \item{log2p1}{If \code{TRUE}, the number of alignments \code{x} per bin will
     be transformed using the formula \code{log2(x+1)}.}
   \item{colors}{A character vector with R color names to be used for the tracks.}
+  \item{mapqMin}{minimal mapping quality of alignments to be included
+    (mapping quality must be greater than or equal to
+    \code{mapqMin}). Valid values are between 0 and 255. The default (0)
+    will include all alignments.}
+  \item{mapqMax}{maximal mapping quality of alignments to be included
+    (mapping quality must be less than or equal to
+    \code{mapqMax}). Valid values are between 0 and 255. The default
+    (255) will include all alignments.}
 }
 
 \details{
@@ -74,6 +83,12 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   \sQuote{n_s = n /N[i] *min(N)} where \sQuote{n_s} is the scaled number
   of alignments in the bin and \sQuote{N} is a vector with the total
   number of alignments for each sample.
+
+  \code{mapqMin} and \code{mapqMax} allow to select alignments
+  based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
+  take integer values between 0 and 255 and equal to
+  \eqn{-10 log10 Pr(mapping position is wrong)}, rounded to the nearest
+  integer. A value 255 indicates that the mapping quality is not available.
 
   If \code{file} ends with \sQuote{.gz}, the resulting wig file will be
   compressed using gzip and is suitable for uploading as a custom track

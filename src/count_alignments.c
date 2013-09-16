@@ -196,6 +196,8 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
     if(!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
         Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
+    if(INTEGER(mapqMin)[0] > INTEGER(mapqMax)[0])
+	Rf_error("'mapqMin' must not be greater than 'mapqMax'");
 
     return 0;
 }

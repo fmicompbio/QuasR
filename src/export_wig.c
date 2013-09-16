@@ -5,15 +5,17 @@
 
 
 typedef struct {
-    int bs;        // binsize
-    int32_t cTid;  // current target id
-    int32_t cTlen; // current target length
-    int32_t cTbin; // number of bins on current target
+    int bs;              // binsize
+    int32_t cTid;        // current target id
+    int32_t cTlen;       // current target length
+    int32_t cTbin;       // number of bins on current target
     long unsigned int *count; // bin counts for current target
-    int shift;     // shift for alignments
-    int paired;    // paired experiment
+    int shift;           // shift for alignments
+    int paired;          // paired experiment
     const char * strand; // alignment strand
-    int log2p1;    // output log2(x+1)?
+    int log2p1;          // output log2(x+1)?
+    uint8_t mapqMin;     // minimum mapping quality (MAPQ >= mapqMin)
+    uint8_t mapqMax;     // maximum mapping quality (MAPQ <= mapqMax)
 } targetCoverage;
 
 
@@ -25,6 +27,10 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
     // skip alignment if region is not * and the strand of alignment or region is not the same
     if(strcmp(tcov->strand, "*")
        && (((hit->core.flag & BAM_FREVERSE) == 0) != (strcmp(tcov->strand, "+") == 0)))
+        return 0;
+    
+    // skip alignment if mapping quality not in specified range
+    if(hit->core.qual < tcov->mapqMin || hit->core.qual > tcov->mapqMax)
         return 0;
     
     if(tcov->paired) {
@@ -104,7 +110,7 @@ void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile 
 /* from one or several input bam files, produce a single, one-track wig file */
 SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SEXP _shift,
                     SEXP _strand, SEXP _norm_factor, SEXP _tracknames, SEXP _log2p1,
-                    SEXP _colors, SEXP _compress) {
+                    SEXP _colors, SEXP _compress, SEXP mapqMin, SEXP mapqMax) {
     // validate parameters
     if (!Rf_isString(_bam_in))
         Rf_error("'_bam_in' must be a character vector");
@@ -128,7 +134,13 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
         Rf_error("'_colors' must be a character(1)");
     if (!Rf_isLogical(_compress) || 1 != Rf_length(_compress))
 	Rf_error("'_compress' must be a logical(1)");
-    
+    if (!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
+        Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
+    if (!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
+        Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
+    if(INTEGER(mapqMin)[0] > INTEGER(mapqMax)[0])
+	Rf_error("'mapqMin' must not be greater than 'mapqMax'");
+   
 
     // declare internal variables
     int t, i, n = Rf_length(_bam_in);
@@ -148,6 +160,8 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     tcov.count = NULL;
     tcov.strand = Rf_translateChar(STRING_ELT(_strand, 0));
     tcov.log2p1 = Rf_asLogical(_log2p1);
+    tcov.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
+    tcov.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
  
 
     // open bam input files
@@ -157,12 +171,12 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     for(i=0; i<n; i++) {
         fin[i] = _bam_tryopen(bam_in[i], "rb", NULL);
     	if (fin[i]->header == 0) {
-	        samclose(fin[i]);
-	        Rf_error("invalid bam file header for %s", bam_in[i]);
-	    }
+	    samclose(fin[i]);
+	    Rf_error("invalid bam file header for %s", bam_in[i]);
+	}
         idx[i] = bam_index_load(bam_in[i]);
-	    if (idx == 0) // index is unavailable
-	        Rf_error("bam index unavailable for %s", bam_in[i]);
+	if (idx == 0) // index is unavailable
+	    Rf_error("bam index unavailable for %s", bam_in[i]);
     }
 
 
@@ -180,7 +194,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     }
     
 
-	// output track header
+    // output track header
     if(compress)
 	gzprintf(gzfout, "track type=wiggle_0 name='%s' description='%s%s' visibility=full color=%s altColor=%s priority=100 autoscale=off gridDefault=on maxHeightPixels=64:64:11 graphType=bar yLineMark=0.0 yLineOnOff=off windowingFunction=maximum smoothingWindow=off\n", tracknames, tracknames, norm_factor==1.0 ? "" : " (scaled)", colors, colors);
     else
@@ -205,7 +219,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
         output_current_target(&tcov, compress, norm_factor, gzfout, fout);
     }
 
-	// close output file
+    // close output file
     if(compress)
 	gzclose(gzfout);
     else
