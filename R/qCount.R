@@ -89,16 +89,17 @@ qCount <-
                     stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
                 taskTargets <- rep(trCommon, nsamples)
                 bamfiles <- rep(bamfiles, each=length(trCommon))
+                iByBamfile <- split(seq_along(bamfiles),bamfiles)[unique(bamfiles)]
                 myapply <- function(...) {
                     ret <- clusterMap(clObj, ..., SIMPLIFY=FALSE, .scheduling="dynamic")
                     # fuse
                     if(!is.na(proj@snpFile)){ # ret is a list of list(id,R,U,A)
-                        ret <- lapply(split(seq_along(bamfiles),bamfiles), function(i) list(id=do.call(c, lapply(ret[i], "[[", "id")),
+                        ret <- lapply(iByBamfile, function(i) list(id=do.call(c, lapply(ret[i], "[[", "id")),
                                                                                             R=do.call(c, lapply(ret[i], "[[", "R")),
                                                                                             U=do.call(c, lapply(ret[i], "[[", "U")),
                                                                                             A=do.call(c, lapply(ret[i], "[[", "A"))))
                     } else {                  # ret is a list of named vectors
-                        ret <- lapply(split(seq_along(bamfiles),bamfiles), function(i) do.call(c, unname(ret[i])))
+                        ret <- lapply(iByBamfile, function(i) do.call(c, unname(ret[i])))
                     }
                     ret
                 }
