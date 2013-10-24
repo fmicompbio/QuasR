@@ -9,8 +9,8 @@
 BiocStyle::latex(width=80)
 @
 
-\usepackage{cite}
-\usepackage{Sweave}
+%\usepackage{cite} % handled by BiocStyle
+\usepackage{Sweave} % handled by BiocStyle
 %\usepackage{times}
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
@@ -52,11 +52,11 @@ BiocStyle::latex(width=80)
 %\title{An Introduction to \QuasR{}}
 \title{An Introduction to \QuasRlogo{}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: August 9 2013. Compiled: \today}
+\date{Modified: October 24 2013. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
-\bibliographystyle{unsrt}
+%\bibliographystyle{unsrt} % handled by BiocStyle
 %\bibliographystyle{plainnat}
 
 <<options, results=hide, echo=FALSE>>=
@@ -713,15 +713,15 @@ rect(xleft=mp[start(matureMirs)-start(preMirs)+1,1], ybottom=-par('cxy')[2],
      col="#CCAA0088", border=NA, xpd=NA)
 @
 
-In order not to miss miRNAs that have a couple of extra bases, we therefore extend the genomic regions of the mature miRNAs, by adding three bases upstream of the 5'-end, and six bases downstream of the 3'-end:
+By default, \Rfunction{qCount} will count alignments that have their 5'-end within the query region (see \Rfunarg{selectReadPosition} argument). The 5'-end correspond to the lower (left) coordinate for alignments on the plus strand, and to the higher (right) coordinate for alignments on the minus strand. In order not to miss miRNAs that have a couple of extra or missing bases, we therefore construct a query window around the 5'-end of each mature miRNA and it, by adding three bases up- and downstream:
 <<miRNA_extendQuery, eval=TRUE>>=
 matureMirsExtended <- matureMirs
 start(matureMirsExtended) <- ifelse(as.logical(strand(matureMirs)=="+"),
                                     start(matureMirs) - 3,
-                                    start(matureMirs) - 6)
-end(matureMirsExtended) <- ifelse(as.logical(strand(matureMirs)=="+"),
-                                  end(matureMirs) + 6,
-                                  end(matureMirs) + 3)
+                                    end(matureMirs) - 3)
+end(matureMirsExtended)   <- ifelse(as.logical(strand(matureMirs)=="+"),
+                                    start(matureMirs) + 3,
+                                    end(matureMirs) + 3)
 @
 
 The resulting extended query is then used to quantify mature miRNAs. Multyply-encoded miRNAs will be represented by multiple ranges in \Robject{matureMirs} and \Robject{matureMirsExtended}, which have identical names. \Rfunction{qCount} will automatically sum all alignments from any of those regions and return a single number per sample and unique miRNA name.
