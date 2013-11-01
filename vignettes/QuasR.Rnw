@@ -6,17 +6,18 @@
 \documentclass[12pt]{article}
 
 <<style, eval=TRUE, echo=FALSE, results=tex>>=
-BiocStyle::latex(width=80)
+BiocStyle::latex(width=80, bibstyle="unsrturl")
 @
 
 %\usepackage{cite} % handled by BiocStyle
-\usepackage{Sweave} % handled by BiocStyle
+\usepackage{Sweave}
 %\usepackage{times}
 \usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{url}
 %\usepackage[breaklinks]{hyperref} % remove to suppress links % already loaded in BiocStyle
 %\usepackage[utf8x]{inputenc}
+%\usepackage[authoryear,round]{natbib}
 
 
 %\newcommand{\Rfunction}[1]{{\texttt{#1}}} % defined in BiocStyle
@@ -52,7 +53,7 @@ BiocStyle::latex(width=80)
 %\title{An Introduction to \QuasR{}}
 \title{An Introduction to \QuasRlogo{}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: October 24 2013. Compiled: \today}
+\date{Modified: November 1 2013. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
