@@ -134,7 +134,7 @@ preprocessSingleReads <-
         tmpOutputFilename <- if(filecompr!="none") tempfile(pattern="preprocessReadsTemp") else outputFilename
 
         ## extend R/Lpattern by Ns
-        numNs <- 40
+        numNs <- 90
         if(nchar(Lpattern) > 0){
             max.Lmismatch <- max.Lmismatch[1:nchar(Lpattern)]
             max.Lmismatch <- c(max.Lmismatch, 1:numNs+max(max.Lmismatch))
