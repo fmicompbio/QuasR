@@ -20,7 +20,8 @@ qAlign(sampleFile,
        alignmentsDir=NULL, 
        lib.loc=NULL, 
        cacheDir=NULL, 
-       clObj=NULL)
+       clObj=NULL,
+       checkOnly=FALSE)
 }
 \arguments{
   \item{sampleFile}{the name of a text file listing input sequence files
@@ -83,6 +84,11 @@ qAlign(sampleFile,
   \item{clObj}{a cluster object, created by the package
     \code{\link[parallel]{parallel}}, to enable parallel processing and
     speed up the alignment process.}
+  \item{checkOnly}{if \code{TRUE}, prevents the automatic creation of
+    alignments or aligner indices. This allows to quickly check for missing
+    alignment files without starting the potentially long process of
+    their creation. In the case of mising alignments or indices, an
+    exception is thrown.}
 }
 \details{
   Before generating new alignments, \code{qAlign} looks for previously
