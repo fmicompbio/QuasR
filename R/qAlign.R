@@ -11,7 +11,7 @@
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
-                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL){
+                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE){
 
   # check if the user provided a samplefile and a genome
   if(missing(sampleFile)){stop("Missing 'sampleFile' parameter.")}
@@ -21,8 +21,8 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
   # create fasta indices (.fai) files for all the reference sequences (genome & aux) as well as all md5 sum files
   proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir)
 
-  # display the status of the project
-  missingFilesMessage(proj)
+  # display the status of the project. in case of checkOnly=TRUE, through an exception if there are alignment files missing
+  missingFilesMessage(proj,checkOnly)
 
   # check if there are any genomic alignment files missing. if so, create index and align
   if(any(is.na(proj@alignments$FileName))){
@@ -59,7 +59,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 
 
 # inspect the qProject and give an overview of all the files that need to be computed
-missingFilesMessage <- function(proj){
+missingFilesMessage <- function(proj, checkOnly){
 
   genomeIndexNeedsToBeCreated <- FALSE
   genomicAlignmentsNeedToBeCreated <- sum(is.na(proj@alignments$FileName))
@@ -103,6 +103,10 @@ missingFilesMessage <- function(proj){
     if(genomeIndexNeedsToBeCreated){message("    create alignment index for the genome")}
     if(genomicAlignmentsNeedToBeCreated>0){message("    create ",genomicAlignmentsNeedToBeCreated," genomic alignment(s)")}
     if(auxAlignmentsNeedToBeCreated>0){message("    create ",auxAlignmentsNeedToBeCreated," auxiliary alignment(s)")}
+
+    if(checkOnly){
+      stop("alignment or index files are missing and checkOnly=TRUE. Aborting execution",call.=FALSE)
+    }
 
     if(interactive()){
       message("will start in ", appendLF=FALSE); flush.console()
