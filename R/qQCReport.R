@@ -399,19 +399,19 @@ plotNuclByCycle <- function(qcdata, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
     }
     nfreqL[is.na.data.frame(nfreqL)] <- 0
 
-    palette(c("#5050ff","#e00000","#00c000","#e6e600","darkgray"))
+    mycols <- c("#5050ff","#e00000","#00c000","#e6e600","darkgray")
     layout(lmat)
     for(i in 1:ns) {
         xn <- ncol(nfreqL[[i]])
         ym <- max(50,ceiling(max(nfreqL[[i]]) /5) *5 +5)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         matplot(1:xn, t(nfreqL[[i]]), type="o", xlab="Position in read (bp)", ylab="Nucleotide frequency (%)",
-                xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6)
+                xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6, col=mycols)
         abline(h=0,lty=2,col="gray")
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1),
              label=truncStringToPlotWidth(names(nfreqL)[i], diff(par('usr')[1:2])-1.5*cxy[1]-strwidth(paste(rownames(nfreqL[[i]]), collapse=" "))))
-        text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=1:5, label=rownames(nfreqL[[i]]))
+        text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=mycols, label=rownames(nfreqL[[i]]))
     }
 
     invisible(nfreqL)
@@ -604,21 +604,21 @@ plotErrorsByCycle <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
 plotMismatchTypes <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
     ns <- length(data)
     layout(lmat)
-    palette(c("#5050ff","#e00000","#00c000","#e6e600","darkgray"))
+    mycols <- c("#5050ff","#e00000","#00c000","#e6e600","darkgray")
     for(i in 1:ns) {
         mtypes <- apply(data[[i]],1,rowSums)
         pmtypes <- mtypes *100 /sum(mtypes)
         diag(pmtypes) <- 0 # don't plot matches
         pmtypes <- pmtypes[,colnames(pmtypes)!="N"] # don't plot genomic N
 
-        barplot(pmtypes, ylab="% of aligned bases", xlab="Genome", col=1:5,
+        barplot(pmtypes, ylab="% of aligned bases", xlab="Genome", col=mycols,
                 ylim=c(0,max(colSums(pmtypes),0.1,na.rm=TRUE)*1.16))
         if(all(is.na(mtypes)))
             text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), label="no data")
         box()
         cxy <- par("cxy")
         text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4,
-             adj=c(1,1), col=1:5, label=rownames(pmtypes))
+             adj=c(1,1), col=mycols, label=rownames(pmtypes))
         text(x=par('usr')[2]-cxy[1]/4-5*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4,
              col="black", label="Read:", adj=c(1,1))
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1), col="black",
