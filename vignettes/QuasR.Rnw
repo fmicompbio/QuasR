@@ -297,6 +297,22 @@ Three file formats are supported for input files (but cannot be mixed within a s
 \end{itemize}
 \textbf{\fasta{}} and \textbf{\fastq{}} files can be compressed with gzip, bzip2 or xz (file extensions '.gz', '.bz2' or 'xz', respectively) and will automatically decompressed when necessary.
 
+\subsubsection*{Working only with \bam{} files after performing alignments}
+Once alignments have been created, most analyses will only require the \bam{} files and will not access the original raw sequence files anymore. However, re-creating a \Rcode{qProject} object by a later identical call to \Rfunction{qAlign} will still need access to the raw sequences to verify consistency between raw data and alignments. It may be desirable to remove this dependency, for example to archive or move away the raw sequence files and to reclaim used disk space.
+
+This can be achieved using the following procedure involving two sequential calls to \Rfunction{qAlign}. First, \Rfunction{qAlign} is called with the orignial sample file (\Rcode{sampleFile1}) that lists the raw sequence files, and subsequently with a second sample file (\Rcode{sampleFile2}) that lists the \bam{} files generated in the first call. Such a second sample file can be easily generated given the \Rcode{qProject} object (\Rcode{proj1}) returned by the first call:
+<<<sampleFileSeqToBam, eval=FALSE>>=
+sampleFile1 <- "samples_fastq.txt"
+sampleFile2 <- "samples_bam.txt"
+
+proj1 <- qAlign(sampleFile1, genomeFile)
+
+write.table(alignments(proj1)$genome, sampleFile2, sep="\t", row.names=FALSE)
+
+proj2 <- qAlign(sampleFile2, genomeFile)
+@
+The analysis can now be exclusively based on the \bam{} files using \Rcode{sampleFile2} and \Rcode{proj2}.
+
 \subsubsection*{Consistency of samples within a project}
 The sample file implicitly defines the type of samples contained in the project: \textit{single read} or \textit{paired-end read}, sequences \textit{with} or \textit{without} qualities. This type will have a profound impact on the downstream analysis. For example, it controls whether alignments will be performed in single or paired-end mode, either with or without base qualities. That will also determine availability of certain options for quality control and quantification in \Rfunction{qQCReport} and \Rfunction{qCount}. For consistency, it is therefore required that all samples within a project have the same type; it is not possible to mix both single and paired-end read samples, or \textbf{\fasta{}} and \textbf{\fastq{}} files in a single project (sample file). If necessary, it may be possible to analyse different types of files in separate \Biocpkg{QuasR} projects and combine the derived results at the end.
 
