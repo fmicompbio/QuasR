@@ -13,6 +13,7 @@ import(BSgenome)
 import(Rsamtools)
 import(ShortRead)
 import(GenomicFeatures)
+importFrom(GenomicAlignments, readGAlignmentsFromBam)
 
 exportClasses(qProject)
 
