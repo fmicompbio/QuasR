@@ -730,7 +730,7 @@ rect(xleft=mp[start(matureMirs)-start(preMirs)+1,1], ybottom=-par('cxy')[2],
      col="#CCAA0088", border=NA, xpd=NA)
 @
 
-By default, \Rfunction{qCount} will count alignments that have their 5'-end within the query region (see \Rfunarg{selectReadPosition} argument). The 5'-end correspond to the lower (left) coordinate for alignments on the plus strand, and to the higher (right) coordinate for alignments on the minus strand. In order not to miss miRNAs that have a couple of extra or missing bases, we therefore construct a query window around the 5'-end of each mature miRNA and it, by adding three bases up- and downstream:
+By default, \Rfunction{qCount} will count alignments that have their 5'-end within the query region (see \Rfunarg{selectReadPosition} argument). The 5'-end correspond to the lower (left) coordinate for alignments on the plus strand, and to the higher (right) coordinate for alignments on the minus strand. In order not to miss miRNAs that have a couple of extra or missing bases, we therefore construct a query window around the 5'-end of each mature miRNA, by adding three bases up- and downstream:
 <<miRNA_extendQuery, eval=TRUE>>=
 matureMirsExtended <- matureMirs
 start(matureMirsExtended) <- ifelse(as.logical(strand(matureMirs)=="+"),
