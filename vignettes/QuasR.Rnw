@@ -51,7 +51,10 @@ BiocStyle::latex(width=80, bibstyle="unsrturl")
 %\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
 %\title{An Introduction to \QuasR{}}
-\title{An Introduction to \QuasRlogo{}}
+% BiocStyle captures \title{} for use in headers since we put an image
+% into \title{}, we have to overwrite header with plain text
+\bioctitle[An Introduction to \Rpackage{QuasR}]%
+    {An Introduction to \QuasRlogo{}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
 \date{Modified: November 1 2013. Compiled: \today}
 
@@ -67,9 +70,6 @@ options('useFancyQuotes' = FALSE, continue=" ", digits=3)
 
 
 \maketitle
-% BiocStyle uses package titling, which captures \title{} in \thetitle for use in headers
-% since we put an image into \title{}, we have to overwrite \thetitle with plain text
-\renewcommand{\thetitle}{An Introduction to \Rpackage{QuasR}}
 
 \tableofcontents
 
