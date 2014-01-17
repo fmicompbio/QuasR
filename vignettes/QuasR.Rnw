@@ -347,6 +347,7 @@ Sequence reads are primarily aligned against the reference genome. If necessary,
 available.genomes()
 genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
 @
+In this example, the BSgenome package \Rcode{"BSgenome.Hsapiens.UCSC.hg19"} refers to an unmasked genome; alignment index and alignments will be performed on the full unmasked genome sequence (recommended). If using a masked genome (e.g. \Rcode{"BSgenome.Hsapiens.UCSC.hg19.masked"}), masked regions will be replaced with \Rcode{"N"} bases, and this hard-masked version of the genome will be used for creating the alignment index and further alignments.
 \item{\textbf a file name}, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in \fasta{} format:
 <<selectGenomeFile, eval=FALSE>>=
 genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")

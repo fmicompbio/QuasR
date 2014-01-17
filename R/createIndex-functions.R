@@ -4,7 +4,7 @@ buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
 
   # Create the index and install it if it is not yet installed on the system
   if(!(indexPackageName %in% installed.packages())){
-    genomeObj <- get(ls(sprintf("package:%s", genome))) # access the BSgenome
+    genomeObj <- get(genome) # access the BSgenome
     fastaFilepath <- BSgenomeSeqToFasta(genomeObj, tempfile(tmpdir=cacheDir, fileext=".fa"))  # flush the BSgenome to disk
     on.exit(unlink(fastaFilepath))
 
@@ -57,7 +57,7 @@ buildIndexSNP <- function(snpFile,indexPath,genome,genomeFormat,alnModeID,cacheD
       idx <- scanFaIndex(genome)
       allChrs <- as.character(seqnames(idx))
     }else{
-      genomeObj <- get(ls(sprintf("package:%s", genome))) # access the BSgenome
+      genomeObj <- get(genome) # access the BSgenome
       allChrs <- seqnames(genomeObj)
     }
     if(!all(names(snpsL) %in% allChrs)){stop("The snpFile contains chromosomes that are not present in the genome",call.=FALSE)}
@@ -76,7 +76,7 @@ buildIndexSNP <- function(snpFile,indexPath,genome,genomeFormat,alnModeID,cacheD
           if(is.null(masks(genomeObj[[allChrs[i]]]))){
             seq <- genomeObj[[allChrs[i]]]
           }else{
-            seq <- unmasked(genomeObj[[allChrs[i]]])
+            seq <- injectHardMask(genomeObj[[allChrs[i]]], letter="N")
           }
         }
         snpsLC <- snpsL[[allChrs[i]]]
@@ -253,7 +253,7 @@ BSgenomeSeqToFasta <- function(bsgenome, outFile)
         if(is.null(masks(bsgenome[[chrT]])))
             chrSeq <- DNAStringSet(bsgenome[[chrT]])
         else
-            chrSeq <- DNAStringSet(unmasked(bsgenome[[chrT]]))
+            chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]], letter="N"))
         names(chrSeq) <- chrT
         writeXStringSet(chrSeq, filepath=outFile, format="fasta", append=append)
         append <- TRUE

@@ -247,7 +247,7 @@ qMeth <-
                 si <- seqinfo(scanFaIndex(referenceSource))
             } else {
                 library(referenceSource, character.only=TRUE)
-                gnmObj <- get(ls(sprintf("package:%s", referenceSource)))
+                gnmObj <- get(referenceSource)
                 si <- seqinfo(gnmObj)
             }
             res <- GRanges(seqnames=res$chr, IRanges(start=res$start, end=res$end),
@@ -285,7 +285,7 @@ detectVariantsBamfilesRegionsSingleChromosome <-
 
         } else {                      # BSgenome object
             library(reference, character.only=TRUE)
-            referenceObj <- get(ls(sprintf("package:%s", reference))) # access the BSgenome
+            referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
             seqstr <- getSeq(referenceObj, regionsGr, as.character=TRUE)
         }
@@ -343,7 +343,7 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
 
         } else {                      # BSgenome object
             library(reference, character.only=TRUE)
-            referenceObj <- get(ls(sprintf("package:%s", reference))) # access the BSgenome
+            referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
             seqstr <- getSeq(referenceObj, regionsGr, as.character=TRUE)
         }
@@ -386,7 +386,7 @@ quantifyMethylationBamfilesRegionsSingleChromosome <-
 
         } else {                      # BSgenome object
             library(reference, character.only=TRUE)
-            referenceObj <- get(ls(sprintf("package:%s", reference))) # access the BSgenome
+            referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
             seqstr <- getSeq(referenceObj, regionsGr, as.character=TRUE)
         }
@@ -467,7 +467,7 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
 
         } else {                      # BSgenome object
             library(reference, character.only=TRUE)
-            referenceObj <- get(ls(sprintf("package:%s", reference))) # access the BSgenome
+            referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
             seqstr <- getSeq(referenceObj, regionsGr, as.character=TRUE)
         }

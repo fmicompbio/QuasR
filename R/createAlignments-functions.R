@@ -230,7 +230,7 @@ createGenomicAlignmentsController <- function(params){
         # in the case of BSgenome, flush it because it is needed by SpliceMap
         if(proj@genomeFormat=="BSgenome"){
           if(!require(paste(proj@genome,proj@alnModeID,sep="."), character.only=TRUE, quietly=TRUE)){stop("Could not load the genome index package ",paste(proj@genome,proj@alnModeID,sep="."))}
-          genomeObj <- get(ls(sprintf("package:%s", proj@genome))) # access the BSgenome
+          genomeObj <- get(proj@genome) # access the BSgenome
           fastaFilepath <- tempfile(tmpdir=cacheDir, fileext=".fa")
           print(paste("Writing BSgenome to disk on",Sys.info()['nodename'],":",fastaFilepath))
           BSgenomeSeqToFasta(genomeObj, fastaFilepath)  # flush the BSgenome to disk

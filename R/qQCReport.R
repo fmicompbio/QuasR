@@ -140,7 +140,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         alnFilename <- input@alignments$FileName
         if(input@genomeFormat == "BSgenome"){
            require(input@genome, character.only=TRUE, quietly=TRUE)
-           genome <- get(ls(sprintf("package:%s", input@genome)))
+           genome <- get(input@genome)
         } else {
             genome <- input@genome
         }
