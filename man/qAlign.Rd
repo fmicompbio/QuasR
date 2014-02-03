@@ -169,7 +169,7 @@ qAlign(sampleFile,
   alignments need to be combined. This requires special settings for the
   alignment parameters that are not recommended to be changed. For
   \sQuote{simple} experiments (neither bisulfite, allele-specific, nor
-  spliced), alignments are generated using the parameters \dQuote{-m
+  spliced), alignments are generated using the parameters \code{-m
   maxHits --best --strata}. This will align reads with up to
   \dQuote{maxHits} best hits in the genome and selects one of them randomly.
 }

@@ -56,7 +56,7 @@ BiocStyle::latex(width=80, bibstyle="unsrturl")
 \bioctitle[An Introduction to \Rpackage{QuasR}]%
     {An Introduction to \QuasRlogo{}}
 \author{Anita Lerch, Dimos Gaidatzis and Michael Stadler}
-\date{Modified: November 1 2013. Compiled: \today}
+\date{Modified: January 17 2014. Compiled: \today}
 
 \begin{document}
 %\bibliographystyle{plain}
@@ -704,7 +704,7 @@ proj3 <- qAlign(sampleFile2, genomeFile, maxHits=50)
 alignmentStats(proj3)
 @
 
-A more detailed picture of the experiments' quality can be obtained using \Rcode{qQCReport(proj3, "qcreport.pdf")} or similar (see also section~\ref{sec:qQCReport} on page~\pageref{sec:qQCReport})).
+A more detailed picture of the experiments' quality can be obtained using \Rcode{qQCReport(proj3, "qcreport.pdf")} or similar (see also section~\ref{sec:qQCReport} on page~\pageref{sec:qQCReport}).
 
 \subsubsection{Quantification of small RNA (miRNA) reads}
 As with other experiment types, miRNAs are quantified using \Rfunction{qCount}. For this purpose, we first construct a query \Rcode{GRanges} object with the genomic locations of mature miRNAs. The locations can be obtained from the \Biocpkg{mirbase.db} package, or directly from the species-specific gff files provided by the mirBase database (e.g. \url{ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3}). For the purpose of this example, the \Biocpkg{QuasR} package provides a small gff file (\Rcode{"mirbaseXX\_qsr.gff3"}) that is formatted as the ones available from mirBase. The gff file contains both the locations of pre-miRNAs (hairpin precursors), as well as mature miRNAs. The two can be discriminated by their \Rcode{"type"}:

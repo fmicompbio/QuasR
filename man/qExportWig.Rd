@@ -80,7 +80,7 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   For \code{scaling=TRUE}, the number of alignments per bin \sQuote{n}
   for the sample \sQuote{i} are linearly scaled to the minimum total
   number of alignments over all samples in \code{proj} according to:
-  \sQuote{n_s = n /N[i] *min(N)} where \sQuote{n_s} is the scaled number
+  \sQuote{n_s = n /N[i] *mean(N)} where \sQuote{n_s} is the scaled number
   of alignments in the bin and \sQuote{N} is a vector with the total
   number of alignments for each sample.
 
