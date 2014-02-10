@@ -706,7 +706,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["samplesFormat"]=proj@samplesFormat
   alnInfo["genome"]=proj@genome
   if(proj@genomeFormat=="file"){
-    alnInfo["genome.md5"]=as.character(read.delim(paste(proj@genome,"md5",sep="."),header=FALSE)[1,1])
+    alnInfo["genome.md5"]=as.character(read.delim(paste(proj@genome,"md5",sep="."),header=FALSE,colClasses="character")[1,1])
   }else{
     alnInfo["genome.md5"]=NA
   }
@@ -730,11 +730,11 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
 
   if(!is.null(auxNr)){
     alnInfo["aux"]=proj@aux$FileName[auxNr]
-    alnInfo["aux.md5"]=as.character(read.delim(paste(proj@aux$FileName[auxNr],"md5",sep="."),header=FALSE)[1,1])
+    alnInfo["aux.md5"]=as.character(read.delim(paste(proj@aux$FileName[auxNr],"md5",sep="."),header=FALSE,colClasses="character")[1,1])
   }
 
   if(!is.na(proj@snpFile)){
-    alnInfo["snpFile.md5"]=as.character(read.delim(paste(proj@snpFile,"md5",sep="."),header=FALSE)[1,1])
+    alnInfo["snpFile.md5"]=as.character(read.delim(paste(proj@snpFile,"md5",sep="."),header=FALSE,colClasses="character")[1,1])
   }
 
   return(alnInfo)

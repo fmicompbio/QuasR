@@ -128,7 +128,7 @@ buildIndex <- function(seqFile,indexPath,alnModeID,cacheDir,checkMD5=FALSE){
       # if checkMD5==TRUE, check consistency between the sequences and the index
       # delete index in the case of inconsistency
       if(checkMD5){
-        MD5_fromIndexTab <- read.delim(file.path(indexPath,"ref_md5Sum.txt"),header=FALSE)
+        MD5_fromIndexTab <- read.delim(file.path(indexPath,"ref_md5Sum.txt"),header=FALSE,colClasses="character")
         if(!all(dim(MD5_fromIndexTab)==c(1,1))){stop("The md5sum file does not have the right format: ",file.path(indexPath,"ref_md5Sum.txt"),call.=FALSE)}
         MD5_fromIndex <- MD5_fromIndexTab[1,1]
         MD5_fromSeq <- tools::md5sum(seqFile)
