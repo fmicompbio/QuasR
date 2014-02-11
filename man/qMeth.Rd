@@ -59,7 +59,7 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
     multiple files (see \sQuote{Details}).}
 }
 \details{
-  \code{qMeth} cam be used on a \code{qProject} object from a bisulfite
+  \code{qMeth} can be used on a \code{qProject} object from a bisulfite
   sequencing experiment (sequencing of bisulfite-converted DNA), such as
   the one returned by \code{\link[QuasR]{qAlign}} when its parameter \code{bisulfite} is
   set to a different value than \dQuote{no}.
@@ -148,7 +148,7 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
 
   For \code{reportLevel}=\dQuote{alignment}, a \code{list} with one
   element per bam file or sample (depending on
-  \code{collapseBySample}. Each list element is another list with the
+  \code{collapseBySample}). Each list element is another list with the
   elements:
   \itemize{
     \item \code{aid}: character vector with unique alignment identifiers

@@ -3,7 +3,7 @@
 \title{Preprocess Short Reads}
 \description{
 Truncate sequences, remove parts matching to adapters and filter out low
-quality or low complexity sequences from (compressed) from 'fasta' or 'fastq' files.
+quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.
 }
 \usage{
 preprocessReads(filename, outputFilename=NULL,
