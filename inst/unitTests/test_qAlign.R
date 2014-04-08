@@ -58,7 +58,7 @@ sampleFileGenomePairedFasta <- createReads(genomeFile, td, paired=TRUE, format="
 test_normal_single <- function(){
     project <- qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -74,7 +74,7 @@ test_normal_single_fasta <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -90,7 +90,7 @@ test_normal_paired <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePaired, genomeFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -105,7 +105,7 @@ test_normal_paired <- function(){
 test_normal_paired_fasta <- function(){
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, alignmentsDir=td, clObj=clObj)
 
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -121,7 +121,7 @@ test_spliced_single <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingle, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -136,7 +136,7 @@ test_spliced_single <- function(){
 test_spliced_single_fasta <- function(){
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -151,7 +151,7 @@ test_spliced_single_fasta <- function(){
 test_spliced_paired <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -167,7 +167,7 @@ test_spliced_paired_fasta <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -182,7 +182,7 @@ test_spliced_paired_fasta <- function(){
 test_allelic_single <- function(){
     project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -222,7 +222,7 @@ test_allelic_single_fasta <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -239,7 +239,7 @@ test_allelic_single_fasta <- function(){
 test_allelic_paired <- function(){
     project <- qAlign(sampleFileGenomePairedAllele, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
                                   param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -284,7 +284,7 @@ test_allelic_paired_fasta <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, snpFile=snpFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T, 
                                   param=ScanBamParam(what="qname", tag="XV"))
     # extract read information from qname
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
@@ -301,7 +301,7 @@ test_allelic_paired_fasta <- function(){
 test_bisulfite_single_dir <- function(){
     project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -327,7 +327,7 @@ test_bisulfite_single_dir_fasta <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingleFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -343,7 +343,7 @@ test_bisulfite_single_dir_fasta <- function(){
 test_bisulfite_single_dir_allelic <- function(){
     project <- qAlign(sampleFileGenomeSingleAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -388,7 +388,7 @@ test_bisulfite_single_undir <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingleBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -414,7 +414,7 @@ test_bisulfite_paired_dir <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
 
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -434,7 +434,7 @@ test_bisulfite_paired_dir <- function(){
 test_bisulfite_paired_dir_fasta <- function(){
     project <- qAlign(sampleFileGenomePairedFasta, genomeFile, bisulfite="dir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -451,7 +451,7 @@ test_bisulfite_paired_dir_allelic <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePairedAllele, genomeFile, bisulfite="dir", snpFile=snpFile, alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag=c("XV","NM")))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -488,7 +488,7 @@ test_bisulfite_paired_dir_allelic <- function(){
 test_bisulfite_paired_undir <- function(){
     project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", alignmentsDir=td, clObj=NULL)
     
-    aln <- readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
+    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, use.names=T,
                                   param=ScanBamParam(tag="NM"))
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
@@ -509,8 +509,8 @@ test_bisulfite_paired_undir <- function(){
 test_aux_normal_single <- function(){
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -526,8 +526,8 @@ test_aux_normal_paired <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -543,8 +543,8 @@ test_aux_spliced_single <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -559,8 +559,8 @@ test_aux_spliced_single <- function(){
 test_aux_spliced_paired <- function(){
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -575,8 +575,8 @@ test_aux_spliced_paired <- function(){
 test_aux_bisulfite_single_undir <- function(){
     project <- qAlign(sampleFileAuxSingle, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
@@ -592,8 +592,8 @@ test_aux_bisulfite_paired_undir <- function(){
     DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileAuxPaired, genomeFile, auxiliaryFile=auxFile, bisulfite="undir", alignmentsDir=td, clObj=clObj)
     
-    aln <- readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
-    alnAux <- readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
+    aln <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$genome$FileName, use.names=T)
+    alnAux <- GenomicAlignments::readGAlignmentsFromBam(alignments(project)$aux[1,1], use.names=T)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
