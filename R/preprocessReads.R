@@ -179,7 +179,7 @@ preprocessSingleReads <-
                 filter <- apply(filterResults, 1, all)
                 filterReport['totalPassed'] <- filterReport['totalPassed'] + sum(filter)
                 if(sum(filter))
-                    writeFasta(chunks[filter], tmpOutputFilename, mode=mode)
+                    writeFasta(chunks[filter], tmpOutputFilename, mode=mode, compress=FALSE)
 
                 mode <- 'a'
                 cycle <- cycle + 1
@@ -215,7 +215,7 @@ preprocessSingleReads <-
                 filter <- apply(filterResults, 1, all)
                 filterReport['totalPassed'] <- filterReport['totalPassed'] + sum(filter)
                 if(sum(filter))
-                    writeFastq(chunks[filter], tmpOutputFilename, mode=mode, qualityType="Auto")
+                    writeFastq(chunks[filter], tmpOutputFilename, mode=mode, qualityType="Auto", compress=FALSE)
             
                 mode <- 'a'
             }
@@ -281,8 +281,8 @@ preprocessPairedReads <-
                 filter <- apply(cbind(filterResults, filterResultsMate), 1, all)
                 filterReport['totalPassed'] <- filterReport['totalPassed'] + sum(filter)         
                 if(sum(filter)) {
-                    writeFasta(chunks[filter], tmpOutputFilename, mode=mode)
-                    writeFasta(chunksMate[filter], tmpOutputFilenameMate, mode=mode)
+                    writeFasta(chunks[filter], tmpOutputFilename, mode=mode, compress=FALSE)
+                    writeFasta(chunksMate[filter], tmpOutputFilenameMate, mode=mode, compress=FALSE)
                 }
             
                 mode <- 'a'
@@ -317,8 +317,8 @@ preprocessPairedReads <-
                 filter <- apply(cbind(filterResults, filterResultsMate), 1, all)
                 filterReport['totalPassed'] <- filterReport['totalPassed'] + sum(filter)            
                 if(sum(filter)) {
-                    writeFastq(chunks[filter], tmpOutputFilename, mode=mode, qualityType="Auto")
-                    writeFastq(chunksMate[filter], tmpOutputFilenameMate, mode=mode, qualityType="Auto")
+                    writeFastq(chunks[filter], tmpOutputFilename, mode=mode, qualityType="Auto", compress=FALSE)
+                    writeFastq(chunksMate[filter], tmpOutputFilenameMate, mode=mode, qualityType="Auto", compress=FALSE)
                 }
             
                 mode <- 'a'
