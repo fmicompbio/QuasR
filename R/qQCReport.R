@@ -12,11 +12,13 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
                      fastq = {
                          f <- FastqSampler(filename, n=chunkSize)
                          reads <- yield(f)
+                         reads <- reads[width(reads)>0]
                          close(f)
                          qa(reads, label)
                      },
                      fasta = {
                          reads <- readFasta(as.character(filename), nrec=chunkSize)
+                         reads <- reads[width(reads)>0]
                          qa(reads, label)
                      }
                      )
