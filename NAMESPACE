@@ -5,6 +5,7 @@ import(zlibbioc)
 
 import(BiocGenerics)
 importFrom(BiocInstaller, biocLite)
+import(S4Vectors)
 import(IRanges)
 importFrom(Biobase, createPackage, testBioCConnection)
 import(Biostrings)
