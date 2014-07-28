@@ -66,8 +66,8 @@ qCount <-
         queryseqs <- NULL
         if(inherits(query,c("GRanges","GRangesList"))) {
             queryseqs <- seqlevelsInUse(query)
-        } else if(inherits(query,"TranscriptDb")) { # only use active sequences
-            queryseqs <- seqlevels(query) # isActiveSeq is depricated; no seqlevelsInUse for TranscriptDb yet
+        } else if(inherits(query,"TxDb")) { # only use active sequences
+            queryseqs <- seqlevels(query) # isActiveSeq is depricated; no seqlevelsInUse for TxDb yet
         }
         if(!is.null(query) && any(f <- !(queryseqs %in% trCommon)))
             stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
@@ -181,8 +181,8 @@ qCount <-
            
         } else {
             ### reportLevel != "junction" -------------------------------------------------------------------------------
-            if(!inherits(query,c("GRanges","GRangesList","TranscriptDb")))
-                stop("'query' must be either an object of type 'GRanges', 'GRangesList' or 'TranscriptDb', or NULL for reportLevel=\"junction\"")
+            if(!inherits(query,c("GRanges","GRangesList","TxDb")))
+                stop("'query' must be either an object of type 'GRanges', 'GRangesList' or 'TxDb', or NULL for reportLevel=\"junction\"")
                 
             ## 'useRead' set but not a paired-end experiment?
             if(useRead != "any" && proj@paired == "no")
@@ -231,11 +231,11 @@ qCount <-
                 querylengths <- unlist(width(query), use.names=FALSE)
                 zeroquerynames <- (if(is.null(names(query))) as.character(seq_len(length(query))) else names(query))[elementLengths(query)==0]
             
-                ##    TranscriptDb query --------------------------------------------------------------------------
-            } else if(inherits(query,"TranscriptDb")) {
+                ##    TxDb query --------------------------------------------------------------------------
+            } else if(inherits(query,"TxDb")) {
                 if(is.null(reportLevel))
-                    stop("'reportLevel' must be set to a non-NULL value for 'query' of type 'TranscriptDb'")
-                message(sprintf("extracting %s regions from TranscriptDb...",reportLevel), appendLF=FALSE)
+                    stop("'reportLevel' must be set to a non-NULL value for 'query' of type 'TxDb'")
+                message(sprintf("extracting %s regions from TxDb...",reportLevel), appendLF=FALSE)
                 if(reportLevel == "gene") {
                     tmpquery <- reduce(exonsBy(query, by="gene"))
                     flatquery <- unlist(tmpquery, use.names=FALSE)
@@ -398,7 +398,7 @@ qCount <-
 
             ## combine with zeroquery and reorder according to 'query'
             res2 <- matrix(0, nrow=length(querynames)+length(zeroquerynames), ncol=ncol(res),
-                           dimnames=list(if(inherits(query,"TranscriptDb"))
+                           dimnames=list(if(inherits(query,"TxDb"))
                            sort(c(querynames,zeroquerynames))
                            else if(is.null(names(query)))
                            as.character(seq_len(length(query)))

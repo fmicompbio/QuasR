@@ -26,13 +26,13 @@ qCount(proj,
     sequencing experiment as returned by \code{\link[QuasR]{qAlign}}}
   \item{query}{an object of type \code{\link[GenomicRanges]{GRanges}}, 
     \code{\link[GenomicRanges]{GRangesList}} or 
-    \code{\link[GenomicFeatures]{TranscriptDb}} with the regions to be
+    \code{\link[GenomicFeatures]{TxDb}} with the regions to be
     quantified. The type of \code{query} will determine the mode of
     quantification (see \sQuote{Details}). For
     \code{reportLevel="junction"}, \code{query} is ignored and can also
     be \code{NULL}.}
   \item{reportLevel}{level of quantification (\code{query} of type
-    \code{TranscriptDb} or \code{NULL}), one of
+    \code{TxDb} or \code{NULL}), one of
     \itemize{
       \item \code{gene} (default): one value per gene
       \item \code{exon}: one value per exon
@@ -129,7 +129,7 @@ qCount(proj,
     in \code{query}), for example to estimate the fractions of different
     classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA,
     mRNA, etc.)
-    \item \code{\link[GenomicFeatures]{TranscriptDb}}: Used to extract
+    \item \code{\link[GenomicFeatures]{TxDb}}: Used to extract
     regions from annotation and report alignment counts depending on the
     value of \code{reportLevel}. If \code{reportLevel="exon"},
     alignments overlapping each exon in \code{query} are counted.
@@ -310,7 +310,7 @@ res3 <- qCount(proj, gtfRegionList)
 res3
 
 
-# gene expression levels using a "TranscriptDb" query
+# gene expression levels using a "TxDb" query
 library("GenomicFeatures")
 genomeRegion <- scanFaIndex(genomeFile)
 chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
