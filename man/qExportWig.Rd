@@ -87,12 +87,12 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   \code{mapqMin} and \code{mapqMax} allow to select alignments
   based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
   take integer values between 0 and 255 and equal to
-  \eqn{-10 log10 Pr(mapping position is wrong)}, rounded to the nearest
+  \eqn{-10 log10 Pr(\text{mapping position is wrong})}, rounded to the nearest
   integer. A value 255 indicates that the mapping quality is not available.
 
   If \code{file} ends with \sQuote{.gz}, the resulting wig file will be
   compressed using gzip and is suitable for uploading as a custom track
-  to your favortie genome browser (e.g. UCSC or Ensembl).
+  to your favorite genome browser (e.g. UCSC or Ensembl).
 }
 
 \value{

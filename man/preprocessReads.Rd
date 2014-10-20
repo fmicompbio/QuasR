@@ -25,7 +25,7 @@ preprocessReads(filename, outputFilename=NULL,
     \item{truncateStartBases}{integer(1): the number of bases to be
       truncated (removed) from the begining of each sequence.}
     \item{truncateEndBases}{integer(1): the number of bases to be
-      truncatet (removed) from the end of each sequence.}
+      truncated (removed) from the end of each sequence.}
     \item{Lpattern}{character(1): the left (5'-end) adapter sequence.}
     \item{Rpattern}{character(1): the right (3'-end) adapter sequence.}
     \item{max.Lmismatch}{mismatch tolerance when searching for matches
@@ -84,7 +84,7 @@ used. Currently, trimming of adapters is only supported for single read
 experiments.
 
 Sequence complexity (\eqn{H}) is calculated based on the dinucleotide
-composition using the formula (Shannon entropy): \deqn{H = -\sum_i {f_i \log_2 f_i}},
+composition using the formula (Shannon entropy): \deqn{H = -\sum_i {f_i \log_2 f_i},}
 where \eqn{f_i} is the fraction of dinucleotide \eqn{i} from all
 dinucleotides in the sequence. Sequence reads that fulfill the condition
 \eqn{H/H_r \ge c} are retained (not filtered out), where \eqn{H_r =
@@ -131,7 +131,7 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link[Biostrings]{trimLRPatterns}} from pacakge \pkg{Biostrings},
+  \code{\link[Biostrings]{trimLRPatterns}} from package \pkg{Biostrings},
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel}
 }
 \examples{

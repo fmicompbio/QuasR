@@ -188,7 +188,7 @@ qCount(proj,
   alignments. \code{mapqMin} and \code{mapqMax} allow to select alignments
   based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
   take integer values between 0 and 255 and equal to
-  \eqn{-10 log10 Pr(mapping position is wrong)}, rounded to the nearest
+  \eqn{-10 log10 Pr(\text{mapping position is wrong})}, rounded to the nearest
   integer. A value 255 indicates that the mapping quality is not available.
 
   In paired-end experiments, \code{useRead} allows to quantify either
@@ -233,7 +233,8 @@ qCount(proj,
   The effective query region width returned as first column in the
   matrix is calculated by the number of unique, non-masked bases in the
   reference sequence that contributed to the count of this query
-  name. An effective width of zero indicates that the region was fully
+  name (irrespective if the bases were covered by alignments or not).
+  An effective width of zero indicates that the region was fully
   masked and will have zero counts in all samples.
   
   The alignment counts in the matrix are contained from column two

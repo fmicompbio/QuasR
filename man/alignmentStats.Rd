@@ -23,7 +23,7 @@ alignmentStats(x, collapseBySample=TRUE)
 
   If \code{x} is a \code{qProject} object, the auxiliary bam files will
   not contain any unmapped reads, and the corresponding unmapped counts
-  are calculated by substracting auxiliary mapped counts from the total
+  are calculated by subtracting auxiliary mapped counts from the total
   reads. The latter correspond to the unmapped counts from the
   corresponding genome bam files.
 }

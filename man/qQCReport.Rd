@@ -31,11 +31,13 @@ of available input (fasta, fastq or bam files).
 
 \details{This function generates quality control plots for all input
   files or the sequence and alignment files contained in a
-  \code{qProject} object, allowing assessment of the qualty of a
+  \code{qProject} object, allowing assessment of the quality of a
   sequencing experiment. \code{qQCReport} uses functionality from the
   \pkg{ShortRead} package to collect quality data, and visualizes the
   results similarly as the \sQuote{FastQC} quality control tool from
-  Simon Andrews (see \sQuote{References} below).
+  Simon Andrews (see \sQuote{References} below). It is recommended to
+  create PDF reports (\code{pdfFilename} argument), for which the
+  plot layouts have been optimised.
   
   Some plots will only be generated if the necessary information is
   available (e.g. base qualities in fastq sequence files).

@@ -67,7 +67,7 @@ qAlign(sampleFile,
   \item{alignmentParameter}{a optional string containing command line
     parameters to be used for the aligner, to overrule the default
     alignment parameters used by \code{QuasR}. Please use with caution;
-    some alignment parameters may brake assumptions made by
+    some alignment parameters may break assumptions made by
     \code{QuasR}. Default parameters are listed in \sQuote{Details}.}
   \item{projectName}{an optional name for the alignment project.}
   \item{alignmentsDir}{the directory to be used for storing alignments
@@ -87,7 +87,7 @@ qAlign(sampleFile,
   \item{checkOnly}{if \code{TRUE}, prevents the automatic creation of
     alignments or aligner indices. This allows to quickly check for missing
     alignment files without starting the potentially long process of
-    their creation. In the case of mising alignments or indices, an
+    their creation. In the case of missing alignments or indices, an
     exception is thrown.}
 }
 \details{
@@ -97,7 +97,10 @@ qAlign(sampleFile,
   directory as the provided fasta file, or as an R package in the case
   of a BSgenome reference. The name of this R package will be the same
   as the BSgenome package name, with an additional suffix from the
-  aligner (e.g. \code{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}).
+  aligner (e.g. \code{BSgenome.Hsapiens.UCSC.hg19.Rbowtie}). The
+  generated bam files contain both aligned und unaligned reads. For
+  paired-end samples, by default no alignments will be reported for
+  read pairs where only one of the reads could be aligned.
   
   \code{sampleFile} is a tab-delimited text file listing all the input
   sequences to be included in a given analysis. The file has either two
@@ -151,7 +154,7 @@ qAlign(sampleFile,
     chr1 \tab 19341 \tab G \tab A
   }
 
-  The reference and alternaive alleles will be injected into the
+  The reference and alternative alleles will be injected into the
   reference genome, resulting in two separate genomes. All reads will be
   aligned separately to both of these genomes, and the alignments will
   be combined, only retaining the best alignment for each read. In the

@@ -103,7 +103,7 @@ qProfile(proj,
   \code{qProfile} is used to count alignments in each sample from a
   \code{qProject} object, relative to their position in query regions.
   
-  Most arguments are identical to the ones of \code{\link[QuasR]{qProfile}}.
+  Most arguments are identical to the ones of \code{\link[QuasR]{qCount}}.
 
   The \code{query} argument is a \code{\link[GenomicRanges]{GRanges}}
   object that defines the regions for the profile. All regions in
@@ -129,7 +129,7 @@ qProfile(proj,
   profile and relative position, the number of overlapping regions
   that contributed to the profile.
   
-  Subsequenct list elements contain the alignment counts for individual
+  Subsequent list elements contain the alignment counts for individual
   sequence files (\code{collapseBySample=FALSE}) or samples
   (\code{collapseBySample=TRUE}) in \code{proj}.
 
