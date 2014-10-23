@@ -271,13 +271,13 @@ createTranscriptDb <- function()
     chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                             length=end(genomeRegion),
                             is_circular=rep(FALSE, length(genomeRegion)))
-    txdb <- makeTranscriptDbFromGFF(annotationFile, 
-                                    format="gtf", 
-                                    exonRankAttributeName="exon_number",  
-                                    gffGeneIdAttributeName="gene_name", 
-                                    chrominfo=chrominfo,
-                                    dataSource="Ensembl",
-                                    species="Homo sapiens")
+    txdb <- makeTxDbFromGFF(annotationFile, 
+                            format="gtf", 
+                            exonRankAttributeName="exon_number",  
+                            gffGeneIdAttributeName="gene_name", 
+                            chrominfo=chrominfo,
+                            dataSource="Ensembl",
+                            species="Homo sapiens")
     return(txdb)
 }
 

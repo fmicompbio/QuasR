@@ -318,13 +318,13 @@ genomeRegion <- scanFaIndex(genomeFile)
 chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                         length=end(genomeRegion),
                         is_circular=rep(FALSE, length(genomeRegion)))
-txdb <- makeTranscriptDbFromGFF(annotationFile, 
-                                format="gtf", 
-                                exonRankAttributeName="exon_number",  
-                                gffGeneIdAttributeName="gene_name", 
-                                chrominfo=chrominfo,
-                                dataSource="Ensembl modified",
-                                species="Homo sapiens")
+txdb <- makeTxDbFromGFF(annotationFile, 
+                        format="gtf", 
+                        exonRankAttributeName="exon_number",  
+                        gffGeneIdAttributeName="gene_name", 
+                        chrominfo=chrominfo,
+                        dataSource="Ensembl modified",
+                        species="Homo sapiens")
 
 res4 <- qCount(proj, txdb, reportLevel="gene")
 res4
