@@ -405,7 +405,7 @@ plotNuclByCycle <- function(qcdata, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
     layout(lmat)
     for(i in 1:ns) {
         xn <- ncol(nfreqL[[i]])
-        ym <- max(50,ceiling(max(nfreqL[[i]]) /5) *5 +5)
+        ym <- max(50,ceiling(max(nfreqL[[i]], na.rm = T) /5) *5 +5)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         matplot(1:xn, t(nfreqL[[i]]), type="o", xlab="Position in read (bp)", ylab="Nucleotide frequency (%)",
                 xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6, col=mycols)
