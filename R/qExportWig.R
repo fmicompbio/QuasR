@@ -101,8 +101,14 @@ qExportWig <- function(proj,
         tmp <- alignmentStats(proj, collapseBySample=collapseBySample)
         N <- tmp[grepl(":genome$",rownames(tmp)),'mapped']
         names(N) <- sub(":genome$","",names(N))
-        #fact <- min(N) /N
-        fact <- mean(N) /N
+        if(is.logical(scaling)) {
+            #fact <- min(N) /N
+            fact <- mean(N) /N
+        } else if(is.numeric(scaling) && length(scaling)==1 && scaling>0) {
+            fact <- scaling /N
+        } else {
+            stop("'scaling' must be either 'TRUE', 'FALSE' or a positive numerical value")
+        }
         message("done")
     }
 

@@ -39,9 +39,9 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
     will be issued if it is set to a non-zero value (see \sQuote{Details}).}
   \item{strand}{Only count alignments of \code{strand}. The default (\dQuote{*})
     will count all alignments.}
-  \item{scaling}{If TRUE, the output values in the wig file(s)
-    will be linearly scaled by the total number of aligned reads per sample
-    to improve comparability (see \sQuote{Details}).}
+  \item{scaling}{If TRUE or a numerical value, the output values in the
+    wig file(s) will be linearly scaled by the total number of aligned
+    reads per sample to improve comparability (see \sQuote{Details}).}
   \item{tracknames}{A character vector with the names of the
     tracks to appear in the track header. If \code{NULL}, the sample
     names in \code{proj} will be used.}
@@ -77,12 +77,15 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   rightmost coordinates of the aligned pair of reads. Each pair of reads
   is only counted once, and not properly paired alignments are ignored.
 
-  For \code{scaling=TRUE}, the number of alignments per bin \sQuote{n}
-  for the sample \sQuote{i} are linearly scaled to the minimum total
+  For \code{scaling=TRUE}, the number of alignments per bin \eqn{n}
+  for the sample \eqn{i} are linearly scaled to the mean total
   number of alignments over all samples in \code{proj} according to:
-  \sQuote{n_s = n /N[i] *mean(N)} where \sQuote{n_s} is the scaled number
-  of alignments in the bin and \sQuote{N} is a vector with the total
-  number of alignments for each sample.
+  \eqn{n_s = n /N[i] *mean(N)} where \eqn{n_s} is the scaled number
+  of alignments in the bin and \eqn{N} is a vector with the total
+  number of alignments for each sample. Alternatively, if scaling is set
+  to a positive numerical value \eqn{s}, this value is used instead of
+  \eqn{\textnormal{mean}(N)}{mean(N)}, and values are scaled according
+  to: \eqn{n_s = n /N[i] *s}.
 
   \code{mapqMin} and \code{mapqMax} allow to select alignments
   based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
