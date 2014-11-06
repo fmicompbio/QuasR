@@ -194,7 +194,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
   # ---------------------------------------- PARSE THE SAMPLE FILE -------------------------------------
   if(!file.exists(sampleFile)){stop("Cannot open ",sampleFile,call.=FALSE)}
-  samples <- read.delim(sampleFile,header=TRUE,as.is=TRUE)
+  samples <- read.delim(sampleFile,header=TRUE,colClasses="character")
 
   if(nrow(samples)==0){stop(sampleFile," is either empty or there is a header missing",call.=FALSE)}
 
@@ -340,7 +340,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     if(proj@samplesFormat == "bam"){stop("The option 'auxiliaryFile' is not supported for bam input files",call.=FALSE)}
     if(!is.na(proj@snpFile)){stop("The option 'auxiliaryFile' is not supported in allelic mode",call.=FALSE)}
     if(!file.exists(auxiliaryFile)){stop("Cannot open ",auxiliaryFile,call.=FALSE)}
-    auxiliaries <- read.delim(auxiliaryFile,header=TRUE,as.is=TRUE)
+    auxiliaries <- read.delim(auxiliaryFile,header=TRUE,colClasses="character")
 
     if(nrow(auxiliaries)==0){stop(auxiliaryFile," is either empty or there is a header missing",call.=FALSE)}
 

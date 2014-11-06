@@ -37,7 +37,7 @@ qExportWig <- function(proj,
         stop("'proj' must be a 'qProject' object")
 
     if(collapseBySample) {
-        bamfiles <- split(proj@alignments$FileName, as.factor(as.character(proj@alignments$SampleName)))[unique(as.character(proj@alignments$SampleName))]
+        bamfiles <- split(proj@alignments$FileName, as.factor(proj@alignments$SampleName))[unique(proj@alignments$SampleName)]
         samplenames <- names(bamfiles)
     } else {
         bamfiles <- as.list(proj@alignments$FileName)
