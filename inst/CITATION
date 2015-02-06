@@ -26,7 +26,7 @@ citEntry(entry="article",
 	 pages="R25",
 	 year=2009,
 	 note="PMID:19261174",
-	 doi="http://dx.doi.org/10.1186/gb-2009-10-3-r25",
+	 doi="10.1186/gb-2009-10-3-r25",
 	 textVersion="Langmead B, Trapnell C, Pop M, Salzberg SL. Ultrafast and memory-efficient alignment of short DNA sequences to the human genome. Genome Biology 10(3):R25 (2009)."
 )
 
@@ -43,7 +43,7 @@ citEntry(entry="article",
 	 pages="4570--4578",
 	 year=2010,
 	 note="PMID:20371516",
-	 doi="http://dx.doi.org/10.1093/nar/gkq211",
+	 doi="10.1093/nar/gkq211",
 	 textVersion="Au KF, Jiang H, Lin L, Xing Y, Wong WH. Detection of splice junctions from paired-end RNA-seq data by SpliceMap. Nucleic Acids Research, 38(14):4570-8 (2010)."
 )
 
