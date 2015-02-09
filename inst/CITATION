@@ -3,15 +3,20 @@ citHeader("Please use the QuasR reference below to cite the software itself. If 
 desc <- packageDescription("QuasR")
 vers <- paste("R package version", desc$Version)
 
-citEntry(entry="unpublished",
-	 title="QuasR: Quantify and Annotate Short Reads in R",
-	 author=personList(as.person("Anita Lerch"),
-			   as.person("Dimos Gaidatzis"),
+citEntry(entry="article",
+	 title="QuasR: Quantification and annotation of short reads in R",
+	 author=personList(as.person("Dimos Gaidatzis"),
+			   as.person("Anita Lerch"),
+                           as.person("Florian Hahne"),
 			   as.person("Michael B Stadler")),
-	 #journal="",
-	 year=2012,
-	 note=vers,
-	 textVersion=paste("Anita Lerch, Dimos Gaidatzis and Michael Stadler (2012). QuasR: Quantify and Annotate Short Reads in R.",vers,"(unpublished)")
+	 journal="Bioinformatics",
+         #volume="",
+         #number="",
+         #pages="",
+	 year=2014,
+	 note="PMID:25417205",
+         doi="10.1093/bioinformatics/btu781",
+	 textVersion="Gaidatzis D, Lerch A, Hahne F, Stadler MB. QuasR: Quantification and annotation of short reads in R. Bioinformatics (2014)"
 )
 
 citEntry(entry="article",
