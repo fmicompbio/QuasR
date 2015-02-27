@@ -1,20 +1,10 @@
+SAMTOOLS_PATH=\
+    `echo 'cat(system.file("usrlib", package="Rsamtools", mustWork=TRUE))' |\
+        "${R_HOME}/bin/R" --vanilla --slave`
+SAMTOOLS_LIBS="$(SAMTOOLS_PATH)/libbam.a" "$(SAMTOOLS_PATH)/libbcf.a"\
+    "$(SAMTOOLS_PATH)/libtabix.a" -lz -pthread
+SAMTOOLS_CPPFLAGS=-D_USE_KNETFILE -DBGZF_CACHE -D_FILE_OFFSET_BITS=64 \
+    -D_LARGEFILE64_SOURCE
 
-SAMVARS=$(shell echo 'cat(shortPathName(system.file("usretc", .Platform[["r_arch"]],\
-"Rsamtools.mk", package="Rsamtools", mustWork=TRUE)))' |\
-"${R_HOME}/bin/R" --vanilla --slave)
-include $(SAMVARS)
-
-ZLIB_CFLAGS+=$(shell echo 'zlibbioc::pkgconfig("PKG_CFLAGS")'|\
-    "${R_HOME}/bin/R" --vanilla --slave)
-PKG_LIBS+=$(shell echo 'zlibbioc::pkgconfig("PKG_LIBS_shared")' |\
-    "${R_HOME}/bin/R" --vanilla --slave)
-
-%.o: %.c
-	$(CC) $(ZLIB_CFLAGS) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
-%.o: %.cc
-	$(CXX) $(ZLIB_CFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
-%.o: %.cpp
-	$(CXX) $(ZLIB_CFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
-
-
-
+PKG_LIBS=$(SAMTOOLS_LIBS)
+PKG_CPPFLAGS=$(SAMTOOLS_CPPFLAGS)
