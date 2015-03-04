@@ -14,7 +14,7 @@ import(BSgenome)
 import(Rsamtools)
 import(ShortRead)
 import(GenomicFeatures)
-importFrom(GenomicAlignments, readGAlignmentsFromBam)
+importFrom(GenomicAlignments, readGAlignments)
 
 exportClasses(qProject)
 

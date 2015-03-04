@@ -119,7 +119,7 @@ test_shift <- function() {
     
     
     ## qCount with interger as shift
-    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName)
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
@@ -192,7 +192,7 @@ test_shift_allelic <- function(){
    
 test_orientation <- function() {
     project <- projectPaired
-    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName)
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName)
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
     resSoll <- rep(0,99)
@@ -266,7 +266,7 @@ test_orientation <- function() {
 
 test_useRead <- function() {
     project <- projectPaired
-    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, 
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName, 
                                   param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=T, isSecondMateRead=F)))
     
     query <- GRanges(c("chrV"), IRanges(start=1:99, width=1), "+")
@@ -282,7 +282,7 @@ test_useRead <- function() {
     res <- qCount(project, query, selectReadPosition="end", shift=0, orientation="any", useRead="first")[,-1]
     checkTrue(all(resSoll == res), "Test 2: qCount with useRead")
     
-    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName, 
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName, 
                                    param=ScanBamParam(flag=scanBamFlag(isFirstMateRead=F, isSecondMateRead=T)))
     
     resSoll <- rep(0,99)

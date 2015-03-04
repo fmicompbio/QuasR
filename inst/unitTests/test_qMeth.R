@@ -171,7 +171,7 @@ test_partial_meth_paired_dir <- function(){
               "Test2 partial-methylated directed, mode=CpGcomb")
 
     # check total read counts
-    aln <- GenomicAlignments::readGAlignmentsFromBam(project@alignments$FileName)
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName)
     cov_plus <- coverage(aln[strand(aln) == "+"])
     cov_minus <- coverage(aln[strand(aln) == "-"])
     mcols(methAllC)$cov_plus <- unlist(lapply(seq_along(cov_plus), function(i){
