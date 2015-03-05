@@ -620,14 +620,14 @@ createReferenceSequenceIndices <- function(proj){
   # create fasta index for the genome if it is not a BSgenome and if the .fai file is not present
   if(proj@genomeFormat=="file"){
     if(!file.exists(paste(proj@genome,"fai",sep="."))){
-      # test if the sequence file is a valid fasta file using the fasta.info() function from biostrings
+      # test if the sequence file is a valid fasta file using the fasta.seqlengths() function from biostrings
       # this is necessary because indexFa() from Rsamtools would crash R if it is passed an invalid fasta file
       message(paste("Creating .fai file for:",proj@genome))
-      result <- try(fasta.info(proj@genome))
+      result <- try(fasta.seqlengths(proj@genome))
       if(class(result)=="try-error"){
         stop("The fasta file ",proj@genome," is not a valid fasta file",call.=FALSE)
       }
-      faInfoNames <- sub("\\s+.+","",names(result),perl=TRUE) # remove everything after the white space after the id (not done by fasta.info)
+      faInfoNames <- sub("\\s+.+","",names(result),perl=TRUE) # remove everything after the white space after the id (not done by fasta.seqlengths)
       if(length(unique(faInfoNames)) != length(faInfoNames)){
         stop("Sequence names in the file: ",proj@genome," are not unique",call.=FALSE)
       }
@@ -649,13 +649,13 @@ createReferenceSequenceIndices <- function(proj){
   if(nrow(proj@aux)>0){
     for(i in 1:nrow(proj@aux)){
       if(!file.exists(paste(proj@aux$FileName[i],"fai",sep="."))){
-        # test if the sequence file is a valid fasta file using the fasta.info() function from biostrings
+        # test if the sequence file is a valid fasta file using the fasta.seqlengths() function from biostrings
         # this is necessary because indexFa() from Rsamtools would crash R if it is passed an invalid fasta file (R version 2.14.1)
-        result <- try(fasta.info(proj@aux$FileName[i]))
+        result <- try(fasta.seqlengths(proj@aux$FileName[i]))
         if(class(result)=="try-error"){
           stop("The fasta file ",proj@aux$FileName[i]," is not a valid fasta file",call.=FALSE)
         }
-        faInfoNames <- sub("\\s+.+","",names(result),perl=TRUE) # remove everything after the white space after the id (not done by fasta.info)
+        faInfoNames <- sub("\\s+.+","",names(result),perl=TRUE) # remove everything after the white space after the id (not done by fasta.seqlengths)
         if(length(unique(faInfoNames)) != length(faInfoNames)){
           stop("Sequence names in the file: ",proj@aux$FileName[i]," are not unique",call.=FALSE)
         }

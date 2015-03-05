@@ -685,8 +685,8 @@ The miRNA reads in \Rcode{mirna\_1.fa} are by the way synthetic sequences and do
 # get read lengths
 library(Biostrings)
 oldwd <- setwd(dirname(sampleFile))
-lens <- fasta.info(tab$FileName, nrec=1e5)
-lens2 <- fasta.info(tab2$FileName, nrec=1e5)
+lens <- fasta.seqlengths(tab$FileName, nrec=1e5)
+lens2 <- fasta.seqlengths(tab2$FileName, nrec=1e5)
 setwd(oldwd)
 # plot length distribution
 lensTab <- rbind(raw=tabulate(lens,50),

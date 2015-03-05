@@ -4,6 +4,7 @@
 #define STRICT_R_HEADERS 1
 
 #include <Rdefines.h>
+#include <R.h>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>

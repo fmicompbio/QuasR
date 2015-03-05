@@ -164,16 +164,18 @@ compressFile <-
 grangesFromGff <-
     function(con, version="2", split=NULL) {
         # create a GRangesList object from regions defined in a GFF/GTA file, split by 'type'
-        suppressPackageStartupMessages(require("rtracklayer", quietly=TRUE))
+        if (requireNamespace("rtracklayer", quietly=TRUE)) {
+            gr <- rtracklayer::import.gff(con, version=version, asRangedData=FALSE,
+                                          colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
 
-        gr <- import.gff(con, version=version, asRangedData=FALSE,
-                         colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
-
-        if(is.null(split) || !(split %in% colnames(mcols(gr))))
-            return(gr)
-        else
-            #return(lapply(split(seq.int(length(gr)), mcols(gr)[[split]]), function(i) gr[i])) # creates a list() of GRanges
-            return(split(gr, mcols(gr)[[split]])) # creates a GRangesList (compound elements, e.g. in findOverlaps)
+            if(is.null(split) || !(split %in% colnames(mcols(gr))))
+                return(gr)
+            else
+                #return(lapply(split(seq.int(length(gr)), mcols(gr)[[split]]), function(i) gr[i])) # creates a list() of GRanges
+                return(split(gr, mcols(gr)[[split]])) # creates a GRangesList (compound elements, e.g. in findOverlaps)
+        } else {
+            stop("rtracklayer package not found - aborting grangesFromGff")
+        }
     }
 
 concatenateFiles <-

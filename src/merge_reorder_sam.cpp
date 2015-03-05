@@ -274,7 +274,7 @@ int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<
 	    currenttop = mapped[i];
 	    i++;
 	} else {
-	    currenttop = mapped[(unsigned long)(rand()) % count];
+	    currenttop = mapped[(unsigned long)(unif_rand()*count)];
 	    i = count;
 	}
 
@@ -822,13 +822,13 @@ int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
 	    if(countR > maxhits) // over mapped
 		_make_unmapped_alignment(id, mappedR[0], unmapped, false, false);
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(rand() % countR)], 'R');
+		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(unif_rand()*countR)], 'R');
 	} else{
 	    // alternate less mismatch
 	    if(countA > maxhits) // over mapped
 		_make_unmapped_alignment(id, mappedA[0], unmapped, false, false);
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(rand() % countA)], 'A');
+		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(unif_rand()*countA)], 'A');
 	}
     } else {
 	// both same number of mismatch
@@ -836,9 +836,9 @@ int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
 	    _make_unmapped_alignment(id, mappedR[0], unmapped, false, false);
 	else if(countR > 0 && countA > 0){
 	    if(allele)
-		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(rand() % countR)], 'U');
+		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(unif_rand()*countR)], 'U');
 	    else
-		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(rand() % countA)], 'U');
+		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(unif_rand()*countA)], 'U');
 	    allele = !allele; // switch allele 
 	}
     }
@@ -882,6 +882,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	samfiles[i] = new samFile(fnin[i]);
 
     // main loop over identifiers (1...allEof)
+    GetRNGstate(); // prepare use of R random number generator
     id = 1;
     while (!samFile::allEof()) {
 	// forward input files until current identifier is found
@@ -924,6 +925,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	// increase current identifier
 	id++;
     }
+    PutRNGstate(); // finish use of R random number generator
 
     // close sam files and clean up
     for(i=0; i<nin; i++)
