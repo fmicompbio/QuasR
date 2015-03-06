@@ -842,7 +842,7 @@ int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
 	    allele = !allele; // switch allele 
 	}
     }
-  
+ 
     return n;
 }
 
@@ -882,7 +882,6 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	samfiles[i] = new samFile(fnin[i]);
 
     // main loop over identifiers (1...allEof)
-    GetRNGstate(); // prepare use of R random number generator
     id = 1;
     while (!samFile::allEof()) {
 	// forward input files until current identifier is found
@@ -925,7 +924,6 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	// increase current identifier
 	id++;
     }
-    PutRNGstate(); // finish use of R random number generator
 
     // close sam files and clean up
     for(i=0; i<nin; i++)
@@ -962,7 +960,9 @@ SEXP merge_reorder_sam(SEXP infiles, SEXP outfile, SEXP mode, SEXP maxhits) {
     const char **inf = (const char**) R_Calloc(Rf_length(infiles), char*);
     for(i=0; i<nbIn; i++)
 	inf[i] = Rf_translateChar(STRING_ELT(infiles, i));
+    GetRNGstate(); // prepare use of R random number generator
     res = _merge_reorder_sam(inf, nbIn, Rf_translateChar(STRING_ELT(outfile, 0)), mode_int, Rf_asInteger(maxhits));
+    PutRNGstate(); // finish use of R random number generator
     R_Free(inf);
 
     return Rf_ScalarInteger(res);

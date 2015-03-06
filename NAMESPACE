@@ -15,6 +15,7 @@ import(Rsamtools)
 import(ShortRead)
 import(GenomicFeatures)
 importFrom(GenomicAlignments, readGAlignments)
+import(Rbowtie)
 
 exportClasses(qProject)
 

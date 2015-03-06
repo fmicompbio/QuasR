@@ -491,8 +491,8 @@ cnt
 
 The counts returned by \Rfunction{qCount} are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the \Biocpkg{Gviz} package:
 <<ChIP_visualize, eval=TRUE, fig=TRUE, width=8, height=4.5>>=
-gr1 <- import("Sample1.wig.gz", asRangedData=FALSE)
-gr2 <- import("Sample2.wig.gz", asRangedData=FALSE)
+gr1 <- import("Sample1.wig.gz")
+gr2 <- import("Sample2.wig.gz")
 
 library(Gviz)
 axisTrack <- GenomeAxisTrack()
