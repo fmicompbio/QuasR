@@ -290,6 +290,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   # --------------- FOR FASTQ FILES, READ A SMALL CHUNK TO GUESS THE QUALITY FORMAT (phred33 or phred64) -------
   if(proj@samplesFormat == "fastq"){
     proj@reads <- data.frame(proj@reads,phred=NA_character_,stringsAsFactors=FALSE) # add an additional quality column to the reads table
+    nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # switch off omp parallelization in ShortRead::FastqStreamer
     for(i in 1:nrow(proj@reads)){
       fastq_fs <- FastqStreamer(proj@reads[i,1], n=2000,readerBlockSize=5e5); # take only first column even for paired end data
 
@@ -307,6 +308,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
         proj@reads$phred[i] <- "64"
       }else{stop("The quality values of the provided sequences files are not interpretable: ",proj@reads[i,1],call.=FALSE)}
     }
+    .Call(ShortRead:::.set_omp_threads, nthreads) # switch back on omp parallelization in ShortRead::FastqStreamer
   }
 
 
