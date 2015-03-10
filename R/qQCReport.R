@@ -42,8 +42,8 @@ calcMmInformation <- function(filename, genome, chunkSize){
         seqlen <- seqlengths(ref)[selChr]
     } else {
         # Fasta File
-        ref <- FaFile(genome)
-        seqInfo <- scanFaIndex(ref)
+        ref <- Rsamtools::FaFile(genome)
+        seqInfo <- Rsamtools::scanFaIndex(ref)
         seqlen <- seqlengths(seqInfo)[selChr]
     }
 
@@ -169,46 +169,29 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         stop("'input' must be an object of type 'qProject' (returned by 'qAlign') or filenames")
     }
 
-    # make sure the cluster nodes are ready
-    if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE)) {
-        message("preparing to run on ", min(length(readFilename),length(clObj)), " nodes...", appendLF=FALSE)
-        ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
+    # digest clObj
+    clparam <- getListOfBiocParallelParam(clObj)
+    nworkers <- BiocParallel::bpworkers(clparam[[1]])
+    if(!inherits(clparam[[1]],c("BatchJobsParam","SerialParam"))) { # don't test loading of QuasR on current or BatchJobs cluster nodes
+        message("preparing to run on ", min(length(readFilename),nworkers), " ", class(clparam[[1]]), " nodes...", appendLF=FALSE)
+        ret <- BiocParallel::bplapply(seq.int(nworkers), function(i) library(QuasR), BPPARAM=clparam[[1]])
         if(!all(sapply(ret, function(x) "QuasR" %in% x)))
-            stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+            stop("'QuasR' package could not be loaded on all nodes")
         message("done")
     }
 
     message("collecting quality control data")
     # FASTQ/A quality control
-    if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE) & length(readFilename)>1) {
-        qc1L <- parLapplyLB(clObj,
-                            seq(readFilename),
-                            function(i){
-                                nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
-                                on.exit(.Call(ShortRead:::.set_omp_threads, nthreads))
-                                calcQaInformation(readFilename[i], label[i], filetype, chunkSize) 
-                            })
-    } else {
-        qc1L <- lapply(seq(readFilename),
-                       function(i){
-                           calcQaInformation(readFilename[i], label[i], filetype, chunkSize)
-                           })
-    }
+    if(!inherits(clparam[[1]],"SerialParam"))
+        nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
+    qc1L <- BiocParallel::bpmapply(calcQaInformation, readFilename, label, MoreArgs=list(filetype=filetype, chunkSize=chunkSize), BPPARAM=clparam[[1]])
+    if(!inherits(clparam[[1]],"SerialParam"))
+        .Call(ShortRead:::.set_omp_threads, nthreads)
     qa <- do.call(rbind, qc1L)
 
     # BAM quality control, mismatch distribution
-    if(!is.null(alnFilename) && !is.null(genome)){ 
-        # eventual TODO: if input is a file list of bam, then this is not processed, because the genome is missing
-        if(!is.null(clObj) & inherits(clObj, "cluster", which=FALSE) & length(alnFilename)>1) {
-            distL <- parLapply(clObj, 
-                              alnFilename,
-                              calcMmInformation,
-                              genome, chunkSize)
-        } else {
-            distL <- lapply(alnFilename,
-                           calcMmInformation,
-                           genome, chunkSize)
-        }
+    if(!is.null(alnFilename) && !is.null(genome)){
+        distL <- BiocParallel::bplapply(alnFilename, calcMmInformation, genome, chunkSize, BPPARAM=clparam[[1]])
 
         if(input@paired == "no") {
             unique <- lapply(distL,"[[", 4)

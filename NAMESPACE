@@ -4,6 +4,7 @@ import(methods)
 import(zlibbioc)
 
 import(BiocGenerics)
+importFrom(GenomeInfoDb, seqlengths)
 importFrom(BiocInstaller, biocLite)
 import(S4Vectors)
 import(IRanges)
