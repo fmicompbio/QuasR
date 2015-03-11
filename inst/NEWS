@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.8.0
+-----------------------
+PUBLICATION
+
+    o A paper describing the QuasR package has been published (see citation("QuasR")):
+      Gaidatzis D. et al., Bioinformatics, 2014. doi: 10.1093/bioinformatics/btu781
+
+NEW FEATURES
+
+    o started implementing support for BiocParallel, allowing QuasR to also run on batch clusters
+      (support is currently limited to qQCReport)
+
 CHANGES IN VERSION 1.4.0
 -----------------------
 
