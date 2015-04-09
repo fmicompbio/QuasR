@@ -1,0 +1,13 @@
+# The reason this is marked as unsupported on win32 is that we don't want
+# to build the bowtie binary twice. There is no library code in
+# src/, just the code to build the bowtie executable. So we mark the package
+# as unsupported on win32 to avoid building it twice. I'm adding this
+# comment so if/when someone notices that the lack of support on win32
+# conflicts with what it says on the package landing page. Basically,
+# the landing page shows the architectures listed in the Archs field of
+# the repository index file (if there is no such field, it assumes the package
+# has no native code and can be run on both sub-archs). 
+# Since Rbowtie does not have a DLL, it does not have an archs field,
+# hence the landing page says (correctly) that the package is supported
+# on 32- and 64-bit windows.
+UnsupportedPlatforms: win32
