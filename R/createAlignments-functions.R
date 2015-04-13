@@ -248,7 +248,7 @@ createGenomicAlignmentsController <- function(params){
         on.exit(file.remove(samFileR),add = TRUE)
         on.exit(file.remove(samFileA),add = TRUE)
         align_RbowtieSpliced(paste(proj@snpFile,basename(proj@genome),"R","fa",sep="."),paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
-	align_RbowtieSpliced(paste(proj@snpFile,basename(proj@genome),"A","fa",sep="."),paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
+        align_RbowtieSpliced(paste(proj@snpFile,basename(proj@genome),"A","fa",sep="."),paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
         mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
@@ -550,11 +550,11 @@ align_RbowtieCtoT_dir <- function(indexDir,reads,samplesFormat,paired,alignmentP
 # 3  rc, C->T    G->A Minus
 #
 # paired end:
-#    read1	 read2        genome
+#    read1       read2        genome
 # 0  C->T        rc, C->T     C->T Plus
 # 1  C->T        rc, C->T     G->A Minus
-# 2  rc, C->T    C->T *	      C->T Plus   -| for 2&3, swap first and second read 
-# 3  rc, C->T    C->T *	      G->A Minus  -|
+# 2  rc, C->T    C->T *       C->T Plus   -| for 2&3, swap first and second read 
+# 3  rc, C->T    C->T *       G->A Minus  -|
 #
 # * reverse complemented twice which cancels out
 
@@ -681,13 +681,13 @@ addNumericToID <- function(reads,paired,cacheDir){
 
   if(paired=="no"){
       readsFileNameTmp <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName),paste(".",fileext=tools::file_ext(reads$FileName),sep=""))
-      .Call("convertReadsIdBisRc", reads$FileName, readsFileNameTmp,NULL, F, PACKAGE="QuasR")
+      .Call("convertReadsIdBisRc", reads$FileName, readsFileNameTmp,NULL, FALSE, PACKAGE="QuasR")
       reads$FileName <- readsFileNameTmp
   }else{
       readsFileNameTmp1 <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName1),paste(".",fileext=tools::file_ext(reads$FileName1),sep=""))
       readsFileNameTmp2 <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName2),paste(".",fileext=tools::file_ext(reads$FileName2),sep=""))
-      .Call("convertReadsIdBisRc", reads$FileName1, readsFileNameTmp1,NULL, F, PACKAGE="QuasR")
-      .Call("convertReadsIdBisRc", reads$FileName2, readsFileNameTmp2,NULL, F, PACKAGE="QuasR")
+      .Call("convertReadsIdBisRc", reads$FileName1, readsFileNameTmp1,NULL, FALSE, PACKAGE="QuasR")
+      .Call("convertReadsIdBisRc", reads$FileName2, readsFileNameTmp2,NULL, FALSE, PACKAGE="QuasR")
       reads$FileName1 <- readsFileNameTmp1
       reads$FileName2 <- readsFileNameTmp2
   }

@@ -92,7 +92,7 @@ calcMmInformation <- function(filename, genome, chunkSize){
                    integer(2)) # uniqueness (unique/total)
     set.seed(0)
     for(s in sample(length(gr))){
-        refseq <- as.character(getSeq(ref, gr[s], as.character=F))
+        refseq <- as.character(getSeq(ref, gr[s], as.character=FALSE))
         reftid <- as.integer(match(seqnames(gr[s]), names(trg)) - 1)
         refstart <- start(gr[s])
         len <- .Call("nucleotideAlignmentFrequencies", filename, refseq, reftid, refstart, mmDist, as.integer(chunkSize), PACKAGE="QuasR")
@@ -388,7 +388,7 @@ plotNuclByCycle <- function(qcdata, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
     layout(lmat)
     for(i in 1:ns) {
         xn <- ncol(nfreqL[[i]])
-        ym <- max(50,ceiling(max(nfreqL[[i]], na.rm = T) /5) *5 +5)
+        ym <- max(50,ceiling(max(nfreqL[[i]], na.rm = TRUE) /5) *5 +5)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         matplot(1:xn, t(nfreqL[[i]]), type="o", xlab="Position in read (bp)", ylab="Nucleotide frequency (%)",
                 xlim=c(0,xn)+0.5, xaxs="i", ylim=c(0,ym), lwd=2, lty=1, pch=20, cex=0.6, col=mycols)
@@ -570,7 +570,7 @@ plotErrorsByCycle <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
         cumcvg <- unlist(lapply(1:xn, function(j){ sum(data[[i]][,,j])}))
         nErr <- cumcvg - unlist(lapply(1:xn, function(j){ sum(diag(data[[i]][,,j]))}))
         frq <- nErr / cumcvg * 100
-        ym <- max(5, ceiling(max(frq)), na.rm=T)
+        ym <- max(5, ceiling(max(frq)), na.rm=TRUE)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
         plot(1:xn, frq, type='l', lwd=2, col="#E41A1C", ylim=c(0,ym), xaxs="i", xlim=c(0,xn)+.5, lty=1, pch=20, cex=0.6,
              main="", xlab='Position in read (bp)', ylab='Mismatche bases (%)')
@@ -618,15 +618,15 @@ plotFragmentDistribution <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)
     frag <- do.call(cbind, data)
     xn <- dim(frag)[1]
     # trim vector
-    if(sum(frag[xn,], na.rm=T) == 0L){
-        xn <- max(as.integer(rownames(frag)[rowSums(frag, na.rm=T) > 0]), 100)
-        frag <- frag[1:xn,, drop=F]
+    if(sum(frag[xn,], na.rm=TRUE) == 0L){
+        xn <- max(as.integer(rownames(frag)[rowSums(frag, na.rm=TRUE) > 0]), 100)
+        frag <- frag[1:xn,, drop=FALSE]
     } 
       
     layout(lmat)
     for(i in 1:ns) {
         dens <- frag[,i]/sum(frag[,i])
-        ym <- max(dens, 0.01, na.rm=T)
+        ym <- max(dens, 0.01, na.rm=TRUE)
         par(mar=c(5-1,4-1,4-4,2-1)+.1, mgp=c(3-1,1-0.25,0))
 
         #plot(dens, type='l', lwd=2, col="#377EB8", ylim=c(0,ym), xaxs="i", xlim=c(0,xn)+.5, lty=1, pch=20, cex=0.6,

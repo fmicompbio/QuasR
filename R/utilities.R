@@ -14,7 +14,7 @@ alignmentStats <-
             names(bamfiles) <- basename(x)
         } else if (inherits(x, "qProject", which = FALSE)) {
             aln <- alignments(x)
-            bamfiles <- c(aln$genome$FileName, unlist(aln$aux, use.names=F))
+            bamfiles <- c(aln$genome$FileName, unlist(aln$aux, use.names=FALSE))
             iGenome <- seq_along(aln$genome$SampleName)
             names(bamfiles) <- if(collapseBySample)
                 c(sprintf("%s:genome",aln$genome$SampleName),
@@ -216,11 +216,11 @@ md5subsum <-
     function(filenames) {
         # calculate md5sum() on a repoducible random subset of the file's content
         unlist(lapply(filenames, function(fname) {
-	    funit <- 1e6
+            funit <- 1e6
             fs <- floor(file.info(fname)$size /funit)
-	    if(fs==0) {
-	        funit <- 1
-		fs <- floor(file.info(fname)$size)
+            if(fs==0) {
+                funit <- 1
+                fs <- floor(file.info(fname)$size)
             }
             if(!is.na(fs)) {
                 inn <- file(fname, "rb")

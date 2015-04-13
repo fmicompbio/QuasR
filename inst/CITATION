@@ -10,13 +10,13 @@ citEntry(entry="article",
                            as.person("Florian Hahne"),
 			   as.person("Michael B Stadler")),
 	 journal="Bioinformatics",
-         #volume="",
-         #number="",
-         #pages="",
-	 year=2014,
+         volume="31",
+         number="7",
+         pages="1130--1132",
+	 year=2015,
 	 note="PMID:25417205",
          doi="10.1093/bioinformatics/btu781",
-	 textVersion="Gaidatzis D, Lerch A, Hahne F, Stadler MB. QuasR: Quantification and annotation of short reads in R. Bioinformatics (2014)"
+	 textVersion="Gaidatzis D, Lerch A, Hahne F, Stadler MB. QuasR: Quantification and annotation of short reads in R. Bioinformatics 31(7):1130-1132 (2015)."
 )
 
 citEntry(entry="article",
