@@ -271,9 +271,9 @@ getListOfBiocParallelParam <- function(clObj=NULL) {
             # subset cluster object (represent each node just a single time)
             clObjSub <- clObj[!duplicated(nodeNames)]
             bppl <- if(min(coresPerNode)==1)
-                list(as(clObj, "SnowParam"), SerialParam())
+                list(as(clObj, "SnowParam"), BiocParallel::SerialParam())
             else
-                list(as(clObjSub, "SnowParam"), MulticoreParam(workers=min(coresPerNode)))
+                list(as(clObjSub, "SnowParam"), BiocParallel::MulticoreParam(workers=min(coresPerNode)))
         } else if(is.list(clObj) && all(sapply(clObj, inherits, "BiocParallelParam"))) {
             bppl <- clObj
         }
