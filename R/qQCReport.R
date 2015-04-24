@@ -171,10 +171,11 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
 
     # digest clObj
     clparam <- getListOfBiocParallelParam(clObj)
-    nworkers <- BiocParallel::bpworkers(clparam[[1]])
-    if(!inherits(clparam[[1]],c("BatchJobsParam","SerialParam"))) { # don't test loading of QuasR on current or BatchJobs cluster nodes
-        message("preparing to run on ", min(length(readFilename),nworkers), " ", class(clparam[[1]]), " nodes...", appendLF=FALSE)
-        ret <- BiocParallel::bplapply(seq.int(nworkers), function(i) library(QuasR), BPPARAM=clparam[[1]])
+    nworkers <- unlist(lapply(clparam, BiocParallel::bpworkers))
+    clsel <- which.max(nworkers) # will use only one layer of parallelization, select best
+    if(!inherits(clparam[[clsel]],c("BatchJobsParam","SerialParam"))) { # don't test loading of QuasR on current or BatchJobs cluster nodes
+        message("preparing to run on ", min(length(readFilename),nworkers[clsel]), " ", class(clparam[[clsel]]), " nodes...", appendLF=FALSE)
+        ret <- BiocParallel::bplapply(seq.int(nworkers[clsel]), function(i) library(QuasR), BPPARAM=clparam[[clsel]])
         if(!all(sapply(ret, function(x) "QuasR" %in% x)))
             stop("'QuasR' package could not be loaded on all nodes")
         message("done")
@@ -182,16 +183,16 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
 
     message("collecting quality control data")
     # FASTQ/A quality control
-    if(!inherits(clparam[[1]],"SerialParam"))
+    if(!inherits(clparam[[clsel]],"SerialParam"))
         nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) # avoid nested parallelization
-    qc1L <- BiocParallel::bpmapply(calcQaInformation, readFilename, label, MoreArgs=list(filetype=filetype, chunkSize=chunkSize), BPPARAM=clparam[[1]])
-    if(!inherits(clparam[[1]],"SerialParam"))
+    qc1L <- BiocParallel::bpmapply(calcQaInformation, readFilename, label, MoreArgs=list(filetype=filetype, chunkSize=chunkSize), BPPARAM=clparam[[clsel]])
+    if(!inherits(clparam[[clsel]],"SerialParam"))
         .Call(ShortRead:::.set_omp_threads, nthreads)
     qa <- do.call(rbind, qc1L)
 
     # BAM quality control, mismatch distribution
     if(!is.null(alnFilename) && !is.null(genome)){
-        distL <- BiocParallel::bplapply(alnFilename, calcMmInformation, genome, chunkSize, BPPARAM=clparam[[1]])
+        distL <- BiocParallel::bplapply(alnFilename, calcMmInformation, genome, chunkSize, BPPARAM=clparam[[clsel]])
 
         if(input@paired == "no") {
             unique <- lapply(distL,"[[", 4)
