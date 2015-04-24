@@ -4,6 +4,9 @@
 #include "export_wig.h"
 
 
+#define NO_ISIZE_FILTER -1   // disabled insert size-based alignment filtering
+
+
 typedef struct {
     int bs;              // binsize
     int32_t cTid;        // current target id
@@ -16,6 +19,8 @@ typedef struct {
     int log2p1;          // output log2(x+1)?
     uint8_t mapqMin;     // minimum mapping quality (MAPQ >= mapqMin)
     uint8_t mapqMax;     // maximum mapping quality (MAPQ <= mapqMax)
+    int32_t absIsizeMin; // minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
+    int32_t absIsizeMax; // maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
 } targetCoverage;
 
 
@@ -31,6 +36,11 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
     
     // skip alignment if mapping quality not in specified range
     if(hit->core.qual < tcov->mapqMin || hit->core.qual > tcov->mapqMax)
+        return 0;
+    
+    // skip alignment if insert size not in specified range
+    if((tcov->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < tcov->absIsizeMin) ||
+       (tcov->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > tcov->absIsizeMax))
         return 0;
     
     if(tcov->paired) {
@@ -110,7 +120,7 @@ void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile 
 /* from one or several input bam files, produce a single, one-track wig file */
 SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SEXP _shift,
                     SEXP _strand, SEXP _norm_factor, SEXP _tracknames, SEXP _log2p1,
-                    SEXP _colors, SEXP _compress, SEXP mapqMin, SEXP mapqMax) {
+                    SEXP _colors, SEXP _compress, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax) {
     // validate parameters
     if (!Rf_isString(_bam_in))
         Rf_error("'_bam_in' must be a character vector");
@@ -140,6 +150,12 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
         Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
     if(INTEGER(mapqMin)[0] > INTEGER(mapqMax)[0])
 	Rf_error("'mapqMin' must not be greater than 'mapqMax'");
+    if(!Rf_isInteger(absIsizeMin) || Rf_length(absIsizeMin) !=1 || (INTEGER(absIsizeMin)[0] < 0 && INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER))
+        Rf_error("'absIsizeMin' must be of type integer(1) and have a value greater than zero");
+    if(!Rf_isInteger(absIsizeMax) || Rf_length(absIsizeMax) !=1 || (INTEGER(absIsizeMax)[0] < 0 && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER))
+        Rf_error("'absIsizeMax' must be of type integer(1) and have a value greater than zero");
+    if(INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMin)[0] > INTEGER(absIsizeMax)[0])
+	Rf_error("'absIsizeMin' must not be greater than 'absIsizeMax'");
    
 
     // declare internal variables
@@ -162,6 +178,8 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     tcov.log2p1 = Rf_asLogical(_log2p1);
     tcov.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
     tcov.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
+    tcov.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
+    tcov.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
  
 
     // open bam input files

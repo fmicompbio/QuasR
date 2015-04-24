@@ -14,7 +14,7 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
            tracknames=NULL, log2p1=FALSE,
            colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A",
                     "#66A61E", "#E6AB02", "#A6761D", "#666666"),
-           mapqMin=0L, mapqMax=255L)
+           mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL)
 }
 
 \arguments{
@@ -56,6 +56,14 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
     (mapping quality must be less than or equal to
     \code{mapqMax}). Valid values are between 0 and 255. The default
     (255) will include all alignments.}
+  \item{absIsizeMin}{For paired-end experiments, minimal absolute insert
+    size (TLEN field in SAM Spec v1.4) of alignments to be
+    included. Valid values are greater than 0 or \code{NULL} (default),
+    which will not apply any minimum insert size filtering.}
+  \item{absIsizeMax}{For paired-end experiments, maximal absolute insert
+    size (TLEN field in SAM Spec v1.4) of alignments to be
+    included. Valid values are greater than 0 or \code{NULL} (default),
+    which will not apply any maximum insert size filtering.}
 }
 
 \details{
@@ -75,7 +83,10 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   coordinate for minus-strand alignments). Paired-end alignments are
   assigned according to the base in the middle between the leftmost and
   rightmost coordinates of the aligned pair of reads. Each pair of reads
-  is only counted once, and not properly paired alignments are ignored.
+  is only counted once, and not properly paired alignments are
+  ignored. In paired-end experiments, \code{absIsizeMin} and
+  \code{absIsizeMax} can be used to select alignments based on their
+  insert size (TLEN field in SAM Spec v1.4).
 
   For \code{scaling=TRUE}, the number of alignments per bin \eqn{n}
   for the sample \eqn{i} are linearly scaled to the mean total

@@ -1,7 +1,7 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.9.3
+Version: 1.9.4
 Date: 2015-04-24
 Author: Anita Lerch, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>

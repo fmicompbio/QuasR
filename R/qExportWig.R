@@ -6,18 +6,20 @@
 # - multiple bam files with identical sample name can be combined into the same file (track)
 # - wig files can be compressed
 #
-# proj       : qProject object
-# file       : wig file name(s) (will be compressed if file QuasR:::compressedFileFormat(file) != "none"
+# proj        : qProject object
+# file        : wig file name(s) (will be compressed if file QuasR:::compressedFileFormat(file) != "none"
 # collapseBySample : create one track per unique sample name
-# binsize    : stepInterval and windowSize for the fixedStep wig file
-# shift      : only for single read projects; shift read
-# strand     : only include alignments on '+', '-' or '*' (any) strand
-# scaling    : scale multiple tracks to one another?
-# tracknames : names for display in track header
-# log2p1     : transform alignment count by log2(x+1)
-# colors     : colors for tracks
-# mapqMin    : minimum mapping quality (MAPQ >= mapqMin)
-# mapqMax    : maximum mapping quality (MAPQ <= mapqMax)
+# binsize     : stepInterval and windowSize for the fixedStep wig file
+# shift       : only for single read projects; shift read
+# strand      : only include alignments on '+', '-' or '*' (any) strand
+# scaling     : scale multiple tracks to one another?
+# tracknames  : names for display in track header
+# log2p1      : transform alignment count by log2(x+1)
+# colors      : colors for tracks
+# mapqMin     : minimum mapping quality (MAPQ >= mapqMin)
+# mapqMax     : maximum mapping quality (MAPQ <= mapqMax)
+# absIsizeMin : minimum absolute insert size (TLEN >= absIsizeMin)
+# absIsizeMax : maximum absolute insert size (TLEN <= absIsizeMax)
 qExportWig <- function(proj,
                        file=NULL,
                        collapseBySample=TRUE,
@@ -29,7 +31,9 @@ qExportWig <- function(proj,
                        log2p1=FALSE,
                        colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"),
                        mapqMin=0L,
-                       mapqMax=255L)
+                       mapqMax=255L,
+                       absIsizeMin=NULL,
+                       absIsizeMax=NULL)
 {
     # validate parameters
     # ...proj
@@ -130,6 +134,13 @@ qExportWig <- function(proj,
         stop("'mapqMax' must be of type integer(1) and have a values between 0 and 255")
     mapqMax <- rep(mapqMax,n)
 
+    # ...absolute insert size
+    if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && proj@paired == "no")
+        stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
+    if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
+        absIsizeMin <- -1L
+    if(is.null(absIsizeMax))
+        absIsizeMax <- -1L
     
     # generate the wig file(s)
     message("start creating wig file(s)...")
@@ -138,7 +149,8 @@ qExportWig <- function(proj,
         .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(file[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
-              as.character(colors[i]), as.logical(compress[i]), mapqMin[i], mapqMax[i], PACKAGE="QuasR")
+              as.character(colors[i]), as.logical(compress[i]),
+              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), PACKAGE="QuasR")
     })
     message("done")
     
