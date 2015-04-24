@@ -38,13 +38,13 @@ static const R_CallMethodDef callMethods[] = {
     /* remove_unmapped_from_sam.c */
     {"removeUnmappedFromSamAndConvertToBam", (DL_FUNC) &remove_unmapped_from_sam_and_convert_to_bam, 2},
     /* count_alignments.c */
-    {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 12},
-    {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 12},
+    {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 14},
+    {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 14},
     /* count_junctions.cpp */
     {"countJunctions", (DL_FUNC) &count_junctions, 7},
     /* profile_alignments.c */
-    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 17},
-    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 17},
+    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 19},
+    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 19},
     /* count_alignments_subregions.c */
     {"countAlignmentsSubregions", (DL_FUNC) &count_alignments_subregions, 10},
     /* quantify_methylation.cpp */

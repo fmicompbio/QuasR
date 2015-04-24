@@ -19,6 +19,8 @@ qProfile(proj,
          includeSpliced=TRUE,
          mapqMin=0L,
          mapqMax=255L,
+         absIsizeMin=NULL,
+         absIsizeMax=NULL,
          maxInsertSize=500L,
          clObj=NULL)
 }
@@ -91,6 +93,14 @@ qProfile(proj,
     counting (mapping quality must be less than or equal to \code{mapqMax}).
     Valid values are between 0 and 255. The default (255) will include
     all alignments.}
+  \item{absIsizeMin}{For paired-end experiments, minimal absolute insert
+    size (TLEN field in SAM Spec v1.4) of alignments to be included when
+    counting. Valid values are greater than 0 or \code{NULL} (default),
+    which will not apply any minimum insert size filtering.}
+  \item{absIsizeMax}{For paired-end experiments, maximal absolute insert
+    size (TLEN field in SAM Spec v1.4) of alignments to be included when
+    counting. Valid values are greater than 0 or \code{NULL} (default),
+    which will not apply any maximum insert size filtering.}
   \item{maxInsertSize}{Maximal fragment size of the paired-end experiment. 
     This parameter is used if \code{shift="halfInsert"} and will
     ensure that query regions are made wide enough to emcompass all

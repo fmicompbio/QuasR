@@ -17,6 +17,8 @@ qCount <-
              includeSpliced=TRUE,
              mapqMin=0L,
              mapqMax=255L,
+             absIsizeMin=NULL,
+             absIsizeMax=NULL,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -41,6 +43,12 @@ qCount <-
         selectReadPosition <- match.arg(selectReadPosition)
         orientation <- match.arg(orientation)
         useRead <- match.arg(useRead)
+        if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && proj@paired == "no")
+            stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
+        if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
+            absIsizeMin <- -1L
+        if(is.null(absIsizeMax))
+            absIsizeMax <- -1L
 
         ## check shift
         if(length(shift) == 1 && shift == "halfInsert") {
@@ -77,6 +85,10 @@ qCount <-
         if(reportLevel == "junction") {
             if(proj@splicedAlignment != TRUE && proj@samplesFormat != "bam")
                 stop("reportLevel=\"junction\" cannot be used for non-spliced alignments")
+            if(absIsizeMin != -1L || absIsizeMax != -1L) {
+                warning("ignoring 'absIsizeMin' and 'absIsizeMax' for reportLevel=\"junction\"")
+                absIsizeMin <- absIsizeMax <- -1L
+            }
             if(!is.null(query))
                 warning("ignoring 'query' for reportLevel=\"junction\"")
 
@@ -357,7 +369,9 @@ qCount <-
                            allelic=!is.na(proj@snpFile),
                            includeSpliced=includeSpliced),
                            mapqmin=as.integer(mapqMin)[1],
-                           mapqmax=as.integer(mapqMax)[1])
+                           mapqmax=as.integer(mapqMax)[1],
+                           absisizemin=as.integer(absIsizeMin)[1],
+                           absisizemax=as.integer(absIsizeMax)[1])
             message("done")
 
         
@@ -443,7 +457,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic, mapqmin, mapqmax
 ## count alignments (with the C-function) for single bamfile, single shift, and single set of regions
 ## return a numeric vector with length(regions) elements (same order as regions)
 countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
-                            useRead, broaden, allelic, includeSpliced, mapqmin, mapqmax)
+                            useRead, broaden, allelic, includeSpliced, mapqmin, mapqmax, absisizemin, absisizemax)
 {
     tryCatch({ # try catch block goes through the whole function
         
@@ -478,11 +492,11 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         if(!allelic) {
             count <- .Call(countAlignmentsNonAllelic, bamfile, tid, start, end, strand,
                            selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                           mapqmin, mapqmax, PACKAGE="QuasR")
+                           mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR")
         } else {
             count <- as.matrix(as.data.frame(.Call(countAlignmentsAllelic, bamfile, tid, start, end, strand,
                                                    selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                                                   mapqmin, mapqmax, PACKAGE="QuasR")))
+                                                   mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR")))
         }
      
         return(count)

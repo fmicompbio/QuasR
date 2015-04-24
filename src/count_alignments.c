@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #define SMART_SHIFT -1000000 // for half insert size shift towards the mate read
+#define NO_ISIZE_FILTER -1   // disabled insert size-based alignment filtering
 
 /*! @typedef
   @abstract Structure to provid the data to the bam_fetch() functions.
@@ -29,6 +30,8 @@
   @field includeSpliced  count spliced alignments true(1) or false(0)
   @field mapqMin      minimum mapping quality (MAPQ >= mapqMin)
   @field mapqMax      maximum mapping quality (MAPQ <= mapqMax)
+  @field absIsizeMin  minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
+  @field absIsizeMax  maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
 */
 typedef struct {
     int sumU;
@@ -44,6 +47,8 @@ typedef struct {
     int includeSpliced;
     uint8_t mapqMin;
     uint8_t mapqMax;
+    int32_t absIsizeMin;
+    int32_t absIsizeMax;
 } regionInfoSums;
 
 
@@ -97,6 +102,11 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     
     // skip alignment if mapping quality not in specified range
     if(hit->core.qual < rinfo->mapqMin || hit->core.qual > rinfo->mapqMax)
+        return 0;
+    
+    // skip alignment if insert size not in specified range
+    if((rinfo->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < rinfo->absIsizeMin) ||
+       (rinfo->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > rinfo->absIsizeMax))
         return 0;
     
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
@@ -154,7 +164,7 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
  */
 int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP strand,
                       SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
-                      SEXP mapqMin, SEXP mapqMax){
+                      SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -198,6 +208,14 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
     if(INTEGER(mapqMin)[0] > INTEGER(mapqMax)[0])
 	Rf_error("'mapqMin' must not be greater than 'mapqMax'");
+        
+    // check TLEN parameters
+    if(!Rf_isInteger(absIsizeMin) || Rf_length(absIsizeMin) !=1 || (INTEGER(absIsizeMin)[0] < 0 && INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER))
+        Rf_error("'absIsizeMin' must be of type integer(1) and have a value greater than zero");
+    if(!Rf_isInteger(absIsizeMax) || Rf_length(absIsizeMax) !=1 || (INTEGER(absIsizeMax)[0] < 0 && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER))
+        Rf_error("'absIsizeMax' must be of type integer(1) and have a value greater than zero");
+    if(INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMin)[0] > INTEGER(absIsizeMax)[0])
+	Rf_error("'absIsizeMin' must not be greater than 'absIsizeMax'");
 
     return 0;
 }
@@ -216,14 +234,17 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
   @param  includeSpliced      also count spliced alignments
   @param  mapqMin             minimal mapping quality to count alignment (MAPQ >= mapqMin)
   @param  mapqMax             maximum mapping quality to count alignment (MAPQ <= mapqMax)
+  @param  absIsizeMin         minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
+  @param  absIsizeMax         maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
   @return               Vector of the alignment counts
  */
 SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
                                   SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
-                                  SEXP mapqMin, SEXP mapqMax){
+                                  SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced, mapqMin, mapqMax);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced,
+		       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
     
     // open bam file
     samfile_t *fin = 0;
@@ -251,6 +272,8 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
     rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
     rinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
     rinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
+    rinfo.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
+    rinfo.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
     
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
@@ -290,10 +313,11 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
 
 SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP strand,
                                   SEXP selectReadPosition, SEXP readBitMask, SEXP shift, SEXP broaden, SEXP includeSpliced,
-                                  SEXP mapqMin, SEXP mapqMax){
+                                  SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
 
     // check parameters
-    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced, mapqMin, mapqMax);
+    _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced,
+		       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
     
     // open bam file
     samfile_t *fin = 0;
@@ -321,6 +345,8 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     rinfo.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
     rinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
     rinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
+    rinfo.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
+    rinfo.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
 
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);

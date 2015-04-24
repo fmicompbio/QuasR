@@ -18,6 +18,8 @@ qProfile <-
              includeSpliced=TRUE,
              mapqMin=0L,
              mapqMax=255L,
+             absIsizeMin=NULL,
+             absIsizeMax=NULL,
              maxInsertSize=500L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
@@ -47,6 +49,12 @@ qProfile <-
         selectReadPosition <- match.arg(selectReadPosition)
         orientation <- match.arg(orientation)
         useRead <- match.arg(useRead)
+        if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && proj@paired == "no")
+            stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
+        if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
+            absIsizeMin <- -1L
+        if(is.null(absIsizeMax))
+            absIsizeMax <- -1L
 
         ## check shift
         if(shift == "halfInsert") {
@@ -179,7 +187,9 @@ qProfile <-
                            maxDown=maxDown,
                            includeSpliced=includeSpliced,
                            mapqmin=as.integer(mapqMin)[1],
-                           mapqmax=as.integer(mapqMax)[1]))
+                           mapqmax=as.integer(mapqMax)[1],
+                           absisizemin=as.integer(absIsizeMin)[1],
+                           absisizemax=as.integer(absIsizeMax)[1]))
         message("done")
         
         ## fuse by input file, rename and collapse by sample
@@ -225,7 +235,7 @@ qProfile <-
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectReadPosition,
                               orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced,
-                              mapqmin, mapqmax)
+                              mapqmin, mapqmax, absisizemin, absisizemax)
 {
     tryCatch({ # try catch block contains whole function
         
@@ -261,12 +271,12 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                              selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                             mapqmin, mapqmax, PACKAGE="QuasR"))
+                             mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR"))
             colnames(count) <- as.character(seq(-maxUp, maxDown, by=1))
         } else {
             count <- lapply(.Call(profileAlignmentsAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                                   selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                                  mapqmin, mapqmax, PACKAGE="QuasR"),
+                                  mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR"),
                             function(x) {
                                 x <- t(x)
                                 colnames(x) <- as.character(seq(-maxUp, maxDown, by=1))
