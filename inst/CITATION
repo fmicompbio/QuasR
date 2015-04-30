@@ -1,8 +1,5 @@
 citHeader("Please use the QuasR reference below to cite the software itself. If you were using qAlign with Rbowtie as aligner, it can be cited as Langmead et al. (2009) (unspliced alignments) or Au et al. (2010) (spliced alignments).")
 
-desc <- packageDescription("QuasR")
-vers <- paste("R package version", desc$Version)
-
 citEntry(entry="article",
 	 title="QuasR: Quantification and annotation of short reads in R",
 	 author=personList(as.person("Dimos Gaidatzis"),
