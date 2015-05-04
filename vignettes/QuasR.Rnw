@@ -469,11 +469,9 @@ chrominfo <- data.frame(chrom=as.character(seqnames(chrLen)),
                         length=width(chrLen),
                         is_circular=rep(FALSE, length(chrLen)))
 txdb <- makeTxDbFromGFF(file=annotFile, format="gtf",
-                        exonRankAttributeName="exon_number",  
-                        gffGeneIdAttributeName="gene_name",
                         chrominfo=chrominfo,
                         dataSource="Ensembl",
-                        species="Homo sapiens")
+                        organism="Homo sapiens")
 promReg <- promoters(txdb, upstream=1000, downstream=500,
                      columns=c("gene_id","tx_id"))
 gnId <- sapply(mcols(promReg)$gene_id, paste, collapse=",")
