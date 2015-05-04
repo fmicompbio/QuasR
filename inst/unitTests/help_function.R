@@ -242,7 +242,8 @@ createTilingRegion <- function()
 createGtfRegion <- function()
 {
     require("rtracklayer")
-    annotationFile <- file.path("extdata", "hg19sub_annotation.gtf")
+    annotationFile <- system.file("extdata", "hg19sub_annotation.gtf",
+                                  package="QuasR")
     gtfRegion <- import.gff(annotationFile, format="gtf", asRangedData=F,
                             feature.type="exon")
     names(gtfRegion) <- mcols(gtfRegion)$gene_name
@@ -251,33 +252,32 @@ createGtfRegion <- function()
 
 createGenomeRegion <- function()
 {
-    genomeFile <- file.path("extdata", "hg19sub.fa")
+    genomeFile <- system.file("extdata", "hg19sub.fa", package="QuasR")
     genomeRegion <- scanFaIndex(genomeFile)
     return(genomeRegion)
 }
 
 createAuxRegion <- function()
 {
-    auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
+    auxGenomeFile <- system.file("extdata", "NC_001422.1.fa", package="QuasR")
     auxRegion <- scanFaIndex(auxGenomeFile)
     return(auxRegion)
 }
 
-createTranscriptDb <- function()
+createTxDb <- function()
 {
     require("GenomicFeatures")
-    annotationFile <- file.path("extdata", "hg19sub_annotation.gtf")
+    annotationFile <- system.file("extdata", "hg19sub_annotation.gtf",
+                                  package="QuasR")
     genomeRegion <- createGenomeRegion()
     chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                             length=end(genomeRegion),
                             is_circular=rep(FALSE, length(genomeRegion)))
     txdb <- makeTxDbFromGFF(annotationFile, 
                             format="gtf", 
-                            exonRankAttributeName="exon_number",  
-                            gffGeneIdAttributeName="gene_name", 
                             chrominfo=chrominfo,
                             dataSource="Ensembl",
-                            species="Homo sapiens")
+                            organism="Homo sapiens")
     return(txdb)
 }
 

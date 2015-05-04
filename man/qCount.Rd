@@ -147,7 +147,7 @@ qCount(proj,
     gene will be summed, counting each alignment only once even if it
     overlaps multiple annotated exons of a gene. These are useful to
     calculate exon or gene expression levels in RNA-seq experiments
-    based on the annotation in a \code{TranscriptDB} object. If
+    based on the annotation in a \code{TxDb} object. If
     \code{reportLevel="promoter"}, the \code{promoters} function from package
     \pkg{GenomicFeatures} is used with default arguments to extract
     promoter regions around transcript start sites, e.g. to quantify
@@ -333,11 +333,9 @@ chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                         is_circular=rep(FALSE, length(genomeRegion)))
 txdb <- makeTxDbFromGFF(annotationFile, 
                         format="gtf", 
-                        exonRankAttributeName="exon_number",  
-                        gffGeneIdAttributeName="gene_name", 
                         chrominfo=chrominfo,
                         dataSource="Ensembl modified",
-                        species="Homo sapiens")
+                        organism="Homo sapiens")
 
 res4 <- qCount(proj, txdb, reportLevel="gene")
 res4

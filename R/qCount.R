@@ -1,6 +1,6 @@
 ## query : GRanges : value has one row per unique name in GRanges
 ## query : GRangesList : value has one row per name of GRangesList
-## query : TranscriptDB : value has has one row per 'reportLevel'
+## query : TxDb : value has has one row per 'reportLevel'
 ## query : NULL & reportLevel=="junction": value has has one row per 'junction'
 
 qCount <-

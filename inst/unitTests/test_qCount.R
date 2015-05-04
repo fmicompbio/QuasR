@@ -639,23 +639,23 @@ test_query_GRangesList_allelic <- function() {
     checkTrue(all(resSoll == res), "GRangesList Test 6: qCount allele specific with masking and orientation=same")
 }
 
-test_query_transcriptDB <- function() {
+test_query_TxDb <- function() {
     project <- qAlign(sampleFile, genomeFile, splicedAlignment=TRUE, alignmentsDir=td, clObj=clObj)
-    txdb <- createTranscriptDb()
+    txdb <- createTxDb()
     mask <- gtfRegion[mcols(gtfRegion)$gene_name == "TNFRSF18"]
     
     
-    ## TranscriptDB vs GRanges
+    ## TxDb vs GRanges
     # Gene
     res <- qCount(project, txdb, collapseBySample=F, reportLevel=NULL)
     resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="gene")
-    checkTrue(all(resTxdb == res), "TranscriptDB vs GRanges Test 1")
+    checkTrue(all(resTxdb == res), "TxDb vs GRanges Test 1")
     
     region <- gtfRegion
     names(region) <- mcols(gtfRegion)$gene_id
     resGr <- qCount(project, region, collapseBySample=F)
     resGr <- resGr[sort(rownames(resGr)),]
-    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 2")
+    checkTrue(all(resTxdb == resGr), "TxDb vs GRanges Test 2")
     
     # Exon
     resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="exon")
@@ -663,7 +663,7 @@ test_query_transcriptDB <- function() {
     region <- exons(txdb)
     resGr <- qCount(project, region, collapseBySample=F)
     resGr <- resGr[sort(rownames(resGr)),]
-    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 3")    
+    checkTrue(all(resTxdb == resGr), "TxDb vs GRanges Test 3")    
     
     # Promoter
     resTxdb <- qCount(project, txdb, collapseBySample=F, reportLevel="promoter")
@@ -672,7 +672,7 @@ test_query_transcriptDB <- function() {
     names(region) <- paste(mcols(region)$tx_id,mcols(region)$tx_name, sep=";")
     resGr <- qCount(project, region, collapseBySample=F)
     resGr <- resGr[sort(rownames(resGr)),]
-    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 4")
+    checkTrue(all(resTxdb == resGr), "TxDb vs GRanges Test 4")
     
     # junction, includeSpliced
     exGr <- GRanges(c("chr1","chr1","chr1","chr1"),
@@ -683,19 +683,19 @@ test_query_transcriptDB <- function() {
     resJ <- qCount(project, NULL, reportLevel="junction", collapseBySample=FALSE)
     checkTrue(all((resE - resEU)[c(1,3),-1] == as.matrix(mcols(resJ[match(inGr, resJ)]))), "junction/includeSpliced Test 1")
     
-    ## TranscriptDB vs GRanges with masked region
+    ## TxDb vs GRanges with masked region
     resTxdb <- qCount(project, txdb, collapseBySample=F, mask=mask, reportLevel="gene")
     
     region <- gtfRegion
     names(region) <- mcols(gtfRegion)$gene_id
     resGr <- qCount(project, region, collapseBySample=F, mask=mask)
     resGr <- resGr[sort(rownames(resGr)),]
-    checkTrue(all(resTxdb == resGr), "TranscriptDB vs GRanges Test 5")
+    checkTrue(all(resTxdb == resGr), "TxDb vs GRanges Test 5")
 
     ## Collapse by sample
     resTxdbCS <- qCount(project, txdb, collapseBySample=T, mask=mask, reportLevel="gene")
     res <- cbind(rowSums(resTxdb[,c(2,3)]), rowSums(resTxdb[,c(4,5)]))
-    checkTrue(all(res == resTxdbCS[,c(2,3)]), "TranscriptDB collapse by Sample Test")    
+    checkTrue(all(res == resTxdbCS[,c(2,3)]), "TxDb collapse by Sample Test")    
     
 }
 
