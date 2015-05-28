@@ -12,7 +12,6 @@ BiocStyle::latex(width=80, bibstyle="unsrturl")
 %\usepackage{cite} % handled by BiocStyle
 \usepackage{Sweave}
 %\usepackage{times}
-\usepackage{inconsolata}
 %\usepackage[scaled=0.85]{beramono}
 \usepackage{url}
 %\usepackage[breaklinks]{hyperref} % remove to suppress links % already loaded in BiocStyle
