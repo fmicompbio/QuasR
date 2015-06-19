@@ -17,6 +17,7 @@ import(ShortRead)
 import(GenomicFeatures)
 importFrom(GenomicAlignments, readGAlignments)
 import(Rbowtie)
+importFrom(rtracklayer, wigToBigWig)
 
 exportClasses(qProject)
 

@@ -28,6 +28,7 @@ typedef struct {
 static int _addHitToCoverage(const bam1_t *hit, void *data){
     targetCoverage *tcov = (targetCoverage*)data;
     static int32_t hitPos;
+    static int32_t hitBin;
     
     // skip alignment if region is not * and the strand of alignment or region is not the same
     if(strcmp(tcov->strand, "*")
@@ -65,13 +66,13 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
 	    return 0;
 	}
     }
-    if (hitPos < 0)
-        hitPos = 0;
-    if (hitPos >= tcov->cTlen)
-        hitPos = tcov->cTlen-1;
+
+    hitBin = (int32_t)floor((double)hitPos /tcov->bs);
+    if (hitBin < 0 || hitBin >= tcov->cTbin) // skip out of chromosome positions (should be only last partial bin)
+	return 0;
 
     // add hit to current window
-    tcov->count[ (int)floor((double)hitPos /tcov->bs) ]++;
+    tcov->count[ hitBin ]++;
 
     return 0;
 }
@@ -106,7 +107,7 @@ void output_current_target(targetCoverage *tcov, int compr, double fact, gzFile 
 void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile gzfh, FILE *fh) {
     // assumes that tcov->cTid has been set to the new value
     tcov->cTlen = (int32_t)(bh->target_len[tcov->cTid]);
-    tcov->cTbin = (int32_t)(ceil((double)(tcov->cTlen) /tcov->bs));
+    tcov->cTbin = (int32_t)(floor((double)(tcov->cTlen) /tcov->bs)); // drop last partial bin on chromosome for compatibility with bigWig format
     if(compr)
 	gzprintf(gzfh, "fixedStep chrom=%s start=1 step=%d span=%d\n", bh->target_name[tcov->cTid], tcov->bs, tcov->bs);
     else

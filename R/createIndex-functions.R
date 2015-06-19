@@ -283,7 +283,7 @@ createSeedList <- function(genome, aligner, indexPackageName)
                  RELEASEDATE=releaseDate(genome),
                  RELEASENAME=releaseName(genome),
                  ORGANISM=organism(genome),
-                 SPECIES=species(genome),
+                 SPECIES=commonName(genome),
                  SRCDATAFILES=bsgenomeName(genome),
                  ORGANISMBIOCVIEW=gsub(" ", "_", organism(genome)),
 

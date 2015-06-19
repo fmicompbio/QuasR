@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.10.0
+-------------------------
+NEW FEATURES
+
+    o qExportWig gained createBigWig argument and can now create bigWig files directly
+
 CHANGES IN VERSION 1.8.0
 -----------------------
 PUBLICATION

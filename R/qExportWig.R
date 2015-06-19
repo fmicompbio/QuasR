@@ -33,7 +33,8 @@ qExportWig <- function(proj,
                        mapqMin=0L,
                        mapqMax=255L,
                        absIsizeMin=NULL,
-                       absIsizeMax=NULL)
+                       absIsizeMax=NULL,
+                       createBigWig=FALSE)
 {
     # validate parameters
     # ...proj
@@ -64,13 +65,16 @@ qExportWig <- function(proj,
     
     # ...file
     if(is.null(file)) {
+        fileExt <- if(createBigWig) ".bw" else ".wig.gz"
         if(collapseBySample)
-            file <- paste(samplenames, ".wig.gz", sep="")
+            file <- paste0(samplenames, fileExt)
         else
-            file <- paste(displayNames(proj), ".wig.gz", sep="")
+            file <- paste0(displayNames(proj), fileExt)
     } else if(length(file) != n) {
         stop(sprintf("the length of 'file' (%d) does not match the number of wig files to be generated (%d)",length(file),n))
     }
+    if(createBigWig && any(!grepl(".bw$",file)))
+        stop("file names have to end with '.bw' for createBigWig=TRUE")
     compressFormat <- compressedFileFormat(file)
     if(!all(compressFormat %in% c("none","gzip")))
         stop("only gzip compressed wig files (extension '.gz') are supported")
@@ -144,13 +148,22 @@ qExportWig <- function(proj,
     
     # generate the wig file(s)
     message("start creating wig file(s)...")
+    tempwigfile <- if(createBigWig) sapply(1:n, function(i) tempfile(fileext=".wig")) else file
+    if(createBigWig) {
+        tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
+        si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
+    }
     lapply(1:n, function(i) {
-        message("  ",file[i]," (",tracknames[i],")")
-        .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(file[i]), as.logical(paired[1]),
+        message("  ",file[i]," (",tracknames[i],")", appendLF=!createBigWig)
+        .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
               as.character(colors[i]), as.logical(compress[i]),
               mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), PACKAGE="QuasR")
+        if(createBigWig) {
+            rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
+            unlink(tempwigfile[i])
+        }
     })
     message("done")
     

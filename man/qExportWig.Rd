@@ -14,34 +14,38 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
            tracknames=NULL, log2p1=FALSE,
            colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A",
                     "#66A61E", "#E6AB02", "#A6761D", "#666666"),
-           mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL)
+           mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL,
+           createBigWig=FALSE)
 }
 
 \arguments{
   \item{proj}{A \code{qProject} object as returned by \code{qAlign}.}
-  \item{file}{A character vector with the name(s) for the wig file(s) to
-    be generated. Either \code{NULL} or a vector of the same length as
-    the number of bam files (for \code{collapseBySample=FALSE}) or the
-    number of unique sample names (for \code{collapseBySample=TRUE}) in
-    \code{proj}. If \code{NULL}, the wig file names are generated from
-    the names of the genomic bam files or unique sample names with an
-    added \dQuote{.wig.gz} extension.}
+  \item{file}{A character vector with the name(s) for the wig or bigWig
+    file(s) to be generated. Either \code{NULL} or a vector of the same
+    length as the number of bam files (for
+    \code{collapseBySample=FALSE}) or the number of unique sample names
+    (for \code{collapseBySample=TRUE}) in \code{proj}. If \code{NULL}, the
+    wig or bigWig file names are generated from the names of the genomic
+    bam files or unique sample names with an added \dQuote{.wig.gz} or
+    \dQuote{.bw} extension.}
   \item{collapseBySample}{If \code{TRUE}, genomic bam files with identical
     sample name will be combined (summed) into a single track.}
-  \item{binsize}{a numerical value defining the bin and step size for the wig
-    file(s). \code{binsize} will be coerced to \code{integer()}.}
+  \item{binsize}{a numerical value defining the bin and step size for
+    the wig or bigWig file(s). \code{binsize} will be coerced to
+    \code{integer()}.}
   \item{shift}{Either a vector or a scalar value defining the read shift (e.g.
     half of fragment length, see \sQuote{Details}). If \code{length(shift)>1},
     the length must match the number of bam files in \sQuote{proj}, and
-    the i-th sample will be converted to wig using the value in
+    the i-th sample will be converted to wig or bigWig using the value in
     \code{shift[i]}. \code{shift} will be coerced to \code{integer()}. For
     paired-end alignments, \code{shift} will be ignored, and a warning
     will be issued if it is set to a non-zero value (see \sQuote{Details}).}
   \item{strand}{Only count alignments of \code{strand}. The default (\dQuote{*})
     will count all alignments.}
   \item{scaling}{If TRUE or a numerical value, the output values in the
-    wig file(s) will be linearly scaled by the total number of aligned
-    reads per sample to improve comparability (see \sQuote{Details}).}
+    wig or bigWig file(s) will be linearly scaled by the total number of
+    aligned reads per sample to improve comparability (see
+    \sQuote{Details}).}
   \item{tracknames}{A character vector with the names of the
     tracks to appear in the track header. If \code{NULL}, the sample
     names in \code{proj} will be used.}
@@ -64,16 +68,22 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
     size (TLEN field in SAM Spec v1.4) of alignments to be
     included. Valid values are greater than 0 or \code{NULL} (default),
     which will not apply any maximum insert size filtering.}
+  \item{createBigWig}{If \code{TRUE}, first a temporary wig file will be
+    created and then converted to BigWig format (file extension
+    \dQuote{.bw}) using the \code{\link[rtracklayer]{wigToBigWig}}
+    function from package \pkg{rtracklayer}.}
 }
 
 \details{
   \code{qExportWig()} uses the genome bam files in \code{proj} as input
-  to create wig files with the number of alignments (pairs) per window of
-  \code{binsize} nucleotides. By default (\code{collapseBySample=TRUE}),
-  one file per unique sample will be created. If \code{collapseBySample=FALSE},
-  one file per genomic bam file will be created.
-  See \url{http://genome.ucsc.edu/goldenPath/help/wiggle.html} for the
-  definition of the wig format.
+  to create wig or bigWig files with the number of alignments (pairs)
+  per window of \code{binsize} nucleotides. By default
+  (\code{collapseBySample=TRUE}), one file per unique sample will be
+  created. If \code{collapseBySample=FALSE}, one file per genomic bam
+  file will be created. See \url{http://genome.ucsc.edu/goldenPath/help/wiggle.html} for the
+  definition of the wig format, and
+  \url{http://genome.ucsc.edu/goldenPath/help/bigWig.html} for the
+  definition of the bigWig format.
   
   The genome is tiled with sequential windows of length \code{binsize},
   and alignments in the bam file are assigned to these windows: Single
@@ -105,20 +115,22 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   log10 Pr(mapping position is wrong)}, rounded to the nearest
   integer. A value 255 indicates that the mapping quality is not available.
 
-  If \code{file} ends with \sQuote{.gz}, the resulting wig file will be
-  compressed using gzip and is suitable for uploading as a custom track
-  to your favorite genome browser (e.g. UCSC or Ensembl).
+  If \code{createBigWig=FALSE} and \code{file} ends with \sQuote{.gz},
+  the resulting wig file will be compressed using gzip and is suitable
+  for uploading as a custom track to your favorite genome browser
+  (e.g. UCSC or Ensembl).
 }
 
 \value{
-  (invisible) The file name of the generated wig file(s).
+  (invisible) The file name of the generated wig or bigWig file(s).
 }
 \author{
 Anita Lerch, Dimos Gaidatzis and Michael Stadler
 }
 
 \seealso{
-  \code{\linkS4class{qProject}}, \code{\link{qAlign}}
+  \code{\linkS4class{qProject}}, \code{\link{qAlign}},
+  \code{\link[rtracklayer]{wigToBigWig}}
 }
 
 \examples{
