@@ -130,24 +130,38 @@ calcMmInformation <- function(filename, genome, chunkSize){
 }
 
 
-qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
+qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FALSE, clObj=NULL, ...)
 {
     # 'proj' is correct type?
     if(inherits(input, "qProject", which=FALSE)){
         filetype <- input@samplesFormat
         if(input@paired == "no"){
-            readFilename <- if(filetype == "bam") as.character(input@alignments$FileName) else as.character(input@reads$FileName)
-            label <- sprintf("%i. %s", 1:length(readFilename), basename(readFilename))
+            readFilename <- if(filetype == "bam") input@alignments$FileName else input@reads$FileName
+            if(useSampleNames) {
+                label <- sprintf("%i. %s", 1:length(readFilename), input@alignments$SampleName)
+            } else {
+                label <- sprintf("%i. %s", 1:length(readFilename), basename(readFilename))
+            }
             mapLabel <- label
         } else {
             if(filetype == "bam"){
-                readFilename <- as.character(rbind(input@alignments$FileName, input@alignments$FileName))
-                label <- sprintf("%i(R%i). %s",rep(1:nrow(input@alignments),each=2), 1:2, basename(readFilename))
-                mapLabel <- sprintf("%i. %s",1:nrow(input@alignments), basename(as.character(input@alignments$FileName)))
+                readFilename <- rep(input@alignments$FileName, 2)
+                if(useSampleNames) {
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments),each=2), 1:2, rep(input@alignments$SampleName,each=2))
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), input@alignments$SampleName)
+                } else {
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments),each=2), 1:2, basename(readFilename))
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), basename(input@alignments$FileName))
+                }
             } else {
-                readFilename <- as.character(rbind(input@reads$FileName1, input@reads$FileName2))
-                label <- sprintf("%i(R%i). %s",rep(1:nrow(input@reads),each=2), 1:2, basename(readFilename))
-                mapLabel <- sprintf("%i. %s",1:nrow(input@reads), basename(as.character(input@reads$FileName1)))
+                readFilename <- c(input@reads$FileName1, input@reads$FileName2)
+                if(useSampleNames) {
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads),each=2), 1:2, rep(input@reads$SampleName,each=2))
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), input@reads$SampleName)
+                } else {
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads),each=2), 1:2, basename(readFilename))
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), basename(input@reads$FileName1))
+                }
             }
         }
         alnFilename <- input@alignments$FileName
@@ -161,7 +175,11 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         filetype <- unique(consolidateFileExtensions(input, compressed=TRUE))
         if(length(filetype) > 1L)
             stop("parameter 'input' must consist of unique filetype")
-        label <- sprintf("%i. %s", 1:length(input), basename(input))
+        if(useSampleNames && !is.null(names(input))) {
+            label <- sprintf("%i. %s", 1:length(input), names(input))
+        } else {
+            label <- sprintf("%i. %s", 1:length(input), basename(input))
+        }
         mapLabel <- label
         if(all(file.exists(input))){
             if(filetype != "bam"){
@@ -355,7 +373,7 @@ plotQualByCycle <- function(qcdata, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
                               outline=FALSE, horizontal=FALSE, add=TRUE, at=1:xn, axes=FALSE)))
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[3]+cxy[2]/4, adj=c(0,0),
-             label=truncStringToPlotWidth(rownames(qtiles)[i], diff(par("usr")[1:2]) - cxy[1]/2))
+             labels=truncStringToPlotWidth(rownames(qtiles)[i], diff(par("usr")[1:2]) - cxy[1]/2))
         box()
     }
 
@@ -407,8 +425,8 @@ plotNuclByCycle <- function(qcdata, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
         abline(h=0,lty=2,col="gray")
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1),
-             label=truncStringToPlotWidth(names(nfreqL)[i], diff(par('usr')[1:2])-1.5*cxy[1]-strwidth(paste(rownames(nfreqL[[i]]), collapse=" "))))
-        text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=mycols, label=rownames(nfreqL[[i]]))
+             labels=truncStringToPlotWidth(names(nfreqL)[i], diff(par('usr')[1:2])-1.5*cxy[1]-strwidth(paste(rownames(nfreqL[[i]]), collapse=" "))))
+        text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4, adj=c(1,1), col=mycols, labels=rownames(nfreqL[[i]]))
     }
 
     invisible(nfreqL)
@@ -466,12 +484,12 @@ plotDuplicated <- function(qcdata, breaks=c(1:10), lmat=matrix(1:6, nrow=3, byro
             ii <- yoff+diff(yoff[1:2]) > max(bocc[i, 1:xn > floor(xleft)])
             if(any(ii)) {
                 text(x=xleft, y=ytop,     adj=c(0,0),
-                     label=paste(truncStringToPlotWidth(nm,par("usr")[2]-xleft-cxy[1]/2),"frequent sequences (per Mio.):",sep="\n"))
+                     labels=paste(truncStringToPlotWidth(nm,par("usr")[2]-xleft-cxy[1]/2),"frequent sequences (per Mio.):",sep="\n"))
                 text(x=xleft, y=yoff[ii], adj=c(0,1),
-                     label=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
+                     labels=paste(frqseqS,frqseqJ,frqseqF,sep="")[ii], family="mono", cex=frqseqcex)
             } else {
                 text(x=xleft, y=ytop,     adj=c(0,0),
-                     label=truncStringToPlotWidth(nm,par("usr")[2]-xleft-cxy[1]/2))
+                     labels=truncStringToPlotWidth(nm,par("usr")[2]-xleft-cxy[1]/2))
             }
         }
     }
@@ -510,15 +528,15 @@ plotMappings <- function(mapdata, cols=c("#006D2C","#E41A1C"), a4layout=TRUE) {
         # draw bar annotation
         cxy <- par('cxy')
         text(x=rep(par('usr')[1]+cxy[1]/3, nrow(mapdataChunk)), y=mp, col="white", adj=c(0,0.5),
-             label=sprintf("%.1f%%",mapdataChunk[,'mapped']/rowSums(mapdataChunk)*100), xpd=NA)
+             labels=sprintf("%.1f%%",mapdataChunk[,'mapped']/rowSums(mapdataChunk)*100), xpd=NA)
         text(x=rep(mean(par('usr')[1:2]), nrow(mapdataChunk)), y=mp, col="white", adj=c(0.5,0.5),
-             label=sprintf("total=%.3g",mapdataChunk[,'mapped']+mapdataChunk[,'unmapped']), xpd=NA)
+             labels=sprintf("total=%.3g",mapdataChunk[,'mapped']+mapdataChunk[,'unmapped']), xpd=NA)
         text(x=rep(par('usr')[2]-cxy[1]/5, nrow(mapdataChunk)), y=mp, col="white", adj=c(1,0.5),
-             label=sprintf("%.1f%%",mapdataChunk[,'unmapped']/rowSums(mapdataChunk)*100), xpd=NA)
+             labels=sprintf("%.1f%%",mapdataChunk[,'unmapped']/rowSums(mapdataChunk)*100), xpd=NA)
 
         # draw sample names
         text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
-             label=truncStringToPlotWidth(rownames(mapdataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+             labels=truncStringToPlotWidth(rownames(mapdataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
     })
 
     invisible(mapdata)
@@ -559,15 +577,15 @@ plotUniqueness <- function(data, cols=c("#ff8c00","#4682b4"), a4layout=TRUE) {
         # draw bar annotation
         cxy <- par('cxy')
         text(x=rep(par('usr')[1]+cxy[1]/3, nrow(dataChunk)), y=mp, col="white", adj=c(0,0.5),
-             label=sprintf("%.1f%%",dataChunk[,'unique']/rowSums(dataChunk)*100), xpd=NA)
+             labels=sprintf("%.1f%%",dataChunk[,'unique']/rowSums(dataChunk)*100), xpd=NA)
         text(x=rep(mean(par('usr')[1:2]), nrow(dataChunk)), y=mp, col="white", adj=c(0.5,0.5),
-             label=sprintf("total=%.3g",dataChunk[,'unique']+dataChunk[,'non-unique']), xpd=NA)
+             labels=sprintf("total=%.3g",dataChunk[,'unique']+dataChunk[,'non-unique']), xpd=NA)
         text(x=rep(par('usr')[2]-cxy[1]/5, nrow(dataChunk)), y=mp, col="white", adj=c(1,0.5),
-             label=sprintf("%.1f%%",dataChunk[,'non-unique']/rowSums(dataChunk)*100), xpd=NA)
+             labels=sprintf("%.1f%%",dataChunk[,'non-unique']/rowSums(dataChunk)*100), xpd=NA)
     
         # draw sample names
         text(x=par('usr')[1] - 1.0*cxy[1], y=mp, col="black", adj=c(1,0.5),
-             label=truncStringToPlotWidth(rownames(dataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
+             labels=truncStringToPlotWidth(rownames(dataChunk), ((diff(par("usr")[1:2]) + 4*par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), xpd=NA)
     })
     
     invisible(data)
@@ -590,9 +608,9 @@ plotErrorsByCycle <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
         #abline(v=c(12,25), lty=3, col='red')
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1),
-             label=truncStringToPlotWidth(names(data)[i], diff(par("usr")[1:2]) - cxy[1]/2))
+             labels=truncStringToPlotWidth(names(data)[i], diff(par("usr")[1:2]) - cxy[1]/2))
         if(all(is.na(data[[i]])))
-            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), label="no data")
+            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), labels="no data")
     }
 
     invisible(data)
@@ -611,15 +629,15 @@ plotMismatchTypes <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)) {
         barplot(pmtypes, ylab="% of aligned bases", xlab="Genome", col=mycols,
                 ylim=c(0,max(colSums(pmtypes),0.1,na.rm=TRUE)*1.16))
         if(all(is.na(mtypes)))
-            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), label="no data")
+            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), labels="no data")
         box()
         cxy <- par("cxy")
         text(x=par('usr')[2]-cxy[1]/4-(4:0)*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4,
-             adj=c(1,1), col=mycols, label=rownames(pmtypes))
+             adj=c(1,1), col=mycols, labels=rownames(pmtypes))
         text(x=par('usr')[2]-cxy[1]/4-5*cxy[1]*0.8, y=par('usr')[4]-cxy[2]/4,
-             col="black", label="Read:", adj=c(1,1))
+             col="black", labels="Read:", adj=c(1,1))
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1), col="black",
-             label=truncStringToPlotWidth(names(data)[i], par('usr')[2]-cxy[1]/4-5*cxy[1]*0.8-strwidth("Read:")-cxy[1]*1.0))
+             labels=truncStringToPlotWidth(names(data)[i], par('usr')[2]-cxy[1]/4-5*cxy[1]*0.8-strwidth("Read:")-cxy[1]*1.0))
     }
 
     invisible(data)
@@ -651,12 +669,12 @@ plotFragmentDistribution <- function(data, lmat=matrix(1:12, nrow=6, byrow=TRUE)
             axis(side=1, at=xn, labels=names(dens)[xn])
         cxy <- par('cxy')
         text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-cxy[2]/4, adj=c(0,1),
-             label=truncStringToPlotWidth(names(data)[i], diff(par("usr")[1:2]) - cxy[1]/2))
+             labels=truncStringToPlotWidth(names(data)[i], diff(par("usr")[1:2]) - cxy[1]/2))
         medlen <- median(Rle(values=1:xn, lengths=frag[,i]))
-        text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-5*cxy[2]/4, adj=c(0,1), col="#377EB8", label=sprintf("median = %1.f",medlen))
+        text(x=par('usr')[1]+cxy[1]/4, y=par('usr')[4]-5*cxy[2]/4, adj=c(0,1), col="#377EB8", labels=sprintf("median = %1.f",medlen))
         abline(v=medlen, lty=3, col="black")
         if(all(is.na(data[[i]])))
-            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), label="no data")
+            text(x=mean(par('usr')[1:2]), y=mean(par('usr')[3:4]), adj=c(0.5,0.5), labels="no data")
     }
     
     invisible(frag)

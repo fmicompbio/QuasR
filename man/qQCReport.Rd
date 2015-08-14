@@ -10,7 +10,8 @@ of available input (fasta, fastq or bam files).
 }
 
 \usage{
-    qQCReport(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, \dots)
+    qQCReport(input, pdfFilename=NULL, chunkSize=1e6L,
+              useSampleNames=FALSE, clObj=NULL, \dots)
 }
 
 \arguments{
@@ -23,6 +24,12 @@ of available input (fasta, fastq or bam files).
     \item{chunkSize}{The number of sequences, sequence pairs (for
       paired-end data) or alignments that will be sampled from each data
       file to collect quality statistics}
+    \item{useSampleNames}{If TRUE, the plots will be labelled using the
+      sample names instead of the file names. Sample names are obtained
+      from the \code{qProject} object, or from \code{names(input)} if
+      \code{input} is a named vector of file names. Please not that if
+      there are multiple files for the same sample, the sample names
+      will not be unique.}
     \item{clObj}{a cluster object to be used for parallel processing of
       multiple input files.}
     \item{\dots}{additional arguments that will be passed to the functions
@@ -48,19 +55,15 @@ of available input (fasta, fastq or bam files).
       base quality values as a box plot for each position in the input
       sequence. The background color (green, orange or red)
       indicates ranges of high, intermediate and low qualtities. The
-      plot is available for fastq only (bam files may contain base
-      quality information, which is however not used here because reads
-      contained in the bam file, e.g. aligned reads, may not be a
-      representative subsample of all sequenced reads).}
+      plot is available for fastq and bam files.}
     \item{\emph{Nucleotide frequency}}{plot shows the frequency of A, C,
       G, T and N bases by position in the read. The plot is always
       available.}
     \item{\emph{Duplication level}}{plot shows for each sample the
       fraction of reads observed at different duplication levels
       (e.g. once, two-times, three-times, etc.). In addition, the most
-      frequent sequences are listed. The plot is available for fasta or
-      fastq files, but not for bam files, again because contained
-      reads may not be representative for the experiment.}
+      frequent sequences are listed. The plot is available for fasta,
+      fastq and bam files.}
     \item{\emph{Mapping statistics}}{shows fractions of reads that were
       (un)mappable to the reference genome. This plot is available for
       bam input.}
