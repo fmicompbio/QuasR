@@ -147,14 +147,14 @@ qExportWig <- function(proj,
         absIsizeMax <- -1L
     
     # generate the wig file(s)
-    message("start creating wig file(s)...")
+    message("start creating ",if(createBigWig) "bigWig" else "wig"," file",if(n>1) "s" else "","...")
     tempwigfile <- if(createBigWig) sapply(1:n, function(i) tempfile(fileext=".wig")) else file
     if(createBigWig) {
         tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
         si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
     }
     lapply(1:n, function(i) {
-        message("  ",file[i]," (",tracknames[i],")", appendLF=!createBigWig)
+        message("  ",file[i]," (",tracknames[i],")")
         .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),

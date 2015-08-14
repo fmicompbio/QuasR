@@ -192,7 +192,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
 
     # BAM quality control, mismatch distribution
     if(!is.null(alnFilename) && !is.null(genome)){
-        distL <- BiocParallel::bplapply(alnFilename, calcMmInformation, genome, chunkSize, BPPARAM=clparam[[clsel]])
+        distL <- BiocParallel::bplapply(alnFilename, calcMmInformation, genome=genome, chunkSize=chunkSize, BPPARAM=clparam[[clsel]])
 
         if(input@paired == "no") {
             unique <- lapply(distL,"[[", 4)
