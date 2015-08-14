@@ -1,7 +1,7 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.9.10
+Version: 1.9.11
 Date: 2015-08-14
 Author: Anita Lerch, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
@@ -10,7 +10,7 @@ Imports: methods, zlibbioc, BiocGenerics, S4Vectors, IRanges, BiocInstaller,
         Biobase, Biostrings, BSgenome, Rsamtools (>= 1.19.38),
         GenomicFeatures (>= 1.17.13), ShortRead (>= 1.19.1),
         GenomicAlignments, BiocParallel, GenomeInfoDb,
-	rtracklayer
+	rtracklayer, GenomicFiles
 Suggests: Gviz, RUnit, BiocStyle
 LinkingTo: Rsamtools
 Description: This package provides a framework for the quantification

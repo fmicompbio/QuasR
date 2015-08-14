@@ -8,22 +8,33 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
         qa <- NULL
         warning("compressed 'fasta' input is not yet supported")
     }else{
-        qa <- switch(as.character(filetype),
-                     fastq = {
-                         f <- FastqSampler(filename, n=chunkSize)
-                         reads <- yield(f)
-                         reads <- reads[width(reads)>0]
-                         close(f)
-                         qa(reads, label)
-                     },
-                     fasta = {
-                         reads <- readFasta(as.character(filename), nrec=chunkSize)
-                         reads <- reads[width(reads)>0]
-                         qa(reads, label)
-                     }
-                     )
+        reads <- switch(as.character(filetype),
+                        fastq = {
+                            f <- FastqSampler(filename, n=chunkSize)
+                            reads <- yield(f)
+                            close(f)
+                            reads[width(reads)>0]
+                        },
+                        fasta = {
+                            reads <- readFasta(as.character(filename), nrec=chunkSize)
+                            reads[width(reads)>0]
+                        },
+                        bam = {
+                            bf <- BamFile(filename, yieldSize=1e6)
+                            myyield <- function(x) {
+                                tmp <- Rsamtools::scanBam(x, param=ScanBamParam(what=c("seq", "qual", "strand")))[[1]]
+                                minusStrand <- !is.na(tmp$strand) & tmp$strand == "-"
+                                ShortRead::ShortReadQ(sread=c(tmp$seq[!minusStrand],reverseComplement(tmp$seq[minusStrand])),
+                                                      quality=c(tmp$qual[!minusStrand],reverse(tmp$qual[minusStrand])))
+                            }
+                            reads <- reduceByYield(X=bf, YIELD=myyield, MAP=identity,
+                                                   REDUCE=REDUCEsampler(sampleSize=chunkSize, verbose=FALSE),
+                                                   parallel=FALSE)
+                            reads[width(reads)>0]
+                        }
+                        )
     }
-    return(qa)
+    return(qa(reads, label))
 }
 
 calcMmInformation <- function(filename, genome, chunkSize){
@@ -126,7 +137,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
         filetype <- input@samplesFormat
         if(input@paired == "no"){
             readFilename <- if(filetype == "bam") as.character(input@alignments$FileName) else as.character(input@reads$FileName)
-            label <- sprintf("%i. %s", 1:length(readFilename), basename(readFilename))  
+            label <- sprintf("%i. %s", 1:length(readFilename), basename(readFilename))
             mapLabel <- label
         } else {
             if(filetype == "bam"){
@@ -158,7 +169,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
                 alnFilename <- NULL
                 genome <- NULL
             } else {
-                readFilename <- NULL
+                readFilename <- input
                 alnFilename <- input
                 genome <- NULL
             }
@@ -222,7 +233,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, clObj=NULL, ...)
     message("creating QC plots")
     plotdata <- list(raw=list(qa=qa, mm=mm, frag=frag, unique=unique, mapdata=NULL))
     if(!is.null(qa)){
-        if(filetype == "fastq"){
+        if(filetype == "fastq" || filetype == "bam"){
             if(is.null(pdfFilename))
                 dev.new()
             plotdata[['qualByCycle']] <- plotQualByCycle(qa, ...)
