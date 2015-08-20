@@ -25,6 +25,7 @@
   @field strand       Strand of the fetch regions
   @field shift        Shift size of the reads
   @field readBitMask  select first/last read from a multi-read experiment
+  @field skipSecondary  skip secondary alignments true(1) or false(0)
   @field selectReadPosition  weight of alignment on "s"tart or "e"nd
   @field allelic      allelic true(1) or false(0)
   @field includeSpliced  count spliced alignments true(1) or false(0)
@@ -42,6 +43,7 @@ typedef struct {
     const char * strand;
     int shift;
     int readBitMask;
+    int skipSecondary;
     char selectReadPosition;
     int allelic;
     int includeSpliced;
@@ -112,6 +114,10 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & rinfo->readBitMask) == 0)
         return 0;
+
+    // skip alignment if secondary and skipSecondary==true
+    if((hit->core.flag & BAM_FSECONDARY) && rinfo->skipSecondary)
+	return 0;
 
     // skip alignment if region is not * and the strand of alignment or region is not the same
     if(strcmp(rinfo->strand, "*")
@@ -228,7 +234,7 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
   @param  end                 target region end
   @param  strand              target region strand
   @param  selectReadPosition  alignment ancored at start/end
-  @param  readBitMask         select first/second/any read in a paired-end experiment
+  @param  readBitMask         select first/second/any read in a paired-end experiment; select secondary alignments
   @param  shift               shift size
   @param  broaden             extend query region for bam_fetch to catch alignments with overlaps due to shifting
   @param  includeSpliced      also count spliced alignments
@@ -265,7 +271,8 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
 
     // initialise regionInfoSums
     regionInfoSums rinfo;
-    rinfo.readBitMask = INTEGER(readBitMask)[0];
+    rinfo.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
+    rinfo.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
     rinfo.shift = INTEGER(shift)[0];
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 0;
@@ -338,7 +345,8 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
 
     // initialise regionInfoSums
     regionInfoSums rinfo;
-    rinfo.readBitMask = INTEGER(readBitMask)[0];
+    rinfo.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
+    rinfo.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
     rinfo.shift = INTEGER(shift)[0];
     rinfo.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rinfo.allelic = 1;

@@ -4,12 +4,16 @@ NEW FEATURES
 
     o qExportWig gained createBigWig argument and can now create bigWig files directly
 
+    o qQCReport now also produces base quality plots for bam-file projects by sampling reads from the bam files
+
+    o qCount, qProfile and qExportWig have gained a includeSecondary argument to include/exclude secondary alignments while counting
+
 CHANGES IN VERSION 1.8.0
 -----------------------
 PUBLICATION
 
     o A paper describing the QuasR package has been published (see citation("QuasR")):
-      Gaidatzis D. et al., Bioinformatics, 2014. doi: 10.1093/bioinformatics/btu781
+      Gaidatzis D. et al., Bioinformatics, 2015. doi: 10.1093/bioinformatics/btu781
 
 NEW FEATURES
 

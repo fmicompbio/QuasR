@@ -16,6 +16,7 @@ qCount(proj,
        mask=NULL,
        collapseBySample=TRUE,
        includeSpliced=TRUE,
+       includeSecondary=TRUE,
        mapqMin=0L,
        mapqMax=255L,
        absIsizeMin=NULL,
@@ -88,6 +89,8 @@ qCount(proj,
   \item{includeSpliced}{if \code{TRUE} (the default), include spliced
     alignments when counting. A spliced alignment is defined as an
     alignment with a gap in the read of at least 60 bases.}
+  \item{includeSecondary}{if \code{TRUE} (the default), include alignments
+    with the secondary bit (0x0100) set in the \code{FLAG} when counting.}
   \item{mapqMin}{minimal mapping quality of alignments to be included when
     counting (mapping quality must be greater than or equal to
     \code{mapqMin}). Valid values are between 0 and 255. The default (0)
@@ -194,8 +197,9 @@ qCount(proj,
   (e.g. to quantify anti-sense transcription in a stranded RNA-seq
   experiment).
   
-  \code{includeSpliced} can be used to include or exclude spliced
-  alignments. \code{mapqMin} and \code{mapqMax} allow to select alignments
+  \code{includeSpliced} and \code{includeSecondary} can be used to
+  include or exclude spliced or secondary alignments,
+  respectively. \code{mapqMin} and \code{mapqMax} allow to select alignments
   based on their mapping qualities. \code{mapqMin} and \code{mapqMax} can
   take integer values between 0 and 255 and equal to
   \eqn{-10 log_{10} Pr(\textnormal{mapping position is wrong})}{-10

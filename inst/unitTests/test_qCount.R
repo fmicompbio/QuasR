@@ -737,3 +737,17 @@ test_auxiliaryName <- function() {
     resSoll <- c(251,493)
     checkTrue(all(resSoll == res[,2:3]))
 }
+
+test_includeSecondary <- function() {
+    proj <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),
+                   file.path("extdata", "NC_001422.1.fa"), paired="fr")
+    gr <- GRanges("phiX174", IRanges(start=1, end=5386))
+    # include secondary alignments
+    checkTrue(qCount(proj, gr, useRead="any"  )[1,'test'] == 696)
+    checkTrue(qCount(proj, gr, useRead="first")[1,'test'] == 348)
+    checkTrue(qCount(proj, gr, useRead="last" )[1,'test'] == 348)
+    # exclude secondary alignments
+    checkTrue(qCount(proj, gr, useRead="any"  , includeSecondary=FALSE)[1,'test'] == 384)
+    checkTrue(qCount(proj, gr, useRead="first", includeSecondary=FALSE)[1,'test'] == 192)
+    checkTrue(qCount(proj, gr, useRead="last" , includeSecondary=FALSE)[1,'test'] == 192)
+}

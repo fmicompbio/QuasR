@@ -66,4 +66,15 @@ test_qProfile <- function()
     cnt <- qCount(project, query, shift="halfInsert")
     checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
     checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
+
+    # test includeSecondary
+    project <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),
+                      file.path("extdata", "NC_001422.1.fa"), paired="fr")
+    query <- GRanges("phiX174", IRanges(start=1, end=5386))
+    cnt1 <- qCount(project, query, includeSecondary=TRUE)[1,2]
+    cnt2 <- qCount(project, query, includeSecondary=FALSE)[1,2]
+    pr1 <- qProfile(project, query, upstream=0, downstream=5386, includeSecondary=TRUE)
+    pr2 <- qProfile(project, query, upstream=0, downstream=5386, includeSecondary=FALSE)
+    checkTrue(cnt1 == sum(pr1[[2]]))                  
+    checkTrue(cnt2 == sum(pr2[[2]]))
 }

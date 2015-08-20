@@ -15,6 +15,7 @@ qCount <-
              mask=NULL,
              collapseBySample=TRUE,
              includeSpliced=TRUE,
+             includeSecondary=TRUE,
              mapqMin=0L,
              mapqMax=255L,
              absIsizeMin=NULL,
@@ -130,6 +131,7 @@ qCount <-
                             bamfile=bamfiles,
                             targets=taskTargets,
                             MoreArgs=list(allelic=!is.na(proj@snpFile),
+                                          includeSecondary=includeSecondary,
                                           mapqmin=as.integer(mapqMin)[1],
                                           mapqmax=as.integer(mapqMax)[1]))
             message("done")
@@ -362,16 +364,17 @@ qCount <-
                            regions=flatquery,
                            shift=shifts,
                            MoreArgs=list(
-                           selectReadPosition=selectReadPosition,
-                           orientation=orientation,
-                           useRead=useRead,
-                           broaden=broaden,
-                           allelic=!is.na(proj@snpFile),
-                           includeSpliced=includeSpliced),
-                           mapqmin=as.integer(mapqMin)[1],
-                           mapqmax=as.integer(mapqMax)[1],
-                           absisizemin=as.integer(absIsizeMin)[1],
-                           absisizemax=as.integer(absIsizeMax)[1])
+                               selectReadPosition=selectReadPosition,
+                               orientation=orientation,
+                               useRead=useRead,
+                               broaden=broaden,
+                               allelic=!is.na(proj@snpFile),
+                               includeSpliced=includeSpliced,
+                               includeSecondary=includeSecondary,
+                               mapqmin=as.integer(mapqMin)[1],
+                               mapqmax=as.integer(mapqMax)[1],
+                               absisizemin=as.integer(absIsizeMin)[1],
+                               absisizemax=as.integer(absIsizeMax)[1]))
             message("done")
 
         
@@ -428,7 +431,7 @@ qCount <-
 
 ## count junctions (with the C-function) for single bamfile and optionally selected target sequences
 ## return a named vector with junction elements (names of the form "chromosome:first_intronic_base:last_intronic_base:strand")
-countJunctionsOneBamfile <- function(bamfile, targets, allelic, mapqmin, mapqmax) {
+countJunctionsOneBamfile <- function(bamfile, targets, allelic, includeSecondary, mapqmin, mapqmax) {
     tryCatch({ # try catch block goes through the whole function
         # prepare region vectors
         bh <- scanBamHeader(bamfile)[[1]]$targets
@@ -442,7 +445,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic, mapqmin, mapqmax
         start <- rep(0L, length(tid)) # samtool library has 0-based inclusiv start
         end <- unname(bh) ## samtool library has 0-based exclusiv end
         # count junctions
-        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, mapqmin, mapqmax, PACKAGE="QuasR")
+        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, includeSecondary, mapqmin, mapqmax, PACKAGE="QuasR")
         return(count)
 
     }, error = function(ex) {
@@ -457,7 +460,8 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic, mapqmin, mapqmax
 ## count alignments (with the C-function) for single bamfile, single shift, and single set of regions
 ## return a numeric vector with length(regions) elements (same order as regions)
 countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
-                            useRead, broaden, allelic, includeSpliced, mapqmin, mapqmax, absisizemin, absisizemax)
+                            useRead, broaden, allelic, includeSpliced, includeSecondary,
+                            mapqmin, mapqmax, absisizemin, absisizemax)
 {
     tryCatch({ # try catch block goes through the whole function
         
@@ -487,6 +491,11 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
             readBitMask <- BAM_FREAD1
         else if (useRead == "last")
             readBitMask <- BAM_FREAD2
+
+        ## translate includeSecondary parameter
+        BAM_FSECONDARY <- 256L
+        if(includeSecondary)
+            readBitMask <- readBitMask + BAM_FSECONDARY
         
         ## get counts
         if(!allelic) {

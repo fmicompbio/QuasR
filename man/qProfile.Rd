@@ -17,6 +17,7 @@ qProfile(proj,
          mask=NULL,
          collapseBySample=TRUE,
          includeSpliced=TRUE,
+         includeSecondary=TRUE,
          mapqMin=0L,
          mapqMax=255L,
          absIsizeMin=NULL,
@@ -85,6 +86,8 @@ qProfile(proj,
   \item{includeSpliced}{if \code{TRUE} (the default), include spliced
     alignments when counting. A spliced alignment is defined as an
     alignment with a gap in the read of at least 60 bases.}
+  \item{includeSecondary}{if \code{TRUE} (the default), include alignments
+    with the secondary bit (0x0100) set in the \code{FLAG} when counting.}
   \item{mapqMin}{minimal mapping quality of alignments to be included when
     counting (mapping quality must be greater than or equal to
     \code{mapqMin}). Valid values are between 0 and 255. The default (0)

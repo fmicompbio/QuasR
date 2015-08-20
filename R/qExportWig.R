@@ -30,6 +30,7 @@ qExportWig <- function(proj,
                        tracknames=NULL,
                        log2p1=FALSE,
                        colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"),
+                       includeSecondary=TRUE,
                        mapqMin=0L,
                        mapqMax=255L,
                        absIsizeMin=NULL,
@@ -130,6 +131,10 @@ qExportWig <- function(proj,
         colors <- colorRampPalette(colors)(n)
     colors <- apply(col2rgb(colors),2,paste,collapse=",")
 
+    # ...includeSecondary
+    if(length(includeSecondary) != 1 || !is.logical(includeSecondary))
+        stop("'includeSecondary' must be of type logical(1)")
+
     # ...mapping qualities
     if(length(mapqMin) != 1 || !is.integer(mapqMin) || any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
         stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
@@ -158,7 +163,7 @@ qExportWig <- function(proj,
         .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
-              as.character(colors[i]), as.logical(compress[i]),
+              as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
               mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), PACKAGE="QuasR")
         if(createBigWig) {
             rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])

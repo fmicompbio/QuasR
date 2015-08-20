@@ -41,7 +41,7 @@ static const R_CallMethodDef callMethods[] = {
     {"countAlignmentsNonAllelic", (DL_FUNC) &count_alignments_non_allelic, 14},
     {"countAlignmentsAllelic", (DL_FUNC) &count_alignments_allelic, 14},
     /* count_junctions.cpp */
-    {"countJunctions", (DL_FUNC) &count_junctions, 7},
+    {"countJunctions", (DL_FUNC) &count_junctions, 8},
     /* profile_alignments.c */
     {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 19},
     {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 19},
@@ -53,7 +53,7 @@ static const R_CallMethodDef callMethods[] = {
     {"quantifyMethylationAllele", (DL_FUNC) &quantify_methylation_allele, 9},
     {"quantifyMethylationSingleAlignments", (DL_FUNC) &quantify_methylation_singleAlignments, 8},
     /* export_wig.c */
-    {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 15},
+    {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 16},
     /* nucleotide_alignment_frequencies.c */
     {"nucleotideAlignmentFrequencies", (DL_FUNC) &nucleotide_alignment_frequencies, 6},
     {NULL, NULL, 0}

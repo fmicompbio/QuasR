@@ -14,6 +14,7 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
            tracknames=NULL, log2p1=FALSE,
            colors=c("#1B9E77", "#D95F02", "#7570B3", "#E7298A",
                     "#66A61E", "#E6AB02", "#A6761D", "#666666"),
+           includeSecondary=TRUE,
            mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL,
            createBigWig=FALSE)
 }
@@ -52,6 +53,8 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   \item{log2p1}{If \code{TRUE}, the number of alignments \code{x} per bin will
     be transformed using the formula \code{log2(x+1)}.}
   \item{colors}{A character vector with R color names to be used for the tracks.}
+  \item{includeSecondary}{if \code{TRUE} (the default), include alignments
+    with the secondary bit (0x0100) set in the \code{FLAG}.}
   \item{mapqMin}{minimal mapping quality of alignments to be included
     (mapping quality must be greater than or equal to
     \code{mapqMin}). Valid values are between 0 and 255. The default (0)
@@ -94,9 +97,10 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   assigned according to the base in the middle between the leftmost and
   rightmost coordinates of the aligned pair of reads. Each pair of reads
   is only counted once, and not properly paired alignments are
-  ignored. In paired-end experiments, \code{absIsizeMin} and
-  \code{absIsizeMax} can be used to select alignments based on their
-  insert size (TLEN field in SAM Spec v1.4).
+  ignored. Secondary alignments can be excluded by setting
+  \code{includeSecondary=FALSE}. In paired-end experiments,
+  \code{absIsizeMin} and \code{absIsizeMax} can be used to select
+  alignments based on their insert size (TLEN field in SAM Spec v1.4).
 
   For \code{scaling=TRUE}, the number of alignments per bin \eqn{n}
   for the sample \eqn{i} are linearly scaled to the mean total

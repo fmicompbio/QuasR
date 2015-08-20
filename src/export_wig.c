@@ -17,6 +17,7 @@ typedef struct {
     int paired;          // paired experiment
     const char * strand; // alignment strand
     int log2p1;          // output log2(x+1)?
+    int skipSecondary;   // skip secondary alignments true(1) or false(0)
     uint8_t mapqMin;     // minimum mapping quality (MAPQ >= mapqMin)
     uint8_t mapqMax;     // maximum mapping quality (MAPQ <= mapqMax)
     int32_t absIsizeMin; // minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
@@ -39,6 +40,10 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
     if(hit->core.qual < tcov->mapqMin || hit->core.qual > tcov->mapqMax)
         return 0;
     
+    // skip alignment if secondary and skipSecondary==true
+    if((hit->core.flag & BAM_FSECONDARY) && tcov->skipSecondary)
+	return 0;
+
     // skip alignment if insert size not in specified range
     if((tcov->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < tcov->absIsizeMin) ||
        (tcov->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > tcov->absIsizeMax))
@@ -121,7 +126,8 @@ void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile 
 /* from one or several input bam files, produce a single, one-track wig file */
 SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SEXP _shift,
                     SEXP _strand, SEXP _norm_factor, SEXP _tracknames, SEXP _log2p1,
-                    SEXP _colors, SEXP _compress, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax) {
+                    SEXP _colors, SEXP _compress, SEXP includeSecondary,
+		    SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax) {
     // validate parameters
     if (!Rf_isString(_bam_in))
         Rf_error("'_bam_in' must be a character vector");
@@ -145,7 +151,9 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
         Rf_error("'_colors' must be a character(1)");
     if (!Rf_isLogical(_compress) || 1 != Rf_length(_compress))
 	Rf_error("'_compress' must be a logical(1)");
-    if (!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
+     if (!Rf_isLogical(includeSecondary) || 1 != Rf_length(includeSecondary))
+	Rf_error("'includeSecondary' must be a logical(1)");
+   if (!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
         Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
     if (!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
         Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
@@ -177,6 +185,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     tcov.count = NULL;
     tcov.strand = Rf_translateChar(STRING_ELT(_strand, 0));
     tcov.log2p1 = Rf_asLogical(_log2p1);
+    tcov.skipSecondary = (Rf_asLogical(includeSecondary) ? 0 : 1);
     tcov.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
     tcov.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     tcov.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);

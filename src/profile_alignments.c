@@ -29,6 +29,7 @@
   @field regstrand    strand of the fetch region (controls calculation of relative position: from the left(+,*) or the right(-)
   @field shift        shift size for alignment
   @field readBitMask  select first/last read from a multi-read experiment
+  @field skipSecondary  skip secondary alignments true(1) or false(0)
   @field selectReadPosition  weight of alignment on "s"tart or "e"nd
   @field allelic      allelic true(1) or false(0)
   @field includeSpliced  count spliced alignments true(1) or false(0)
@@ -50,6 +51,7 @@ typedef struct {
     const char *regstrand;
     int shift;
     int readBitMask;
+    int skipSecondary;
     char selectReadPosition;
     int allelic;
     int includeSpliced;
@@ -121,6 +123,10 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & rinfo->readBitMask) == 0)
         return 0;
+
+    // skip alignment if secondary and skipSecondary==true
+    if((hit->core.flag & BAM_FSECONDARY) && rinfo->skipSecondary)
+	return 0;
 
     // skip alignment if region is not * and the strand of alignment or region is not the same
     if(strcmp(rinfo->selstrand, "*")
@@ -320,7 +326,8 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
     rprof.offset = mu;
     rprof.len = mw;
     rprof.shift = INTEGER(shift)[0];
-    rprof.readBitMask = INTEGER(readBitMask)[0];
+    rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
+    rprof.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
     rprof.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rprof.allelic = 0;
     rprof.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);
@@ -411,7 +418,8 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
     rprof.offset = mu;
     rprof.len = mw;
     rprof.shift = INTEGER(shift)[0];
-    rprof.readBitMask = INTEGER(readBitMask)[0];
+    rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
+    rprof.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
     rprof.selectReadPosition = Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0];
     rprof.allelic = 1;
     rprof.includeSpliced = (Rf_asLogical(includeSpliced) ? 1 : 0);

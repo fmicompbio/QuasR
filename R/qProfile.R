@@ -16,6 +16,7 @@ qProfile <-
              mask=NULL,
              collapseBySample=TRUE,
              includeSpliced=TRUE,
+             includeSecondary=TRUE,
              mapqMin=0L,
              mapqMax=255L,
              absIsizeMin=NULL,
@@ -186,6 +187,7 @@ qProfile <-
                            maxUp=maxUp,
                            maxDown=maxDown,
                            includeSpliced=includeSpliced,
+                           includeSecondary=includeSecondary,
                            mapqmin=as.integer(mapqMin)[1],
                            mapqmax=as.integer(mapqMax)[1],
                            absisizemin=as.integer(absIsizeMin)[1],
@@ -234,7 +236,7 @@ qProfile <-
 ## profile alignments (with the C-function) for single bamfile, multiple regions, single shift
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectReadPosition,
-                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced,
+                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced, includeSecondary,
                               mapqmin, mapqmax, absisizemin, absisizemax)
 {
     tryCatch({ # try catch block contains whole function
@@ -267,6 +269,11 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         else if (useRead == "last")
             readBitMask <- BAM_FREAD2
 
+        ## translate includeSecondary parameter
+        BAM_FSECONDARY <- 256L
+        if(includeSecondary)
+            readBitMask <- readBitMask + BAM_FSECONDARY
+  
         ## count alignments by position
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,

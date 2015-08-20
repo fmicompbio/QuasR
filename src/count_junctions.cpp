@@ -14,6 +14,7 @@ using namespace std;
   @field junctionsA   map<string,int> with junction counts (allelic Alternative)
   @field tname        target name string
   @field allelic      allelic true(1) or false(0)
+  @field skipSecondary  ignore secondary alignments true(1) or false(0)
   @field mapqMin      minimum mapping quality (MAPQ >= mapqMin)
   @field mapqMax      maximum mapping quality (MAPQ <= mapqMax)
  */
@@ -23,6 +24,7 @@ typedef struct {
     map<string,int> junctionsA;
     char* tname;
     int allelic;
+    int skipSecondary;
     uint8_t mapqMin;
     uint8_t mapqMax;
 } fetch_param;
@@ -40,6 +42,10 @@ static int _addJunction(const bam1_t *hit, void *data){
 
     // skip alignment if mapping quality not in specified range
     if(hit->core.qual < jinfo->mapqMin || hit->core.qual > jinfo->mapqMax)
+        return 0;
+
+    // skip alignment if secondary and skipSecondary==true
+    if((hit->core.flag & BAM_FSECONDARY) && jinfo->skipSecondary)
         return 0;
     
     //ostringstream ss;
@@ -139,7 +145,7 @@ static int _addJunction(const bam1_t *hit, void *data){
   @return            allelic==FALSE: named vector of the junctions counts (names of the form "chromosome:first_intronic_base:last_intronic_base:strand")
                      allelic==TRUE: list of length 4 (names, R, U and A junction counts)
  */
-SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic, SEXP mapqMin, SEXP mapqMax) {
+SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic, SEXP includeSecondary, SEXP mapqMin, SEXP mapqMax) {
     // check parameters
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -151,6 +157,8 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic,
         Rf_error("'end' must be of type integer");
     if(!Rf_isLogical(allelic) || Rf_length(allelic) != 1)
         Rf_error("'allelic' must be of type logical(1)");
+    if(!Rf_isLogical(includeSecondary) || Rf_length(includeSecondary) != 1)
+        Rf_error("'includeSecondary' must be of type logical(1)");
     if(!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
         Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
     if(!Rf_isInteger(mapqMax) || Rf_length(mapqMax) !=1 || INTEGER(mapqMax)[0] < 0 || INTEGER(mapqMax)[0] > 255)
@@ -181,6 +189,10 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic,
 	jinfo.allelic = 1;
     else
 	jinfo.allelic = 0;
+    if(Rf_asLogical(includeSecondary))
+	jinfo.skipSecondary = 0;
+    else
+	jinfo.skipSecondary = 1;
     jinfo.mapqMin = (uint8_t)(INTEGER(mapqMin)[0]);
     jinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
 
