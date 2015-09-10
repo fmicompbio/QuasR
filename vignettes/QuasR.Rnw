@@ -183,8 +183,7 @@ The number of alignments per promoter region is quantified using \Rfunction{qCou
 library(rtracklayer)
 library(GenomicFeatures)
 annotFile <- "extdata/hg19sub_annotation.gtf"
-txStart <- import.gff(annotFile, format="gtf", asRangedData=FALSE,
-                      feature.type="start_codon")
+txStart <- import.gff(annotFile, format="gtf", feature.type="start_codon")
 promReg <- promoters(txStart, upstream=500, downstream=500)
 names(promReg) <- mcols(promReg)$transcript_name
 
@@ -509,7 +508,6 @@ Anchor positions will be provided to \Rfunction{qProfile} using the \Rfunarg{que
 library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
 tssRegions <- import.gff(annotationFile, format="gtf",
-                         asRangedData=FALSE,
                          feature.type="start_codon",
                          colnames=c("strand", "gene_name"))
 tssRegions <- tssRegions[!duplicated(tssRegions)]
@@ -706,7 +704,7 @@ A more detailed picture of the experiments' quality can be obtained using \Rcode
 \subsubsection{Quantification of small RNA (miRNA) reads}
 As with other experiment types, miRNAs are quantified using \Rfunction{qCount}. For this purpose, we first construct a query \Rcode{GRanges} object with the genomic locations of mature miRNAs. The locations can be obtained from the \Biocpkg{mirbase.db} package, or directly from the species-specific gff files provided by the mirBase database (e.g. \url{ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3}). For the purpose of this example, the \Biocpkg{QuasR} package provides a small gff file (\Rcode{"mirbaseXX\_qsr.gff3"}) that is formatted as the ones available from mirBase. The gff file contains both the locations of pre-miRNAs (hairpin precursors), as well as mature miRNAs. The two can be discriminated by their \Rcode{"type"}:
 <<miRNA_prepareQuery, eval=TRUE>>=
-mirs <- import("extdata/mirbaseXX_qsr.gff3", asRangedData=FALSE)
+mirs <- import("extdata/mirbaseXX_qsr.gff3")
 names(mirs) <- mirs$Name
 preMirs <- mirs[ mirs$type=="miRNA_primary_transcript" ]
 matureMirs <- mirs[ mirs$type=="miRNA" ]

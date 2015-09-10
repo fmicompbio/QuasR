@@ -244,7 +244,7 @@ createGtfRegion <- function()
     require("rtracklayer")
     annotationFile <- system.file("extdata", "hg19sub_annotation.gtf",
                                   package="QuasR")
-    gtfRegion <- import.gff(annotationFile, format="gtf", asRangedData=F,
+    gtfRegion <- import.gff(annotationFile, format="gtf",
                             feature.type="exon")
     names(gtfRegion) <- mcols(gtfRegion)$gene_name
     return(gtfRegion)

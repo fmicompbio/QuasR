@@ -319,8 +319,7 @@ qCount(proj, query=chrRegions, useRead="first")
 # hierarchical counting using a "GRangesList" query
 library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
-gtfRegions <- import.gff(annotationFile, format="gtf", asRangedData=FALSE,
-                    feature.type="exon")
+gtfRegions <- import.gff(annotationFile, format="gtf", feature.type="exon")
 names(gtfRegions) <- mcols(gtfRegions)$source
 gtfRegionList <- split(gtfRegions, names(gtfRegions))
 names(gtfRegionList)

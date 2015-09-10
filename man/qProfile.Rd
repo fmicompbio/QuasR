@@ -184,7 +184,6 @@ proj <- qAlign(sampleFile, genomeFile)
 library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
 tssRegions <- import.gff(annotationFile, format="gtf",
-                         asRangedData=FALSE,
                          feature.type="start_codon")
 
 # obtain a combined TSS profile

@@ -165,7 +165,7 @@ grangesFromGff <-
     function(con, version="2", split=NULL) {
         # create a GRangesList object from regions defined in a GFF/GTA file, split by 'type'
         if (requireNamespace("rtracklayer", quietly=TRUE)) {
-            gr <- rtracklayer::import.gff(con, version=version, asRangedData=FALSE,
+            gr <- rtracklayer::import.gff(con, version=version,
                                           colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
 
             if(is.null(split) || !(split %in% colnames(mcols(gr))))
