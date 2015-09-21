@@ -509,7 +509,7 @@ library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
 tssRegions <- import.gff(annotationFile, format="gtf",
                          feature.type="start_codon",
-                         colnames=c("strand", "gene_name"))
+                         colnames="gene_name")
 tssRegions <- tssRegions[!duplicated(tssRegions)]
 names(tssRegions) <- rep("TSS", length(tssRegions))
 head(tssRegions)
