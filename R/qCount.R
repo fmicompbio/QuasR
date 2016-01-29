@@ -211,7 +211,7 @@ qCount <-
                     # remove redundancy from 'query' by names
                     tmpquery <- reduce(split(query, names(query))[unique(names(query))])
                     flatquery <- unlist(tmpquery, use.names=FALSE)
-                    querynames <- rep(names(tmpquery), elementLengths(tmpquery))
+                    querynames <- rep(names(tmpquery), elementNROWS(tmpquery))
                     rm(tmpquery)
                 } else {
                     flatquery <- query
@@ -222,7 +222,7 @@ qCount <-
             
                 ##    GRangesList query ---------------------------------------------------------------------------
             } else if(inherits(query,"GRangesList")) {
-                if(any(i <- elementLengths(query)==0)) {
+                if(any(i <- elementNROWS(query)==0)) {
                     warning(sprintf("removing %d elements from 'query' with zero regions: %s",sum(i),paste(names(query)[i],collapse=", ")))
                     query <- query[-i]
                 }
@@ -241,9 +241,9 @@ qCount <-
                 message("done")
                 flatquery <- unlist(query, use.names=FALSE)
                 querynames <- rep(if(is.null(names(query))) as.character(seq_len(length(query))) else names(query),
-                                  elementLengths(query))
+                                  elementNROWS(query))
                 querylengths <- unlist(width(query), use.names=FALSE)
-                zeroquerynames <- (if(is.null(names(query))) as.character(seq_len(length(query))) else names(query))[elementLengths(query)==0]
+                zeroquerynames <- (if(is.null(names(query))) as.character(seq_len(length(query))) else names(query))[elementNROWS(query)==0]
             
                 ##    TxDb query --------------------------------------------------------------------------
             } else if(inherits(query,"TxDb")) {
@@ -253,7 +253,7 @@ qCount <-
                 if(reportLevel == "gene") {
                     tmpquery <- reduce(exonsBy(query, by="gene"))
                     flatquery <- unlist(tmpquery, use.names=FALSE)
-                    querynames <- rep(names(tmpquery), elementLengths(tmpquery))
+                    querynames <- rep(names(tmpquery), elementNROWS(tmpquery))
                     querylengths <- unlist(width(tmpquery), use.names=FALSE)
                     rm(tmpquery)
                 
