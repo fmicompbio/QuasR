@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include "samtools/sam.h"
 
-#define MAX_READ_LENGTH 200
+#define MAX_READ_LENGTH 500
 
 #ifdef __cplusplus
 extern "C" {
