@@ -24,7 +24,7 @@
 \alias{auxiliaries,qProject-method}
 \alias{alignments}
 \alias{alignments,qProject-method}
-\alias{[,qProject,ANY,ANY-method}
+\alias{[,qProject,ANY,missing,missing-method}
 
 % "show" method:
 \alias{show,qProject-method}

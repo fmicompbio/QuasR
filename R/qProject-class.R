@@ -50,7 +50,7 @@ setMethod("auxiliaries", "qProject", function(x) return(x@aux))
 setGeneric("alignments", function(x) return(NULL))
 setMethod("alignments", "qProject", function(x) return(list(genome=x@alignments, aux=x@auxAlignments)))
 
-setMethod("[", "qProject", function(x, i) {
+setMethod("[", signature(x="qProject", i="ANY", j="missing", drop="missing"), function(x, i) {
     y <- x
     if(is.character(i)) {
         if(all(i %in% x@reads$SampleName)) {
