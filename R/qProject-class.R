@@ -40,15 +40,15 @@ setMethod("length", "qProject", function(x) nrow(x@reads))
 #    x
 #})
 
-setMethod("genome", "qProject", function(x) {
+setMethod("genome", signature(x="qProject"), function(x) {
     y <- x@genome; attr(y, "genomeFormat") <- x@genomeFormat; return(y)
 })
 
 setGeneric("auxiliaries", function(x) return(NULL))
-setMethod("auxiliaries", "qProject", function(x) return(x@aux))
+setMethod("auxiliaries", signature(x="qProject"), function(x) return(x@aux))
 
 setGeneric("alignments", function(x) return(NULL))
-setMethod("alignments", "qProject", function(x) return(list(genome=x@alignments, aux=x@auxAlignments)))
+setMethod("alignments", signature(x="qProject"), function(x) return(list(genome=x@alignments, aux=x@auxAlignments)))
 
 setMethod("[", signature(x="qProject", i="ANY", j="missing", drop="missing"), function(x, i) {
     y <- x
