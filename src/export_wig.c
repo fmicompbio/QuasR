@@ -22,6 +22,7 @@ typedef struct {
     uint8_t mapqMax;     // maximum mapping quality (MAPQ <= mapqMax)
     int32_t absIsizeMin; // minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
     int32_t absIsizeMax; // maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
+    int readBitMask;     // select first/last read from a multi-read experiment
 } targetCoverage;
 
 
@@ -47,6 +48,10 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
     // skip alignment if insert size not in specified range
     if((tcov->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < tcov->absIsizeMin) ||
        (tcov->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > tcov->absIsizeMax))
+        return 0;
+
+    // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
+    if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & tcov->readBitMask) == 0)
         return 0;
     
     if(tcov->paired) {
@@ -127,7 +132,7 @@ void start_new_target(targetCoverage *tcov, bam_header_t *bh, int compr, gzFile 
 SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SEXP _shift,
                     SEXP _strand, SEXP _norm_factor, SEXP _tracknames, SEXP _log2p1,
                     SEXP _colors, SEXP _compress, SEXP includeSecondary,
-		    SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax) {
+		    SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax, SEXP readBitMask) {
     // validate parameters
     if (!Rf_isString(_bam_in))
         Rf_error("'_bam_in' must be a character vector");
@@ -165,6 +170,8 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
         Rf_error("'absIsizeMax' must be of type integer(1) and have a value greater than zero");
     if(INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMin)[0] > INTEGER(absIsizeMax)[0])
 	Rf_error("'absIsizeMin' must not be greater than 'absIsizeMax'");
+    if(!Rf_isInteger(readBitMask) || Rf_length(readBitMask) != 1)
+        Rf_error("'readBitMask' must be of type integer(1)");
    
 
     // declare internal variables
@@ -190,6 +197,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     tcov.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     tcov.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
     tcov.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
+    tcov.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
  
 
     // open bam input files

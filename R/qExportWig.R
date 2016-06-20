@@ -20,6 +20,7 @@
 # mapqMax     : maximum mapping quality (MAPQ <= mapqMax)
 # absIsizeMin : minimum absolute insert size (TLEN >= absIsizeMin)
 # absIsizeMax : maximum absolute insert size (TLEN <= absIsizeMax)
+# useRead     : for paired-end data, what read to use
 qExportWig <- function(proj,
                        file=NULL,
                        collapseBySample=TRUE,
@@ -35,7 +36,8 @@ qExportWig <- function(proj,
                        mapqMax=255L,
                        absIsizeMin=NULL,
                        absIsizeMax=NULL,
-                       createBigWig=FALSE)
+                       createBigWig=FALSE,
+                       useRead=c("any","first","last"))
 {
     # validate parameters
     # ...proj
@@ -144,12 +146,32 @@ qExportWig <- function(proj,
     mapqMax <- rep(mapqMax,n)
 
     # ...absolute insert size
-    if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && proj@paired == "no")
+    if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && !paired)
         stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
     if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
         absIsizeMin <- -1L
     if(is.null(absIsizeMax))
         absIsizeMax <- -1L
+
+    # ...useRead
+    useRead <- match.arg(useRead)
+    if(useRead != "any" && !paired) {
+        warning("ignoring 'useRead' for single read experiments")
+        useRead <- "any"
+    } else if (paired && useRead != "any") {
+        message("'useRead' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
+        paired <- FALSE
+    }
+
+    # translate useRead parameter
+    BAM_FREAD1 <- 64L
+    BAM_FREAD2 <- 128L
+    if(useRead == "any")
+        readBitMask <- BAM_FREAD1 + BAM_FREAD2
+    else if (useRead == "first")
+        readBitMask <- BAM_FREAD1
+    else if (useRead == "last")
+        readBitMask <- BAM_FREAD2
     
     # generate the wig file(s)
     message("start creating ",if(createBigWig) "bigWig" else "wig"," file",if(n>1) "s" else "","...")
@@ -164,7 +186,7 @@ qExportWig <- function(proj,
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
               as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
-              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), PACKAGE="QuasR")
+              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask, PACKAGE="QuasR")
         if(createBigWig) {
             rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
             unlink(tempwigfile[i])

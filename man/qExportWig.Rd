@@ -16,7 +16,8 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
                     "#66A61E", "#E6AB02", "#A6761D", "#666666"),
            includeSecondary=TRUE,
            mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL,
-           createBigWig=FALSE)
+           createBigWig=FALSE,
+           useRead=c("any","first","last"))
 }
 
 \arguments{
@@ -75,6 +76,18 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
     created and then converted to BigWig format (file extension
     \dQuote{.bw}) using the \code{\link[rtracklayer]{wigToBigWig}}
     function from package \pkg{rtracklayer}.}
+  \item{useRead}{For paired-end experiments, selects the read mate whose
+    alignments should be counted, one of:
+    \itemize{
+      \item \code{any} (default): count all alignments
+      \item \code{first} : count only alignments from the first read
+      \item \code{last} : count only alignments from the last read
+    }
+   For single-read alignments, this argument will be ignored. For
+   paired-end alignments, setting this argument to a value different
+   from the default will cause \code{qExportWig} not to automatically
+   use the mid of fragments, but to treat the selected read as if it
+   would come from a single-read experiment (see \sQuote{Details}).}
 }
 
 \details{
@@ -97,9 +110,11 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
   assigned according to the base in the middle between the leftmost and
   rightmost coordinates of the aligned pair of reads. Each pair of reads
   is only counted once, and not properly paired alignments are
-  ignored. Secondary alignments can be excluded by setting
-  \code{includeSecondary=FALSE}. In paired-end experiments,
-  \code{absIsizeMin} and \code{absIsizeMax} can be used to select
+  ignored. If \code{useRead} is set to select only the first or last
+  read in a paired-end experiment, the selected read will be treated as
+  reads from a single read experiment. Secondary alignments can be
+  excluded by setting \code{includeSecondary=FALSE}. In paired-end
+  experiments, \code{absIsizeMin} and \code{absIsizeMax} can be used to select
   alignments based on their insert size (TLEN field in SAM Spec v1.4).
 
   For \code{scaling=TRUE}, the number of alignments per bin \eqn{n}
