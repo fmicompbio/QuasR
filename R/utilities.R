@@ -89,7 +89,7 @@ truncString <-
     function(s, w=getOption('width')) {
         # truncate 's' in the middle
         truncs <- lapply(s, function(ss) {
-            if((l <- nchar(ss[1])) > w)
+            if(!is.na(ss[1]) && (l <- nchar(ss[1])) > w)
                 paste(substr(ss, 1, floor(w/2)-2), substr(ss, floor(l-w/2)+2, l), sep="...")
             else
                 ss

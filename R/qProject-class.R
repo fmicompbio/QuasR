@@ -97,24 +97,28 @@ setMethod("show", "qProject", function(object) {
     ns <- length(unique(object@reads$SampleName))
     nss <- if(ns>1) "s" else ""
     cat("\n")
-    cat(" Reads     : ", nf, if(object@paired != "no") paste(" pair",nfs," of files, ",sep="") else paste(" file",nfs,", ",sep=""),
-        ns, " sample", nss, " (", object@samplesFormat, " format):\n", sep="")
-    qual <- if(object@samplesFormat=="fastq") paste(" (phred",object@reads$phred,")",sep="") else ""
-    fw <- max(nchar(basename(unlist(object@reads[,grep("FileName",colnames(object@reads))]))))
-    sw <- max(nchar(object@reads$SampleName))
-    if(object@paired != "no") {
-        fw <- min(fw, floor((getOption("width") -10 -sw -max(nchar(qual))) /2))
-        cat(sprintf(" %3d. %-*s  %-*s  %-*s%s\n", 1:nf,
-                    fw, truncString(basename(object@reads$FileName1),fw),
-                    fw, truncString(basename(object@reads$FileName2),fw),
-                    sw, object@reads$SampleName, qual), sep="")
+    if(object@samplesFormat == "bam") {
+        cat(" Reads     : none (bam file project)\n")
     } else {
-        fw <- min(fw, getOption("width") -8 -sw -max(nchar(qual)))
-        cat(sprintf(" %3d. %-*s  %-*s%s\n", 1:nf, fw, truncString(basename(object@reads$FileName),fw), sw, object@reads$SampleName, qual), sep="")
+        cat(" Reads     : ", nf, if(object@paired != "no") paste(" pair",nfs," of files, ",sep="") else paste(" file",nfs,", ",sep=""),
+            ns, " sample", nss, " (", object@samplesFormat, " format):\n", sep="")
+        qual <- if(object@samplesFormat=="fastq") paste(" (phred",object@reads$phred,")",sep="") else ""
+        fw <- max(nchar(basename(unlist(object@reads[,grep("FileName",colnames(object@reads))]))))
+        sw <- max(nchar(object@reads$SampleName))
+        if(object@paired != "no") {
+            fw <- min(fw, floor((getOption("width") -10 -sw -max(nchar(qual))) /2))
+            cat(sprintf(" %3d. %-*s  %-*s  %-*s%s\n", 1:nf,
+                        fw, truncString(basename(object@reads$FileName1),fw),
+                        fw, truncString(basename(object@reads$FileName2),fw),
+                        sw, object@reads$SampleName, qual), sep="")
+        } else {
+            fw <- min(fw, getOption("width") -8 -sw -max(nchar(qual)))
+            cat(sprintf(" %3d. %-*s  %-*s%s\n", 1:nf, fw, truncString(basename(object@reads$FileName),fw), sw, object@reads$SampleName, qual), sep="")
+        }
     }
     # alignments
     cat("\n")
-    cat(" Genome alignments: directory: ", if(is.na(object@alignmentsDir)) "same as reads" else truncPath(object@alignmentsDir,getOption("width")-31),"\n", sep="")
+    cat(" Genome alignments: directory: ", if(is.na(object@alignmentsDir)) { if(object@samplesFormat == "bam") "not applicable (bam file project)" else "same as reads" } else truncPath(object@alignmentsDir,getOption("width")-31),"\n", sep="")
     #fw <- min(getOption("width") -8 -sw, max(nchar(basename(object@alignments[,"FileName"]))))
     #cat(sprintf(" %3d. %-*s  %-*s\n", 1:nf, fw, truncString(basename(object@alignments[,"FileName"]), fw), sw, object@reads$SampleName), sep="")
     fw <- min(getOption("width") -6, max(nchar(basename(object@alignments[,"FileName"]))))
