@@ -419,11 +419,12 @@ int _get_nm_tag(const idLine &alignment){
 
     // get edit distance
     pos = alignment.line.find("NM:i:")+5;
-    nm = alignment.line[pos] - '0';
+    // Rprintf("pos: %d, looking for integers in: %s\n", pos, alignment.line.substr(pos, string::npos).c_str());
+    nm = atoi(alignment.line.substr(pos, std::string::npos).c_str());
     // if paired then get edit distance of pair and add up
     if(!alignment.line2.empty()){
 	pos = alignment.line2.find("NM:i:")+5;
-	nm = nm + (alignment.line2[pos] - '0');
+	nm = nm + atoi(alignment.line2.substr(pos, std::string::npos).c_str());
     }
 
     return nm;
