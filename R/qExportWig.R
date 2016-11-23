@@ -21,6 +21,7 @@
 # absIsizeMin : minimum absolute insert size (TLEN >= absIsizeMin)
 # absIsizeMax : maximum absolute insert size (TLEN <= absIsizeMax)
 # useRead     : for paired-end data, what read to use
+# pairedAsSingle : for paired-end data, treat as single read data (do not calculate fragment mid-points)
 qExportWig <- function(proj,
                        file=NULL,
                        collapseBySample=TRUE,
@@ -37,7 +38,8 @@ qExportWig <- function(proj,
                        absIsizeMin=NULL,
                        absIsizeMax=NULL,
                        createBigWig=FALSE,
-                       useRead=c("any","first","last"))
+                       useRead=c("any","first","last"),
+                       pairedAsSingle=FALSE)
 {
     # validate parameters
     # ...proj
@@ -161,6 +163,13 @@ qExportWig <- function(proj,
     } else if (paired && useRead != "any") {
         message("'useRead' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
         paired <- FALSE
+    } else if (pairedAsSingle) {
+        if(paired) {
+            message("'pairedAsSingle' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
+            paired <- FALSE
+        } else {
+          warning("ignoring 'pairedAsSingle' for single read experiments")
+        }
     }
 
     # translate useRead parameter

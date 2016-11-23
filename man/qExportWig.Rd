@@ -17,7 +17,8 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
            includeSecondary=TRUE,
            mapqMin=0L, mapqMax=255L, absIsizeMin=NULL, absIsizeMax=NULL,
            createBigWig=FALSE,
-           useRead=c("any","first","last"))
+           useRead=c("any","first","last"),
+           pairedAsSingle=FALSE)
 }
 
 \arguments{
@@ -85,9 +86,16 @@ qExportWig(proj, file=NULL, collapseBySample=TRUE, binsize=100L,
     }
    For single-read alignments, this argument will be ignored. For
    paired-end alignments, setting this argument to a value different
-   from the default will cause \code{qExportWig} not to automatically
-   use the mid of fragments, but to treat the selected read as if it
-   would come from a single-read experiment (see \sQuote{Details}).}
+   from the default (\code{any}) will cause \code{qExportWig} not to
+   automatically use the mid of fragments, but to treat the selected
+   read as if it would come from a single-read experiment (see
+   \sQuote{Details}).}
+  \item{pairedAsSingle}{If \code{TRUE}, treat paired-end data single
+    read data, which means that instead of calculating fragment
+    mid-points for each read pair, the 5-prime ends of the reads is
+    used. This is for example useful when analyzing paired-end DNAse-seq
+    or ATAC-seq data, in which the read starts are informative for
+    chromatin accessibility.}
 }
 
 \details{
