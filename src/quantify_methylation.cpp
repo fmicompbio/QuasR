@@ -433,7 +433,10 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
     _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero, mapqMin, mapqMax);
 
     // declare parameters
-    SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
+    SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus, strandMinus, strandAny;
+    PROTECT(strandPlus = Rf_mkChar("+"));
+    PROTECT(strandMinus = Rf_mkChar("-"));
+    PROTECT(strandAny = Rf_mkChar("*"));
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
     int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
@@ -599,7 +602,7 @@ SEXP quantify_methylation(SEXP infiles, SEXP regionChr, SEXP regionChrLen, SEXP 
     R_Free(outputMinus);
 
     // return
-    UNPROTECT(7);
+    UNPROTECT(10);
     return(res);
 }
 
@@ -749,7 +752,10 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     _verify_parameters(infiles, regionChr, regionChrLen, regionStart, seqstring, mode, returnZero, mapqMin, mapqMax);
 
     // declare parameters
-    SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-"), strandAny = Rf_mkChar("*");
+    SEXP regionChrFirst = STRING_ELT(regionChr, 0), strandPlus, strandMinus, strandAny;
+    PROTECT(strandPlus = Rf_mkChar("+"));
+    PROTECT(strandMinus = Rf_mkChar("-"));
+    PROTECT(strandAny = Rf_mkChar("*"));
     const char *target_name = Rf_translateChar(regionChrFirst);
     const char *seq = Rf_translateChar(STRING_ELT(seqstring, 0));
     int i = 0, j = 0, tid = 0, mode_int = Rf_asInteger(mode), nbIn = Rf_length(infiles),
@@ -971,7 +977,7 @@ SEXP quantify_methylation_allele(SEXP infiles, SEXP regionChr, SEXP regionChrLen
     R_Free(outputMinus);
 
     // return
-    UNPROTECT(11);
+    UNPROTECT(14);
     return(res);
 }
 
@@ -1070,7 +1076,9 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
     if(resLength != (R_xlen_t)data.Cid.size() || resLength != (R_xlen_t)data.meth.size())
 	Rf_error("result structures are incompatible (%d/%d/%d); fatal error in quantify_methylation_singleAlignments\n",
 		 resLength, data.Cid.size(), data.meth.size());
-    SEXP resAid, resCid, resStrand, resMeth, res, resNames, strandPlus = Rf_mkChar("+"), strandMinus = Rf_mkChar("-");
+    SEXP resAid, resCid, resStrand, resMeth, res, resNames, strandPlus, strandMinus;
+    PROTECT(strandPlus = Rf_mkChar("+"));
+    PROTECT(strandMinus = Rf_mkChar("-"));
     //PROTECT(resAid    = Rf_allocVector(INTSXP, resLength));
     PROTECT(resAid    = Rf_allocVector(STRSXP, resLength));
     PROTECT(resCid    = Rf_allocVector(INTSXP, resLength));
@@ -1111,7 +1119,7 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
     R_Free(outputMinus);
 
     // return
-    UNPROTECT(6);
+    UNPROTECT(8);
     return(res);
 }
 
