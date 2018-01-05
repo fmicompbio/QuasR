@@ -340,10 +340,12 @@ the input sequence files.
 
 Here are examples of such sample files for a single read experiment:
 
+<pre>
 ```{r sampleFileSingle, echo=FALSE, results="asis"}
 cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_chip_single.txt")),
           collapse="\n"))
 ```
+</pre>
 <!--
 ------------------- | -------------
 `FileName`          | `SampleName`  
@@ -353,10 +355,12 @@ cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_chip_single
 
 and for a paired-end experiment:
 
+<pre>
 ```{r sampleFilePaired, echo=FALSE, results="asis"}
 cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_rna_paired.txt")),
       collapse="\n"))
 ```
+</pre>
 <!--
 `FileName1`        | `FileName2`        | `SampleName`  
 `rna_1_1.fq.bz2`   | `rna_1_2.fq.bz2`   | `Sample1`  
@@ -475,10 +479,12 @@ names and files of one or several auxiliary references in `fasta` format.
 
 An example auxiliary file looks like this:
 
+<pre>
 ```{r auxFile, echo=FALSE, results="asis"}
 cat(paste(readLines(system.file(package="QuasR", "extdata", "auxiliaries.txt")),
           collapse="\n"))
 ```
+</pre>
 <!--
 `FileName`        | `AuxName`  
 `NC_001422.1.fa`  | `phiX174`  
@@ -1195,10 +1201,12 @@ alternative allele.
 
 Below is an example of a SNP file, also available from `system.file(package="QuasR", "extdata", "hg19sub_snp.txt")`:
 
+<pre>
 ```{r snpFile, echo=FALSE, results="asis"}
 cat(paste(c(readLines(system.file(package="QuasR", "extdata", "hg19sub_snp.txt"))[1:4], "..."),
           collapse="\n"))
 ```
+</pre>
 <!--
 `chr1` |  `8596` | `G` | `A`  
 `chr1` | `18443` | `G` | `A`  
