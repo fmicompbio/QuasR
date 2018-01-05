@@ -8,7 +8,7 @@ author:
   - Anita Lerch
 package: QuasR
 output: 
-  BiocStyle::html_document
+  BiocStyle::html_document:
     toc_float: true
 vignette: >
   %\VignetteIndexEntry{An introduction to QuasR}
@@ -340,18 +340,28 @@ the input sequence files.
 
 Here are examples of such sample files for a single read experiment:
 
+```{r sampleFileSingle, echo=FALSE, results="asis"}
+cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_chip_single.txt")),
+          collapse="\n"))
+```
+<!--
 ------------------- | -------------
 `FileName`          | `SampleName`  
 `chip_1_1.fq.bz2`   | `Sample1`  
 `chip_2_1.fq.bz2`   | `Sample2`  
-
+-->
 
 and for a paired-end experiment:
 
+```{r sampleFilePaired, echo=FALSE, results="asis"}
+cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_rna_paired.txt")),
+      collapse="\n"))
+```
+<!--
 `FileName1`        | `FileName2`        | `SampleName`  
 `rna_1_1.fq.bz2`   | `rna_1_2.fq.bz2`   | `Sample1`  
 `rna_2_1.fq.bz2`   | `rna_2_2.fq.bz2`   | `Sample2`  
-
+-->
 
 These example files are also contained in the `r Biocpkg("QuasR")` package and may
 be used as templates. The path of the files can be determined using:  
@@ -465,9 +475,14 @@ names and files of one or several auxiliary references in `fasta` format.
 
 An example auxiliary file looks like this:
 
+```{r auxFile, echo=FALSE, results="asis"}
+cat(paste(readLines(system.file(package="QuasR", "extdata", "auxiliaries.txt")),
+          collapse="\n"))
+```
+<!--
 `FileName`        | `AuxName`  
 `NC_001422.1.fa`  | `phiX174`  
-
+-->
 
 and is available from your `r Biocpkg("QuasR")` installation at
 ```{r auxiliaryFile, eval=TRUE}
@@ -1178,14 +1193,19 @@ argument of `qAlign`. The file is in tab-delimited text format without a header
 and contains four columns with chromosome name, position, reference allele and 
 alternative allele. 
 
-Below is an example of a SNP file, also available from `system.file(package="QuasR", "extdata", "hg19sub\_snp.txt")`:
+Below is an example of a SNP file, also available from `system.file(package="QuasR", "extdata", "hg19sub_snp.txt")`:
 
+```{r snpFile, echo=FALSE, results="asis"}
+cat(paste(c(readLines(system.file(package="QuasR", "extdata", "hg19sub_snp.txt"))[1:4], "..."),
+          collapse="\n"))
+```
+<!--
 `chr1` |  `8596` | `G` | `A`  
 `chr1` | `18443` | `G` | `A`  
 `chr1` | `18981` | `C` | `T`  
 `chr1` | `19341` | `G` | `A`  
 `...`  |         |     |  
-
+-->
 
 For a given locus, either reference or alternative allele may but does not have 
 to be identical to the sequence of the reference genome (`genomeFile` in this case).
