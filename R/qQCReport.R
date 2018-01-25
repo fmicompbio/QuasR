@@ -88,7 +88,7 @@ calcMmInformation <- function(filename, genome, chunkSize){
         #seq <- names(sort(trg[selChr], decreasing=T)[1:ceiling(length(trg[selChr]) * chunkSize / sum(trg[selChr]))])
         seq <- selChr
         gr <- unlist(GRangesList(lapply(seq, function(s){
-            GRanges(seqnames=s, ranges=breakInChunks(seqlen[s], reflen[s]))
+            GRanges(seqnames=s, ranges=breakInChunks(seqlen[s], chunksize=reflen[s]))
         })))
         rm(seq,reflen)
     }
