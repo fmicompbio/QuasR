@@ -1077,13 +1077,7 @@ coordinate for alignments on the minus strand. In order not to miss miRNAs that
 have a couple of extra or missing bases, we therefore construct a query window 
 around the 5'-end of each mature miRNA, by adding three bases up- and downstream:
 ```{r miRNA_extendQuery, eval=TRUE}
-matureMirsExtended <- matureMirs
-start(matureMirsExtended) <- ifelse(as.logical(strand(matureMirs)=="+"),
-                                    start(matureMirs) - 3,
-                                    end(matureMirs) - 3)
-end(matureMirsExtended)   <- ifelse(as.logical(strand(matureMirs)=="+"),
-                                    start(matureMirs) + 3,
-                                    end(matureMirs) + 3)
+matureMirsExtended <- resize(matureMirs, width=1L, fix="start") + 3L
 ```
 
 The resulting extended query is then used to quantify mature miRNAs. Multiple-encoded
