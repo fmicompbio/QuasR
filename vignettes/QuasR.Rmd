@@ -1062,7 +1062,7 @@ library(Rsamtools)
 alns <- scanBam(alignments(proj3)$genome$FileName,
                 param=ScanBamParam(what=scanBamWhat(), which=preMirs[1]))[[1]]
 alnsIR <- IRanges(start=alns$pos - start(preMirs), width=alns$qwidth)
-mp <- barplot(as.vector(coverage(alnsIR)), names.arg=1:max(max(alnsIR)),
+mp <- barplot(as.vector(coverage(alnsIR)), names.arg=1:max(end(alnsIR)),
               xlab="Relative position in pre-miRNA",
               ylab="Alignment coverage")
 rect(xleft=mp[start(matureMirs)-start(preMirs)+1,1], ybottom=-par('cxy')[2],
