@@ -115,7 +115,7 @@ qMeth(proj, query=NULL, reportLevel=c("C","alignment"),
   the \code{clObj} argument, for example an object returned by
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel},
   the quantification task is split into multiple chunks and processed in
-  parallel using \code{\link[parallel]{clusterApplyLB}} from package
+  parallel using \code{\link[parallel:clusterApply]{clusterApplyLB}} from package
   \pkg{parallel}. Not all tasks will be efficiently parallelized: For
   example, a single query region and a single (group of) bam files will
   not be split into multiple chunks.

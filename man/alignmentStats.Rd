@@ -48,7 +48,7 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link[QuasR]{qProject}},
+  \code{\link[=qProject-class]{qProject}},
   \code{\link[Rsamtools]{quickBamFlagSummary}} from package \pkg{Rsamtools}
 }
 \examples{

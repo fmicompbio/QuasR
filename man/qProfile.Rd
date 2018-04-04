@@ -28,7 +28,7 @@ qProfile(proj,
 \arguments{
   \item{proj}{a \code{\linkS4class{qProject}} object representing a
     sequencing experiment as returned by \code{\link[QuasR]{qAlign}}}
-  \item{query}{an object of type \code{\link[GenomicRanges]{GRanges}}
+  \item{query}{an object of type \code{\link[GenomicRanges:GRanges-class]{GRanges}}
     with the regions to be profiled. All regions in \code{query} will be
     anchored at their biological start position (\code{start(query)} for
     regions on strand \dQuote{+} or \dQuote{*}, \code{end(query)} for
@@ -77,7 +77,7 @@ qProfile(proj,
   }
   \item{auxiliaryName}{which bam files to use in an experiments with
     auxiliary alignments (see Details).}
-  \item{mask}{If not \code{NULL}, a \code{\link[GenomicRanges]{GRanges}}
+  \item{mask}{If not \code{NULL}, a \code{\link[GenomicRanges:GRanges-class]{GRanges}}
     object with reference regions to be masked, i.e. excluded from the
     quantification, such as unmappable or highly repetitive regions (see
     Details).}
@@ -118,7 +118,7 @@ qProfile(proj,
   
   Most arguments are identical to the ones of \code{\link[QuasR]{qCount}}.
 
-  The \code{query} argument is a \code{\link[GenomicRanges]{GRanges}}
+  The \code{query} argument is a \code{\link[GenomicRanges:GRanges-class]{GRanges}}
   object that defines the regions for the profile. All regions in
   \code{query} will be aligned to one another at their anchor position,
   which corresponds to their biological start position (\code{start(query)}

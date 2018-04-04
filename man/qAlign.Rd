@@ -82,7 +82,7 @@ qAlign(sampleFile,
     directory of the current R session as returned by \code{tempdir()}
     will be used.}
   \item{clObj}{a cluster object, created by the package
-    \code{\link[parallel]{parallel}}, to enable parallel processing and
+    \pkg{parallel}, to enable parallel processing and
     speed up the alignment process.}
   \item{checkOnly}{if \code{TRUE}, prevents the automatic creation of
     alignments or aligner indices. This allows to quickly check for missing
@@ -177,7 +177,7 @@ qAlign(sampleFile,
   \dQuote{maxHits} best hits in the genome and selects one of them randomly.
 }
 \value{
-  A \code{\link[QuasR]{qProject}} object.
+  A \code{\link[=qProject-class]{qProject}} object.
 }
 %\references{
 %% ~put references to the literature/web site here ~
@@ -192,7 +192,7 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link[QuasR]{qProject}},
+  \code{\link[=qProject-class]{qProject}},
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel},
   \code{\link[Rbowtie]{Rbowtie}} package
 }

@@ -95,7 +95,7 @@ If an object that inherits from class \code{cluster} is provided to
 the \code{clObj} argument, for example an object returned by
 \code{\link[parallel]{makeCluster}} from package \pkg{parallel},
 multiple files will be processed in parallel using
-\code{\link[parallel]{clusterMap}} from package \pkg{parallel}.
+\code{\link[parallel:clusterApply]{clusterMap}} from package \pkg{parallel}.
 }
 \value{
 A matrix with summary statistics on the processed

@@ -27,9 +27,9 @@ qCount(proj,
 \arguments{
   \item{proj}{a \code{\linkS4class{qProject}} object representing a
     sequencing experiment as returned by \code{\link[QuasR]{qAlign}}}
-  \item{query}{an object of type \code{\link[GenomicRanges]{GRanges}}, 
-    \code{\link[GenomicRanges]{GRangesList}} or 
-    \code{\link[GenomicFeatures]{TxDb}} with the regions to be
+  \item{query}{an object of type \code{\link[GenomicRanges:GRanges-class]{GRanges}}, 
+    \code{\link[GenomicRanges:GRangesList-class]{GRangesList}} or 
+    \code{\link[GenomicFeatures:TxDb-class]{TxDb}} with the regions to be
     quantified. The type of \code{query} will determine the mode of
     quantification (see \sQuote{Details}). For
     \code{reportLevel="junction"}, \code{query} is ignored and can also
@@ -80,7 +80,7 @@ qCount(proj,
   }
   \item{auxiliaryName}{which bam files to use in an experiments with
     auxiliary alignments (see Details).}
-  \item{mask}{If not \code{NULL}, a \code{\link[GenomicRanges]{GRanges}}
+  \item{mask}{If not \code{NULL}, a \code{\link[GenomicRanges:GRanges-class]{GRanges}}
     object with reference regions to be masked, i.e. excluded from the
     quantification, such as unmappable or highly repetitive regions (see
     Details).}
@@ -121,7 +121,7 @@ qCount(proj,
   the mode of quantification, are specified by the \code{query}
   argument, which is one of:
   \itemize{
-    \item \code{\link[GenomicRanges]{GRanges}}: Overlapping alignments
+    \item \code{\link[GenomicRanges:GRanges-class]{GRanges}}: Overlapping alignments
     are counted separately for each coordinate region. If multiple
     regions have identical names, their counts will be summed, counting
     each alignment only once even if it overlaps more than one of these
@@ -130,7 +130,7 @@ qCount(proj,
     This mode is for example used to quantify ChIP-seq alignments in
     promoter regions, or gene expression levels in an RNA-seq experiment
     (using a \code{query} with exon regions named by gene).
-    \item \code{\link[GenomicRanges]{GRangesList}}: Alignments are
+    \item \code{\link[GenomicRanges:GRangesList-class]{GRangesList}}: Alignments are
     counted and summed for each list element in \code{query} if they
     overlap with any of the regions contained in the list element. The
     order of the list elements defines a hierarchy for quantification:
@@ -142,7 +142,7 @@ qCount(proj,
     in \code{query}), for example to estimate the fractions of different
     classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA,
     mRNA, etc.)
-    \item \code{\link[GenomicFeatures]{TxDb}}: Used to extract
+    \item \code{\link[GenomicFeatures:TxDb-class]{TxDb}}: Used to extract
     regions from annotation and report alignment counts depending on the
     value of \code{reportLevel}. If \code{reportLevel="exon"},
     alignments overlapping each exon in \code{query} are counted.
@@ -224,7 +224,7 @@ qCount(proj,
   corresponding alignments will be counted.
 
   \code{mask} can be used to specify a
-  \code{\link[GenomicRanges]{GRanges}} object with regions in the
+  \code{\link[GenomicRanges:GRanges-class]{GRanges}} object with regions in the
   reference sequence to be excluded from quantification. The regions
   will be considered unstranded (\code{strand="*"}). Alignments that
   overlap with a region in \code{mask} will not be counted. Masking may
@@ -238,7 +238,7 @@ qCount(proj,
   \code{cluster}, for example an object returned by
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel}, the
   quantification task is split into multiple chunks and processed in
-  parallel using \code{\link[parallel]{clusterMap}}. Currently, not all
+  parallel using \code{\link[parallel:clusterApply]{clusterMap}}. Currently, not all
   tasks will be efficiently parallelized: For example, a single query
   region and a single (group of) bam files will not be split into
   multiple chunks.
