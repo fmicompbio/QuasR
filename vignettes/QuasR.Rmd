@@ -66,20 +66,19 @@ latest version of **R**. `r Biocpkg("QuasR")` is part of the Bioconductor projec
 at (http://www.bioconductor.org). To get `r Biocpkg("QuasR")` together with its
 dependencies you can use
 ```{r install, eval=FALSE}
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("QuasR")
+install.packages("BiocManager")
+BiocManager::install("QuasR")
 ```
 
 Bioconductor works on a 6-monthly official release cycle. As with other Bioconductor
 packages, there are always two versions of `r Biocpkg("QuasR")`. Most users will
-use the current official release version, which will be installed by `biocLite`
-if you are using the current release version of **R** (unless you specifically `useDevel()`).
-There is also a developmental version of `r Biocpkg("QuasR")` that includes new
-features due for the next official release. The development version will be installed
-if you are using the development version of **Bioconductor** (see `useDevel()` in
-`r Biocpkg("BiocInstaller")`). The official release version always has an even
-second number (for example 0.2.1), whereas the developmental version has an odd
-second number (for example 0.3.6).
+use the current official release version, which will be installed by `BiocManager::install`
+if you are using the current release version of **R**. There is also a development version
+of `r Biocpkg("QuasR")` that includes new features due for the next official release.
+The development version will be installed if you are using the development version of
+**Bioconductor** (see `version = "devel"` in `r Biocpkg("BiocManager")`). The official
+release version always has an even second number (for example 1.20.1), whereas the
+developmental version has an odd second number (for example 1.21.4).
 
 ## Loading of *QuasR* and other required libraries
 In order to run the code examples in this vignette, the `r Biocpkg("QuasR")` library
