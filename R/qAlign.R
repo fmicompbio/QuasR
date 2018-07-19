@@ -165,7 +165,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
         if(genome %in% available.genomes()){
           # The genome is available in Bioconductor, install it
           message("Downloading genome... ",genome," from Bioconductor")
-          biocLite(genome, suppressUpdates=TRUE, lib=lib.loc)
+          BiocManager::install(genome, update=FALSE, lib=lib.loc)
 
           # BSgenome has been installed, load it
           if(!require(genome, character.only=TRUE, quietly=TRUE, lib.loc=lib.loc)){stop("Fatal error 23445")}

@@ -66,7 +66,8 @@ latest version of **R**. `r Biocpkg("QuasR")` is part of the Bioconductor projec
 at (http://www.bioconductor.org). To get `r Biocpkg("QuasR")` together with its
 dependencies you can use
 ```{r install, eval=FALSE}
-install.packages("BiocManager")
+if (!require("BiocManager"))
+    install.packages("BiocManager")
 BiocManager::install("QuasR")
 ```
 

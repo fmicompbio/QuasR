@@ -5,7 +5,7 @@ import(zlibbioc)
 
 import(BiocGenerics)
 importFrom(GenomeInfoDb, seqlengths, bsgenomeName, seqlevelsInUse, seqlevels, genome)
-importFrom(BiocInstaller, biocLite)
+importFrom(BiocManager, install)
 importFrom(GenomicFiles, reduceByYield, REDUCEsampler)
 import(S4Vectors)
 import(IRanges)
