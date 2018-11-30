@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.23.0
-Date: 2018-07-19
+Version: 1.23.1
+Date: 2018-11-30
 Author: Anita Lerch, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
 Depends: parallel, GenomicRanges (>= 1.13.3), Rbowtie
@@ -21,6 +21,6 @@ Description: This package provides a framework for the quantification
         regions of interest.
 License: GPL-2
 biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
-        MethylSeq, Coverage, Alignment, QualityControl
+        MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
