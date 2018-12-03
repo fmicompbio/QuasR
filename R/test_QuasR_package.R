@@ -25,28 +25,31 @@ test <- function(dir, pattern = "^test_.*\\.R$")
     source(system.file(package="QuasR", "unitTests", "help_function.R"))
     file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
     options(QuasR_nb_cluster_nodes=2)
-    
-    require("RUnit", quietly=TRUE) || stop("RUnit package not found")
-    RUnit_opts <- getOption("RUnit", list())
-    RUnit_opts$verbose <- 1L     # enclosing begin/end messages for each test case
-    RUnit_opts$silent <- TRUE    # passed to 'silent' argument of checkException()
-    options(RUnit = RUnit_opts)
-    suite <- defineTestSuite(name="QuasR RUnit Tests", dirs=dir,
-                             testFileRegexp=pattern, testFuncRegexp = "^test.+",
-                             rngKind="default", rngNormalKind="default")
-    result <- runTestSuite(suite)
-    cat("\n\n")
-    printTextProtocol(result, showDetails=FALSE)
-    if (length(details <- .failure_details(result)) >0) {
-        cat("\nTest files with failing tests\n")
-        for (i in seq_along(details)) {
-            cat("\n  ", basename(names(details)[[i]]), "\n")
-            for (j in seq_along(details[[i]])) {
-                cat("    ", details[[i]][[j]], "\n")
-            }
-        }
+ 
+    if (requireNamespace("RUnit", quietly = TRUE)) {
+        RUnit_opts <- getOption("RUnit", list())
+        RUnit_opts$verbose <- 1L     # enclosing begin/end messages for each test case
+        RUnit_opts$silent <- TRUE    # passed to 'silent' argument of checkException()
+        options(RUnit = RUnit_opts)
+        suite <- Runit::defineTestSuite(name="QuasR RUnit Tests", dirs=dir,
+                                        testFileRegexp=pattern, testFuncRegexp = "^test.+",
+                                        rngKind="default", rngNormalKind="default")
+        result <- Runit::runTestSuite(suite)
         cat("\n\n")
-        stop("unit tests failed for package QuasR")
+        Runit::printTextProtocol(result, showDetails=FALSE)
+        if (length(details <- .failure_details(result)) >0) {
+            cat("\nTest files with failing tests\n")
+            for (i in seq_along(details)) {
+                cat("\n  ", basename(names(details)[[i]]), "\n")
+                for (j in seq_along(details[[i]])) {
+                    cat("    ", details[[i]][[j]], "\n")
+                }
+            }
+            cat("\n\n")
+            stop("unit tests failed for package QuasR")
+        }
+        return(result)
+    } else {
+        stop("RUnit package not found")
     }
-    result
 }
