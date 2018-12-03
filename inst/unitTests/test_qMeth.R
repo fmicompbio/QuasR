@@ -62,7 +62,7 @@ test_un_meth_paired_dir <- function(){
 }
 
 test_un_meth_paired_undir <- function(){
-    DEACTIVATED("deactivated to prevent timeout on bioc build system")
+    RUnit::DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePairedBisUn, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")
@@ -76,7 +76,7 @@ test_un_meth_paired_undir <- function(){
 }
 
 test_full_meth_single_undir <- function(){
-    DEACTIVATED("deactivated to prevent timeout on bioc build system")
+    RUnit::DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomeSingle, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC", keepZero=FALSE)
@@ -93,7 +93,7 @@ test_full_meth_single_undir <- function(){
 }
 
 test_full_meth_paired_dir <- function(){
-    DEACTIVATED("deactivated to prevent timeout on bioc build system")
+    RUnit::DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="dir", alignmentsDir=td, clObj=clObj)
 
     meth <- qMeth(project, mode="allC")
@@ -111,7 +111,7 @@ test_full_meth_paired_dir <- function(){
 }
 
 test_full_meth_paired_undir <- function(){
-    DEACTIVATED("deactivated to prevent timeout on bioc build system")
+    RUnit::DEACTIVATED("deactivated to prevent timeout on bioc build system")
     project <- qAlign(sampleFileGenomePaired, genomeFile, bisulfit="undir", alignmentsDir=td, clObj=clObj)
     
     meth <- qMeth(project, mode="allC")

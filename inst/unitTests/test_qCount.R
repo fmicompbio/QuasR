@@ -252,7 +252,7 @@ test_orientation <- function() {
     RUnit::checkTrue(all(resSoll == res), "Test 9: qCount with orientation and query strand")
     
     res <- qCount(project, query, selectReadPosition="start", shift=0, orientation="opposite")[,-1]
-    checkTrue(all(resSoll == res), "Test 10: qCount with orientation and query strand")
+    RUnit::checkTrue(all(resSoll == res), "Test 10: qCount with orientation and query strand")
     
     resSoll <- rep(0,99)
     pos <- Rle(ifelse(strand(aln)=="+", end(aln), start(aln)))
