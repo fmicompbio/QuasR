@@ -58,21 +58,21 @@ test_arguments <- function() {
 }
 
 test_normal_single <- function(){
-    checkException(qAlign(genome = genomeFile))
-    checkException(qAlign(sampleFileGenomeSingle, genome = genomeFile[c(1,1)]))
-    checkException(qAlign(sampleFile = sampleFileGenomeSingle))
-    checkException(qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir = td, checkOnly = TRUE))
+    RUnit::checkException(qAlign(genome = genomeFile))
+    RUnit::checkException(qAlign(sampleFileGenomeSingle, genome = genomeFile[c(1,1)]))
+    RUnit::checkException(qAlign(sampleFile = sampleFileGenomeSingle))
+    RUnit::checkException(qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir = td, checkOnly = TRUE))
     project <- qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir = td, clObj = clObj)
     
     aln <- GenomicAlignments::readGAlignments(project@alignments$FileName, use.names = TRUE)
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors = FALSE)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln) == "+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln) == "+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln) == "+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln) == "+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -84,11 +84,11 @@ test_normal_single_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -100,11 +100,11 @@ test_normal_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -115,11 +115,11 @@ test_normal_paired_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -131,11 +131,11 @@ test_spliced_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -146,11 +146,11 @@ test_spliced_single_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -161,11 +161,11 @@ test_spliced_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -177,11 +177,11 @@ test_spliced_paired_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -194,11 +194,11 @@ test_allelic_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
     
     # load snp list
@@ -207,15 +207,15 @@ test_allelic_single <- function(){
     # check XV tag
     r_aln <- aln[mcols(aln)$XV == "R"]
     r_idx <- overlapsAny(r_aln, snp)
-    checkTrue(all(r_idx),
+    RUnit::checkTrue(all(r_idx),
               "Test XV tag: All read with tag XV=R should overlap a snp")
     u_aln <- aln[mcols(aln)$XV == "U"]
     u_idx <- overlapsAny(u_aln, snp)
-    checkTrue(all(!u_idx),
+    RUnit::checkTrue(all(!u_idx),
               "Test XV tag: No read with tag XV=U should overlap a snp")
     a_aln <- aln[mcols(aln)$XV == "A"]
     a_idx <- overlapsAny(a_aln, snp)
-    checkTrue(all(a_idx),
+    RUnit::checkTrue(all(a_idx),
               "Test XV tag: All read with tag XV=A should overlap a snp")
     
     # alignments with wrong XV tag
@@ -234,11 +234,11 @@ test_allelic_single_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -251,11 +251,11 @@ test_allelic_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,7] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,7] == seqnames(aln)),
               "Test seqname")
     # load snp list
     snp <- read.delim(snpFile, header=F, colClasses=c("factor", "numeric","character","character"))
@@ -266,7 +266,7 @@ test_allelic_paired <- function(){
     if(!all(r_idx)){
         rSnp <- r_aln[r_idx]
         rNoSnp <- r_aln[!r_idx]
-        checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
+        RUnit::checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
     a_aln <- aln[mcols(aln)$XV == "A"]
@@ -274,12 +274,12 @@ test_allelic_paired <- function(){
     if(!all(a_idx)){
         aSnp <- a_aln[a_idx]
         aNoSnp <- a_aln[!a_idx]
-        checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
+        RUnit::checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
     u_aln <- aln[mcols(aln)$XV == "U"]
     u_idx <- overlapsAny(u_aln, snp)
-    checkTrue(all(!u_idx),
+    RUnit::checkTrue(all(!u_idx),
               "Test XV tag: No read with tag XV=U should overlap a snp")
 
     # alignments with wrong XV tag
@@ -296,11 +296,11 @@ test_allelic_paired_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    RUnit::checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -313,19 +313,19 @@ test_bisulfite_single_dir <- function(){
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
     checkVar <- readInfo[,3] == start(aln) | readInfo[,5] == start(aln)
-    checkTrue(all(checkVar), 
+    RUnit::checkTrue(all(checkVar), 
               paste("Test left read position:", readInfo[!checkVar,8][1],
                     readInfo[!checkVar,3][1],readInfo[!checkVar,5][1], start(aln)[!checkVar][1]))
     #checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
     #          "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")            
-    checkTrue(all(readInfo[,9] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     
     # check if strand corrspond to converted genome
     nm0 <- mcols(aln)$NM == 0
-    checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
+    RUnit::checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")
 }
 
@@ -338,11 +338,11 @@ test_bisulfite_single_dir_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")          
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -354,11 +354,11 @@ test_bisulfite_single_dir_allelic <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,7] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,7] == seqnames(aln)),
               "Test seqname")
     # load snp list
     snp <- read.delim(snpFile, header=F, colClasses=c("factor", "numeric","character","character"))
@@ -370,7 +370,7 @@ test_bisulfite_single_dir_allelic <- function(){
     if(!all(r_idx)){
         rSnp <- r_aln[r_idx]
         rNoSnp <- r_aln[!r_idx]
-        checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
+        RUnit::checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
     a_aln <- aln[mcols(aln)$XV == "A"]
@@ -378,15 +378,15 @@ test_bisulfite_single_dir_allelic <- function(){
     if(!all(a_idx)){
         aSnp <- a_aln[a_idx]
         aNoSnp <- a_aln[!a_idx]
-        checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
+        RUnit::checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
     u_aln <- aln[mcols(aln)$XV == "U"]
     u_idx <- overlapsAny(u_aln, snp)
     uSnp <- u_aln[u_idx]
-    checkTrue(all(overlapsAny(uSnp[strand(uSnp) == "+"], snp[mcols(snp)$Ref == "C"])),
+    RUnit::checkTrue(all(overlapsAny(uSnp[strand(uSnp) == "+"], snp[mcols(snp)$Ref == "C"])),
               "Test XV tag: Read with tag XV=U should overlap only snp of type C to T")
-    checkTrue(all(overlapsAny(uSnp[strand(uSnp) == "-"], snp[mcols(snp)$Ref == "G"])),
+    RUnit::checkTrue(all(overlapsAny(uSnp[strand(uSnp) == "-"], snp[mcols(snp)$Ref == "G"])),
               "Test XV tag: Read with tag XV=U should overlap only snp of type G to A")
 }
 
@@ -400,19 +400,19 @@ test_bisulfite_single_undir <- function(){
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
     checkVar <- readInfo[,3] == start(aln) | readInfo[,5] == start(aln)
-    checkTrue(all(checkVar), 
+    RUnit::checkTrue(all(checkVar), 
               paste("Test left read position:", readInfo[!checkVar,8][1],
                     readInfo[!checkVar,3][1],readInfo[!checkVar,5][1], start(aln)[!checkVar][1]))
     #checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
     #          "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")           
-    checkTrue(all(readInfo[,9] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     
     # check if strand corrspond to converted genome
     nm0 <- mcols(aln)$NM == 0
-    checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
+    RUnit::checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")
 }
 
@@ -425,15 +425,15 @@ test_bisulfite_paired_dir <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")            
-    checkTrue(all(readInfo[,9] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     # check if strand corrspond to converted genome
     nm0 <- mcols(aln)$NM == 0
-    checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
+    RUnit::checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")
 }
 
@@ -445,11 +445,11 @@ test_bisulfite_paired_dir_fasta <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")            
-    checkTrue(all(readInfo[,8] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")
 }
 
@@ -462,11 +462,11 @@ test_bisulfite_paired_dir_allelic <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(7,8)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,7] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,7] == seqnames(aln)),
               "Test seqname")    
     # load snp list
     snp <- read.delim(snpFile, header=F, colClasses=c("factor", "numeric","character","character"))
@@ -478,7 +478,7 @@ test_bisulfite_paired_dir_allelic <- function(){
     if(!all(r_idx)){
         rSnp <- r_aln[r_idx]
         rNoSnp <- r_aln[!r_idx]
-        checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
+        RUnit::checkTrue(all(mcols(rNoSnp)$qname %in% mcols(rSnp)$qname), 
                   "Test XV tag: All read with tag XV=R should overlap a snp or mate read should overlap a snp")
     }
     a_aln <- aln[mcols(aln)$XV == "A"]
@@ -486,7 +486,7 @@ test_bisulfite_paired_dir_allelic <- function(){
     if(!all(a_idx)){
         aSnp <- a_aln[a_idx]
         aNoSnp <- a_aln[!a_idx]
-        checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
+        RUnit::checkTrue(all(mcols(aNoSnp)$qname %in% mcols(aSnp)$qname), 
                   "Test XV tag: All read with tag XV=A should overlap a snp or mate read should overlap a snp")
     }
 }
@@ -499,16 +499,16 @@ test_bisulfite_paired_undir <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
     readInfo[,c(9,10,11)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")              
-    checkTrue(all(readInfo[,9] == seqnames(aln)),
+    RUnit::checkTrue(all(readInfo[,9] == seqnames(aln)),
               "Test seqname")
     
     # check if strand corrspond to converted genome
     nm0 <- mcols(aln)$NM == 0
-    checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
+    RUnit::checkTrue(all(ifelse(as.vector(strand(aln[nm0])=="+"), "CtoT", "GtoA") == readInfo[nm0,11]),
               "Test if strand correspond to the coverted genome")    
 }
 
@@ -520,11 +520,11 @@ test_aux_normal_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,3], readInfo[,5]) == start(alnAux)),
+    RUnit::checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,3], readInfo[,5]) == start(alnAux)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,4], readInfo[,6]) == end(alnAux)),
+    RUnit::checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,4], readInfo[,6]) == end(alnAux)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")    
 }
 
@@ -537,11 +537,11 @@ test_aux_normal_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,3], readInfo[,5]) == start(alnAux)),
+    RUnit::checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,3], readInfo[,5]) == start(alnAux)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,4], readInfo[,6]) == end(alnAux)),
+    RUnit::checkTrue(all(ifelse(strand(alnAux)=="+", readInfo[,4], readInfo[,6]) == end(alnAux)),
               "Test right read position")              
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")
 }
 
@@ -554,11 +554,11 @@ test_aux_spliced_single <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")             
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")    
 }
 
@@ -570,11 +570,11 @@ test_aux_spliced_paired <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")             
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")    
 }
 
@@ -586,11 +586,11 @@ test_aux_bisulfite_single_undir <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")             
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")
 }
 
@@ -603,27 +603,27 @@ test_aux_bisulfite_paired_undir <- function(){
     readInfo <- as.data.frame(do.call(rbind, strsplit(names(alnAux),"_")), stringsAsFactors=F)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
+    RUnit::checkTrue(all(readInfo[,3] == start(aln) | readInfo[,5] == start(aln)),
               "Test left read position")
-    checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
+    RUnit::checkTrue(all(readInfo[,4] == end(aln) | readInfo[,6] == end(aln)),
               "Test right read position")             
-    checkTrue(all(readInfo[,8] == seqnames(alnAux)),
+    RUnit::checkTrue(all(readInfo[,8] == seqnames(alnAux)),
               "Test seqname")
 }
 
 test_maxHits_simple <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, maxHits=100, alignmentsDir=td, clObj=clObj)
-    checkTrue(0 == alignmentStats(project)[,"unmapped"])
+    RUnit::checkTrue(0 == alignmentStats(project)[,"unmapped"])
 }
 
 test_maxHits_allelic <- function(){
     project <- qAlign(sampleFileGenomePaired, genomeFile, snpFile=snpFile, maxHits=100, alignmentsDir=td, clObj=clObj)
-    checkTrue(0 == alignmentStats(project)[,"unmapped"])
+    RUnit::checkTrue(0 == alignmentStats(project)[,"unmapped"])
 }
 
 test_maxHits_bisulfite <- function(){
     project <- qAlign(sampleFileGenomePairedBisPartial, genomeFile, bisulfite="undir", maxHits=100, alignmentsDir=td, clObj=clObj)
-    checkTrue(0 == alignmentStats(project)[,"unmapped"])
+    RUnit::checkTrue(0 == alignmentStats(project)[,"unmapped"])
 }
 
 # Not supported

@@ -90,14 +90,14 @@ test_paired_fasta <- function()
 #     outFile2 <- tempfile(fileext=".fa")
 #     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
 #                            Lpattern="ATACTG")
-#     checkEqualsNumeric(2, res[,1]$matchTo5pAdapter)
+#     RUnit::checkEqualsNumeric(2, res[,1]$matchTo5pAdapter)
 # 
 #     # Test Rpattern
 #     outFile1 <- tempfile(fileext=".fa")
 #     outFile2 <- tempfile(fileext=".fa")
 #     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
 #                            Rpattern="ATCTCGTATGCCGTCTTCTGCTTG")
-#     checkEqualsNumeric(2, res[,1]$matchTo3pAdapter)
+#     RUnit::checkEqualsNumeric(2, res[,1]$matchTo3pAdapter)
 }
 
 test_single_fasta <- function()
