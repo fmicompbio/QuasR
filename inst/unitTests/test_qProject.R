@@ -19,56 +19,56 @@ test_subset_project <- function()
 {
     len <- length(projectGenome)
     projectGenomeS1 <- projectGenome[1:2]
-    checkTrue(len/2 == length(projectGenomeS1))
+    RUnit::checkTrue(len/2 == length(projectGenomeS1))
     projectGenomeS2 <- projectGenome[3:4]    
-    checkTrue(len/2 == length(projectGenomeS2))
+    RUnit::checkTrue(len/2 == length(projectGenomeS2))
 
-    suppressWarnings(checkIdentical(projectGenome[1], projectGenome["Sample1"]))
-    suppressWarnings(checkIdentical(projectGenome[3], projectGenome["Sample2"]))
+    suppressWarnings(RUnit::checkIdentical(projectGenome[1], projectGenome["Sample1"]))
+    suppressWarnings(RUnit::checkIdentical(projectGenome[3], projectGenome["Sample2"]))
     
     len <- length(projectGenomeAux)
     projectGenomeAuxS1 <- projectGenomeAux[1:2]
-    checkTrue(len/2 == length(projectGenomeAuxS1))
+    RUnit::checkTrue(len/2 == length(projectGenomeAuxS1))
     projectGenomeAuxS2 <- projectGenomeAux[3:4]
-    checkTrue(len/2 == length(projectGenomeAuxS2))
+    RUnit::checkTrue(len/2 == length(projectGenomeAuxS2))
 }
 
 test_length <- function()
 {
-    checkTrue(4 == length(projectGenome))
+    RUnit::checkTrue(4 == length(projectGenome))
     
-    checkTrue(4 == length(projectGenomeAux))
+    RUnit::checkTrue(4 == length(projectGenomeAux))
 }
 
 test_genome <- function()
 {
     ## check without auxFile
-    checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenome)))
+    RUnit::checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenome)))
 
     ## check with auxFile
-    checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenomeAux)))
+    RUnit::checkTrue(normalizePath(genomeFile) == normalizePath(genome(projectGenomeAux)))
 }
 
 test_auxiliary <- function()
 {
     ## check without auxFile
-    checkTrue(0 == nrow(auxiliaries(projectGenome)))
+    RUnit::checkTrue(0 == nrow(auxiliaries(projectGenome)))
     
     ## check with auxFile
-    checkTrue(1 == nrow(auxiliaries(projectGenomeAux)))
+    RUnit::checkTrue(1 == nrow(auxiliaries(projectGenomeAux)))
 }
 
 test_alignment <- function()
 {
     ## check without auxFile
     aln <- alignments(projectGenome)
-    checkTrue(4 == nrow(aln$genome))
-    checkTrue(0 == nrow(aln$aux))
+    RUnit::checkTrue(4 == nrow(aln$genome))
+    RUnit::checkTrue(0 == nrow(aln$aux))
     
     ## check with auxFile
     aln <- alignments(projectGenomeAux)
-    checkTrue(4 == nrow(aln$genome))
-    checkTrue(4 == ncol(aln$aux))
+    RUnit::checkTrue(4 == nrow(aln$genome))
+    RUnit::checkTrue(4 == ncol(aln$aux))
 }
 
 test_show <- function()

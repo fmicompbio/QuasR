@@ -34,38 +34,38 @@ test_qProfile <- function()
     names(query) <- NULL
     pr <- qProfile(project, query, upstream=0, downstream=199)
     cnt <- qCount(project, query)
-    checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
-    checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
+    RUnit::checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
+    RUnit::checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
 
     queryShift <- query
     start(queryShift) <- ifelse(strand(query) == "+", start(query)-50, start(query)+50)
     end(queryShift) <- ifelse(strand(query) == "+", end(query)-50, end(query)+50)
     pr <- qProfile(project, query, upstream=50, downstream=149)
     cnt <- qCount(project, queryShift)
-    checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
-    checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
+    RUnit::checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
+    RUnit::checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
     
     # test shift
     pr <- qProfile(project, query, upstream=0, downstream=199, shift=50)
     cnt <- qCount(project, query, shift=50)
-    checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
-    checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
+    RUnit::checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
+    RUnit::checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
     
     # test multiple profile
 #     names(query) <- name
 #     pr <- qProfile(project, query, upstream=50, downstream=149)
 #     cnt <- qCount(project, query)
 #     cnt <- cnt[sort(rownames(cnt)),]
-#     checkTrue(all(cnt[,2] == rowSums(pr[[2]])))                  
-#     checkTrue(all(cnt[,3] == rowSums(pr[[3]])))
+#     RUnit::checkTrue(all(cnt[,2] == rowSums(pr[[2]])))                  
+#     RUnit::checkTrue(all(cnt[,3] == rowSums(pr[[3]])))
 
     # test smart shift
     sampleFile <- file.path("extdata", "samples_rna_paired.txt")
     project <- qAlign(sampleFile, genomeFile, alignmentsDir=td, clObj=clObj)
     pr <- qProfile(project, query, upstream=0, downstream=199, shift="halfInsert")
     cnt <- qCount(project, query, shift="halfInsert")
-    checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
-    checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
+    RUnit::checkTrue(all(sum(cnt[,2]) == rowSums(pr[[2]])))                  
+    RUnit::checkTrue(all(sum(cnt[,3]) == rowSums(pr[[3]])))
 
     # test includeSecondary
     project <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),
@@ -75,6 +75,6 @@ test_qProfile <- function()
     cnt2 <- qCount(project, query, includeSecondary=FALSE)[1,2]
     pr1 <- qProfile(project, query, upstream=0, downstream=5386, includeSecondary=TRUE)
     pr2 <- qProfile(project, query, upstream=0, downstream=5386, includeSecondary=FALSE)
-    checkTrue(cnt1 == sum(pr1[[2]]))                  
-    checkTrue(cnt2 == sum(pr2[[2]]))
+    RUnit::checkTrue(cnt1 == sum(pr1[[2]]))                  
+    RUnit::checkTrue(cnt2 == sum(pr2[[2]]))
 }
