@@ -54,17 +54,23 @@ sampleFileGenomePairedFasta <- createReads(genomeFile, td, paired=TRUE, format="
     rm(clObj, envir=.GlobalEnv)
 }
 
+test_arguments <- function() {
+}
 
 test_normal_single <- function(){
-    project <- qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir=td, clObj=clObj)
+    checkException(qAlign(genome = genomeFile))
+    checkException(qAlign(sampleFileGenomeSingle, genome = genomeFile[c(1,1)]))
+    checkException(qAlign(sampleFile = sampleFileGenomeSingle))
+    checkException(qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir = td, checkOnly = TRUE))
+    project <- qAlign(sampleFileGenomeSingle, genomeFile, alignmentsDir = td, clObj = clObj)
     
-    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName, use.names=T)
-    readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors=F)
+    aln <- GenomicAlignments::readGAlignments(project@alignments$FileName, use.names = TRUE)
+    readInfo <- as.data.frame(do.call(rbind, strsplit(names(aln),"_")), stringsAsFactors = FALSE)
     readInfo[,c(8,9)] <- do.call(rbind,strsplit(readInfo[,2], "-"))
     # check start, end and seqname
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,3], readInfo[,5]) == start(aln)),
+    checkTrue(all(ifelse(strand(aln) == "+", readInfo[,3], readInfo[,5]) == start(aln)),
               "Test left read position")
-    checkTrue(all(ifelse(strand(aln)=="+", readInfo[,4], readInfo[,6]) == end(aln)),
+    checkTrue(all(ifelse(strand(aln) == "+", readInfo[,4], readInfo[,6]) == end(aln)),
               "Test right read position")              
     checkTrue(all(readInfo[,8] == seqnames(aln)),
               "Test seqname")

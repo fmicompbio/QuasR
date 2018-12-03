@@ -7,6 +7,22 @@ if(!exists("testFastaFiles"))
 if(!exists("testFastqFiles"))
     testFastqFiles <- createFastqReads()
 
+test_arguments <- function() {
+    checkException(preprocessReads(1L))
+    checkException(preprocessReads(c("a","b"), "c"))
+    checkException(preprocessReads("a", 1L))
+    checkException(preprocessReads("a", testFastqFiles[1]))
+    checkException(preprocessReads("a.txt", NULL))
+    checkException(preprocessReads("a.fasta", "b.fastq"))
+    checkException(preprocessReads("a.fasta.gz", "b.fasta.gz"))
+    checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fa", Lpattern = "AAA"))
+    checkException(preprocessReads("in1.fa", "out1.fa", 1L, "out2.fa"))
+    checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", 1L))
+    checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", c("o2a.fa","o2b.fa")))
+    checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fq"))
+    checkException(preprocessReads("in1.fa", "out1.fa.gz", "in2.fa", "out2.fa.bz2"))
+}
+
 test_paired_fasta <- function()
 {
     library(ShortRead)
