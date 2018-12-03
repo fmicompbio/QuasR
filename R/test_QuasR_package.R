@@ -31,12 +31,12 @@ test <- function(dir, pattern = "^test_.*\\.R$")
         RUnit_opts$verbose <- 1L     # enclosing begin/end messages for each test case
         RUnit_opts$silent <- TRUE    # passed to 'silent' argument of checkException()
         options(RUnit = RUnit_opts)
-        suite <- Runit::defineTestSuite(name="QuasR RUnit Tests", dirs=dir,
+        suite <- RUnit::defineTestSuite(name="QuasR RUnit Tests", dirs=dir,
                                         testFileRegexp=pattern, testFuncRegexp = "^test.+",
                                         rngKind="default", rngNormalKind="default")
-        result <- Runit::runTestSuite(suite)
+        result <- RUnit::runTestSuite(suite)
         cat("\n\n")
-        Runit::printTextProtocol(result, showDetails=FALSE)
+        RUnit::printTextProtocol(result, showDetails=FALSE)
         if (length(details <- .failure_details(result)) >0) {
             cat("\nTest files with failing tests\n")
             for (i in seq_along(details)) {
