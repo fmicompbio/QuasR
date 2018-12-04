@@ -294,8 +294,8 @@ detectVariantsBamfilesRegionsSingleChromosome <-
 
         ## call CPP function (multiple bam files, single region)
         #message("detecting single nucleotide variations...", appendLF=FALSE)
-        resL <- .Call("detectSNVs", bamfiles, chr, chrLen, regionsStart, seqstr,
-                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
+        resL <- .Call(detectSNVs, bamfiles, chr, chrLen, regionsStart, seqstr,
+                      keepZero, mapqmin, mapqmax)
         #message("done")
 
 
@@ -350,8 +350,8 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
 
         
         ## call CPP function (multiple bam files, single region)
-        resL <- .Call("quantifyMethylationSingleAlignments", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
-                      mapqmin, mapqmax, PACKAGE="QuasR")
+        resL <- .Call(quantifyMethylationSingleAlignments, bamfiles, chr, chrLen,
+                      regionsStart, seqstr, mode, mapqmin, mapqmax)
 
         return(resL)
     }
@@ -395,8 +395,8 @@ quantifyMethylationBamfilesRegionsSingleChromosome <-
 
         ## call CPP function (multiple bam files, single region)
         #message("quantifying methylation...", appendLF=FALSE)
-        resL <- .Call("quantifyMethylation", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
-                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
+        resL <- .Call(quantifyMethylation, bamfiles, chr, chrLen, regionsStart,
+                      seqstr, mode, keepZero, mapqmin, mapqmax)
         #message("done")
 
 
@@ -476,8 +476,8 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
 
         ## call CPP function (multiple bam files, single region)
         #message("quantifying methylation...", appendLF=FALSE)
-        resL <- .Call("quantifyMethylationAllele", bamfiles, chr, chrLen, regionsStart, seqstr, mode,
-                      keepZero, mapqmin, mapqmax, PACKAGE="QuasR")
+        resL <- .Call(quantifyMethylationAllele, bamfiles, chr, chrLen, regionsStart,
+                      seqstr, mode, keepZero, mapqmin, mapqmax)
         #message("done")
 
 

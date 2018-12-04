@@ -63,6 +63,8 @@ static const R_CallMethodDef callMethods[] = {
 void R_init_QuasR(DllInfo *info)
 {
     R_registerRoutines(info, NULL, callMethods, NULL, NULL);
+    R_useDynamicSymbols(info, FALSE);
+    R_forceSymbols(info, TRUE);
 }
 
 void R_unload_QuasR(DllInfo *info){}

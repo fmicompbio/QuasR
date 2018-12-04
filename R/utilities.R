@@ -30,7 +30,7 @@ alignmentStats <-
             stop(sprintf("cannot access bam files: %s",paste(bamfiles[i],collapse=", ")))
         # call idxstats_bam and collapse counts (seqlength, mapped and unmapped)
         res <- do.call(rbind, lapply(bamfiles, function(bf) {
-            tmp <- .Call("idxstats_bam", bf, PACKAGE="QuasR")
+            tmp <- .Call(idxstatsBam, bf)
             im <- tmp$seqname != "*"
             c(seqlength=sum(as.numeric(tmp$seqlength[im])),
               mapped=sum(as.numeric(tmp$mapped[im])),

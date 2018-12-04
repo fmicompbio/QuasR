@@ -278,12 +278,12 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                              selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                             mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR"))
+                             mapqmin, mapqmax, absisizemin, absisizemax))
             colnames(count) <- as.character(seq(-maxUp, maxDown, by=1))
         } else {
             count <- lapply(.Call(profileAlignmentsAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
                                   selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                                  mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR"),
+                                  mapqmin, mapqmax, absisizemin, absisizemax),
                             function(x) {
                                 x <- t(x)
                                 colnames(x) <- as.character(seq(-maxUp, maxDown, by=1))

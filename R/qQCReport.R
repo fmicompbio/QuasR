@@ -40,7 +40,7 @@ calcQaInformation <- function(filename, label, filetype, chunkSize){
 calcMmInformation <- function(filename, genome, chunkSize){
     
     # get bamfile index statistics
-    stats <- as.data.frame(.Call("idxstatsBam", filename, PACKAGE="QuasR"))
+    stats <- as.data.frame(.Call(idxstatsBam, filename))
     # get chromosome with mapped reads
     trg <- stats$mapped
     names(trg) <- stats$seqname
@@ -106,7 +106,8 @@ calcMmInformation <- function(filename, genome, chunkSize){
         refseq <- as.character(getSeq(ref, gr[s], as.character=FALSE))
         reftid <- as.integer(match(seqnames(gr[s]), names(trg)) - 1)
         refstart <- start(gr[s])
-        len <- .Call("nucleotideAlignmentFrequencies", filename, refseq, reftid, refstart, mmDist, as.integer(chunkSize), PACKAGE="QuasR")
+        len <- .Call(nucleotideAlignmentFrequencies, filename, refseq, reftid,
+                     refstart, mmDist, as.integer(chunkSize))
         if(len > maxLen)
             maxLen <- len
         if(sum(mmDist[[1]][1:25]) >= chunkSize || sum(mmDist[[2]][1:25]) >= chunkSize)
@@ -274,7 +275,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
     if(!is.null(alnFilename)){
         # get bamfile index statistics
         mapdata <- lapply(alnFilename, function(file){
-            colSums(as.data.frame(.Call("idxstatsBam", file, PACKAGE="QuasR")[c("mapped","unmapped")]))
+            colSums(as.data.frame(.Call(idxstatsBam, file)[c("mapped","unmapped")]))
         })
         mapdata <- do.call(rbind, mapdata)
         rownames(mapdata) <- mapLabel
