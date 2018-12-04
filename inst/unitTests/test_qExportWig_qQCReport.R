@@ -24,7 +24,8 @@ test_qExportWig_qQCReport <- function()
     
     # check qQCReport
     tmppdf <- tempfile(fileext = ".pdf")
-    resqc <- qQCReport(project, pdfFilename = tmppdf, clObj = clObj)
+    # remark: need to suppress "'package:stats' may not be available when loading" triggered by serialize within bplapply
+    suppressWarnings(resqc <- qQCReport(project, pdfFilename = tmppdf, clObj = clObj))
     RUnit::checkTrue(is.list(resqc))
     RUnit::checkTrue(length(resqc) == 8L)
     RUnit::checkTrue(is.list(resqc$nuclByCycle) &&
