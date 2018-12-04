@@ -6,34 +6,34 @@ if(!file.exists("./extdata"))
 test_qExportWig_qQCReport <- function()
 {
     # generate test results
-    clObj <- makeCluster(2)
+    cl <- makeCluster(2)
 
     library(rtracklayer)
     td <- tempdir()
     genomeFile <- file.path("extdata", "hg19sub.fa")
     sampleFile <- file.path("extdata", "samples_chip_single.txt")
     
-    project <- qAlign(sampleFile, genomeFile, alignmentsDir = td, clObj = clObj)
+    project <- qAlign(sampleFile, genomeFile, alignmentsDir = td, clObj = cl)
     wigfiles <- tempfile(fileext = rep(".wig",2))
     res <- qExportWig(project, wigfiles, scaling = FALSE)
     wig <- lapply(wigfiles, function(wf) suppressWarnings(import.wig(wf)))
     res <- qCount(project, wig[[1]], collapseBySample = FALSE)
     RUnit::checkTrue(all(mcols(wig[[1]])$score == res[,2]))
     RUnit::checkTrue(all(mcols(wig[[2]])$score == res[,3]))
-    
+
     # check qQCReport
     tmppdf <- tempfile(fileext = ".pdf")
-    # remark: need to suppress "'package:stats' may not be available when loading" triggered by serialize within bplapply
-    suppressWarnings(resqc <- qQCReport(project, pdfFilename = tmppdf, clObj = clObj))
+    resqc <- qQCReport(project, pdfFilename = tmppdf)
     RUnit::checkTrue(is.list(resqc))
     RUnit::checkTrue(length(resqc) == 8L)
     RUnit::checkTrue(is.list(resqc$nuclByCycle) &&
-                  is.matrix(resqc$nuclByCycle[[1]]) &&
-                  is.matrix(resqc$nuclByCycle[[2]]))
+                         is.matrix(resqc$nuclByCycle[[1]]) &&
+                         is.matrix(resqc$nuclByCycle[[2]]))
     RUnit::checkTrue(all(dim(resqc$nuclByCycle) == c(5L, 36L)))
     RUnit::checkTrue(all(dim(resqc$nuclByCycle[[1]]) == c(5L, 36L)))
     RUnit::checkTrue(all(dim(resqc$nuclByCycle[[2]]) == c(5L, 36L)))
     unlink(tmppdf)
+    
     
     # check qExportWig
     # ... arguments
@@ -53,7 +53,7 @@ test_qExportWig_qQCReport <- function()
 
     # ... paired and halfInsert shift
     sampleFile <- file.path("extdata", "samples_rna_paired.txt")
-    project2 <- qAlign(sampleFile, genomeFile, alignmentsDir = td, clObj = clObj)
+    project2 <- qAlign(sampleFile, genomeFile, alignmentsDir = td, clObj = cl)
     wigfiles <- tempfile(fileext = rep(".wig",2))
     res <- qExportWig(project2, wigfiles, scaling = FALSE)
     wig <- lapply(wigfiles, function(wf) suppressWarnings(import.wig(wf)))
@@ -74,5 +74,5 @@ test_qExportWig_qQCReport <- function()
     RUnit::checkTrue(wigcnt1 == cnt1)
     RUnit::checkTrue(wigcnt2 == cnt2)
 
-    stopCluster(clObj)
+    stopCluster(cl)
 }

@@ -253,11 +253,7 @@ md5subsum <-
 # for downwards compatibility, a parallel::cluster object can be passed that will be used to create the BiocParallel parameter objects
 getListOfBiocParallelParam <- function(clObj=NULL) {
     if(is.null(clObj)) { # no 'clObj' argument
-        if("package:BiocParallel" %in% search()) { # BiocParallel is loaded
-            bppl <- registered() # use registered backend(s)
-        } else {                                   # BiocParallel not loaded
-            bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
-        }
+        bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
     } else {             # have 'clObj' argument
         if(inherits(clObj, "SOCKcluster")) {
             # get node names
