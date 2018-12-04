@@ -9,12 +9,12 @@ cache: packages
 r_build_args: "--no-manual --no-resave-data"
 r_check_args: "--no-build-vignettes --no-manual --timings"
 
-#notifications:
-#  slack:
-#    secure: ccIntAARkZreQn7ytwahnAZqhlmY3C65yseWzz+mqE25FoOdgaErOfirqg3vjzmwmgB/xXJXTYSngRnJfo1INGAxMz6fQzMnrhw0bhOFV/KkLL29x//pmpmriPBeEA8p1cMWXUFICXq2KMEKazZNlXCnY1UAZn/mWr61y7FufrjP0TY07hXE6FLLSijPbICgJ/KdbkwmSBZ7+BZwm2dgTF9MS9VvSJ0oW1Z02gMDe48KQLDiS4hYVWRAolE1m2KqAtKXEgQZmVkaGOlgw8zjWrEq/+F1b5mOrrivdZoYNGt1VanbunCTazI1BhYI9s/R5I/AsDx3K/FLqP1f0o6YsijezeDyE601vukmPtaJlTbVcm7TN3BMBrvqituCyC5joLs+rKe0ihCjQ8UDk22B5+PFo7UC+jXF0TVMjO/u+e9urC8DzToBDh16ozl8KSmsnAiLibwlltP4lNrOekmJV45yPbxWqC7wPJIBmx9Fg6Npawi+vON1auWUxFKtUb5tlu86uiLE23/hL5tckf3Ijt77U7o7t5QcISilEK2rhDyTprYIQoypLWgQp81bGSJGvNGLnB1FWnviTp1VpQ1b0rrQKuYcJUYhNsskKUaYfcQZlh9JQf1k8UDDdNsBx2ep8pheQ9Pda6Ax5bSeuh95Y2uvDp509tePJNqWNLm3Tr4=
+notifications:
+  slack:
+    secure: jXSYR16GvV2NldVSMueYu/kkOlH31+6+U3z6rdgNCgkStDd9aNT56xP10Y/ajFmOxEYhRQ4/E43rvObYGUN1Bf09Yu7nhlfOfOwy7nb6cDcuY46W8evIUy+cMlATFZrO8MjECZ3T8a+Kz+7xnVWTCDvktquo8wDhlDrA4hiz7HrHezEoSdtVC2TeQiGIqBPZG3ko76c35QoHeeEurCyT32PjrIPBviYs+6hIeD+IH/bLd1x0d1yJ7sQKfRjY+t66v176dFPqtSEAwUyhLeQmksUjslxZqKet5S5pxt8dqKtWj4WWuC2mxySrevy1O8AN1/8ETjOWCQyJKA/qHt1nrFfDRcqJTpjWLeZQG3o/qcP2AZDtCP1pkNch2jyoyryaF486dwol3q+X/EIajo37s+0vDqKf41wDpDyF11fLQm1dlC5nXB5w0HKumBpWe2/16mHt/jYphIq5md4p/PXDr6EYwJei49n2EjY0bL8ODv70TXljGWSzW46+BI9XaROPeQTRmteDy/XeGuf4SlPXR0f8aeAtmnZn5yB5IyKb8a68aGelEYMF9dAo4nO/8TXQs7VCigBZVbBlnyVtGcpHP+o/VsfXBfcgT369U7G5ypc+l5l7agCVyN6ndgtPXlNUynSE5ahMS6xtkilDzwdwDKoPQmfAGSrhjA5hYrJMZRs=
 
-#r_packages:
-#    - covr
+r_packages:
+    - covr
 
-#after_success:
-#    - Rscript -e 'library(covr); codecov()'
+after_success:
+    - Rscript -e 'library(covr); codecov()'
