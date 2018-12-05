@@ -30,7 +30,7 @@ alignmentStats <-
             stop(sprintf("cannot access bam files: %s",paste(bamfiles[i],collapse=", ")))
         # call idxstats_bam and collapse counts (seqlength, mapped and unmapped)
         res <- do.call(rbind, lapply(bamfiles, function(bf) {
-            tmp <- .Call("idxstats_bam", bf, PACKAGE="QuasR")
+            tmp <- .Call(idxstatsBam, bf)
             im <- tmp$seqname != "*"
             c(seqlength=sum(as.numeric(tmp$seqlength[im])),
               mapped=sum(as.numeric(tmp$mapped[im])),
@@ -253,11 +253,7 @@ md5subsum <-
 # for downwards compatibility, a parallel::cluster object can be passed that will be used to create the BiocParallel parameter objects
 getListOfBiocParallelParam <- function(clObj=NULL) {
     if(is.null(clObj)) { # no 'clObj' argument
-        if("package:BiocParallel" %in% search()) { # BiocParallel is loaded
-            bppl <- registered() # use registered backend(s)
-        } else {                                   # BiocParallel not loaded
-            bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
-        }
+        bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
     } else {             # have 'clObj' argument
         if(inherits(clObj, "SOCKcluster")) {
             # get node names

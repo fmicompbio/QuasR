@@ -222,7 +222,7 @@ createGenomicAlignmentsController <- function(params){
         on.exit(file.remove(samFileA),add = TRUE)
         align_Rbowtie(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
         align_Rbowtie(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }else{
@@ -249,7 +249,7 @@ createGenomicAlignmentsController <- function(params){
         on.exit(file.remove(samFileA),add = TRUE)
         align_RbowtieSpliced(paste(proj@snpFile,basename(proj@genome),"R","fa",sep="."),paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
         align_RbowtieSpliced(paste(proj@snpFile,basename(proj@genome),"A","fa",sep="."),paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }
@@ -265,7 +265,7 @@ createGenomicAlignmentsController <- function(params){
 
         align_RbowtieCtoT_dir(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,!is.na(proj@snpFile),proj@maxHits,coresThisNode,samFileR,cacheDir)
         align_RbowtieCtoT_dir(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,!is.na(proj@snpFile),proj@maxHits,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }else{
@@ -279,7 +279,7 @@ createGenomicAlignmentsController <- function(params){
 
         align_RbowtieCtoT_undir(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,!is.na(proj@snpFile),proj@maxHits,coresThisNode,samFileR,cacheDir)
         align_RbowtieCtoT_undir(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,!is.na(proj@snpFile),proj@maxHits,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }
@@ -337,13 +337,13 @@ createAuxAlignmentsController <- function(params){
   unmappedReadsInfo <- proj@reads[sampleNr,]
   if(proj@paired == "no"){
     unmappedReadsFile <- tempfile(tmpdir=cacheDir, pattern=basename(proj@alignments$FileName[sampleNr]),fileext=proj@samplesFormat)
-    .Call("extractUnmappedReads",proj@alignments$FileName[sampleNr],unmappedReadsFile,proj@samplesFormat=="fastq",proj@bisulfite!="no", PACKAGE="QuasR")
+    .Call(extractUnmappedReads,proj@alignments$FileName[sampleNr],unmappedReadsFile,proj@samplesFormat=="fastq",proj@bisulfite!="no")
     unmappedReadsInfo$FileName <- unmappedReadsFile
     on.exit(file.remove(unmappedReadsFile)) # make sure that the temp file is deleted
   }else{
     unmappedReadsFile1 <- tempfile(tmpdir=cacheDir, pattern=basename(proj@alignments$FileName[sampleNr]),fileext=proj@samplesFormat)
     unmappedReadsFile2 <- tempfile(tmpdir=cacheDir, pattern=basename(proj@alignments$FileName[sampleNr]),fileext=proj@samplesFormat)
-    .Call("extractUnmappedReads",proj@alignments$FileName[sampleNr],c(unmappedReadsFile1,unmappedReadsFile2),proj@samplesFormat=="fastq",proj@bisulfite!="no", PACKAGE="QuasR")
+    .Call(extractUnmappedReads,proj@alignments$FileName[sampleNr],c(unmappedReadsFile1,unmappedReadsFile2),proj@samplesFormat=="fastq",proj@bisulfite!="no")
     unmappedReadsInfo$FileName1 <- unmappedReadsFile1
     unmappedReadsInfo$FileName2 <- unmappedReadsFile2
     on.exit(file.remove(unmappedReadsFile1)) # make sure that the temp file is deleted
@@ -371,7 +371,7 @@ createAuxAlignmentsController <- function(params){
 
     # remove the unmapped reads and convert to sorted bam
     print(paste("Converting sam file to sorted bam file on",Sys.info()['nodename'],":",samFile))
-    .Call("removeUnmappedFromSamAndConvertToBam",samFile,bamFileNoUnmapped, PACKAGE="QuasR")
+    .Call(removeUnmappedFromSamAndConvertToBam,samFile,bamFileNoUnmapped)
     file.remove(samFile)
     # sort bam
     sortBam(bamFileNoUnmapped,tools::file_path_sans_ext(proj@auxAlignments[j,sampleNr]))
@@ -485,7 +485,7 @@ align_RbowtieCtoT_dir <- function(indexDir,reads,samplesFormat,paired,alignmentP
   if(paired=="no"){
     # CtoT convert the reads. include the original sequence in the identifier.
     readsCtoT <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName),"readsCtoT_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
-    .Call("convertReadsIdBisRc",reads$FileName,readsCtoT,c("C","T"),FALSE, PACKAGE="QuasR")
+    .Call(convertReadsIdBisRc,reads$FileName,readsCtoT,c("C","T"),FALSE)
     on.exit(file.remove(readsCtoT),add = TRUE) # make sure that the temp file is deleted
 
     # create temp filenames for the aligment results
@@ -505,15 +505,15 @@ align_RbowtieCtoT_dir <- function(indexDir,reads,samplesFormat,paired,alignmentP
     if(!(grepl(" alignments", ret1[length(ret1)]))){stop("bowtie (CtoT) failed to perform the alignments")}
     if(!(grepl(" alignments", ret2[length(ret2)]))){stop("bowtie (GtoA) failed to perform the alignments")}
 
-    mrQuSize <- .Call("mergeReorderSam",c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits), PACKAGE="QuasR")
+    mrQuSize <- .Call(mergeReorderSam,c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits))
     print(paste("mergeReorderMaxQueueSize",mrQuSize))
 
   }else if(paired=="fr"){
     # CtoT convert the reads. include the original sequence in the identifier.
     readsCtoT_1 <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName1),"readsCtoT_1_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
     readsCtoT_2 <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName1),"readsCtoT_2_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
-    .Call("convertReadsIdBisRc",reads$FileName1,readsCtoT_1,c("C","T"),FALSE, PACKAGE="QuasR")
-    .Call("convertReadsIdBisRc",reads$FileName2,readsCtoT_2,c("C","T"),TRUE, PACKAGE="QuasR") # reverse complement the second read because its fr
+    .Call(convertReadsIdBisRc,reads$FileName1,readsCtoT_1,c("C","T"),FALSE)
+    .Call(convertReadsIdBisRc,reads$FileName2,readsCtoT_2,c("C","T"),TRUE) # reverse complement the second read because its fr
     on.exit(file.remove(readsCtoT_1),add = TRUE) # make sure that the temp file is deleted
     on.exit(file.remove(readsCtoT_2),add = TRUE) # make sure that the temp file is deleted
 
@@ -535,7 +535,7 @@ align_RbowtieCtoT_dir <- function(indexDir,reads,samplesFormat,paired,alignmentP
     if(!(grepl(" alignments", ret1[length(ret1)]))){stop("bowtie (CtoT) failed to perform the alignments")}
     if(!(grepl(" alignments", ret2[length(ret2)]))){stop("bowtie (GtoA) failed to perform the alignments")}
 
-    mrQuSize <- .Call("mergeReorderSam",c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits), PACKAGE="QuasR")
+    mrQuSize <- .Call(mergeReorderSam,c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits))
     print(paste("mergeReorderMaxQueueSize",mrQuSize))
   }
 }
@@ -575,8 +575,8 @@ align_RbowtieCtoT_undir <- function(indexDir,reads,samplesFormat,paired,alignmen
     # CtoT convert the reads. include the original sequence in the identifier.
     readsCtoT <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName),"readsCtoT_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
     readsRcCtoT <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName),"readsRcCtoT_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
-    .Call("convertReadsIdBisRc",reads$FileName,readsCtoT,c("C","T"),FALSE, PACKAGE="QuasR")
-    .Call("convertReadsIdBisRc",reads$FileName,readsRcCtoT,c("C","T"),TRUE, PACKAGE="QuasR")
+    .Call(convertReadsIdBisRc,reads$FileName,readsCtoT,c("C","T"),FALSE)
+    .Call(convertReadsIdBisRc,reads$FileName,readsRcCtoT,c("C","T"),TRUE)
     on.exit(file.remove(readsCtoT),add = TRUE) # make sure that the temp file is deleted
     on.exit(file.remove(readsRcCtoT),add = TRUE) # make sure that the temp file is deleted
 
@@ -613,7 +613,7 @@ align_RbowtieCtoT_undir <- function(indexDir,reads,samplesFormat,paired,alignmen
     if(!(grepl(" alignments", ret1[length(ret1)]))){stop("bowtie (RC, CtoT) failed to perform the alignments")}
     if(!(grepl(" alignments", ret2[length(ret2)]))){stop("bowtie (RC, GtoA) failed to perform the alignments")}
 
-    mrQuSize <- .Call("mergeReorderSam",c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA,readsRcCtoT_genomeCtoT,readsRcCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits), PACKAGE="QuasR")
+    mrQuSize <- .Call(mergeReorderSam,c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA,readsRcCtoT_genomeCtoT,readsRcCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits))
     print(paste("mergeReorderMaxQueueSize",mrQuSize))
 
   }else if(paired=="fr"){
@@ -624,10 +624,10 @@ align_RbowtieCtoT_undir <- function(indexDir,reads,samplesFormat,paired,alignmen
     readsRcCtoT_1 <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName1),"readsRcCtoT_1_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
     readsRcCtoT_2 <- tempfile(tmpdir=cacheDir, pattern=paste(basename(reads$FileName1),"readsRcCtoT_2_",sep="_"),fileext=paste(".",samplesFormat,sep=""))
 
-    .Call("convertReadsIdBisRc",reads$FileName1,readsCtoT_1,c("C","T"),FALSE, PACKAGE="QuasR")
-    .Call("convertReadsIdBisRc",reads$FileName2,readsCtoT_2,c("C","T"),TRUE, PACKAGE="QuasR") # reverse complement the second read because its fr
-    .Call("convertReadsIdBisRc",reads$FileName1,readsRcCtoT_1,c("C","T"),TRUE, PACKAGE="QuasR")
-    .Call("convertReadsIdBisRc",reads$FileName2,readsRcCtoT_2,c("C","T"),FALSE, PACKAGE="QuasR") # don't reverse complement the second read because its like reverse complementing twice
+    .Call(convertReadsIdBisRc,reads$FileName1,readsCtoT_1,c("C","T"),FALSE)
+    .Call(convertReadsIdBisRc,reads$FileName2,readsCtoT_2,c("C","T"),TRUE) # reverse complement the second read because its fr
+    .Call(convertReadsIdBisRc,reads$FileName1,readsRcCtoT_1,c("C","T"),TRUE)
+    .Call(convertReadsIdBisRc,reads$FileName2,readsRcCtoT_2,c("C","T"),FALSE) # don't reverse complement the second read because its like reverse complementing twice
 
     on.exit(file.remove(readsCtoT_1),add = TRUE) # make sure that the temp file is deleted
     on.exit(file.remove(readsCtoT_2),add = TRUE) # make sure that the temp file is deleted
@@ -666,7 +666,7 @@ align_RbowtieCtoT_undir <- function(indexDir,reads,samplesFormat,paired,alignmen
     if(!(grepl(" alignments", ret1[length(ret1)]))){stop("bowtie (RC, CtoT) failed to perform the alignments")}
     if(!(grepl(" alignments", ret2[length(ret2)]))){stop("bowtie (RC, GtoA) failed to perform the alignments")}
 
-    mrQuSize <- .Call("mergeReorderSam",c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA,readsRcCtoT_genomeCtoT,readsRcCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits), PACKAGE="QuasR")
+    mrQuSize <- .Call(mergeReorderSam,c(readsCtoT_genomeCtoT,readsCtoT_genomeGtoA,readsRcCtoT_genomeCtoT,readsRcCtoT_genomeGtoA),outFile,as.integer(idMode),as.integer(maxHits))
     print(paste("mergeReorderMaxQueueSize",mrQuSize))
 
   }
@@ -681,13 +681,13 @@ addNumericToID <- function(reads,paired,cacheDir){
 
   if(paired=="no"){
       readsFileNameTmp <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName),paste(".",fileext=tools::file_ext(reads$FileName),sep=""))
-      .Call("convertReadsIdBisRc", reads$FileName, readsFileNameTmp,NULL, FALSE, PACKAGE="QuasR")
+      .Call(convertReadsIdBisRc, reads$FileName, readsFileNameTmp,NULL, FALSE)
       reads$FileName <- readsFileNameTmp
   }else{
       readsFileNameTmp1 <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName1),paste(".",fileext=tools::file_ext(reads$FileName1),sep=""))
       readsFileNameTmp2 <- tempfile(tmpdir=cacheDir, pattern=basename(reads$FileName2),paste(".",fileext=tools::file_ext(reads$FileName2),sep=""))
-      .Call("convertReadsIdBisRc", reads$FileName1, readsFileNameTmp1,NULL, FALSE, PACKAGE="QuasR")
-      .Call("convertReadsIdBisRc", reads$FileName2, readsFileNameTmp2,NULL, FALSE, PACKAGE="QuasR")
+      .Call(convertReadsIdBisRc, reads$FileName1, readsFileNameTmp1,NULL, FALSE)
+      .Call(convertReadsIdBisRc, reads$FileName2, readsFileNameTmp2,NULL, FALSE)
       reads$FileName1 <- readsFileNameTmp1
       reads$FileName2 <- readsFileNameTmp2
   }
@@ -730,7 +730,7 @@ samToSortedBamParallel <- function(file,destination,p,cacheDir=NULL){
   on.exit(unlink(splitDir,recursive=TRUE)) # make sure that the temp dir is deleted
 
   # perform the split
-  chrNames <- .Call("splitSamChr",file,splitDir, PACKAGE="QuasR")
+  chrNames <- .Call(splitSamChr,file,splitDir)
 
   # collect the sam files that are not empty. The empty ones would cause a problem during sam to bam conversion
   splitSamAndBamNames <- NULL
@@ -758,7 +758,7 @@ samToSortedBamParallel <- function(file,destination,p,cacheDir=NULL){
   clusterApplyLB(clObjS,1:length(splitSamAndBamNames),samToSortedBamCore,splitSamAndBamNames[sortedOrder])
 
   # concatenate all the sorted bam files in the order of the original sam file header
-  .Call("catBam",paste(do.call(rbind,splitSamAndBamNames)[,2],".bam",sep=""),paste(destination,".bam",sep=""), PACKAGE="QuasR")
+  .Call(catBam,paste(do.call(rbind,splitSamAndBamNames)[,2],".bam",sep=""),paste(destination,".bam",sep=""))
 
   # create index for the final bam file
   indexBam(paste(destination,".bam",sep=""))

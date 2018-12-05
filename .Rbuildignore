@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 ^.gitignore$
 ^.Rbuildignore$
+^.travis.yml$
+^codecov\.yml$
+^Dockerfile$
+^.BBSoptions$

@@ -445,7 +445,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic, includeSecondary
         start <- rep(0L, length(tid)) # samtool library has 0-based inclusiv start
         end <- unname(bh) ## samtool library has 0-based exclusiv end
         # count junctions
-        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, includeSecondary, mapqmin, mapqmax, PACKAGE="QuasR")
+        count <- .Call(countJunctions, bamfile, tid, start, end, allelic, includeSecondary, mapqmin, mapqmax)
         return(count)
 
     }, error = function(ex) {
@@ -501,11 +501,11 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         if(!allelic) {
             count <- .Call(countAlignmentsNonAllelic, bamfile, tid, start, end, strand,
                            selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                           mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR")
+                           mapqmin, mapqmax, absisizemin, absisizemax)
         } else {
             count <- as.matrix(as.data.frame(.Call(countAlignmentsAllelic, bamfile, tid, start, end, strand,
                                                    selectReadPosition, readBitMask, shift, broaden, includeSpliced,
-                                                   mapqmin, mapqmax, absisizemin, absisizemax, PACKAGE="QuasR")))
+                                                   mapqmin, mapqmax, absisizemin, absisizemax)))
         }
      
         return(count)
@@ -555,8 +555,7 @@ countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shi
     
     ## call c-function
     cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end),
-                 regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, includeSpliced,
-                 PACKAGE="QuasR")
+                 regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, includeSpliced)
     
     return(cnt)
 }

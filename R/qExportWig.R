@@ -191,11 +191,11 @@ qExportWig <- function(proj,
     }
     lapply(1:n, function(i) {
         message("  ",file[i]," (",tracknames[i],")")
-        .Call("bamfileToWig", as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
+        .Call(bamfileToWig, as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
               as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
               as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
-              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask, PACKAGE="QuasR")
+              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask)
         if(createBigWig) {
             rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
             unlink(tempwigfile[i])

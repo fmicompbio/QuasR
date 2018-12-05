@@ -7,6 +7,22 @@ if(!exists("testFastaFiles"))
 if(!exists("testFastqFiles"))
     testFastqFiles <- createFastqReads()
 
+test_arguments <- function() {
+    RUnit::checkException(preprocessReads(1L))
+    RUnit::checkException(preprocessReads(c("a","b"), "c"))
+    RUnit::checkException(preprocessReads("a", 1L))
+    RUnit::checkException(preprocessReads("a", testFastqFiles[1]))
+    RUnit::checkException(preprocessReads("a.txt", NULL))
+    RUnit::checkException(preprocessReads("a.fasta", "b.fastq"))
+    RUnit::checkException(preprocessReads("a.fasta.gz", "b.fasta.gz"))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fa", Lpattern = "AAA"))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa", 1L, "out2.fa"))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", 1L))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", c("o2a.fa","o2b.fa")))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fq"))
+    RUnit::checkException(preprocessReads("in1.fa", "out1.fa.gz", "in2.fa", "out2.fa.bz2"))
+}
+
 test_paired_fasta <- function()
 {
     library(ShortRead)
@@ -21,28 +37,28 @@ test_paired_fasta <- function()
     outFile1 <- tempfile(fileext=".fa")
     outFile2 <- tempfile(fileext=".fa")
     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     # Test complexity
     outFile1 <- tempfile(fileext=".fa")
     outFile2 <- tempfile(fileext=".fa")
     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
                            complexity=0.5)
-    checkEqualsNumeric(2, res["lowComplexity",])
+    RUnit::checkEqualsNumeric(2, res["lowComplexity",])
 
     # Test minLength
     outFile1 <- tempfile(fileext=".fa")
     outFile2 <- tempfile(fileext=".fa")
     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
                            minLength=30)
-    checkEqualsNumeric(2, res["tooShort",])
+    RUnit::checkEqualsNumeric(2, res["tooShort",])
     
     # Test nBases
     outFile1 <- tempfile(fileext=".fa")
     outFile2 <- tempfile(fileext=".fa")
     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
                            nBases=1)
-    checkEqualsNumeric(2, res["tooManyN",])
+    RUnit::checkEqualsNumeric(2, res["tooManyN",])
 
     # Test truncateStartBases
     outFile1 <- tempfile(fileext=".fa")
@@ -51,10 +67,10 @@ test_paired_fasta <- function()
                            truncateStartBases=2)
     readIn1 <- readFasta(faFiles[1])
     readOut1 <- readFasta(outFile1)
-    checkEqualsNumeric(width(readIn1)-2, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-2, width(readOut1))
     readIn2 <- readFasta(faFiles[2])
     readOut2 <- readFasta(outFile2)
-    checkEqualsNumeric(width(readIn2)-2, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-2, width(readOut2))
 
     # Test truncateEndBases
     outFile1 <- tempfile(fileext=".fa")
@@ -63,10 +79,10 @@ test_paired_fasta <- function()
                            truncateEndBases=3)
     readIn1 <- readFasta(faFiles[1])
     readOut1 <- readFasta(outFile1)
-    checkEqualsNumeric(width(readIn1)-3, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-3, width(readOut1))
     readIn2 <- readFasta(faFiles[2])
     readOut2 <- readFasta(outFile2)
-    checkEqualsNumeric(width(readIn2)-3, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-3, width(readOut2))
 
 #     # Not supported yet
 #     # Test Lpattern
@@ -74,14 +90,14 @@ test_paired_fasta <- function()
 #     outFile2 <- tempfile(fileext=".fa")
 #     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
 #                            Lpattern="ATACTG")
-#     checkEqualsNumeric(2, res[,1]$matchTo5pAdapter)
+#     RUnit::checkEqualsNumeric(2, res[,1]$matchTo5pAdapter)
 # 
 #     # Test Rpattern
 #     outFile1 <- tempfile(fileext=".fa")
 #     outFile2 <- tempfile(fileext=".fa")
 #     res <- preprocessReads(faFiles[1], outFile1, faFiles[2], outFile2,
 #                            Rpattern="ATCTCGTATGCCGTCTTCTGCTTG")
-#     checkEqualsNumeric(2, res[,1]$matchTo3pAdapter)
+#     RUnit::checkEqualsNumeric(2, res[,1]$matchTo3pAdapter)
 }
 
 test_single_fasta <- function()
@@ -99,32 +115,32 @@ test_single_fasta <- function()
     # Test Default
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     # Test complexity
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, complexity=0.5)
-    checkEqualsNumeric(c(1,1), res["lowComplexity",])
+    RUnit::checkEqualsNumeric(c(1,1), res["lowComplexity",])
     
     # Test minLength
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, minLength=30)
-    checkEqualsNumeric(c(1,1), res["tooShort",])
+    RUnit::checkEqualsNumeric(c(1,1), res["tooShort",])
     
     # Test nBases
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, nBases=1)
-    checkEqualsNumeric(c(2,1), res["tooManyN",])
+    RUnit::checkEqualsNumeric(c(2,1), res["tooManyN",])
 
     # Test truncateStartBases
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, truncateStartBases=2)
     readIn1 <- readFasta(faFiles[1])
     readOut1 <- readFasta(outFile[1])
-    checkEqualsNumeric(width(readIn1)-2, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-2, width(readOut1))
     readIn2 <- readFasta(faFiles[2])
     readOut2 <- readFasta(outFile[2])
-    checkEqualsNumeric(width(readIn2)-2, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-2, width(readOut2))
     # TODO check seq
 
     # Test truncateEndBases
@@ -132,21 +148,21 @@ test_single_fasta <- function()
     res <- preprocessReads(faFiles, outFile, truncateEndBases=3)
     readIn1 <- readFasta(faFiles[1])
     readOut1 <- readFasta(outFile[1])
-    checkEqualsNumeric(width(readIn1)-3, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-3, width(readOut1))
     readIn2 <- readFasta(faFiles[2])
     readOut2 <- readFasta(outFile[2])
-    checkEqualsNumeric(width(readIn2)-3, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-3, width(readOut2))
     # TODO check seq
 
     # Test Lpattern
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, Lpattern="ATACTG")
-    checkEqualsNumeric(c(7,4), res["matchTo5pAdapter",])
+    RUnit::checkEqualsNumeric(c(7,4), res["matchTo5pAdapter",])
 
     # Test Rpattern
     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
     res <- preprocessReads(faFiles, outFile, Rpattern="ATCTCGTATGCCGTCTTCTGCTTG")
-    checkEqualsNumeric(c(6,5), res["matchTo3pAdapter",])
+    RUnit::checkEqualsNumeric(c(6,5), res["matchTo3pAdapter",])
         
 #     # Test combination of parameters
 #     outFile <- c(tempfile(fileext=".fa"), tempfile(fileext=".fa"))
@@ -180,28 +196,28 @@ test_paired_fastq <- function()
     outFile1 <- tempfile(fileext=".fq")
     outFile2 <- tempfile(fileext=".fq")
     res <- preprocessReads(fqFiles[1], outFile1, fqFiles[2], outFile2)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     # Test complexity
     outFile1 <- tempfile(fileext=".fq")
     outFile2 <- tempfile(fileext=".fq")
     res <- preprocessReads(fqFiles[1], outFile1, fqFiles[2], outFile2,
                            complexity=0.5)
-    checkEqualsNumeric(2, res["lowComplexity",])
+    RUnit::checkEqualsNumeric(2, res["lowComplexity",])
     
     # Test minLength
     outFile1 <- tempfile(fileext=".fq")
     outFile2 <- tempfile(fileext=".fq")
     res <- preprocessReads(fqFiles[1], outFile1, fqFiles[2], outFile2,
                            minLength=30)
-    checkEqualsNumeric(2, res["tooShort",])
+    RUnit::checkEqualsNumeric(2, res["tooShort",])
     
     # Test nBases
     outFile1 <- tempfile(fileext=".fq")
     outFile2 <- tempfile(fileext=".fq")
     res <- preprocessReads(fqFiles[1], outFile1, fqFiles[2], outFile2,
                            nBases=1)
-    checkEqualsNumeric(2, res["tooManyN",])
+    RUnit::checkEqualsNumeric(2, res["tooManyN",])
     
     # Test truncateStartBases
     outFile1 <- tempfile(fileext=".fq")
@@ -210,10 +226,10 @@ test_paired_fastq <- function()
                            truncateStartBases=2)
     readIn1 <- readFastq(fqFiles[1])
     readOut1 <- readFastq(outFile1)
-    checkEqualsNumeric(width(readIn1)-2, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-2, width(readOut1))
     readIn2 <- readFastq(fqFiles[2])
     readOut2 <- readFastq(outFile2)
-    checkEqualsNumeric(width(readIn2)-2, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-2, width(readOut2))
     
     # Test truncateEndBases
     outFile1 <- tempfile(fileext=".fq")
@@ -222,10 +238,10 @@ test_paired_fastq <- function()
                            truncateEndBases=3)
     readIn1 <- readFastq(fqFiles[1])
     readOut1 <- readFastq(outFile1)
-    checkEqualsNumeric(width(readIn1)-3, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-3, width(readOut1))
     readIn2 <- readFastq(fqFiles[2])
     readOut2 <- readFastq(outFile2)
-    checkEqualsNumeric(width(readIn2)-3, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-3, width(readOut2))
 }
 
 test_single_fastq <- function()
@@ -243,32 +259,32 @@ test_single_fastq <- function()
     # Test Default
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     # Test complexity
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, complexity=0.5)
-    checkEqualsNumeric(c(1,1), res["lowComplexity",])
+    RUnit::checkEqualsNumeric(c(1,1), res["lowComplexity",])
     
     # Test minLength
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, minLength=30)
-    checkEqualsNumeric(c(1,1), res["tooShort",])
+    RUnit::checkEqualsNumeric(c(1,1), res["tooShort",])
     
     # Test nBases
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, nBases=1)
-    checkEqualsNumeric(c(2,1), res["tooManyN",])
+    RUnit::checkEqualsNumeric(c(2,1), res["tooManyN",])
     
     # Test truncateStartBases
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, truncateStartBases=2)
     readIn1 <- readFastq(fqFiles[1])
     readOut1 <- readFastq(outFile[1])
-    checkEqualsNumeric(width(readIn1)-2, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-2, width(readOut1))
     readIn2 <- readFastq(fqFiles[2])
     readOut2 <- readFastq(outFile[2])
-    checkEqualsNumeric(width(readIn2)-2, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-2, width(readOut2))
     # TODO check seq
     
     # Test truncateEndBases
@@ -276,21 +292,21 @@ test_single_fastq <- function()
     res <- preprocessReads(fqFiles, outFile, truncateEndBases=3)
     readIn1 <- readFastq(fqFiles[1])
     readOut1 <- readFastq(outFile[1])
-    checkEqualsNumeric(width(readIn1)-3, width(readOut1))
+    RUnit::checkEqualsNumeric(width(readIn1)-3, width(readOut1))
     readIn2 <- readFastq(fqFiles[2])
     readOut2 <- readFastq(outFile[2])
-    checkEqualsNumeric(width(readIn2)-3, width(readOut2))
+    RUnit::checkEqualsNumeric(width(readIn2)-3, width(readOut2))
     # TODO check seq
     
     # Test Lpattern
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, Lpattern="ATACTG")
-    checkEqualsNumeric(c(7,4), res["matchTo5pAdapter",])
+    RUnit::checkEqualsNumeric(c(7,4), res["matchTo5pAdapter",])
     
     # Test Rpattern
     outFile <- c(tempfile(fileext=".fq"), tempfile(fileext=".fq"))
     res <- preprocessReads(fqFiles, outFile, Rpattern="ATCTCGTATGCCGTCTTCTGCTTG")
-    checkEqualsNumeric(c(6,5), res["matchTo3pAdapter",])
+    RUnit::checkEqualsNumeric(c(6,5), res["matchTo3pAdapter",])
 }
 
 test_input_fasta <- function()
@@ -304,15 +320,15 @@ test_input_fasta <- function()
 
     outFile <- tempfile(fileext=".fa.gz")
     res <- preprocessReads(input, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     outFile <- tempfile(fileext=".fa.bz2")
     res <- preprocessReads(input, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     outFile <- tempfile(fileext=".fa.xz")
     res <- preprocessReads(input, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
 }
 
 test_input_fastq <- function()
@@ -330,7 +346,7 @@ test_input_fastq <- function()
     cat(str, sep="\n", file=con)
     close(con)
     res <- preprocessReads(gzFile, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     bzFile <- tempfile(fileext=".fq.bz2")
     outFile <- tempfile(fileext=".fq.bz2")
@@ -338,7 +354,7 @@ test_input_fastq <- function()
     cat(str, sep="\n", file=con)
     close(con)
     res <- preprocessReads(bzFile, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
     
     xzFile <- tempfile(fileext=".fq.xz")
     outFile <- tempfile(fileext=".fq.xz")
@@ -346,6 +362,6 @@ test_input_fastq <- function()
     cat(str, sep="\n", file=con)
     close(con)
     res <- preprocessReads(xzFile, outFile)
-    checkEqualsNumeric(resSoll, res)
+    RUnit::checkEqualsNumeric(resSoll, res)
 }
 
