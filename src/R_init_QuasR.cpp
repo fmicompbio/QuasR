@@ -1,6 +1,11 @@
 // prevent remapping e.g. Ralloc, which causes conflicts under windows
 #define STRICT_R_HEADERS 1
 
+#include <R_ext/Rdynload.h>
+// #include <R_ext/Visibility.h>
+#include <R_ext/Boolean.h>
+#include <Rinternals.h>
+
 #include "merge_reorder_sam.h"
 #include "quantify_methylation.h"
 #include "count_junctions.h"
@@ -9,8 +14,6 @@
 extern "C" {
 #endif
 
-#include <R_ext/Rdynload.h>
-#include "R_ext/Visibility.h"
 #include "split_sam_chr.h"
 #include "cat_bam.h"
 #include "idxstats_bam.h"
@@ -61,7 +64,8 @@ static const R_CallMethodDef callMethods[] = {
 };
 
 
-void attribute_visible R_init_QuasR(DllInfo *info)
+// void attribute_visible R_init_QuasR(DllInfo *info)
+void R_init_QuasR(DllInfo *info)
 {
     R_registerRoutines(info, NULL, callMethods, NULL, NULL);
     R_useDynamicSymbols(info, FALSE);
