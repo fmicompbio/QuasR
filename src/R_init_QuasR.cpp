@@ -4,7 +4,6 @@
 #include <R_ext/Rdynload.h>
 // #include <R_ext/Visibility.h>
 #include <R_ext/Boolean.h>
-#include <Rinternals.h>
 
 #include "merge_reorder_sam.h"
 #include "quantify_methylation.h"
