@@ -283,6 +283,40 @@ createGenomicAlignmentsController <- function(params){
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }
+  }else if(proj@alnModeID=="Rhisat2"){
+    if(!proj@splicedAlignment){
+      if(is.na(proj@snpFile)){
+        # unspliced alignment, no SNP file
+        align_Rhisat2(indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir)
+      }else{
+        proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
+        on.exit(file.remove(unlist(proj@reads[sampleNr,na.omit(match(c("FileName","FileName1","FileName2"), colnames(proj@reads)))])),add = TRUE) # make sure that the temp file(s) are deleted at the end
+        samFileR <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+        samFileA <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+        on.exit(file.remove(samFileR),add = TRUE)
+        on.exit(file.remove(samFileA),add = TRUE)
+        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
+        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
+        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        print(paste("mergeReorderMaxQueueSize",mrQuSize))
+      }
+    }else{
+      # spliced alignment
+      if(is.na(proj@snpFile)){
+        align_Rhisat2Spliced(indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir)
+      }else{
+        proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
+        on.exit(file.remove(unlist(proj@reads[sampleNr,na.omit(match(c("FileName","FileName1","FileName2"), colnames(proj@reads)))])),add = TRUE) # make sure that the temp file(s) are deleted at the end
+        samFileR <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+        samFileA <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+        on.exit(file.remove(samFileR),add = TRUE)
+        on.exit(file.remove(samFileA),add = TRUE)
+        align_Rhisat2Spliced(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
+        align_Rhisat2Spliced(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
+        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        print(paste("mergeReorderMaxQueueSize",mrQuSize))
+      }
+    }
   }else{stop("Fatal error 23484303");}
 
   print(paste("Converting sam file to sorted bam file on",Sys.info()['nodename'],":",samFile))
@@ -367,6 +401,12 @@ createAuxAlignmentsController <- function(params){
       }else{
         align_RbowtieCtoT_undir(paste(proj@aux$FileName[j],proj@alnModeID,sep="."),unmappedReadsInfo,proj@samplesFormat,proj@paired,proj@alignmentParameter,FALSE,proj@maxHits,coresThisNode,samFile,cacheDir)
       }
+    }else if(proj@alnModeID=="Rhisat2"){
+      if(!proj@splicedAlignment){
+        align_Rhisat2(paste(proj@aux$FileName[j],proj@alnModeID,sep="."),unmappedReadsInfo,proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir)
+      }else{
+        align_Rhisat2Spliced(paste(proj@aux$FileName[j],proj@alnModeID,sep="."),unmappedReadsInfo,proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir)
+      }
     }else{stop("Fatal error 23484303");}
 
     # remove the unmapped reads and convert to sorted bam
@@ -422,7 +462,45 @@ align_Rbowtie <- function(indexDir,reads,samplesFormat,paired,alignmentParameter
   if(!(grepl(" alignments", ret[length(ret)]))){stop("bowtie failed to perform the alignments")}
 }
 
+align_Rhisat2 <- function(indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir){
+  # add some variable parameters based on the input format
+  if(samplesFormat == "fasta"){
+    alignmentParameterAdded="-f"
+  }else{
+    alignmentParameterAdded=paste("--phred",reads$phred,sep="")
+  }
+  print(paste("Executing hisat2 on",Sys.info()['nodename'],"using",threads,"cores. Parameters:"))
+  if(paired=="no"){
+    args <- paste(shQuote(file.path(indexDir,"hisat2Index")),shQuote(reads$FileName),alignmentParameter,alignmentParameterAdded,"--no-spliced-alignment","-p",threads,"-S",shQuote(outFile))
+    print(args)
+    ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
+  }else{
+    args <- paste(shQuote(file.path(indexDir,"hisat2Index")),"-1",shQuote(reads$FileName1),"-2",shQuote(reads$FileName2),paste("--",paired,sep=""),alignmentParameter,alignmentParameterAdded,"--no-spliced-alignment","-p",threads,"-S",shQuote(outFile))
+    print(args)
+    ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
+  }  
+  if(!(grepl(" alignments", ret[length(ret)]))){stop("hisat2 failed to perform the alignments")}
+}
 
+align_Rhisat2Spliced <- function(indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir){
+  # add some variable parameters based on the input format
+  if(samplesFormat == "fasta"){
+    alignmentParameterAdded="-f"
+  }else{
+    alignmentParameterAdded=paste("--phred",reads$phred,sep="")
+  }
+  print(paste("Executing hisat2 on",Sys.info()['nodename'],"using",threads,"cores. Parameters:"))
+  if(paired=="no"){
+    args <- paste(shQuote(file.path(indexDir,"hisat2Index")),shQuote(reads$FileName),alignmentParameter,alignmentParameterAdded,"-p",threads,"-S",shQuote(outFile))
+    print(args)
+    ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
+  }else{
+    args <- paste(shQuote(file.path(indexDir,"hisat2Index")),"-1",shQuote(reads$FileName1),"-2",shQuote(reads$FileName2),paste("--",paired,sep=""),alignmentParameter,alignmentParameterAdded,"-p",threads,"-S",shQuote(outFile))
+    print(args)
+    ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
+  }  
+  if(!(grepl(" alignments", ret[length(ret)]))){stop("hisat2 failed to perform the alignments")}
+}
 
 align_RbowtieSpliced <- function(genomeFilepath,indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir){
   # determine the number of chromosomes (or sequences in case of aux). this is needed to ensure that no more threads 
@@ -675,7 +753,7 @@ align_RbowtieCtoT_undir <- function(indexDir,reads,samplesFormat,paired,alignmen
 
 
 
-# For a given sample, add an integer to the id. This is necessary for allelic anaylsis 
+# For a given sample, add an integer to the id. This is necessary for allelic analysis 
 # when calling mergeReorderSam
 addNumericToID <- function(reads,paired,cacheDir){
 
