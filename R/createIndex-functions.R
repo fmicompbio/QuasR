@@ -182,6 +182,7 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath){
   }
   return(ret)
 }
+
 # build index for Rbowtie, base space, non-bisulfite converted
 buildIndex_Rbowtie <- function(seqFile,indexPath){
   indexFullPath <- file.path(indexPath,"bowtieIndex")
