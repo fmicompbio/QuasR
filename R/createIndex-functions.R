@@ -9,7 +9,7 @@ buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
     on.exit(unlink(fastaFilepath))
 
     # create the package (without installing it yet). if it is already in the temp dir, keep it. It might contain an index
-    # calculated in a previous round where the intallation was not successful (due to permissions)
+    # calculated in a previous round where the installation was not successful (due to permissions)
     if(!file.exists(file.path(cacheDir,indexPackageName))){
       seedList <- createSeedList(genomeObj, aligner, indexPackageName)
       templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
@@ -153,6 +153,8 @@ buildIndex <- function(seqFile,indexPath,alnModeID,cacheDir,checkMD5=FALSE){
       ret <- buildIndex_RbowtieCtoT(seqFile,indexPath,cacheDir)
     }else if(alnModeID=="RbowtieCs"){
       ret <- buildIndex_RbowtieCs(seqFile,indexPath)
+    }else if(alnModeID=="Rhisat2"){
+      ret <- buildIndex_Rhisat2(seqFile,indexPath)
     }else{stop("Fatal error 2374027")}
 
     if(ret==0){
@@ -168,7 +170,18 @@ buildIndex <- function(seqFile,indexPath,alnModeID,cacheDir,checkMD5=FALSE){
   }
 }
 
-
+# build index for Rhisat2, base space, non-bisulfite converted
+buildIndex_Rhisat2 <- function(seqFile,indexPath){
+  indexFullPath <- file.path(indexPath,"hisat2Index")
+  
+  ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2-build"),c(shQuote(seqFile),shQuote(indexFullPath)), stdout=TRUE, stderr=TRUE)
+  if(!(grepl("^Total time for call to driver", ret[length(ret)]))){
+    ret <- 1
+  }else{
+    ret <- 0
+  }
+  return(ret)
+}
 # build index for Rbowtie, base space, non-bisulfite converted
 buildIndex_Rbowtie <- function(seqFile,indexPath){
   indexFullPath <- file.path(indexPath,"bowtieIndex")
