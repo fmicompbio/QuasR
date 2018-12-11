@@ -488,7 +488,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
   # --------------- SET THE ALIGNERMODE ID AND LOAD THE ALIGNER PACKAGE IF REQUIRED --------------------
 
-  supportedAligners <- c("Rbowtie")
+  supportedAligners <- c("Rbowtie", "Rhisat2")
   if(aligner %in% supportedAligners){
     proj@aligner <- aligner
   }else{stop("The specified aligner is unknown, please select one of the following: ",paste(supportedAligners,collapse=","),call.=FALSE)}
@@ -496,8 +496,14 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if((proj@samplesFormat %in% c("fasta","fastq")) & (proj@bisulfite=="no")){
     alnModeID <- proj@aligner
   }else if((proj@samplesFormat %in% c("fasta","fastq")) & (proj@bisulfite!="no")){
+    if(aligner == "Rhisat2"){
+      stop("Bisulfite alignment mode is not available for Rhisat2")
+    }
     alnModeID <- paste(proj@aligner,"CtoT",sep="")
   }else if((proj@samplesFormat %in% c("csfasta","csfastq")) & proj@bisulfite=="no"){
+    if(aligner == "Rhisat2"){
+      stop("Color space alignment mode is not available for Rhisat2")
+    }
     alnModeID <- paste(proj@aligner,"Cs",sep="")
   }else if((proj@samplesFormat %in% c("csfasta","csfastq")) & proj@bisulfite!="no"){
     stop("Bisulfite alignment mode is not available for color space reads")
