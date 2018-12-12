@@ -400,26 +400,33 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   #------------------------------------ PARSE THE ALIGNMENT PRAMETERS ----------------------------------
   if(is.null(alignmentParameter)){
     if(!proj@splicedAlignment){
-      # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
-      # to be reinforced by bowtie.
-      if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
-        proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
-      }else{
-        proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
+      if(proj@aligner == "Rbowtie"){  # bowtie
+        # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
+        # to be reinforced by bowtie.
+        if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
+          proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
+        }else{
+          proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
+        }
+        # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
+        if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
+          proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
+        }
+        if(proj@paired != "no"){
+          proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
+        }
+      }else{  # hisat2
+        proj@alignmentParameter <- paste("-k",proj@maxHits)
       }
-      # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
-      if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
-        proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
-      }
-      if(proj@paired != "no"){
-        proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
-      }
-
     }else{
-      if(is.na(proj@snpFile)){
-        proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
-      }else{
-        proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+      if(proj@aligner == "Rbowtie") {  # spliced, bowtie
+        if(is.na(proj@snpFile)){
+          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+        }else{
+          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+        }
+      } else{  # spliced, hisat2
+        proj@alignmentParameter <- paste("-k",proj@maxHits)
       }
     }
   }else{
