@@ -400,7 +400,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   #------------------------------------ PARSE THE ALIGNMENT PRAMETERS ----------------------------------
   if(is.null(alignmentParameter)){
     if(!proj@splicedAlignment){
-      if(proj@aligner == "Rbowtie"){  # bowtie
+      if(aligner == "Rbowtie"){  # bowtie
         # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
         # to be reinforced by bowtie.
         if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
@@ -419,7 +419,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
         proj@alignmentParameter <- paste("-k",proj@maxHits)
       }
     }else{
-      if(proj@aligner == "Rbowtie") {  # spliced, bowtie
+      if(aligner == "Rbowtie") {  # spliced, bowtie
         if(is.na(proj@snpFile)){
           proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
         }else{
