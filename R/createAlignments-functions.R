@@ -479,7 +479,7 @@ align_Rhisat2 <- function(indexDir,reads,samplesFormat,paired,alignmentParameter
     print(args)
     ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
   }  
-  if(!(grepl(" alignments", ret[length(ret)]))){stop("hisat2 failed to perform the alignments")}
+  if(!(grepl(" reads", ret[1]))){stop("hisat2 failed to perform the alignments")}
 }
 
 align_Rhisat2Spliced <- function(indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir){
@@ -499,7 +499,7 @@ align_Rhisat2Spliced <- function(indexDir,reads,samplesFormat,paired,alignmentPa
     print(args)
     ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
   }  
-  if(!(grepl(" alignments", ret[length(ret)]))){stop("hisat2 failed to perform the alignments")}
+  if(!(grepl(" reads", ret[1]))){stop("hisat2 failed to perform the alignments")}
 }
 
 align_RbowtieSpliced <- function(genomeFilepath,indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir){
