@@ -8,7 +8,7 @@
 # The orientation for paired end is set to "fr" by default. In case of bam input files, the user needs to specify manually the 
 # status ("no","fr","rf","ff")
 # snpFile need four columns (chrom, pos, ref, alt) with no header
-# spliceSites can be either a gtf file, a GRanges object or a TxDb object
+# spliceSites can be either a gtf file or a TxDb object
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
@@ -41,7 +41,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
     
     # Rhisat2, generate splice site file
     if (proj@aligner == "Rhisat2") {
-      buildSpliceSiteFile(proj@spliceSitesFile,proj@alnModeID,
+      buildSpliceSiteFile(proj@spliceSiteFile,proj@alnModeID,
                           resolveCacheDir(proj@cacheDir))
     }
 
@@ -129,7 +129,7 @@ missingFilesMessage <- function(proj, checkOnly){
 # read all the input information, perform various checks and compile the data into a qProject object
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, 
                            snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, 
-                           lib.loc, cacheDir){
+                           lib.loc, cacheDir, spliceSites){
 
   # instantiate a qProject
   proj <-new("qProject")
@@ -191,6 +191,37 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     }
   }
 
+  # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
+  if (!is.null(spliceSites)) {
+    # Create a TxDb object and save to a sqlite database
+    if (is(spliceSites, "TxDb")) {
+      # TxDb object
+      # generate the file name
+      if (length(spliceSites$packageName) != 0) {
+        # the txdb comes from a package (typically a TxDb... Bioc package)
+        spliceSiteFile <- file.path(alignmentsDir, paste0(spliceSites$packageName, ".", aligner, ".", ".sqlite"))
+      } else {
+        spliceSiteFile <- file.path(alignmentsDir, paste0(deparse(substitute(spliceSites)), 
+                                                          ".", aligner, ".", "sqlite"))
+      }
+      # save the sqlite file
+      AnnotationDbi::saveDb(spliceSites, file = spliceSiteFile)
+      proj@spliceSiteFile <- spliceSiteFile
+    } else if (is(spliceSites, "character") && length(spliceSites) == 1 && 
+               file.exists(spliceSites)) {
+      # gtf file
+      # generate the file name
+      spliceSiteFile <- gsub("gtf$|gff$", "sqlite", spliceSites)
+      # generate a TxDb object
+      txdb <- GenomicFeatures::makeTxDbFromGFF(spliceSites, format = "auto")
+      # save the sqlite file
+      AnnotationDbi::saveDb(txdb, file = spliceSiteFile)
+      proj@spliceSiteFile <- spliceSiteFile
+    } else {
+      stop("Could not process the 'spliceSites' object. This needs to be ",
+           "either a TxDb object or the path to an existing gtf file.")
+    }
+  }
 
   # ---------------------------------------- PARSE THE PAIRED PARAMETER ---------------------------------
   if(!is.null(paired)){
@@ -404,7 +435,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if(proj@splicedAlignment & (proj@bisulfite!="no")){stop("The spliced alignment mode is not supported for bisulfite samples")}
   if(proj@splicedAlignment & !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode only supports the pair orientation 'fr'")}
 
-  #------------------------------------ PARSE THE ALIGNMENT PRAMETERS ----------------------------------
+  #------------------------------------ PARSE THE ALIGNMENT PARAMETERS ----------------------------------
   if(is.null(alignmentParameter)){
     if(!proj@splicedAlignment){
       if(aligner == "Rbowtie"){  # bowtie
