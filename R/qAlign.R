@@ -8,10 +8,11 @@
 # The orientation for paired end is set to "fr" by default. In case of bam input files, the user needs to specify manually the 
 # status ("no","fr","rf","ff")
 # snpFile need four columns (chrom, pos, ref, alt) with no header
+# spliceSites can be either a gtf file, a GRanges object or a TxDb object
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
-                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE){
+                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE, spliceSites=NULL){
 
   # check if the user provided a samplefile and a genome
   if(missing(sampleFile)){stop("Missing 'sampleFile' parameter.")}
@@ -19,9 +20,9 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 
   # create a qProject, perform various tests, install required BSgenome and load aligner package
   # create fasta indices (.fai) files for all the reference sequences (genome & aux) as well as all md5 sum files
-  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir)
+  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir, spliceSites)
 
-  # display the status of the project. in case of checkOnly=TRUE, through an exception if there are alignment files missing
+  # display the status of the project. in case of checkOnly=TRUE, throw an exception if there are alignment files missing
   missingFilesMessage(proj,checkOnly)
 
   # check if there are any genomic alignment files missing. if so, create index and align
@@ -37,8 +38,14 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
       # create indices for the two secondary genomes specified by snps
       buildIndexSNP(proj@snpFile,paste(proj@snpFile,proj@alnModeID,sep="."),proj@genome,proj@genomeFormat,proj@alnModeID,resolveCacheDir(proj@cacheDir))
     }
+    
+    # Rhisat2, generate splice site file
+    if (proj@aligner == "Rhisat2") {
+      buildSpliceSiteFile(proj@spliceSitesFile,proj@alnModeID,
+                          resolveCacheDir(proj@cacheDir))
+    }
 
-    # align to the genome (qProject gets upadated with the alignment file names)
+    # align to the genome (qProject gets updated with the alignment file names)
     proj <- createGenomicAlignments(proj, clObj)
 
   }

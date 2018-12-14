@@ -19,7 +19,8 @@ setClass("qProject",
                         alignmentsDir="character",
                         lib.loc="character",
                         cacheDir="character",
-                        alnModeID="character")
+                        alnModeID="character"
+                        spliceSiteFile="character")
          )
 
 ### Methods
@@ -77,13 +78,15 @@ setMethod("[", signature(x="qProject", i="ANY", j="missing", drop="missing"), fu
 #setGeneric("niceprint", function(x) print(x))
 #setMethod("niceprint", "qProject", function(object) {
 setMethod("show", "qProject", function(object) {
-    # projet and global options
+    # project and global options
     cat("Project: " , object@projectName, "\n", sep="")
     cat(" Options   : maxHits         : ", object@maxHits,
         "\n             paired          : ", object@paired,
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
-        "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32), "\n", sep="")
+        "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
+        "\n             spliceSiteFile  : ", if(is.null(object@spliceSiteFile) || is.na(object@spliceSiteFile)) "none" else truncPath(object@spliceSiteFile,getOption("width")-32),
+        "\n", sep="")
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")
     else
