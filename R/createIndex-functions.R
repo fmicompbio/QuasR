@@ -3,7 +3,7 @@ buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
   indexPackageName <- paste(genome,alnModeID,sep=".")
 
   # Create the index and install it if it is not yet installed on the system
-  if(!(indexPackageName %in% installed.packages())){
+  if(!(indexPackageName %in% installed.packages()[,'Package'])){
     genomeObj <- get(genome) # access the BSgenome
     fastaFilepath <- BSgenomeSeqToFasta(genomeObj, tempfile(tmpdir=cacheDir, fileext=".fa"))  # flush the BSgenome to disk
     on.exit(unlink(fastaFilepath))
@@ -289,7 +289,7 @@ createSeedList <- function(genome, aligner, indexPackageName)
 
                  #aligner seeds
                  ALIGNER=aligner,
-                 ALIGNERVERSION=installed.packages()[aligner, 'Version']
+                 ALIGNERVERSION=packageVersion(aligner)
                  )
 
     return(seed)

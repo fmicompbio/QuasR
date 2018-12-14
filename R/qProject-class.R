@@ -87,7 +87,7 @@ setMethod("show", "qProject", function(object) {
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")
     else
-        cat(" Aligner   : ", object@aligner, " v", installed.packages()[object@aligner, 'Version'],
+        cat(" Aligner   : ", object@aligner, " v", packageVersion(object@aligner),
             " (parameters: ", object@alignmentParameter, ")\n", sep="")
     cat(" Genome    : ", truncPath(object@genome, getOption("width")-16-nchar(object@genomeFormat)),
         " (", object@genomeFormat, ")\n", sep="")

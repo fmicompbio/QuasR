@@ -78,7 +78,7 @@ missingFilesMessage <- function(proj, checkOnly){
         }
       }else if(proj@genomeFormat=="BSgenome"){
        indexPackageName <- paste(proj@genome,proj@alnModeID,sep=".")
-       if(!(indexPackageName %in% installed.packages())){
+       if(!(indexPackageName %in% installed.packages()[,'Package'])){
          genomeIndexNeedsToBeCreated <- TRUE
        }
       }else{stop("Fatal error 45906")}
@@ -514,9 +514,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     pkgname <- aligner
     
     # these test are not needed while Rbowtie is in "Depends"
-    #if(!(pkgname %in% installed.packages())){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
+    #if(!(pkgname %in% installed.packages()[,"Package"])){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
     #if(!require(pkgname, character.only=TRUE, quietly=TRUE)){stop("Fatal error 340954")}
-    #pkg_version <- installed.packages()[pkgname, 'Version']
+    #pkg_version <- packageVersion(pkgname)
     #QuasR_suggests <- unlist(strsplit(installed.packages()['QuasR','Suggests'], ","))
     #QuasR_suggests_pkg <- grep(pkgname, QuasR_suggests, value=T)
   }
@@ -717,7 +717,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["aux.md5"]=NA
   alnInfo["aligner"]=proj@aligner
   if(!is.na(proj@aligner)){
-    alnInfo["aligner.version"]=installed.packages()[proj@aligner, 'Version']
+    alnInfo["aligner.version"]=packageVersion(proj@aligner)
   }else{
     alnInfo["aligner.version"]=NA
   }
@@ -728,7 +728,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["snpFile.md5"]=NA
   alnInfo["bisulfite"]=proj@bisulfite
   alnInfo["alignmentParameter"]=proj@alignmentParameter
-  alnInfo["QuasR.version"]=installed.packages()['QuasR', 'Version']
+  alnInfo["QuasR.version"]=packageVersion('QuasR')
 
   if(!is.null(auxNr)){
     alnInfo["aux"]=proj@aux$FileName[auxNr]
