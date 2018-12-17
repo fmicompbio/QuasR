@@ -588,7 +588,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
        ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
        if (projBamInfo[["aligner"]] == "Rbowtie") {
          projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
-                                        c("geneAnnotation", "geneAnnotation.md5"))]
+                                        c("geneAnnotation", "geneAnnotationFormat",
+                                          "geneAnnotation.md5"))]
        }
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
@@ -630,7 +631,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
         ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
         if (projBamInfo[["aligner"]] == "Rbowtie") {
           projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
-                                         c("geneAnnotation", "geneAnnotation.md5"))]
+                                         c("geneAnnotation", "geneAnnotationFormat",
+                                           "geneAnnotation.md5"))]
         }
         if(is.na(proj@auxAlignments[j,i])){
           if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
@@ -795,6 +797,9 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["snpFile.md5"]=NA
   alnInfo["bisulfite"]=proj@bisulfite
   alnInfo["alignmentParameter"]=proj@alignmentParameter
+  alnInfo["geneAnnotation"] <- proj@geneAnnotation
+  alnInfo["geneAnnotationFormat"] <- proj@geneAnnotationFormat
+  alnInfo["geneAnnotation.md5"] <- NA
   alnInfo["QuasR.version"]=installed.packages()['QuasR', 'Version']
 
   if(!is.null(auxNr)){
@@ -804,6 +809,11 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
 
   if(!is.na(proj@snpFile)){
     alnInfo["snpFile.md5"]=as.character(read.delim(paste(proj@snpFile,"md5",sep="."),header=FALSE,colClasses="character")[1,1])
+  }
+  if (!is.na(proj@geneAnnotation)) {
+    alnInfo["geneAnnotation.md5"] <- as.character(read.delim(paste(proj@geneAnnotation, ".md5"),
+                                                             header = FALSE, 
+                                                             colClasses = "character")[1, 1])
   }
 
   return(alnInfo)
@@ -818,6 +828,7 @@ bamInfoOnlyBaseName <- function(bamInfo){
   bamInfo["genome"] <- basename(bamInfo["genome"])
   bamInfo["aux"] <- basename(bamInfo["aux"])
   bamInfo["snpFile"] <- basename(bamInfo["snpFile"])
+  bamInfo["geneAnnotation"] <- basename(bamInfo["geneAnnotation"])
 
   if("aligner.version" %in% names(bamInfo)){
     bamInfo <- bamInfo[!(names(bamInfo) %in% "aligner.version")]
