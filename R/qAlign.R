@@ -738,6 +738,14 @@ createReferenceSequenceIndices <- function(proj){
       write.table(tools::md5sum(proj@snpFile),paste(proj@snpFile,"md5",sep="."),sep="\t",quote=FALSE,col.names=FALSE,row.names=FALSE)
     }
   }
+  
+  # create md5 sum file for the geneAnnotation
+  if (!is.na(proj@geneAnnotation)) {
+    if (!file.exists(paste0(proj@geneAnnotation, ".md5"))) {
+      write.table(tools::md5sum(proj@geneAnnotation), paste0(proj@geneAnnotation, ".md5"),
+                  sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+    }
+  }
 }
 
 
