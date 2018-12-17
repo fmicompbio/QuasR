@@ -1,7 +1,7 @@
 qProjectUpdate <- function(object, quiet = TRUE) {
   mod <- FALSE
   if (!(.hasSlot(object, "txdbFile"))) {
-    object@txdbFile <- ""
+    object@txdbFile <- "none"
     if (!quiet) message("Adding empty txdbFile slot to object")
     mod <- TRUE
   } 
