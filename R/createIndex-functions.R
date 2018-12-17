@@ -194,8 +194,39 @@ buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
   } else {
     stop("Fatal error 81956293")
   }
-  Rhisat2::extract_splice_sites(txdb, paste0(geneAnnotation, ".SpliceSites.txt"), 
-                                min_length = 5)
+  
+  if (file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
+    # if the SpliceSites.txt file exists, but not the md5sum file, remove the former
+    if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt.md5"))) {
+      message("Deleting an incomplete SpliceSites.txt file at: ",
+              paste0(geneAnnotation, ".SpliceSites.txt"))
+      unlink(paste0(geneAnnotation, ".SpliceSites.txt"))
+    } else {
+      # both SpliceSites.txt and md5 file exist
+      md5FromFile <- read.delim(paste0(geneAnnotation, ".SpliceSites.txt.md5"),
+                                header = FALSE, colClasses = "character")
+      if (!all(dim(md5FromFile) == c(1, 1))) {
+        stop("The md5sum file does not have the right format: ",
+             paste0(geneAnnotation, ".SpliceSites.txt.md5"), call. = FALSE)
+      }
+      md5FromFile <- md5FromFile[1, 1]
+      md5FromObj <- tools::md5sum(geneAnnotation)
+      if (md5FromFile != md5FromObj) {
+        message("The annotation file ", geneAnnotation,
+                "was changed. Recreating the SpliceSites file.")
+        unlink(paste0(geneAnnotation, ".SpliceSites.txt"))
+      }
+    }
+  }
+  if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
+    Rhisat2::extract_splice_sites(txdb, paste0(geneAnnotation, ".SpliceSites.txt"), 
+                                  min_length = 5)
+    md5FromObj <- tools::md5sum(geneAnnotation)
+    write.table(md5FromObj, file = paste0(geneAnnotation, ".SpliceSites.txt.md5"),
+                row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
+  }
+  # garbage collect, to close open connections
+  gc()
 }
 
 # build index for Rbowtie, base space, non-bisulfite converted
