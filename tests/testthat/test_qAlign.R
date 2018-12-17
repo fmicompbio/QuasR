@@ -1,0 +1,122 @@
+genomeFile    <- file.path("extdata", "hg19sub.fa")
+snpFile       <- file.path("extdata", "hg19sub_snp.txt")
+auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
+auxFile       <- file.path("extdata", "auxiliaries.txt")
+
+sChipSingle   <- file.path("extdata", "samples_chip_single.txt")
+sRnaSingle    <- file.path("extdata", "samples_rna_single.txt")
+sRnaPaired    <- file.path("extdata", "samples_rna_paired.txt")
+sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
+sMirnaSingle  <- file.path("extdata", "samples_mirna.txt")
+
+pChipSingle       <- qAlign(sChipSingle,  genomeFile, clObj = clObj)
+pChipSingleAux    <- qAlign(sChipSingle,  genomeFile, auxiliaryFile = auxFile, clObj = clObj)
+pChipSingleSnps   <- qAlign(sChipSingle,  genomeFile, snpFile = snpFile, clObj = clObj)
+pRnaPaired        <- qAlign(sRnaPaired,   genomeFile, clObj = clObj)
+pRnaSingleSpliced <- qAlign(sRnaSingle,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
+pRnaPairedSpliced <- qAlign(sRnaPaired,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
+pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
+pBisUndir         <- qAlign(sBisSingle,   genomeFile, bisulfite = "undir", clObj = clObj)
+pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
+
+
+context("alignmentStats")
+
+test_that("alignmentStats works as expected", {    
+  resSoll <- matrix(c(95000,95000,
+                      2339,3609,
+                      258,505), nrow = 2, ncol = 3)
+  res <- alignmentStats(pChipSingle)
+  expect_identical(resSoll, unname(res))
+  res <- alignmentStats(alignments(pChipSingle)$genome$FileName)
+  expect_identical(resSoll, unname(res))
+  
+  resSoll <- matrix(c(95000,95000,5386,5386,
+                      2339,3609,251,493,
+                      258,505,7,12), nrow = 4, ncol = 3)
+  res <- alignmentStats(pChipSingleAux)
+  expect_identical(resSoll, unname(res))
+})
+
+
+context("qAlign")
+
+test_that("qAlign distests arguments correctly", {
+  expect_error(qAlign("nonexistent_file"))
+  expect_error(qAlign(genome = genomeFile))
+  expect_error(qAlign(sChipSingle, genome = genomeFile[c(1,1)]))
+  expect_error(qAlign(sampleFile = sChipSingle))
+  expect_error(qAlign(sChipSingle, genomeFile, splicedAlignment = TRUE, checkOnly = TRUE))
+})
+
+test_that("qAlign correctly works for single reads", {
+  aln <- GenomicAlignments::readGAlignments(pChipSingle@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1073L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(590, 708, 1041)))))
+  expect_identical(sum(as.numeric(start(aln))), 36493854)
+  expect_identical(sum(as.numeric(end(aln))), 36575719)
+})
+
+test_that("qAlign correctly works for single reads with auxiliaries", {
+  aln <- GenomicAlignments::readGAlignments(pChipSingleAux@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1073L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(590, 708, 1041)))))
+  expect_identical(sum(as.numeric(start(aln))), 36493854)
+  expect_identical(sum(as.numeric(end(aln))), 36575719)
+
+  aln <- GenomicAlignments::readGAlignments(pChipSingleAux@auxAlignments["phiX174","Sample2"], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 238L)
+  expect_identical(seqnames(aln), Rle(factor(rep("phiX174", 493))))
+  expect_identical(sum(as.numeric(start(aln))), 1339781)
+  expect_identical(sum(as.numeric(end(aln))), 1357036)
+})
+
+test_that("qAlign correctly works for paired-end reads", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPaired@alignments$FileName[2], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 394L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(898, 64, 1690)))))
+  expect_identical(sum(as.numeric(start(aln))), 54091733)
+  expect_identical(sum(as.numeric(end(aln))), 54221681)
+})
+
+test_that("qAlign correctly works for single reads (spliced, Rbowtie)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaSingleSpliced@alignments$FileName[3], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 435L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(732, 1112, 1156)))))
+  expect_identical(sum(as.numeric(start(aln))), 42121859)
+  expect_identical(sum(as.numeric(end(aln))), 43006110)
+})
+
+test_that("qAlign correctly works for paired-end reads (spliced, Rbowtie)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedSpliced@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1620L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(850, 2924, 2228)))))
+  expect_identical(sum(as.numeric(start(aln))), 69243139)
+  expect_identical(sum(as.numeric(end(aln))), 71021433)
+})
+
+test_that("qAlign correctly works in allelic mode", {
+  aln <- GenomicAlignments::readGAlignments(pChipSingleSnps@alignments$FileName[1], use.names = TRUE,
+                                            param = Rsamtools::ScanBamParam(tag = "XV"))
+  expect_length(runValue(strand(aln)), 931L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(503, 634, 905)))))
+  expect_identical(sum(as.numeric(start(aln))), 31658312)
+  expect_identical(sum(as.numeric(end(aln))), 31729782)
+  expect_equal(as.vector(table(mcols(aln)$XV)[c("A","R","U")]), c(13, 192, 1837))
+})
+
+test_that("qAlign correctly works in directional bisulfite mode", {
+  aln <- GenomicAlignments::readGAlignments(pBis@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 8154L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(5973, 3997, 15528)))))
+  expect_identical(sum(as.numeric(start(aln))), 494072411)
+  expect_identical(sum(as.numeric(end(aln))), 495957570)
+})
+
+test_that("qAlign correctly works in undirectional bisulfite mode", {
+  aln <- GenomicAlignments::readGAlignments(pBisUndir@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 8160L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(5973, 3997, 15526)))))
+  expect_identical(sum(as.numeric(start(aln))), 493991845)
+  expect_identical(sum(as.numeric(end(aln))), 495876924)
+})
