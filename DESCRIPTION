@@ -11,7 +11,7 @@ Imports: methods, grDevices, graphics, utils, zlibbioc, BiocGenerics,
          Biostrings, BSgenome, Rsamtools (>= 1.19.38),
          GenomicFeatures (>= 1.17.13), ShortRead (>= 1.19.1),
          GenomicAlignments, BiocParallel, GenomeInfoDb,
-         rtracklayer, GenomicFiles, Rhisat2
+         rtracklayer, GenomicFiles, Rhisat2, AnnotationDbi
 Suggests: Gviz, RUnit, BiocStyle, knitr, rmarkdown, covr
 LinkingTo: Rsamtools
 Description: This package provides a framework for the quantification
