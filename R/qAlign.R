@@ -531,7 +531,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   #------------------------------------ PARSE SPLICED ALIGNMENT PARAMETER ---------------------------
   proj@splicedAlignment <- splicedAlignment
   if(proj@splicedAlignment & (proj@bisulfite!="no")){stop("The spliced alignment mode is not supported for bisulfite samples")}
-  if(proj@aligner == "Rbowtie" && proj@splicedAlignment && !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode only supports the pair orientation 'fr'")}
+  if(proj@aligner == "Rbowtie" && proj@splicedAlignment && !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode with Rbowtie only supports the pair orientation 'fr'")}
   
   #------------------------------------ PARSE THE ALIGNMENT PARAMETERS ----------------------------------
   if(is.null(alignmentParameter)){
@@ -584,6 +584,12 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   for(i in 1:nrow(proj@reads)){
     if(is.na(proj@alignments$FileName[i])){
        projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
+       
+       ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
+       if (projBamInfo[["aligner"]] == "Rbowtie") {
+         projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                        c("geneAnnotation", "geneAnnotation.md5"))]
+       }
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
        filesInBamDir <- list.files(bamDir, pattern=".bam$")
@@ -621,41 +627,45 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     for(i in 1:ncol(proj@auxAlignments)){
       for(j in 1:nrow(proj@auxAlignments)){
         projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i,j))
-          if(is.na(proj@auxAlignments[j,i])){
-           if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
-           samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
-           filesInBamDir <- list.files(bamDir, pattern=".bam$")
-           bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
-           bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
-           bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
-           bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
-
-           compatibleBamFileInd=NULL
-           if(length(bamTxtFilesToInspectExist)>0){
-             for(m in 1:length(bamTxtFilesToInspectExist)){
-               bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],header=FALSE,row.names=1,stringsAsFactors=FALSE)
-               bamInfoT <- bamInfoT_DF[,1]
-               names(bamInfoT) <- rownames(bamInfoT_DF)
-               bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
-
-               # compare the actual parameters to the one from the bam file on disk
-               if(identical(projBamInfo,bamInfoT)){
-                 compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
-               }
-             }
-             if(length(compatibleBamFileInd)>1){
-               for(k in 1:length(compatibleBamFileInd)){message(bamFilesToInspectWithTxt[k])}
-               stop("Multiple bam files exist with same alignment parameters (see above list). QuasR is unable to decide which one to use. Please delete manually the respective bam files",call.=FALSE)
-             }
-             if(length(compatibleBamFileInd)==1){
-               proj@auxAlignments[j,i] <- bamFilesToInspectWithTxt[compatibleBamFileInd]
-             }
-           }
-         }
+        ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
+        if (projBamInfo[["aligner"]] == "Rbowtie") {
+          projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                         c("geneAnnotation", "geneAnnotation.md5"))]
+        }
+        if(is.na(proj@auxAlignments[j,i])){
+          if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
+          samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
+          filesInBamDir <- list.files(bamDir, pattern=".bam$")
+          bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
+          bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
+          bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
+          bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
+          
+          compatibleBamFileInd=NULL
+          if(length(bamTxtFilesToInspectExist)>0){
+            for(m in 1:length(bamTxtFilesToInspectExist)){
+              bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],header=FALSE,row.names=1,stringsAsFactors=FALSE)
+              bamInfoT <- bamInfoT_DF[,1]
+              names(bamInfoT) <- rownames(bamInfoT_DF)
+              bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
+              
+              # compare the actual parameters to the one from the bam file on disk
+              if(identical(projBamInfo,bamInfoT)){
+                compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
+              }
+            }
+            if(length(compatibleBamFileInd)>1){
+              for(k in 1:length(compatibleBamFileInd)){message(bamFilesToInspectWithTxt[k])}
+              stop("Multiple bam files exist with same alignment parameters (see above list). QuasR is unable to decide which one to use. Please delete manually the respective bam files",call.=FALSE)
+            }
+            if(length(compatibleBamFileInd)==1){
+              proj@auxAlignments[j,i] <- bamFilesToInspectWithTxt[compatibleBamFileInd]
+            }
+          }
+        }
       }
     }
   }
-
 
   return(proj)
 }
