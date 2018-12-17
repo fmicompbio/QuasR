@@ -205,14 +205,16 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
   # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
   if (!is.null(geneAnnotation)) {
-    if (is(geneAnnotation, "TxDb")) {
-      proj@geneAnnotationFormat <- "TxDb"
-    } else if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
-               file.exists(geneAnnotation)) {
-      proj@geneAnnotationFormat <- "gtf"
+    if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
+        file.exists(geneAnnotation) && 
+        tools::file_ext(geneAnnotation) %in% c("gtf", "gff", "gff3", "sqlite")) {
+      if (tools::file_ext(geneAnnotation) == "sqlite") {
+        proj@geneAnnotationFormat <- "TxDb"
+      } else {
+        proj@geneAnnotationFormat <- "gtf"
+      }
     } else {
-      stop("'geneAnnotation' must be either a TxDb object or the path to an ",
-           "existing file.")
+      stop("'geneAnnotation' must be a path to an existing sqlite, gtf or gff file.")
     }
     proj@geneAnnotation <- geneAnnotation
   } else {
