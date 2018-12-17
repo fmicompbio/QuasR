@@ -41,8 +41,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
     
     # Rhisat2, generate splice site file
     if (proj@aligner == "Rhisat2" && !is.na(proj@geneAnnotation)) {
-      buildSpliceSiteFile(proj@geneAnnotation, proj@geneAnnotationFormat, 
-                          proj@aligner)
+      buildSpliceSiteFile(proj@geneAnnotation, proj@geneAnnotationFormat)
     }
 
     # align to the genome (qProject gets updated with the alignment file names)
@@ -102,13 +101,25 @@ missingFilesMessage <- function(proj, checkOnly){
         genomeIndexNeedsToBeCreated <- TRUE
       }
     }
+    
+    ## Splice site file
+    if (!is.na(proj@geneAnnotation)) {
+      if (file.exists(paste0(proj@geneAnnotation, ".SpliceSites.txt"))) {
+        if (!("sps_md5Sum.txt" %in% dir(proj@geneAnnotation))) {
+          spliceSiteFileNeedsToBeCreated <- TRUE
+        }
+      } else {
+        spliceSiteFileNeedsToBeCreated <- TRUE
+      }
+    }
   }
 
-  if(!genomeIndexNeedsToBeCreated & genomicAlignmentsNeedToBeCreated==0 & auxAlignmentsNeedToBeCreated==0){
+  if(!genomeIndexNeedsToBeCreated & !spliceSiteFileNeedsToBeCreated & genomicAlignmentsNeedToBeCreated==0 & auxAlignmentsNeedToBeCreated==0){
     message("all necessary alignment files found")
   }else{
     message("alignment files missing - need to:")
     if(genomeIndexNeedsToBeCreated){message("    create alignment index for the genome")}
+    if(spliceSiteFileNeedsToBeCreated){message("    create splice site file for gene annotation")}
     if(genomicAlignmentsNeedToBeCreated>0){message("    create ",genomicAlignmentsNeedToBeCreated," genomic alignment(s)")}
     if(auxAlignmentsNeedToBeCreated>0){message("    create ",auxAlignmentsNeedToBeCreated," auxiliary alignment(s)")}
 
