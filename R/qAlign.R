@@ -434,44 +434,6 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if(proj@splicedAlignment & (proj@bisulfite!="no")){stop("The spliced alignment mode is not supported for bisulfite samples")}
   if(proj@splicedAlignment & !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode only supports the pair orientation 'fr'")}
 
-  #------------------------------------ PARSE THE ALIGNMENT PARAMETERS ----------------------------------
-  if(is.null(alignmentParameter)){
-    if(!proj@splicedAlignment){
-      if(aligner == "Rbowtie"){  # bowtie
-        # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
-        # to be reinforced by bowtie.
-        if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
-          proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
-        }else{
-          proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
-        }
-        # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
-        if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
-          proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
-        }
-        if(proj@paired != "no"){
-          proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
-        }
-      }else{  # hisat2
-        proj@alignmentParameter <- paste("-k",proj@maxHits)
-      }
-    }else{
-      if(aligner == "Rbowtie") {  # spliced, bowtie
-        if(is.na(proj@snpFile)){
-          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
-        }else{
-          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
-        }
-      } else{  # spliced, hisat2
-        proj@alignmentParameter <- paste("-k",proj@maxHits)
-      }
-    }
-  }else{
-    if(length(alignmentParameter)==1){
-      proj@alignmentParameter <- alignmentParameter
-    }else{stop("The alignmentParameter should contain only a single character string",call.=FALSE)}
-  }
-
   #------------------------------------ PARSE THE PROJECT NAME ----------------------------------
   if(is.null(projectName)){
     proj@projectName <- NA_character_
@@ -571,7 +533,44 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     #QuasR_suggests_pkg <- grep(pkgname, QuasR_suggests, value=T)
   }
 
-
+  #------------------------------------ PARSE THE ALIGNMENT PARAMETERS ----------------------------------
+  if(is.null(alignmentParameter)){
+    if(!proj@splicedAlignment){
+      if(aligner == "Rbowtie"){  # bowtie
+        # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
+        # to be reinforced by bowtie.
+        if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
+          proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
+        }else{
+          proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
+        }
+        # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
+        if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
+          proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
+        }
+        if(proj@paired != "no"){
+          proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
+        }
+      }else{  # hisat2
+        proj@alignmentParameter <- paste("-k",proj@maxHits)
+      }
+    }else{
+      if(aligner == "Rbowtie") {  # spliced, bowtie
+        if(is.na(proj@snpFile)){
+          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+        }else{
+          proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+        }
+      } else{  # spliced, hisat2
+        proj@alignmentParameter <- paste("-k",proj@maxHits)
+      }
+    }
+  }else{
+    if(length(alignmentParameter)==1){
+      proj@alignmentParameter <- alignmentParameter
+    }else{stop("The alignmentParameter should contain only a single character string",call.=FALSE)}
+  }
+  
   # ---------------------------------- CREATE .fai AND .md5 FILES --------------------------
 
   # create fasta indices (.fai) files for all the reference sequences (genome & aux)
