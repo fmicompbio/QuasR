@@ -2,12 +2,12 @@ qProjectUpdate <- function(object, quiet = TRUE) {
   mod <- FALSE
   if (!(.hasSlot(object, "geneAnnotation"))) {
     object@geneAnnotation <- NA_character_
-    if (!quiet) message("Adding geneAnnotation")
+    if (!quiet) message("Adding geneAnnotation slot")
     mod <- TRUE
   } 
   if (!(.hasSlot(object, "geneAnnotationFormat"))) {
     object@geneAnnotationFormat <- NA_character_
-    if (!quiet) message("Adding geneAnnotationFormat")
+    if (!quiet) message("Adding geneAnnotationFormat slot")
     mod <- TRUE
   }
   if (!mod) {

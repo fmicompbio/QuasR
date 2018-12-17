@@ -194,7 +194,6 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
   # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
   if (!is.null(geneAnnotation)) {
-    # Create a TxDb object and save to a sqlite database
     if (is(geneAnnotation, "TxDb")) {
       proj@geneAnnotationFormat <- "TxDb"
     } else if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
