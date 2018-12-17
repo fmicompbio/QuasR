@@ -85,7 +85,7 @@ setMethod("show", "qProject", function(object) {
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
         "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
-        "\n             txdbFile  : ", if(is.null(object@txdbFile) || is.na(object@txdbFile)) "none" else truncPath(object@txdbFile,getOption("width")-32),
+        "\n             txdbFile        : ", if(is.null(object@txdbFile) || is.na(object@txdbFile)) "none" else truncPath(object@txdbFile,getOption("width")-32),
         "\n", sep="")
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")
