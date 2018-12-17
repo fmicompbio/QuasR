@@ -1,10 +1,15 @@
 qProjectUpdate <- function(object, quiet = TRUE) {
   mod <- FALSE
-  if (!(.hasSlot(object, "txdbFile"))) {
-    object@txdbFile <- NA_character_
-    if (!quiet) message("Adding empty txdbFile slot to object")
+  if (!(.hasSlot(object, "geneAnnotation"))) {
+    object@geneAnnotation <- NA_character_
+    if (!quiet) message("Adding geneAnnotation")
     mod <- TRUE
   } 
+  if (!(.hasSlot(object, "geneAnnotationFormat"))) {
+    object@geneAnnotationFormat <- NA_character_
+    if (!quiet) message("Adding geneAnnotationFormat")
+    mod <- TRUE
+  }
   if (!mod) {
     if (!quiet) message("Object up to date")
   }
@@ -33,7 +38,8 @@ setClass("qProject",
                         lib.loc="character",
                         cacheDir="character",
                         alnModeID="character",
-                        txdbFile="character")
+                        geneAnnotation="character",
+                        geneAnnotationFormat="character")
          )
 
 ### Methods
@@ -98,7 +104,7 @@ setMethod("show", "qProject", function(object) {
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
         "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
-        "\n             txdbFile        : ", if(is.null(object@txdbFile) || is.na(object@txdbFile)) "none" else truncPath(object@txdbFile,getOption("width")-32),
+        "\n             geneAnnotation  : ", if(is.null(object@geneAnnotation) || is.na(object@geneAnnotation)) "none" else truncPath(object@geneAnnotation,getOption("width")-32),
         "\n", sep="")
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")

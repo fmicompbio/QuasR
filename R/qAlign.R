@@ -40,8 +40,9 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
     }
     
     # Rhisat2, generate splice site file
-    if (proj@aligner == "Rhisat2") {
-      buildSpliceSiteFile(proj@txdbFile, resolveCacheDir(proj@cacheDir))
+    if (proj@aligner == "Rhisat2" && !is.na(proj@geneAnnotation)) {
+      buildSpliceSiteFile(proj@geneAnnotation, proj@geneAnnotationFormat, 
+                          proj@aligner)
     }
 
     # align to the genome (qProject gets updated with the alignment file names)
@@ -68,6 +69,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 missingFilesMessage <- function(proj, checkOnly){
 
   genomeIndexNeedsToBeCreated <- FALSE
+  spliceSiteFileNeedsToBeCreated <- FALSE
   genomicAlignmentsNeedToBeCreated <- sum(is.na(proj@alignments$FileName))
   auxAlignmentsNeedToBeCreated <- sum(is.na(proj@auxAlignments))
 
@@ -194,37 +196,18 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if (!is.null(geneAnnotation)) {
     # Create a TxDb object and save to a sqlite database
     if (is(geneAnnotation, "TxDb")) {
-      # TxDb object
-      # generate the file name
-      credate <- format(as.POSIXlt(metadata(geneAnnotation)$value[metadata(geneAnnotation)$name == "Creation time"]),
-                        "%Y-%m-%d_%H.%M.%S")
-      if (length(geneAnnotation$packageName) != 0) {
-        # the txdb comes from a package (typically a TxDb... Bioc package)
-        txdbFile <- file.path(alignmentsDir, paste0(geneAnnotation$packageName, ".", credate, ".", aligner, ".", ".sqlite"))
-      } else {
-        txdbFile <- file.path(alignmentsDir, paste0(deparse(substitute(geneAnnotation)), 
-                                                    ".", credate, 
-                                                    ".", aligner, ".", "sqlite"))
-      }
-      # save the sqlite file
-      AnnotationDbi::saveDb(geneAnnotation, file = txdbFile)
-      proj@txdbFile <- txdbFile
+      proj@geneAnnotationFormat <- "TxDb"
     } else if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
                file.exists(geneAnnotation)) {
-      # gtf file
-      # generate the file name
-      credate <- format(as.POSIXlt(file.info(geneAnnotation)$ctime),
-                        "%Y-%m-%d_%H.%M.%S")
-      txdbFile <- gsub("gtf$|gff$", paste0(credate, ".sqlite"), geneAnnotation)
-      # generate a TxDb object
-      txdb <- GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
-      # save the sqlite file
-      AnnotationDbi::saveDb(txdb, file = txdbFile)
-      proj@txdbFile <- txdbFile
+      proj@geneAnnotationFormat <- "file"
     } else {
-      stop("Could not process the 'geneAnnotation' object. This needs to be ",
-           "either a TxDb object or the path to an existing gtf file.")
+      stop("'geneAnnotation' must be either a TxDb object or the path to an ",
+           "existing file.")
     }
+    proj@geneAnnotation <- geneAnnotation
+  } else {
+    proj@geneAnnotation <- NA_character_
+    proj@geneAnnotationFormat <- NA_character_
   }
 
   # ---------------------------------------- PARSE THE PAIRED PARAMETER ---------------------------------

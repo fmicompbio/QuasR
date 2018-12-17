@@ -184,9 +184,33 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath){
 }
 
 # generate splice site file
-buildSpliceSiteFile <- function(txdbFile, indexPath) {
-  txdb <- AnnotationDbi::loadDb(txdbFile)
-  Rhisat2::extract_splice_sites(txdb, file.path(indexPath, gsub("sqlite", "txt", txdbFile)), min_length = 5)
+buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat, aligner) {
+  if (geneAnnotationFormat == "TxDb") {
+    # TxDb object
+    # generate the file name
+    credate <- format(as.POSIXlt(metadata(geneAnnotation)$value[metadata(geneAnnotation)$name == "Creation time"]),
+                      "%Y-%m-%d_%H.%M.%S")
+    if (length(geneAnnotation$packageName) != 0) {
+      # the txdb comes from a package (typically a TxDb... Bioc package)
+      txdbFile <- paste0(geneAnnotation$packageName, ".", credate, ".", 
+                         aligner, ".", "txt")
+    } else {
+      txdbFile <- paste0(deparse(substitute(geneAnnotation)), 
+                         ".", credate, ".", aligner, ".", "txt")
+    }
+    txdb <- geneAnnotation
+  } else if (geneAnnotationFormat == "file") {
+    # gtf file
+    # generate the file name
+    credate <- format(as.POSIXlt(file.info(geneAnnotation)$ctime),
+                      "%Y-%m-%d_%H.%M.%S")
+    txdbFile <- gsub("gtf$|gff$", paste0(credate, "txt"), geneAnnotation)
+    # generate a TxDb object
+    txdb <- GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
+  } else {
+    stop("Fatal error 81956293")
+  }
+  Rhisat2::extract_splice_sites(txdb, txdbFile, min_length = 5)
 }
 
 # build index for Rbowtie, base space, non-bisulfite converted
