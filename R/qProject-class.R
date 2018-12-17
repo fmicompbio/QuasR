@@ -1,3 +1,16 @@
+qProjectUpdate <- function(object, quiet = TRUE) {
+  mod <- FALSE
+  if (!(.hasSlot(object, "txdbFile"))) {
+    object@txdbFile <- ""
+    if (!quiet) message("Adding empty txdbFile slot to object")
+    mod <- TRUE
+  } 
+  if (!mod) {
+    if (!quiet) message("Object up to date")
+  }
+  object
+}
+
 ### qProject class definition
 setClass("qProject",
          representation(reads="data.frame",
