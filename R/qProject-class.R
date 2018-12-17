@@ -19,8 +19,8 @@ setClass("qProject",
                         alignmentsDir="character",
                         lib.loc="character",
                         cacheDir="character",
-                        alnModeID="character"
-                        spliceSiteFile="character")
+                        alnModeID="character",
+                        txdbFile="character")
          )
 
 ### Methods
@@ -85,7 +85,7 @@ setMethod("show", "qProject", function(object) {
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
         "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
-        "\n             spliceSiteFile  : ", if(is.null(object@spliceSiteFile) || is.na(object@spliceSiteFile)) "none" else truncPath(object@spliceSiteFile,getOption("width")-32),
+        "\n             txdbFile  : ", if(is.null(object@txdbFile) || is.na(object@txdbFile)) "none" else truncPath(object@txdbFile,getOption("width")-32),
         "\n", sep="")
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")

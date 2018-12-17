@@ -183,6 +183,12 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath){
   return(ret)
 }
 
+# generate splice site file
+buildSpliceSiteFile <- function(txdbFile, indexPath) {
+  txdb <- AnnotationDbi::loadDb(txdbFile)
+  Rhisat2::extract_splice_sites(txdb, file.path(indexPath, gsub("sqlite", "txt", txdbFile)), min_length = 5)
+}
+
 # build index for Rbowtie, base space, non-bisulfite converted
 buildIndex_Rbowtie <- function(seqFile,indexPath){
   indexFullPath <- file.path(indexPath,"bowtieIndex")

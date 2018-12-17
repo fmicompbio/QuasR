@@ -8,11 +8,11 @@
 # The orientation for paired end is set to "fr" by default. In case of bam input files, the user needs to specify manually the 
 # status ("no","fr","rf","ff")
 # snpFile need four columns (chrom, pos, ref, alt) with no header
-# spliceSites can be either a gtf file or a TxDb object
+# geneAnnotation can be either a gtf file or a TxDb object
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
-                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE, spliceSites=NULL){
+                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE, geneAnnotation=NULL){
 
   # check if the user provided a samplefile and a genome
   if(missing(sampleFile)){stop("Missing 'sampleFile' parameter.")}
@@ -20,7 +20,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 
   # create a qProject, perform various tests, install required BSgenome and load aligner package
   # create fasta indices (.fai) files for all the reference sequences (genome & aux) as well as all md5 sum files
-  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir, spliceSites)
+  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir, geneAnnotation)
 
   # display the status of the project. in case of checkOnly=TRUE, throw an exception if there are alignment files missing
   missingFilesMessage(proj,checkOnly)
@@ -41,8 +41,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
     
     # Rhisat2, generate splice site file
     if (proj@aligner == "Rhisat2") {
-      buildSpliceSiteFile(proj@spliceSiteFile,proj@alnModeID,
-                          resolveCacheDir(proj@cacheDir))
+      buildSpliceSiteFile(proj@txdbFile, resolveCacheDir(proj@cacheDir))
     }
 
     # align to the genome (qProject gets updated with the alignment file names)
@@ -129,7 +128,7 @@ missingFilesMessage <- function(proj, checkOnly){
 # read all the input information, perform various checks and compile the data into a qProject object
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, 
                            snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, 
-                           lib.loc, cacheDir, spliceSites){
+                           lib.loc, cacheDir, geneAnnotation){
 
   # instantiate a qProject
   proj <-new("qProject")
@@ -192,33 +191,38 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   }
 
   # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
-  if (!is.null(spliceSites)) {
+  if (!is.null(geneAnnotation)) {
     # Create a TxDb object and save to a sqlite database
-    if (is(spliceSites, "TxDb")) {
+    if (is(geneAnnotation, "TxDb")) {
       # TxDb object
       # generate the file name
-      if (length(spliceSites$packageName) != 0) {
+      credate <- format(as.POSIXlt(metadata(geneAnnotation)$value[metadata(geneAnnotation)$name == "Creation time"]),
+                        "%Y-%m-%d_%H.%M.%S")
+      if (length(geneAnnotation$packageName) != 0) {
         # the txdb comes from a package (typically a TxDb... Bioc package)
-        spliceSiteFile <- file.path(alignmentsDir, paste0(spliceSites$packageName, ".", aligner, ".", ".sqlite"))
+        txdbFile <- file.path(alignmentsDir, paste0(geneAnnotation$packageName, ".", credate, ".", aligner, ".", ".sqlite"))
       } else {
-        spliceSiteFile <- file.path(alignmentsDir, paste0(deparse(substitute(spliceSites)), 
-                                                          ".", aligner, ".", "sqlite"))
+        txdbFile <- file.path(alignmentsDir, paste0(deparse(substitute(geneAnnotation)), 
+                                                    ".", credate, 
+                                                    ".", aligner, ".", "sqlite"))
       }
       # save the sqlite file
-      AnnotationDbi::saveDb(spliceSites, file = spliceSiteFile)
-      proj@spliceSiteFile <- spliceSiteFile
-    } else if (is(spliceSites, "character") && length(spliceSites) == 1 && 
-               file.exists(spliceSites)) {
+      AnnotationDbi::saveDb(geneAnnotation, file = txdbFile)
+      proj@txdbFile <- txdbFile
+    } else if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
+               file.exists(geneAnnotation)) {
       # gtf file
       # generate the file name
-      spliceSiteFile <- gsub("gtf$|gff$", "sqlite", spliceSites)
+      credate <- format(as.POSIXlt(file.info(geneAnnotation)$ctime),
+                        "%Y-%m-%d_%H.%M.%S")
+      txdbFile <- gsub("gtf$|gff$", paste0(credate, ".sqlite"), geneAnnotation)
       # generate a TxDb object
-      txdb <- GenomicFeatures::makeTxDbFromGFF(spliceSites, format = "auto")
+      txdb <- GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
       # save the sqlite file
-      AnnotationDbi::saveDb(txdb, file = spliceSiteFile)
-      proj@spliceSiteFile <- spliceSiteFile
+      AnnotationDbi::saveDb(txdb, file = txdbFile)
+      proj@txdbFile <- txdbFile
     } else {
-      stop("Could not process the 'spliceSites' object. This needs to be ",
+      stop("Could not process the 'geneAnnotation' object. This needs to be ",
            "either a TxDb object or the path to an existing gtf file.")
     }
   }
