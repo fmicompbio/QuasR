@@ -168,6 +168,8 @@ createGenomicAlignmentsController <- function(params){
   }else{stop("Fatal error 4778493")}
 
   # create the info file for the bam file
+  print(proj@geneAnnotation)
+  print(sampleNr)
   bamInfo <- qProjectBamInfo(proj,sampleNr)
 
   # uncompress the files containing the reads (twice for paired end samples)

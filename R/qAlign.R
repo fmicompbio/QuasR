@@ -104,11 +104,7 @@ missingFilesMessage <- function(proj, checkOnly){
     
     ## Splice site file
     if (!is.na(proj@geneAnnotation)) {
-      if (file.exists(paste0(proj@geneAnnotation, ".SpliceSites.txt"))) {
-        if (!("sps_md5Sum.txt" %in% dir(proj@geneAnnotation))) {
-          spliceSiteFileNeedsToBeCreated <- TRUE
-        }
-      } else {
+      if (!file.exists(paste0(proj@geneAnnotation, ".SpliceSites.txt"))) {
         spliceSiteFileNeedsToBeCreated <- TRUE
       }
     }
@@ -585,12 +581,6 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     if(is.na(proj@alignments$FileName[i])){
        projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
        
-       ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
-       if (projBamInfo[["aligner"]] == "Rbowtie") {
-         projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
-                                        c("geneAnnotation", "geneAnnotationFormat",
-                                          "geneAnnotation.md5"))]
-       }
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
        filesInBamDir <- list.files(bamDir, pattern=".bam$")
@@ -608,6 +598,15 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
            bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
 
            # compare the actual parameters to the one from the bam file on disk
+           ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
+           if (proj@aligner == "Rbowtie") {
+             projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                            c("geneAnnotation", "geneAnnotationFormat",
+                                              "geneAnnotation.md5"))]
+             bamInfoT <- bamInfoT[!(names(bamInfoT) %in% 
+                                      c("geneAnnotation", "geneAnnotationFormat",
+                                        "geneAnnotation.md5"))]
+           }
            if(identical(projBamInfo,bamInfoT)){
              compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
            }
@@ -628,12 +627,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     for(i in 1:ncol(proj@auxAlignments)){
       for(j in 1:nrow(proj@auxAlignments)){
         projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i,j))
-        ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
-        if (projBamInfo[["aligner"]] == "Rbowtie") {
-          projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
-                                         c("geneAnnotation", "geneAnnotationFormat",
-                                           "geneAnnotation.md5"))]
-        }
+      
         if(is.na(proj@auxAlignments[j,i])){
           if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
           samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
@@ -652,6 +646,14 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
               bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
               
               # compare the actual parameters to the one from the bam file on disk
+              if (proj@aligner == "Rbowtie") {
+                projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                               c("geneAnnotation", "geneAnnotationFormat",
+                                                 "geneAnnotation.md5"))]
+                bamInfoT <- bamInfoT[!(names(bamInfoT) %in% 
+                                         c("geneAnnotation", "geneAnnotationFormat",
+                                           "geneAnnotation.md5"))]
+              }
               if(identical(projBamInfo,bamInfoT)){
                 compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
               }
@@ -811,7 +813,7 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
     alnInfo["snpFile.md5"]=as.character(read.delim(paste(proj@snpFile,"md5",sep="."),header=FALSE,colClasses="character")[1,1])
   }
   if (!is.na(proj@geneAnnotation)) {
-    alnInfo["geneAnnotation.md5"] <- as.character(read.delim(paste(proj@geneAnnotation, ".md5"),
+    alnInfo["geneAnnotation.md5"] <- as.character(read.delim(paste0(proj@geneAnnotation, ".md5"),
                                                              header = FALSE, 
                                                              colClasses = "character")[1, 1])
   }
