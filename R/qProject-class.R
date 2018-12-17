@@ -104,7 +104,8 @@ setMethod("show", "qProject", function(object) {
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
         "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
-        "\n             geneAnnotation  : ", if(is.null(object@geneAnnotation) || is.na(object@geneAnnotation)) "none" else truncPath(object@geneAnnotation,getOption("width")-32),
+        "\n             geneAnnotation  : ", if(is.null(object@geneAnnotation) || is.na(object@geneAnnotation)) "none" else paste0(truncPath(object@geneAnnotation,getOption("width")-39), 
+                                                                                                                                   " (", object@geneAnnotationFormat, ")"),
         "\n", sep="")
     if(is.na(object@aligner))
         cat(" Aligner   : unknown\n")

@@ -193,18 +193,18 @@ buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat, aligner) {
     if (length(geneAnnotation$packageName) != 0) {
       # the txdb comes from a package (typically a TxDb... Bioc package)
       txdbFile <- paste0(geneAnnotation$packageName, ".", credate, ".", 
-                         aligner, ".", "txt")
+                         aligner, ".txt")
     } else {
       txdbFile <- paste0(deparse(substitute(geneAnnotation)), 
                          ".", credate, ".", aligner, ".", "txt")
     }
     txdb <- geneAnnotation
-  } else if (geneAnnotationFormat == "file") {
+  } else if (geneAnnotationFormat == "gtf") {
     # gtf file
     # generate the file name
     credate <- format(as.POSIXlt(file.info(geneAnnotation)$ctime),
                       "%Y-%m-%d_%H.%M.%S")
-    txdbFile <- gsub("gtf$|gff$", paste0(credate, "txt"), geneAnnotation)
+    txdbFile <- gsub("gtf$|gff$", paste0(credate, ".", aligner, ".txt"), geneAnnotation)
     # generate a TxDb object
     txdb <- GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
   } else {

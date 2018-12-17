@@ -8,7 +8,7 @@
 # The orientation for paired end is set to "fr" by default. In case of bam input files, the user needs to specify manually the 
 # status ("no","fr","rf","ff")
 # snpFile need four columns (chrom, pos, ref, alt) with no header
-# geneAnnotation can be either a gtf file or a TxDb object
+# geneAnnotation should be the path to either a gtf file or a TxDb sqlite file
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
@@ -198,7 +198,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
       proj@geneAnnotationFormat <- "TxDb"
     } else if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
                file.exists(geneAnnotation)) {
-      proj@geneAnnotationFormat <- "file"
+      proj@geneAnnotationFormat <- "gtf"
     } else {
       stop("'geneAnnotation' must be either a TxDb object or the path to an ",
            "existing file.")
