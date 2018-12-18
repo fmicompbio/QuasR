@@ -10,22 +10,6 @@ clObj <- parallel::makeCluster(2L)
 # load QuasR on cluster nodes
 parallel::clusterEvalQ(cl = clObj, expr = library(QuasR))
 
-# create annotation and GRanges
-# ... for hg19sub
-gtfGr <- createGtfGr()
-txdb  <- createTxDb()
-auxGr <- Rsamtools::scanFaIndex(auxGenomeFile)
-
-# ... for synthetic genome with chrV
-qGenome <- GenomicRanges::GRanges("chrV", IRanges(start = 1, width = 800), strand = "+")
-q01.20  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20), width = 1))
-q01.99  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(99), width = 1))
-q21.40  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 20, width = 1))
-q41.60  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 40, width = 1))
-q61.80  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 60, width = 1))
-q81.99  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(19) + 80, width = 1))
-qTiles  <- createTiles()
-
 # create qProject instances
 # ... for hg19sub
 genomeFile    <- file.path("extdata", "hg19sub.fa")
@@ -55,3 +39,20 @@ pPhiX             <- qAlign(file.path("extdata", "phiX_paired_withSecondary_samp
 pSingle        <- createProjectSingle(allelic = FALSE)
 pSingleAllelic <- createProjectSingle(allelic = TRUE)
 pPaired        <- createProjectPaired()
+
+# create annotation and GRanges
+# ... for hg19sub
+gtfGr <- createGtfGr()
+txdb  <- createTxDb()
+auxGr <- Rsamtools::scanFaIndex(auxGenomeFile)
+
+# ... for synthetic genome with chrV
+qGenome <- GenomicRanges::GRanges("chrV", IRanges(start = 1, width = 800), strand = "+")
+q01.20  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20), width = 1))
+q01.99  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(99), width = 1))
+q21.40  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 20, width = 1))
+q41.60  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 40, width = 1))
+q61.80  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(20) + 60, width = 1))
+q81.99  <- GenomicRanges::GRanges("chrV", IRanges(start = seq.int(19) + 80, width = 1))
+qTiles  <- createTiles()
+
