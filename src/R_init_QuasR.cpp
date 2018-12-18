@@ -1,5 +1,13 @@
+// prevent remapping of "Rf_length" to "length" in Rdefines.h, which clashes with fstream::length
+#define R_NO_REMAP
 // prevent remapping e.g. Ralloc, which causes conflicts under windows
 #define STRICT_R_HEADERS 1
+
+// include Boolean.h early, will define TRUE/FALSE enum prefent Rdefines.h from defining them as int constants
+#include <R_ext/Boolean.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+// #include <R_ext/Visibility.h>
 
 #include "merge_reorder_sam.h"
 #include "quantify_methylation.h"
@@ -9,7 +17,6 @@
 extern "C" {
 #endif
 
-#include <R_ext/Rdynload.h>
 #include "split_sam_chr.h"
 #include "cat_bam.h"
 #include "idxstats_bam.h"
@@ -60,11 +67,12 @@ static const R_CallMethodDef callMethods[] = {
 };
 
 
+// void attribute_visible R_init_QuasR(DllInfo *info)
 void R_init_QuasR(DllInfo *info)
 {
     R_registerRoutines(info, NULL, callMethods, NULL, NULL);
-    R_useDynamicSymbols(info, FALSE);
-    R_forceSymbols(info, TRUE);
+    R_useDynamicSymbols(info, (Rboolean)FALSE);
+    R_forceSymbols(info, (Rboolean)TRUE);
 }
 
 void R_unload_QuasR(DllInfo *info){}
