@@ -1,24 +1,3 @@
-genomeFile    <- file.path("extdata", "hg19sub.fa")
-snpFile       <- file.path("extdata", "hg19sub_snp.txt")
-auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
-auxFile       <- file.path("extdata", "auxiliaries.txt")
-
-sChipSingle   <- file.path("extdata", "samples_chip_single.txt")
-sRnaSingle    <- file.path("extdata", "samples_rna_single.txt")
-sRnaPaired    <- file.path("extdata", "samples_rna_paired.txt")
-sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
-sMirnaSingle  <- file.path("extdata", "samples_mirna.txt")
-
-pChipSingle       <- qAlign(sChipSingle,  genomeFile, clObj = clObj)
-pChipSingleAux    <- qAlign(sChipSingle,  genomeFile, auxiliaryFile = auxFile, clObj = clObj)
-pChipSingleSnps   <- qAlign(sChipSingle,  genomeFile, snpFile = snpFile, clObj = clObj)
-pRnaPaired        <- qAlign(sRnaPaired,   genomeFile, clObj = clObj)
-pRnaSingleSpliced <- qAlign(sRnaSingle,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
-pRnaPairedSpliced <- qAlign(sRnaPaired,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
-pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
-pBisUndir         <- qAlign(sBisSingle,   genomeFile, bisulfite = "undir", clObj = clObj)
-pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
-
 
 context("alignmentStats")
 
