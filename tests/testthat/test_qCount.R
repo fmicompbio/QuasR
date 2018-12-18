@@ -160,7 +160,7 @@ test_that("qCount correctly works with a TxDb query", {
 
   # promoter
   proms <- GenomicFeatures::promoters(txdb)
-  res1 <- qCount(pRnaSingleSpliced, proms, collapseBySample = FALSE, reportLevel = "promoter")
+  res1 <- qCount(pRnaSingleSpliced, proms, collapseBySample = FALSE, reportLevel = "promoter", clObj = clObj)
   res2 <- qCount(pRnaSingleSpliced, txdb,  collapseBySample = FALSE, reportLevel = "promoter")
   rownames(res2) <- sub("^[0-9]+;", "", rownames(res2))
   expect_identical(res1, res2[rownames(res1),])
@@ -172,7 +172,7 @@ test_that("qCount correctly works with a TxDb query", {
                                                  end   = c(12321, 14362)), strand = "+")
   res1 <- qCount(pRnaSingleSpliced, exGr, collapseBySample = FALSE)
   res2 <- qCount(pRnaSingleSpliced, exGr, collapseBySample = FALSE, includeSpliced = FALSE)
-  res3 <- qCount(pRnaSingleSpliced, NULL, reportLevel = "junction", collapseBySample = FALSE)
+  res3 <- qCount(pRnaSingleSpliced, NULL, reportLevel = "junction", collapseBySample = FALSE, clObj = clObj)
   expect_equal(unname((res1 - res2)[c(1, 3), -1]),
                unname(as.matrix(mcols(res3)[match(inGr, res3),])))
 })
