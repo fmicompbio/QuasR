@@ -1,6 +1,11 @@
 
 context("alignmentStats")
 
+test_that("alignmentStats correctly digests its arguments", {
+  expect_error(alignmentStats(1L))
+  expect_error(alignmentStats("nonexistent.bam"))
+})
+
 test_that("alignmentStats works as expected", {    
   resSoll <- matrix(c(95000,95000,
                       2339,3609,
