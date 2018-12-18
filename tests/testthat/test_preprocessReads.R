@@ -6,7 +6,7 @@ context("preprocessReads")
 #     Insert        TGTGACAGACCTCGGGGCCACATGCACTGACTCCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGTC
 #     Right Adapter ATCTCGTATGCCGTCTTCTGCTTG
 # ... create two temporary fasta files and return file names
-faFiles <- c(tempfile(fileext = ".fa"), tempfile(fileext = ".fa"))
+faFiles <- tempfile(fileext = rep(".fa", 2), tmpdir = "extdata")
 writeLines(c(">seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", # onlyInsert
              ">seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", # low compexity, 2N
              ">seq3", "AAAATACTGTGTGACAGACCTCGGGGCCACATGCAC", # A.., LAdapter
@@ -28,7 +28,7 @@ writeLines(c(">seq1", "AAAAAAAAAAAAAAAAAAA",                  # low compexity
              ">seq9", "CAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGT"),# Insert
              faFiles[2])
 # ... create two temporary fastq files and return file names
-fqFiles <- c(tempfile(fileext = ".fq"), tempfile(fileext = ".fq"))
+fqFiles <- tempfile(fileext = rep(".fq", 2), tmpdir = "extdata")
 writeLines(c("@seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", "+", "5..49<494*<49493####################",
              "@seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "+", "+4544944444444######################",
              "@seq3", "AAAATACTGTGTGACAGACCTCGGGGCCACATGCAC", "+", "BCCBCCBBB60>CA;5;@BB@A6+;8@BC?0:B@/=",
@@ -79,12 +79,12 @@ test_that("arguments in preprocessReads are digested correctly", {
 
 test_that("preprocessReads correctly processes single-read files", {
   # results for default parameters
-  outFilesFasta <- c(tempfile(fileext = ".fa"), tempfile(fileext = ".fa"))
+  outFilesFasta <- tempfile(fileext = rep(".fa", 2), tmpdir = "extdata")
   resSoll <- cbind(c(9,0,0,0,0,0,9), c(9,0,0,0,0,0,9))
   rownames(resSoll) <- c("totalSequences","matchTo5pAdapter","matchTo3pAdapter",
                          "tooShort","tooManyN","lowComplexity","totalPassed")
   colnames(resSoll) <- basename(faFiles)
-  outFilesFastq <- c(tempfile(fileext = ".fq"), tempfile(fileext = ".fq"))
+  outFilesFastq <- tempfile(fileext = rep(".fq", 2), tmpdir = "extdata")
 
   # default
   res <- preprocessReads(faFiles, outFilesFasta)
@@ -131,12 +131,12 @@ test_that("preprocessReads correctly processes single-read files", {
 
 test_that("preprocessReads correctly processes paired-end files", {
   # results for default parameters
-  outFilesFasta <- c(tempfile(fileext = ".fa"), tempfile(fileext = ".fa"))
+  outFilesFasta <- tempfile(fileext = rep(".fa", 2), tmpdir = "extdata")
   resSoll <- matrix(c(9,NA,NA,0,0,0,9), nrow = 7, ncol = 1,
                     dimnames = list(c("totalSequences","matchTo5pAdapter","matchTo3pAdapter",
                                       "tooShort","tooManyN","lowComplexity","totalPassed"),
                                     paste(basename(faFiles), collapse = ":")))
-  outFilesFastq <- c(tempfile(fileext = ".fq"), tempfile(fileext = ".fq"))
+  outFilesFastq <- tempfile(fileext = rep(".fq", 2), tmpdir = "extdata")
   
   # default
   res <- preprocessReads(faFiles[1], outFilesFasta[1], faFiles[2], outFilesFasta[2])
@@ -187,17 +187,17 @@ test_that("preprocessReads correctly (de-)compresses files", {
                                       "tooShort","tooManyN","lowComplexity","totalPassed"),
                                     basename(faFiles[1])))
   
-  outFile <- tempfile(fileext = ".fa.gz")
+  outFile <- tempfile(fileext = ".fa.gz", tmpdir = "extdata")
   res <- preprocessReads(faFiles[1], outFile)
   expect_equal(resSoll, res)
   unlink(outFile)
   
-  outFile <- tempfile(fileext = ".fa.bz2")
+  outFile <- tempfile(fileext = ".fa.bz2", tmpdir = "extdata")
   res <- preprocessReads(faFiles[1], outFile)
   expect_equal(resSoll, res)
   unlink(outFile)
   
-  outFile <- tempfile(fileext = ".fa.xz")
+  outFile <- tempfile(fileext = ".fa.xz", tmpdir = "extdata")
   res <- preprocessReads(faFiles[1], outFile)
   expect_equal(resSoll, res)
   unlink(outFile)

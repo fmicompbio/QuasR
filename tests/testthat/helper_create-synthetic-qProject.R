@@ -2,8 +2,8 @@ createProjectSingle <- function(allelic=FALSE) {
   requireNamespace("Rsamtools", quietly = TRUE)
   
   # create bam files
-  samfile_plus <- tempfile(fileext = ".sam")
-  samfile_minus <- tempfile(fileext = ".sam")
+  samfile_plus <- tempfile(fileext = ".sam", tmpdir = "extdata")
+  samfile_minus <- tempfile(fileext = ".sam", tmpdir = "extdata")
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_plus)
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_minus)
   pos <- seq.int(512)
@@ -17,18 +17,18 @@ createProjectSingle <- function(allelic=FALSE) {
   bamfile_minus <- Rsamtools::asBam(samfile_minus, indexDestination = TRUE)
   
   # create genome
-  genome <- tempfile(fileext = ".fa")
+  genome <- tempfile(fileext = ".fa", tmpdir = "extdata")
   cat(">chrV\n", paste(rep("G", 600), collapse = ""), "\n", file = genome)
 
   # create SNP file
   if (allelic) {
-    snp <- tempfile(fileext = ".txt")
+    snp <- tempfile(fileext = ".txt", tmpdir = "extdata")
     cat(">chrV\t10\tC\tG\n", file = snp)
   }
   
   # create sample file
-  samplefile <- tempfile(fileext = ".txt")
-  write.table(data.frame(FileName = c(bamfile_plus, bamfile_minus),
+  samplefile <- tempfile(fileext = ".txt", tmpdir = "extdata")
+  write.table(data.frame(FileName = basename(c(bamfile_plus, bamfile_minus)),
                          SampleName = c("Sample", "Sample"), stringsAsFactors = FALSE),
               sep = "\t", quote = FALSE, row.names = FALSE, file = samplefile)
   
@@ -46,7 +46,7 @@ createProjectPaired <- function() {
   requireNamespace("Rsamtools", quietly = TRUE)
   
   # create samfile
-  sfile <- tempfile(fileext = ".sam")
+  sfile <- tempfile(fileext = ".sam", tmpdir = "extdata")
   cat("@HD\tVN:1.0\tSO:unsorted\n", file = sfile, append = FALSE)
   cat("@SQ\tSN:chrV\tLN:99\n", file = sfile, append = TRUE)
   # fr R1->left R2->right
@@ -79,13 +79,13 @@ createProjectPaired <- function() {
   bfile <- Rsamtools::asBam(sfile)
   
   # create sample file
-  samplefile <- tempfile()
-  write.table(data.frame(FileName = bfile,
+  samplefile <- tempfile(fileext = ".txt", tmpdir = "extdata")
+  write.table(data.frame(FileName = basename(bfile),
                          SampleName = "Normal", stringsAsFactors = FALSE),
               sep = "\t", quote = FALSE, row.names = FALSE, file = samplefile)
   
   # create genome
-  genome <- tempfile(fileext = ".fa")
+  genome <- tempfile(fileext = ".fa", tmpdir = "extdata")
   cat(">chrV\n", file = genome, append = FALSE)
   cat(paste(rep("G",99), collapse = ""), file = genome, append = TRUE)
   

@@ -2,7 +2,7 @@
 context("qQCReport")
 
 test_that("qQCReport works as expected", {
-  tmppdf <- tempfile(fileext = rep(".pdf", 2))
+  tmppdf <- tempfile(fileext = rep(".pdf", 2), tmpdir = "extdata")
   resqc  <- qQCReport(pChipSingle, pdfFilename = tmppdf[1])
   resqc2 <- qQCReport(pChipSingle, pdfFilename = tmppdf[2], clObj = clObj)
   expect_identical(resqc, resqc2)

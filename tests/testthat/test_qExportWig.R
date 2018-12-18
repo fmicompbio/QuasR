@@ -22,7 +22,7 @@ test_that("qExportWig works as expected", {
   requireNamespace("rtracklayer")
   
   # paired and halfInsert shift
-  wigfiles <- tempfile(fileext = rep(".wig",2))
+  wigfiles <- tempfile(fileext = rep(".wig",2), tmpdir = "extdata")
   res <- qExportWig(pRnaPaired, wigfiles, scaling = FALSE)
   wig <- lapply(wigfiles, function(wf) suppressWarnings(rtracklayer::import.wig(wf)))
   res <- qCount(pRnaPaired, wig[[1]], shift = "halfInsert", collapseBySample = FALSE)
