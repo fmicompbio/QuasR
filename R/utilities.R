@@ -161,56 +161,56 @@ compressFile <-
         invisible(nbytes)
     }
 
-grangesFromGff <-
-    function(con, version="2", split=NULL) {
-        # create a GRangesList object from regions defined in a GFF/GTA file, split by 'type'
-        if (requireNamespace("rtracklayer", quietly=TRUE)) {
-            gr <- rtracklayer::import.gff(con, version=version,
-                                          colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
+# grangesFromGff <-
+#     function(con, version="2", split=NULL) {
+#         # create a GRangesList object from regions defined in a GFF/GTA file, split by 'type'
+#         if (requireNamespace("rtracklayer", quietly=TRUE)) {
+#             gr <- rtracklayer::import.gff(con, version=version,
+#                                           colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
+# 
+#             if(is.null(split) || !(split %in% colnames(mcols(gr))))
+#                 return(gr)
+#             else
+#                 #return(lapply(split(seq.int(length(gr)), mcols(gr)[[split]]), function(i) gr[i])) # creates a list() of GRanges
+#                 return(split(gr, mcols(gr)[[split]])) # creates a GRangesList (compound elements, e.g. in findOverlaps)
+#         } else {
+#             stop("rtracklayer package not found - aborting grangesFromGff")
+#         }
+#     }
 
-            if(is.null(split) || !(split %in% colnames(mcols(gr))))
-                return(gr)
-            else
-                #return(lapply(split(seq.int(length(gr)), mcols(gr)[[split]]), function(i) gr[i])) # creates a list() of GRanges
-                return(split(gr, mcols(gr)[[split]])) # creates a GRangesList (compound elements, e.g. in findOverlaps)
-        } else {
-            stop("rtracklayer package not found - aborting grangesFromGff")
-        }
-    }
-
-concatenateFiles <-
-    function(filenames, destname, BFR.SIZE=1e+07) {
-        # concatenate 'filenames' to 'destname'
-        if(any(f <- !(file.exists(filenames))))
-            stop("'filenames' don't exist: ", paste(filenames[f], collapse=", "))
-        if(!is.character(destname) || length(destname)!=1)
-            stop("'destname' needs to be a single output file name")
-        if(file.exists(destname))
-            stop(sprintf("'destname' already exists: %s", destname))
-        outComplete <- FALSE
-        out <- file(destname, "wb")
-        on.exit({
-            close(out)
-            if (!outComplete) {
-                file.remove(destname)
-            }
-        })
-        nbytes <- 0
-        for(filename in filenames) {
-            inn <- file(filename, "rb")
-            repeat {
-                bfr <- readBin(inn, what = raw(0), size = 1, n = BFR.SIZE)
-                n <- length(bfr)
-                if (n == 0) 
-                    break
-                nbytes <- nbytes + n
-                writeBin(bfr, con = out, size = 1)
-            }
-            close(inn)
-        }
-        outComplete <- TRUE
-        invisible(nbytes)
-    }
+# concatenateFiles <-
+#     function(filenames, destname, BFR.SIZE=1e+07) {
+#         # concatenate 'filenames' to 'destname'
+#         if(any(f <- !(file.exists(filenames))))
+#             stop("'filenames' don't exist: ", paste(filenames[f], collapse=", "))
+#         if(!is.character(destname) || length(destname)!=1)
+#             stop("'destname' needs to be a single output file name")
+#         if(file.exists(destname))
+#             stop(sprintf("'destname' already exists: %s", destname))
+#         outComplete <- FALSE
+#         out <- file(destname, "wb")
+#         on.exit({
+#             close(out)
+#             if (!outComplete) {
+#                 file.remove(destname)
+#             }
+#         })
+#         nbytes <- 0
+#         for(filename in filenames) {
+#             inn <- file(filename, "rb")
+#             repeat {
+#                 bfr <- readBin(inn, what = raw(0), size = 1, n = BFR.SIZE)
+#                 n <- length(bfr)
+#                 if (n == 0) 
+#                     break
+#                 nbytes <- nbytes + n
+#                 writeBin(bfr, con = out, size = 1)
+#             }
+#             close(inn)
+#         }
+#         outComplete <- TRUE
+#         invisible(nbytes)
+#     }
 
 md5subsum <-
     function(filenames) {
