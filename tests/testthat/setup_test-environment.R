@@ -31,7 +31,7 @@ pRnaSingleSpliced <- qAlign(sRnaSingle,   genomeFile, splicedAlignment = TRUE, a
 pRnaPairedSpliced <- qAlign(sRnaPaired,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
 pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
 pBisUndir         <- qAlign(sBisSingle,   genomeFile, bisulfite = "undir", clObj = clObj)
-#pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
+pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
 pPhiX             <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),
                             file.path("extdata", "NC_001422.1.fa"), paired = "fr")
 
