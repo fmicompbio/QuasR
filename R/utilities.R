@@ -217,18 +217,18 @@ md5subsum <-
         # calculate md5sum() on a repoducible random subset of the file's content
         unlist(lapply(filenames, function(fname) {
             funit <- 1e6
-            fs <- floor(file.info(fname)$size /funit)
-            if(fs==0) {
+            fs <- floor(file.info(fname)$size / funit)
+            if (!is.na(fs) && fs == 0) {
                 funit <- 1
                 fs <- floor(file.info(fname)$size)
             }
-            if(!is.na(fs)) {
+            if (!is.na(fs)) {
                 inn <- file(fname, "rb")
                 outname <- tempfile()
                 out <- file(outname, "wb")
                 set.seed(1)
-                for(pos in c(0, funit * sort(sample.int(n=fs, size=20, replace=TRUE)))) {
-                    seek(inn, where=pos)
+                for (pos in c(0, funit * sort(sample.int(n = fs, size = 20, replace = TRUE)))) {
+                    seek(inn, where = pos)
                     bfr <- readBin(inn, what = raw(0), size = 1, n = 10000)
                     if (length(bfr) == 0) 
                         break
@@ -244,7 +244,7 @@ md5subsum <-
                 warning(sprintf("could not stat file '%s'; returning 'NA' as md5subsum",fname))
                 return(NA)
             }
-        }), use.names=FALSE)
+        }), use.names = FALSE)
     }
 
 # return a list(2) of BiocParallel::BiocParallelParam for nested parallelization
