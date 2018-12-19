@@ -245,7 +245,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           samples$FileName[i] <- pathRet
         }else{stop(samples$FileName[i]," listed in ",sampleFile," does not exist",call.=FALSE)}
       }
-      # deterime format of the files (fa,fasta,fna)
+      # determine format of the files (fa,fasta,fna)
       proj@samplesFormat <- determineSamplesFormat(samples$FileName)
 
       if(proj@samplesFormat == "bam"){
@@ -295,7 +295,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           samples$FileName2[i] <- pathRet
         }else{stop(samples$FileName2[i]," listed in ",sampleFile," does not exist",call.=FALSE)}
       }
-      # deterime format of the files (fa,fasta,fna)
+      # determine format of the files (fa,fasta,fna)
       proj@samplesFormat <- determineSamplesFormat(c(samples$FileName1,samples$FileName2))
 
       if(proj@samplesFormat == "bam"){stop("Bam files need to be listed in a two column file: ",sampleFile,call.=FALSE)}
