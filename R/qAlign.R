@@ -212,7 +212,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     } else {
       stop("'geneAnnotation' must be a path to an existing sqlite, gtf or gff file.")
     }
-    proj@geneAnnotation <- geneAnnotation
+    proj@geneAnnotation <- tools::file_path_as_absolute(geneAnnotation)
   } else {
     proj@geneAnnotation <- NA_character_
     proj@geneAnnotationFormat <- NA_character_
@@ -561,7 +561,11 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
             proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
           }
         } else{  # spliced, hisat2
-          proj@alignmentParameter <- paste("-k",proj@maxHits)
+          if (!is.na(proj@geneAnnotation)) {
+            proj@alignmentParameter <- paste("-k",proj@maxHits,"--known-splicesite-infile",paste0(proj@geneAnnotation,".SpliceSites.txt"))
+          } else {
+            proj@alignmentParameter <- paste("-k",proj@maxHits)
+          }
         }
       }
     }else{
