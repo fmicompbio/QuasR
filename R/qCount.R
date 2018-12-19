@@ -520,42 +520,42 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
 
 
 
-## Counts alignments in a given set of regions which are located in a subspace of the genome
-## using a per-base-coverage vector approach
-##     shift the read, broaden fetch region,
-## return a numeric vector with length(regions) elements (same order as regions)
-countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shift=0L, broaden=0L, includeSpliced=TRUE)
-{
-    ## check if region are located on one chromosme
-    seqName <- unique(seqnames(regions))
-    if(length(seqName) > 1L)
-        stop("regions should only be located on one chromosome")
-    
-    ## check broaden and shift parameter
-    if(broaden < 0)
-        stop("'broaden' should not be negative") 
-    #    if(shift > 0 && selectReadPosition="midwithin")
-    #        stop("'shift' parameter must be zero if 'selectReadPosition' is set to midwithin")
-    #    if(broaden > 0 && (selectReadPosition="startwithin" || selectReadPosition="endwithin"))
-    #        stop("'broaden' parameter must be zero if 'selectReadPosition' is set to startwithin or endwithin")
-    
-    ## translate seqName to tid
-    seqnamesList <- names(scanBamHeader(bamfile)[[1]]$targets)
-    tidList <- as.integer(seq_along(seqnamesList)-1)
-    tid <- tidList[ match(seqName, seqnamesList) ]
-    
-    ## convert grange to data.frame 
-    ## with 0-based start inclusive
-    ## with 0-based end exclusive
-    regionsTable <- data.frame(start=as.integer(start(regions)-1), ## samtool library has 0-based start
-                               end=as.integer(end(regions)),
-                               strand=as.character(strand(regions)),
-                               stringsAsFactors=FALSE
-    )
-    
-    ## call c-function
-    cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end),
-                 regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, includeSpliced)
-    
-    return(cnt)
-}
+# ## Counts alignments in a given set of regions which are located in a subspace of the genome
+# ## using a per-base-coverage vector approach
+# ##     shift the read, broaden fetch region,
+# ## return a numeric vector with length(regions) elements (same order as regions)
+# countAlignmentsSubregionsC <- function(bamfile, regions, selectReadPosition, shift=0L, broaden=0L, includeSpliced=TRUE)
+# {
+#     ## check if region are located on one chromosme
+#     seqName <- unique(seqnames(regions))
+#     if(length(seqName) > 1L)
+#         stop("regions should only be located on one chromosome")
+#     
+#     ## check broaden and shift parameter
+#     if(broaden < 0)
+#         stop("'broaden' should not be negative") 
+#     #    if(shift > 0 && selectReadPosition="midwithin")
+#     #        stop("'shift' parameter must be zero if 'selectReadPosition' is set to midwithin")
+#     #    if(broaden > 0 && (selectReadPosition="startwithin" || selectReadPosition="endwithin"))
+#     #        stop("'broaden' parameter must be zero if 'selectReadPosition' is set to startwithin or endwithin")
+#     
+#     ## translate seqName to tid
+#     seqnamesList <- names(scanBamHeader(bamfile)[[1]]$targets)
+#     tidList <- as.integer(seq_along(seqnamesList)-1)
+#     tid <- tidList[ match(seqName, seqnamesList) ]
+#     
+#     ## convert grange to data.frame 
+#     ## with 0-based start inclusive
+#     ## with 0-based end exclusive
+#     regionsTable <- data.frame(start=as.integer(start(regions)-1), ## samtool library has 0-based start
+#                                end=as.integer(end(regions)),
+#                                strand=as.character(strand(regions)),
+#                                stringsAsFactors=FALSE
+#     )
+#     
+#     ## call c-function
+#     cnt <- .Call(countAlignmentsSubregions, bamfile, bamfile, tid, min(regionsTable$start), max(regionsTable$end),
+#                  regionsTable, as.integer(shift), as.integer(broaden), selectReadPosition, includeSpliced)
+#     
+#     return(cnt)
+# }
