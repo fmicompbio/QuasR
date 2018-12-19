@@ -79,6 +79,38 @@ test_that("qAlign correctly works for paired-end reads (spliced, Rbowtie)", {
   expect_identical(sum(as.numeric(end(aln))), 71021433)
 })
 
+test_that("qAlign correctly works for single reads (spliced, without splice site file, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaSingleSplicedHisat2@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 601L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(420, 1457, 1104)))))
+  expect_identical(sum(as.numeric(start(aln))), 34122868)
+  expect_identical(sum(as.numeric(end(aln))), 35028897)
+})
+
+test_that("qAlign correctly works for paired reads (unspliced, without splice site file, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedUnsplicedHisat2@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 872L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(766, 2055, 2089)))))
+  expect_identical(sum(as.numeric(start(aln))), 62093963)
+  expect_identical(sum(as.numeric(end(aln))), 62334210)
+})
+
+test_that("qAlign correctly works for paired reads (spliced, with splice site file from gtf, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2Gtf@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1010L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(841, 2913, 2206)))))
+  expect_identical(sum(as.numeric(start(aln))), 68380367)
+  expect_identical(sum(as.numeric(end(aln))), 70290373)
+})
+
+test_that("qAlign correctly works for paired reads (spliced, with splice site file from TxDb, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2TxDb@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1010L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(841, 2913, 2206)))))
+  expect_identical(sum(as.numeric(start(aln))), 68380367)
+  expect_identical(sum(as.numeric(end(aln))), 70290373)
+})
+
 test_that("qAlign correctly works in allelic mode", {
   aln <- GenomicAlignments::readGAlignments(pChipSingleSnps@alignments$FileName[1], use.names = TRUE,
                                             param = Rsamtools::ScanBamParam(tag = "XV"))
