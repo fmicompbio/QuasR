@@ -87,8 +87,11 @@ test_that("preprocessReads correctly processes single-read files", {
   outFilesFastq <- tempfile(fileext = rep(".fq", 2), tmpdir = "extdata")
 
   # default
-  res <- preprocessReads(faFiles, outFilesFasta)
+  res <- preprocessReads(faFiles, outFilesFasta, clObj = clObj)
   expect_equal(resSoll, res)
+  
+  # existing output file
+  expect_error(preprocessReads(faFiles, outFilesFasta))
   unlink(outFilesFasta)
   
   # complexity
@@ -170,14 +173,17 @@ test_that("preprocessReads correctly processes paired-end files", {
                nchar(readLines(outFilesFasta[2])[seq(2, 18, by = 2)]))
   unlink(outFilesFasta)
   
-  # truncateEndBases
+  # truncateEndBases and compressed output
   res <- preprocessReads(fqFiles[1], outFilesFastq[1], fqFiles[2], outFilesFastq[2],
                          truncateEndBases = 3)
+  res <- preprocessReads(fqFiles[1], paste0(outFilesFastq[1], ".gz"),
+                         fqFiles[2], paste0(outFilesFastq[2], ".gz"),
+                         truncateEndBases = 3)
   expect_equal(nchar(readLines(fqFiles[1]))[seq(2, 36, by = 4)] - 3L,
-               nchar(readLines(outFilesFastq[1])[seq(2, 36, by = 4)]))
+               nchar(readLines(paste0(outFilesFastq[1],".gz"))[seq(2, 36, by = 4)]))
   expect_equal(nchar(readLines(fqFiles[2]))[seq(2, 36, by = 4)] - 3L,
-               nchar(readLines(outFilesFastq[2])[seq(2, 36, by = 4)]))
-  unlink(outFilesFastq)
+               nchar(readLines(paste0(outFilesFastq[2],".gz"))[seq(2, 36, by = 4)]))
+  unlink(paste0(outFilesFastq,".gz"))
 })
 
 test_that("preprocessReads correctly (de-)compresses files", {
