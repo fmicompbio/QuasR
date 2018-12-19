@@ -14,7 +14,7 @@ See packageDescription('QuasR') for package details.
 }
 
 \author{
-Anita Lerch, Dimos Gaidatzis and Michael Stadler
+Anita Lerch, Charlotte Soneson, Dimos Gaidatzis and Michael Stadler
 }
 
 %\references{TODO}

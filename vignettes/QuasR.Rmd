@@ -5,6 +5,7 @@ bibliography: QuasR-refs.bib
 author:
   - Michael Stadler
   - Dimos Gaidatzis
+  - Charlotte Soneson
   - Anita Lerch
 package: QuasR
 output: 
