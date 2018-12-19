@@ -17,8 +17,8 @@ before_install:
     - Rscript -e 'install.packages("remotes")'
     - Rscript -e 'remotes::install_github("fmicompbio/Rhisat2", dependencies=TRUE)'
 
-# r_packages:
-#     - covr
+r_packages:
+    - covr
 
-# after_success:
-#     - travis_wait 40 Rscript -e 'library(covr); codecov()'
+after_success:
+    - travis_wait 40 Rscript -e 'library(covr); codecov()'
