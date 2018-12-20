@@ -138,3 +138,45 @@ createTxDb <- function() {
   return(txdb)
 }
 
+# createBSgenome <- function() {
+#   requireNamespace("BSgenome")
+#   
+#   # prepare sequences and seed files
+#   seqdir      <- tempfile(pattern = "BSgenome.seqs",    tmpdir = "extdata")
+#   bsgenomedir <- tempfile(pattern = "BSgenome.hg19sub", tmpdir = "extdata")
+#   rlibdir     <- tempfile(pattern = "Rlib",             tmpdir = "extdata")
+# 
+#   pkgseed <- new(Class = "BSgenomeDataPkgSeed",
+#                  Package = "BSgenome.HSapiens.QuasR.hg19sub",
+#                  Title = "Nucleotide sequences of subregions from hg19",
+#                  Description = "Nucleotide sequences of three short chromosomal subregions from hg19",
+#                  Version = "0.1.0",
+#                  Author = "Michael Stadler",
+#                  Maintainer = "Michael Stadler <michael.stadler@fmi.ch>",
+#                  License = "GPL-2",
+#                  organism = "Homo Sapiens",
+#                  common_name = "Human",
+#                  provider = "QuasR",
+#                  provider_version = "hg19sub",
+#                  release_date = "Feb. 2009",
+#                  release_name = "Genome Reference Consortium GRCh37",
+#                  organism_biocview = "Homo Sapiens",
+#                  BSgenomeObjname = "hg19sub",
+#                  seqnames = "paste0('chr',1:3)")
+#   
+#   chrs <- Biostrings::readDNAStringSet(file.path("extdata", "hg19sub.fa"))
+#   dir.create(seqdir)
+#   for (i in seq_along(chrs))
+#     Biostrings::writeXStringSet(chrs[i], format = "fasta",
+#                                 filepath = file.path(seqdir, paste0(names(chrs[i]), ".fa")))
+#   
+#   # build and install the package
+#   dir.create(bsgenomedir)
+#   uniqueLetters <- Biostrings::uniqueLetters # without this, BSgenome::forgeBSgenomeDataPkg fails
+#   BSgenome::forgeBSgenomeDataPkg(x = pkgseed, seqs_srcdir = seqdir, destdir = bsgenomedir)
+#   dir.create(rlibdir)
+#   utils::install.packages(pkgs = file.path(bsgenomedir, "BSgenome.hg19sub"),
+#                           lib = rlibdir, repos = NULL, type = "source")
+#   
+#   return(rlibdir)
+# }
