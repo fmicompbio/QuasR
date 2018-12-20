@@ -90,3 +90,72 @@ test_that("countJunctions works as expected", {
   expect_is(r2, "list")
   expect_length(r2, 4L)
 })
+
+test_that("bamfileToWig works as expected", {
+  fun    <- function(...) .Call(QuasR:::bamfileToWig, ...)
+  bamf1  <- pSingle@alignments$FileName[1]
+  wig1   <- tempfile(fileext = ".wig",    tmpdir = "extdata")
+  wig2   <- tempfile(fileext = ".wig.gz", tmpdir = "extdata")
+  wig3   <- tempfile(fileext = ".wig",    tmpdir = "extdata")
+  wig4   <- tempfile(fileext = ".wig.gz", tmpdir = "extdata")
+  
+  # arguments
+  expect_error(fun(   1L, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1,   1L, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1,    "", 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE,  "", 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, "", "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L,  1L, 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*",  "", "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0,          1L, FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname",    1L,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   1L,          FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0",    1L, FALSE, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE,    1L, 0L, 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, "", 255L, 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L,   "", 0L, 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, "", 1000L, 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L,    "", 16L))
+  expect_error(fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L,  ""))
+  expect_error(fun("err", wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+                   "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 1000L, 16L))
+
+  
+  # results
+  r1 <- fun(bamf1, wig1, FALSE, 10L, 0L, "*", 1.0, "trackname", FALSE,
+            "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 800L, 16L)
+  r2 <- fun(bamf1, wig3, FALSE, 20L, 0L, "*", 1.0, "trackname", TRUE,
+            "255,212,0", FALSE, FALSE, 0L, 255L, 0L, 800L, 16L)
+  r3 <- fun(bamf1, wig2, FALSE, 15L, 0L, "*", 1.0, "trackname", FALSE,
+            "255,212,0", TRUE,  FALSE, 0L, 255L, 0L, 800L, 16L)
+  r4 <- fun(bamf1, wig4, FALSE, 30L, 0L, "*", 1.0, "trackname", TRUE,
+            "255,212,0", TRUE,  FALSE, 0L, 255L, 0L, 800L, 16L)
+  l1 <- readLines(wig1)
+  l2 <- readLines(wig2)
+  l3 <- readLines(wig3)
+  l4 <- readLines(wig4)
+  expect_length(l1, 82L)
+  expect_length(l2, 55L)
+  expect_length(l3, 42L)
+  expect_length(l4, 28L)
+  expect_identical(sum(as.numeric(l1[-(1:2)])), sum(as.numeric(l2[-(1:2)])))
+  expect_equal(sum(as.numeric(l3[-(1:2)])), 113.45)
+  expect_equal(sum(as.numeric(l4[-(1:2)])), 85.73)
+})
