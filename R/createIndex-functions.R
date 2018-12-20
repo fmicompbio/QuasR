@@ -289,7 +289,7 @@ createSeedList <- function(genome, aligner, indexPackageName)
 
                  #aligner seeds
                  ALIGNER=aligner,
-                 ALIGNERVERSION=packageVersion(aligner)
+                 ALIGNERVERSION = as.character(packageVersion(aligner))
                  )
 
     return(seed)
