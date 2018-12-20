@@ -1,10 +1,13 @@
-requireNamespace("GenomicRanges")
-requireNamespace("parallel")
-requireNamespace("GenomicFeatures")
-requireNamespace("AnnotationDbi")
-
 # copy sample data
 file.copy(system.file("extdata", package = "QuasR"), ".", recursive = TRUE)
+
+# temporary R library
+rlibdir     <- tempfile(pattern = "Rlib", tmpdir = "extdata")
+dir.create(rlibdir)
+# ... add rlibdir to R_LIBS for "R CMD INSTALL" and cluster nodes to find it 
+oldRlibs <- Sys.getenv("R_LIBS")
+Sys.setenv(R_LIBS = paste(tools::file_path_as_absolute(rlibdir), oldRlibs,
+                          sep = .Platform$path.sep))
 
 # create cluster object
 clObj <- parallel::makeCluster(2L)
@@ -12,8 +15,15 @@ clObj <- parallel::makeCluster(2L)
 # load QuasR on cluster nodes
 parallel::clusterEvalQ(cl = clObj, expr = library(QuasR))
 
+# install BSgenome.HSapiens.QuasR.hg19sub into temporary library
+bsgPkg <- system.file("extdata", "BSgenome.HSapiens.QuasR.hg19sub_0.1.0.tar.gz",
+                      package = "QuasR")
+utils::install.packages(pkgs = bsgPkg, lib = rlibdir, repos = NULL,
+                        type = "source", INSTALL_opts = "--no-test-load")
+
 # create qProject instances
 # ... for hg19sub
+genomePkg     <- "BSgenome.HSapiens.QuasR.hg19sub"
 genomeFile    <- file.path("extdata", "hg19sub.fa")
 snpFile       <- file.path("extdata", "hg19sub_snp.txt")
 auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
@@ -29,7 +39,11 @@ sRnaPaired    <- file.path("extdata", "samples_rna_paired.txt")
 sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
 #sMirnaSingle  <- file.path("extdata", "samples_mirna.txt")
 
-pChipSingle       <- qAlign(sChipSingle,  genomeFile, clObj = clObj)
+# ... ... as a BSgenome
+pChipSingle       <- qAlign(sChipSingle,  genomePkg,  clObj = clObj, lib.loc = rlibdir)
+pBis              <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
+
+# ... ... as a fasta genome
 pChipSingleAux    <- qAlign(sChipSingle,  genomeFile, auxiliaryFile = auxFile, clObj = clObj)
 pChipSingleSnps   <- qAlign(sChipSingle,  genomeFile, snpFile = snpFile, clObj = clObj)
 pRnaPaired        <- qAlign(sRnaPaired,   genomeFile, clObj = clObj)
@@ -42,6 +56,7 @@ pRnaPairedSplicedHisat2Gtf <- qAlign(sRnaPaired, genomeFile, splicedAlignment = 
 pRnaPairedSplicedHisat2TxDb <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj, geneAnnotation = txdbFile)
 
 pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
+
 pBisUndir         <- qAlign(sBisSingle,   genomeFile, bisulfite = "undir", clObj = clObj)
 pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
 pPhiX             <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),

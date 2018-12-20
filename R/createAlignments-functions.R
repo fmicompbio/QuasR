@@ -8,7 +8,7 @@ createGenomicAlignments <- function(proj, clObj){
   # retrieve information about the cluster  
   message("Testing the compute nodes...", appendLF = FALSE)
   tryCatch({
-    nodeNamesList <- clusterEvalQ(clObj, Sys.info()['nodename'])
+    nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
   }, error = function(ex) {
     message("FAILED")
     stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n",call.=FALSE);
@@ -17,14 +17,15 @@ createGenomicAlignments <- function(proj, clObj){
 
   message("Loading QuasR on the compute nodes...", appendLF = FALSE)
   # load QuasR package on all the nodes
-  clRet <- clusterEvalQ(clObj, library("QuasR"))
+  clRet <- parallel::clusterEvalQ(clObj, library("QuasR"))
   if(!all(sapply(clRet, function(x) "QuasR" %in% x))){stop("'QuasR' package could not be loaded on all nodes in 'clObj'")}
   message("OK")
 
   nodeNames <- unlist(nodeNamesList)
   coresPerNode <- table(nodeNames)
   message("Available cores:")
-  print(coresPerNode)
+  for (i in seq_along(coresPerNode))
+    message(names(coresPerNode)[i], ": ", as.character(coresPerNode[i]))
 
   # log file that is passed to all the nodes. each node can write into that file and serves as a monitor of their progress
   logFile <- tempfile(tmpdir=getwd(),pattern="QuasR_log_",fileext=".txt")

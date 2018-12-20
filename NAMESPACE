@@ -26,7 +26,7 @@ importFrom(grDevices, col2rgb, colorRampPalette, dev.new, dev.off, pdf)
 importFrom(graphics, abline, axis, barplot, box, layout, legend, matplot,
            par, plot, rect, strheight, strwidth, text)
 importFrom(utils, flush.console, install.packages, installed.packages,
-           read.delim, read.table, write.table)
+           read.delim, read.table, write.table, packageVersion)
 
 exportClasses(qProject)
 
