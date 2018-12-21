@@ -185,4 +185,22 @@ test_that("mergeReorderSam works as expected", {
   # results
   expect_identical(fun(rep(samf1, 2), samf2, 0L, 1L), 1L)
   expect_length(readLines(samf2), 44L)
+  expect_identical(fun(rep(samf1, 2), samf2, 2L, 1L), 1L)
+  expect_length(readLines(samf2), 24L)
+})
+
+test_that("removeUnmappedFromSamAndConvertToBam works as expected", {
+  fun    <- function(...) .Call(QuasR:::removeUnmappedFromSamAndConvertToBam, ...)
+  bamf1  <- pPaired@alignments$FileName[1]
+  samf1  <- sub(".bam$", ".sam", bamf1)
+  bamf2  <- tempfile(fileext = ".bam", tmpdir = "extdata")
+  
+  # arguments
+  expect_error(fun(   1L, bamf2))
+  expect_error(fun(samf1,    1L))
+  expect_error(fun("err", bamf2))
+  expect_error(fun(samf1, "err/err"))
+
+  # results
+  expect_identical(fun(samf1, bamf2), bamf2)
 })
