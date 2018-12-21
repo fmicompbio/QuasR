@@ -165,3 +165,24 @@ test_that("bamfileToWig works as expected", {
   expect_equal(sum(as.numeric(l3[-(1:2)])), 113.45)
   expect_equal(sum(as.numeric(l4[-(1:2)])), 85.73)
 })
+
+test_that("mergeReorderSam works as expected", {
+  fun    <- function(...) .Call(QuasR:::mergeReorderSam, ...)
+  bamf1  <- pPaired@alignments$FileName[1]
+  samf1  <- sub(".bam$", ".sam", bamf1)
+  samf2  <- tempfile(fileext = ".sam", tmpdir = "extdata")
+  
+  # arguments
+  expect_error(fun(   1L, samf2,     0L, 1L))
+  expect_error(fun(samf1,    1L,     0L, 1L))
+  expect_error(fun(samf1, samf2,     "", 1L))
+  expect_error(fun(samf1, samf2,     0L, ""))
+  expect_error(fun(samf1, samf2,     4L, 1L))
+  expect_error(fun(samf1, samf2,     1L, 1L))
+  expect_error(fun(samf1, samf2,     2L, 1L))
+  expect_error(fun(samf1, "err/err", 0L, 1L))
+
+  # results
+  expect_identical(fun(rep(samf1, 2), samf2, 0L, 1L), 1L)
+  expect_length(readLines(samf2), 44L)
+})
