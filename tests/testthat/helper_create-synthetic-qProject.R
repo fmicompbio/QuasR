@@ -7,10 +7,10 @@ createProjectSingle <- function(allelic=FALSE) {
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_plus)
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_minus)
   pos <- seq.int(512)
-  cat(paste("seq1\t0\tchrV", pos, pos %% 256, "10M\t*\t0\t0\t*",
+  cat(paste("seq1\t0\tchrV", pos, pos %% 256, "5M10N5M\t*\t0\t0\t*",
             if (allelic) rep(c("*\tXV:A:R","*\tXV:A:A","*\tXV:A:U"), each = length(pos)) else "*", 
             sep = "\t", collapse = "\n"), file = samfile_plus, append = TRUE)
-  cat(paste("seq1\t16\tchrV", pos, pos %% 256, "10M\t*\t0\t0\t*",
+  cat(paste("seq1\t16\tchrV", pos, pos %% 256, "5M10N5M\t*\t0\t0\t*",
             if (allelic) rep(c("*\tXV:A:R","*\tXV:A:A","*\tXV:A:U"), each = length(pos)) else "*",
             sep = "\t", collapse = "\n"), file = samfile_minus, append = TRUE)
   bamfile_plus <- Rsamtools::asBam(samfile_plus, indexDestination = TRUE)

@@ -128,7 +128,7 @@ test_that("qCount correctly uses mask", {
 
 test_that("qCount correctly works with a GRangesList query", {
   regionList <- split(qTiles, names(qTiles))
-  resSoll <- cbind(c(300, 150, 150, 0), c(212, 100, 100, 0), c(221, 100, 100, 0))
+  resSoll <- cbind(c(300, 150, 150, 0), c(212, 100, 100, 0), c(231, 100, 100, 0))
   res <- qCount(pSingle, regionList, collapseBySample = FALSE, orientation = "same")
   expect_equal(resSoll, unname(res))
 
@@ -138,7 +138,7 @@ test_that("qCount correctly works with a GRangesList query", {
   expect_equal(resSoll, unname(res))
   
   strand(regionList) <- "-"
-  resSoll <- cbind(c(300, 150, 150, 0), c(0, 0, 0, 0), c(221, 100, 100, 0))
+  resSoll <- cbind(c(300, 150, 150, 0), c(0, 0, 0, 0), c(231, 100, 100, 0))
   res <- qCount(pSingle, regionList, collapseBySample = FALSE, orientation = "same")
   expect_equal(resSoll, unname(res))
 })
@@ -181,7 +181,7 @@ test_that("qCount correctly works in allelic mode", {
   region <- qTiles
   strand(region) <- "-"
   resSoll <- matrix(c(300, 300, 300, 250, rep(rep(0, 4), 3),
-                      rep(c(221, 200, 200, 171), 3)), nrow = 4)
+                      rep(c(231, 200, 200, 181), 3)), nrow = 4)
   res <- qCount(pSingleAllelic, region, collapseBySample = FALSE, orientation = "same")
   expect_identical(resSoll, unname(res))
 })
