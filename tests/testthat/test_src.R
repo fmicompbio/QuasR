@@ -65,11 +65,14 @@ test_that("splitSamChr works as expected", {
   expect_identical(list.files(outdir), paste0(chrs, ".sam"))
   expect_length(readLines(file.path(outdir, "chrV.sam")), 514L)
   expect_length(readLines(file.path(outdir, "splitChrSam_unaligned.sam")), 2L)
+  
+  unlink(outdir, recursive = TRUE, force = TRUE)
 })
 
 test_that("countJunctions works as expected", {
   fun    <- function(...) .Call(QuasR:::countJunctions, ...)
-  bamf1  <- pChipSingleSnps@alignments$FileName[1]
+  bamf1  <- pSingleAllelic@alignments$FileName[1]
+  samf1  <- sub(".bam$", ".sam", bamf1)
   
   # arguments
   expect_error(fun(   1L, 0L, 0L, 1000L, FALSE, FALSE, 0L, 255L))
@@ -80,15 +83,18 @@ test_that("countJunctions works as expected", {
   expect_error(fun(bamf1, 0L, 0L, 1000L, FALSE,    "", 0L, 255L))
   expect_error(fun(bamf1, 0L, 0L, 1000L, FALSE, FALSE, -1, 255L))
   expect_error(fun(bamf1, 0L, 0L, 1000L, FALSE, FALSE, 0L,   -1))
+  expect_error(fun(bamf1, 0L, 0L, 1000L, FALSE, FALSE, 2L,   1L))
   expect_error(fun("err", 0L, 0L, 1000L, FALSE, FALSE, 0L, 255L))
-
+  expect_error(fun(samf1, 0L, 0L, 1000L, FALSE, FALSE, 0L, 255L))
+  
   # results
   r1 <- fun(bamf1, 0L, 0L, 1000L, FALSE, FALSE, 0L, 255L)
   r2 <- fun(bamf1, 0L, 0L, 1000L, TRUE,  FALSE, 0L, 255L)
   expect_is(r1, "integer")
-  expect_length(r1, 0L)
+  expect_length(r1, 512L)
   expect_is(r2, "list")
   expect_length(r2, 4L)
+  expect_true(all(lengths(r2) == 512L))
 })
 
 test_that("bamfileToWig works as expected", {
