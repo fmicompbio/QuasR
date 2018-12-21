@@ -25,7 +25,7 @@ public:
 
 void _reverse_complement(string&);
 void _replace_sequence(string&, bool);
-void _remove_MD_tag(string&);
+// void _remove_MD_tag(string&);
 void _fix_FLAGs_and_sequences(idLine&);
 int flush_bisulfite(int, ofstream&, map<int, string>&, vector<idLine>&, bool);  // same as flush_simple, bisulfite-version
 int flush_allele(int, ofstream&, map<int, string>&, idLine&, char);     // same as flush_simple, allele-specific-version
@@ -471,18 +471,18 @@ void _replace_sequence(string &line, bool revcomp) {
 	Rf_error("error finding sequence column in '%s'\n",line.c_str());
 }
 
-void _remove_MD_tag(string &line) {
-    static size_t start_pos, end_pos;
-
-    start_pos = line.rfind("MD:Z:", string::npos, 5);
-    if(start_pos != string::npos && line[start_pos-1] == '\t') {
-	end_pos = line.find('\t', start_pos+5);
-	if(end_pos != string::npos)
-	    line.erase(start_pos, end_pos-start_pos+1);
-	else
-	    line.erase(start_pos, line.length()-start_pos);
-    }
-}
+// void _remove_MD_tag(string &line) {
+//     static size_t start_pos, end_pos;
+// 
+//     start_pos = line.rfind("MD:Z:", string::npos, 5);
+//     if(start_pos != string::npos && line[start_pos-1] == '\t') {
+// 	end_pos = line.find('\t', start_pos+5);
+// 	if(end_pos != string::npos)
+// 	    line.erase(start_pos, end_pos-start_pos+1);
+// 	else
+// 	    line.erase(start_pos, line.length()-start_pos);
+//     }
+// }
 
 void _fix_FLAGs_and_sequences(idLine &currenttop) {
     static bool revcomp;
