@@ -21,7 +21,8 @@
   @field end             End of the fetch region
   @field includeSpliced  Include spliced alignments in coverage
  */
-typedef struct {
+/* currently not used
+ typedef struct {
     int* cov_plus;
     int* cov_minus;
     int start; // offset
@@ -29,7 +30,7 @@ typedef struct {
     int shift; // shift of the reads
     int includeSpliced;
 } fetch_param;
-
+*/
 
 /*! @function
   @abstract  callback for bam_fetch() to ....
@@ -37,7 +38,8 @@ typedef struct {
   @param  data  user provided data
   @return       0 if successful
  */
-static int _add_start_to_coverage_vector(const bam1_t *hit, void *data)
+/* currently not used
+ static int _add_start_to_coverage_vector(const bam1_t *hit, void *data)
 {
     fetch_param *fparam = (fetch_param*)data;
     static int start_pos = 0;
@@ -60,6 +62,7 @@ static int _add_start_to_coverage_vector(const bam1_t *hit, void *data)
 
     return 0;
 }
+*/
 
 /*! @function
   @abstract  callback for bam_fetch() to ....
@@ -67,7 +70,8 @@ static int _add_start_to_coverage_vector(const bam1_t *hit, void *data)
   @param  data  user provided data
   @return       0 if successful
  */
-static int _add_end_to_coverage_vector(const bam1_t *hit, void *data)
+/* currently not used
+ static int _add_end_to_coverage_vector(const bam1_t *hit, void *data)
 {
     fetch_param *fparam = (fetch_param*)data;
     static int end_pos = 0;
@@ -90,6 +94,7 @@ static int _add_end_to_coverage_vector(const bam1_t *hit, void *data)
 
     return 0;
 }
+*/
 
 /*! @function
   @abstract  callback for bam_fetch() to...
@@ -97,7 +102,8 @@ static int _add_end_to_coverage_vector(const bam1_t *hit, void *data)
   @param  data  user provided data
   @return       0 if successful
  */
-static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
+/* currently not used
+ static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
 {
     fetch_param *fparam = (fetch_param*)data;
     static int mid_pos = 0;
@@ -123,6 +129,7 @@ static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
 
     return 0;
 }
+*/
 
 /*! @function
   @abstract  Counts alignments in a given set of regions which are located in a subspace of the genome
@@ -138,7 +145,8 @@ static int _add_mid_to_coverage_vector(const bam1_t *hit, void *data)
   @param  includeSpliced  Include spliced alignments in coverage
   @return                 Vector of the alignment counts
  */
-SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_regions, SEXP max_regions, SEXP regions,
+/* currently not used
+ SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_regions, SEXP max_regions, SEXP regions,
                                  SEXP shift, SEXP broaden, SEXP overlap_type, SEXP includeSpliced)
 {
     // check bam_in and idx_in parameters
@@ -276,3 +284,4 @@ SEXP count_alignments_subregions(SEXP bam_in, SEXP idx_in, SEXP tid,  SEXP min_r
     UNPROTECT(1);
     return cnt;
 }
+*/

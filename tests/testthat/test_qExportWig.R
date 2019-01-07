@@ -15,6 +15,10 @@ test_that("qExportWig correctly digests its arguments", {
   expect_error(qExportWig(pChipSingle, scaling = TRUE, log2p1 = "yes"))
   expect_error(qExportWig(pChipSingle, scaling = FALSE, colors = "gray", includeSecondary = "yes"))
   expect_error(qExportWig(pChipSingle, absIsizeMin = 100))
+  expect_error(qExportWig(pChipSingle, scaling = FALSE, mapqMin = "0"))
+  expect_error(qExportWig(pChipSingle, scaling = FALSE, mapqMax = "0"))
+  expect_warning(qExportWig(pSingle, "extdata/sample.wig", scaling = FALSE, useRead = "first"))
+  expect_warning(qExportWig(pSingle, "extdata/sample.wig", scaling = FALSE, pairedAsSingle = TRUE))
 })
 
 
@@ -23,18 +27,26 @@ test_that("qExportWig works as expected", {
   
   # paired and halfInsert shift
   wigfiles <- tempfile(fileext = rep(".wig",2), tmpdir = "extdata")
-  res <- qExportWig(pRnaPaired, wigfiles, scaling = FALSE)
+  expect_warning(res <- qExportWig(pRnaPaired, wigfiles, scaling = FALSE, shift = 1L))
   wig <- lapply(wigfiles, function(wf) suppressWarnings(rtracklayer::import.wig(wf)))
   res <- qCount(pRnaPaired, wig[[1]], shift = "halfInsert", collapseBySample = FALSE)
   expect_equal(mcols(wig[[1]])$score, unname(res[,2]/2))
 
-  # includeSecondary
-  res1 <- qExportWig(pPhiX, wigfiles[1], scaling = FALSE, includeSecondary = TRUE)
+  # includeSecondary, strand, scaling
+  auxGrPlus <- auxGr; strand(auxGrPlus) <- "+"
+  res1 <- qExportWig(pPhiX, wigfiles[1], scaling = FALSE, strand = "+", includeSecondary = TRUE)
   wigcnt1 <- sum(as.numeric(readLines(res1)[-(1:2)]))
-  res2 <- qExportWig(pPhiX, wigfiles[1], scaling = FALSE, includeSecondary = FALSE)
+  res2 <- qExportWig(pPhiX, wigfiles[1], scaling = 1e6, includeSecondary = FALSE)
   wigcnt2 <- sum(as.numeric(readLines(res2)[-(1:2)]))
-  cnt1 <- qCount(pPhiX, auxGr, useRead = "first", includeSecondary = TRUE)[1,2]
+  cnt1 <- qCount(pPhiX, auxGrPlus, useRead = "first", orientation = "same", includeSecondary = TRUE)[1,2]
   cnt2 <- qCount(pPhiX, auxGr, useRead = "first", includeSecondary = FALSE)[1,2]
   expect_identical(wigcnt1, cnt1)
-  expect_identical(wigcnt2, cnt2)
+  expect_equal(wigcnt2, cnt2 / 696 * 1e6, tolerance = 0.001)
+  
+  # bigwig
+  bwfiles <- tempfile(fileext = rep(".bw", 2), tmpdir = "extdata")
+  expect_identical(qExportWig(pPhiX, bwfiles[1], scaling = FALSE, useRead = "first", createBigWig = TRUE),
+                   bwfiles[1])
+  expect_identical(qExportWig(pPhiX, bwfiles[2], scaling = FALSE, useRead = "last",  createBigWig = TRUE),
+                   bwfiles[2])
 })

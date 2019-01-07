@@ -53,7 +53,7 @@ static const R_CallMethodDef callMethods[] = {
     {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 19},
     {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 19},
     /* count_alignments_subregions.c */
-    {"countAlignmentsSubregions", (DL_FUNC) &count_alignments_subregions, 10},
+    // {"countAlignmentsSubregions", (DL_FUNC) &count_alignments_subregions, 10},
     /* quantify_methylation.cpp */
     {"quantifyMethylation", (DL_FUNC) &quantify_methylation, 9},
     {"detectSNVs", (DL_FUNC) &detect_SNVs, 8},
