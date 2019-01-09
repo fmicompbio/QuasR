@@ -300,7 +300,7 @@ createGenomicAlignmentsController <- function(params){
         on.exit(file.remove(samFileA),add = TRUE)
         align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
         align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }else{
@@ -316,7 +316,7 @@ createGenomicAlignmentsController <- function(params){
         on.exit(file.remove(samFileA),add = TRUE)
         align_Rhisat2Spliced(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir)
         align_Rhisat2Spliced(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir)
-        mrQuSize <- .Call("mergeReorderSam",c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits), PACKAGE="QuasR")
+        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
         print(paste("mergeReorderMaxQueueSize",mrQuSize))
       }
     }
