@@ -7,7 +7,7 @@
  * (as obtained from the NH tag)
  * 
  * arguments:
- *   samFile : input SAM/BAM file to filter
+ *   samFile : input SAM/BAM file to filter (must contain header)
  *   outFile : output SAM/BAM file to write to
  *   maxHits : integer scalar with the maximum allowed hits per read
  *   
@@ -35,13 +35,9 @@ SEXP filter_hisat2(SEXP samFile, SEXP outFile, SEXP maxHits) {
   const char * sam_file =  Rf_translateChar(STRING_ELT(samFile, 0));
   const char * out_file =  Rf_translateChar(STRING_ELT(outFile, 0));
 
-  // open the input sam file
+  // open the input file
   samfile_t *fin = _bam_tryopen(sam_file, "r", NULL);
-  if (fin->header == 0) {
-    samclose(fin);
-    Rf_error("error opening sam file (invalid header)");
-  }
-  
+
   // remove \r from header if exists (for windows)
   int j, k = 0;
   for(j = 0; j<fin->header->l_text; j++){
@@ -53,7 +49,7 @@ SEXP filter_hisat2(SEXP samFile, SEXP outFile, SEXP maxHits) {
     fin->header->text[k] = '\0';
     fin->header->l_text = (uint32_t)strlen(fin->header->text);
   }
-  
+
   // open the output file handle
   samfile_t *fout = _bam_tryopen(out_file, "wh", fin->header);
 
@@ -87,10 +83,14 @@ SEXP filter_hisat2(SEXP samFile, SEXP outFile, SEXP maxHits) {
         bu->core.flag = b->core.flag;
         if (bu->core.flag & BAM_FPROPER_PAIR)
           bu->core.flag -= BAM_FPROPER_PAIR;
-        if (bu->core.flag & BAM_FUNMAP)
-          bu->core.flag -= BAM_FUNMAP;
-        if (bu->core.flag & BAM_FMUNMAP)
-          bu->core.flag -= BAM_FMUNMAP;
+        if (!(bu->core.flag & BAM_FUNMAP))
+          bu->core.flag += BAM_FUNMAP;
+        if ((bu->core.flag & BAM_FPAIRED) & !(bu->core.flag & BAM_FMUNMAP))
+          bu->core.flag += BAM_FMUNMAP;
+        if (bu->core.flag & BAM_FREVERSE)
+          bu->core.flag -= BAM_FREVERSE;
+        if (bu->core.flag & BAM_FMREVERSE)
+          bu->core.flag -= BAM_FMREVERSE;
         
         // ... ... length of qname and qseq
         bu->core.l_qname = b->core.l_qname;
