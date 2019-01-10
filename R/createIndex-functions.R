@@ -2,8 +2,11 @@
 buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
   indexPackageName <- paste(genome,alnModeID,sep=".")
 
+  lib.locTemp <- lib.loc
+  if(is.na(lib.loc)){lib.locTemp<-NULL;} # this is a way to convert NA to NULL needed for install.packages
+  
   # Create the index and install it if it is not yet installed on the system
-  if(!(indexPackageName %in% installed.packages(lib.loc = lib.loc)[,'Package'])){
+  if(!(indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[,'Package'])){
     genomeObj <- get(genome) # access the BSgenome
     fastaFilepath <- BSgenomeSeqToFasta(genomeObj, tempfile(tmpdir=cacheDir, fileext=".fa"))  # flush the BSgenome to disk
     on.exit(unlink(fastaFilepath))
@@ -19,11 +22,9 @@ buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
     buildIndex(fastaFilepath,file.path(cacheDir,indexPackageName,"inst","alignmentIndex"),alnModeID,cacheDir)
 
     # install the package
-    lib.locTemp <- lib.loc
-    if(is.na(lib.loc)){lib.locTemp<-NULL;} # this is a way to convert NA to NULL needed for install.packages
     install.packages(file.path(cacheDir,indexPackageName), repos=NULL, dependencies=FALSE, type="source", lib=lib.locTemp)
 
-    if(indexPackageName %in% installed.packages(lib.loc = lib.loc)[,'Package']){
+    if(indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[,'Package']){
       # package installation was successful, clean up
       unlink(file.path(cacheDir,indexPackageName),recursive=TRUE)
     }else{"Fatal error 2309420"}
