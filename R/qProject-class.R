@@ -18,29 +18,29 @@ qProjectUpdate <- function(object, quiet = TRUE) {
 
 ### qProject class definition
 setClass("qProject",
-         representation(reads="data.frame",
-                        reads_md5subsum="data.frame",
-                        alignments="data.frame",
-                        samplesFormat="character",
-                        genome="character",
-                        genomeFormat="character",
-                        aux="data.frame",
-                        auxAlignments="data.frame",
-                        aligner="character",
-                        maxHits="numeric",
-                        paired="character",
-                        splicedAlignment="logical",
-                        snpFile="character",
-                        bisulfite="character",
-                        alignmentParameter="character",
-                        projectName="character",
-                        alignmentsDir="character",
-                        lib.loc="character",
-                        cacheDir="character",
-                        alnModeID="character",
-                        geneAnnotation="character",
-                        geneAnnotationFormat="character")
-         )
+         slots = c(reads="data.frame",
+                   reads_md5subsum="data.frame",
+                   alignments="data.frame",
+                   samplesFormat="character",
+                   genome="character",
+                   genomeFormat="character",
+                   aux="data.frame",
+                   auxAlignments="data.frame",
+                   aligner="character",
+                   maxHits="numeric",
+                   paired="character",
+                   splicedAlignment="logical",
+                   snpFile="character",
+                   bisulfite="character",
+                   alignmentParameter="character",
+                   projectName="character",
+                   alignmentsDir="character",
+                   lib.loc="character",
+                   cacheDir="character",
+                   alnModeID="character",
+                   geneAnnotation="character",
+                   geneAnnotationFormat="character")
+)
 
 ### Methods
 setMethod("length", "qProject", function(x) nrow(x@reads))
