@@ -46,3 +46,7 @@ test_that("qProject can be subset", {
   expect_identical(pChipSingle[2], suppressWarnings(pChipSingle["Sample2"]))
   expect_length(pChipSingleAux[2], 1L)
 })
+
+test_that("qProjectUpdate works", {
+  expect_identical(pChipSingle, qProjectUpdate(pChipSingle))
+})

@@ -41,7 +41,7 @@ sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
 
 # ... ... as a BSgenome
 pChipSingle       <- qAlign(sChipSingle,  genomePkg,  clObj = clObj, lib.loc = rlibdir)
-pBis              <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
+pBisBSg           <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
 
 # ... ... as a fasta genome
 pChipSingleAux    <- qAlign(sChipSingle,  genomeFile, auxiliaryFile = auxFile, clObj = clObj)
@@ -50,10 +50,14 @@ pRnaPaired        <- qAlign(sRnaPaired,   genomeFile, clObj = clObj)
 pRnaSingleSpliced <- qAlign(sRnaSingle,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
 pRnaPairedSpliced <- qAlign(sRnaPaired,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
 
-pRnaSingleSplicedHisat2 <- qAlign(sRnaSingle, genomeFile, splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj)
-pRnaPairedUnsplicedHisat2 <- qAlign(sRnaPaired, genomeFile, splicedAlignment = FALSE, aligner = "Rhisat2", clObj = clObj)
-pRnaPairedSplicedHisat2Gtf <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj, geneAnnotation = gtfFile)
-pRnaPairedSplicedHisat2TxDb <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj, geneAnnotation = txdbFile)
+pRnaSingleSplicedHisat2 <- qAlign(sRnaSingle, genomeFile, alignmentsDir = "extdata", 
+                                  splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj)
+pRnaPairedUnsplicedHisat2 <- qAlign(sRnaPaired, genomeFile, splicedAlignment = FALSE, 
+                                    aligner = "Rhisat2", clObj = clObj)
+pRnaPairedSplicedHisat2Gtf <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE,
+                                     aligner = "Rhisat2", clObj = clObj, geneAnnotation = gtfFile)
+pRnaPairedSplicedHisat2TxDb <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE, 
+                                      aligner = "Rhisat2", clObj = clObj, geneAnnotation = txdbFile)
 
 pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
 

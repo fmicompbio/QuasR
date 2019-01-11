@@ -32,4 +32,4 @@ exportClasses(qProject)
 
 exportMethods(length, genome, auxiliaries, alignments, "[", show)
 
-export(qAlign, qCount, preprocessReads, qExportWig, qQCReport, qMeth, alignmentStats, qProfile)
+export(qAlign, qCount, preprocessReads, qExportWig, qQCReport, qMeth, alignmentStats, qProfile, qProjectUpdate)
