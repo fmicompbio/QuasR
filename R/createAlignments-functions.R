@@ -443,11 +443,11 @@ align_Rbowtie <- function(indexDir,reads,samplesFormat,paired,alignmentParameter
 align_Rhisat2 <- function(indexDir,reads,samplesFormat,paired,alignmentParameter,threads,outFile,cacheDir,splicedAlignment,maxHits){
   # add some variable parameters based on the input format
   if (samplesFormat == "fasta") {
-    alignmentParameterAdded="-f"
+    alignmentParameterAdded <- "-f"
   } else {
-    alignmentParameterAdded=paste("--phred",reads$phred,sep="")
+    alignmentParameterAdded <- paste("--phred", reads$phred, sep = "")
   }
-  print(paste("Executing hisat2 on",Sys.info()['nodename'],"using",threads,"cores. Parameters:"))
+  print(paste("Executing hisat2 on", Sys.info()['nodename'], "using", threads, "cores. Parameters:"))
   if (paired == "no") {
     args <- paste(shQuote(file.path(indexDir, "hisat2Index")),
                   shQuote(reads$FileName), alignmentParameter,
@@ -463,12 +463,15 @@ align_Rhisat2 <- function(indexDir,reads,samplesFormat,paired,alignmentParameter
     args <- paste(args, "--no-spliced-alignment")
   }
   print(args)
-  ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2"),args, stdout=TRUE, stderr=TRUE)
-  if(!(grepl(" reads", ret[1]))){stop("hisat2 failed to perform the alignments")}
+  ret <- system2(file.path(system.file(package = "Rhisat2"), "hisat2"),
+                 args, stdout = TRUE, stderr = TRUE)
+  if(!(grepl(" reads", ret[1]))){
+    stop("hisat2 failed to perform the alignments")
+  }
   
   ## Filter alignments (keep only reads with at most maxHits alignments, only 1
   ## hit for multimapping reads)
-  fhs <- .Call(filterHisat2, paste(outFile,"tmp",sep="."),
+  fhs <- .Call(filterHisat2, paste(outFile, "tmp", sep = "."),
                outFile, as.integer(maxHits))
   print(paste("Number of filtered secondary alignments:", fhs["n_secondary"]))
   print(paste("Number of filtered overmapped alignments:", fhs["n_overmapped"]))
