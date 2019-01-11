@@ -551,7 +551,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
             proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
           }
         }else{  # hisat2
-          proj@alignmentParameter <- paste("-k",proj@maxHits)
+          proj@alignmentParameter <- paste("-k",proj@maxHits+1)
         }
       }else{
         if(proj@aligner == "Rbowtie") {  # spliced, bowtie
@@ -562,9 +562,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           }
         } else{  # spliced, hisat2
           if (!is.na(proj@geneAnnotation)) {
-            proj@alignmentParameter <- paste("-k",proj@maxHits,"--known-splicesite-infile",paste0(proj@geneAnnotation,".SpliceSites.txt"))
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--known-splicesite-infile",paste0(proj@geneAnnotation,".SpliceSites.txt"))
           } else {
-            proj@alignmentParameter <- paste("-k",proj@maxHits)
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1)
           }
         }
       }

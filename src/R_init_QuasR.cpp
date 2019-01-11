@@ -28,6 +28,7 @@ extern "C" {
 #include "count_alignments_subregions.h"
 #include "export_wig.h"
 #include "nucleotide_alignment_frequencies.h"
+#include "filter_hisat2.h"
 
 static const R_CallMethodDef callMethods[] = {
     /* split_sam_chr.c */
@@ -63,6 +64,8 @@ static const R_CallMethodDef callMethods[] = {
     {"bamfileToWig", (DL_FUNC) &bamfile_to_wig, 17},
     /* nucleotide_alignment_frequencies.c */
     {"nucleotideAlignmentFrequencies", (DL_FUNC) &nucleotide_alignment_frequencies, 6},
+    /* filter_hisat2.c */
+    {"filterHisat2", (DL_FUNC) &filter_hisat2, 3},
     {NULL, NULL, 0}
 };
 
