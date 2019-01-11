@@ -285,38 +285,19 @@ createGenomicAlignmentsController <- function(params){
       }
     }
   }else if(proj@alnModeID=="Rhisat2"){
-    if(!proj@splicedAlignment){
-      if(is.na(proj@snpFile)){
-        # unspliced alignment, no SNP file
-        align_Rhisat2(indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir,proj@splicedAlignment,proj@maxHits)
-      }else{
-        proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
-        on.exit(file.remove(unlist(proj@reads[sampleNr,na.omit(match(c("FileName","FileName1","FileName2"), colnames(proj@reads)))])),add = TRUE) # make sure that the temp file(s) are deleted at the end
-        samFileR <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
-        samFileA <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
-        on.exit(file.remove(samFileR),add = TRUE)
-        on.exit(file.remove(samFileA),add = TRUE)
-        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir,proj@splicedAlignment,proj@maxHits)
-        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir,proj@splicedAlignment,proj@maxHits)
-        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
-        print(paste("mergeReorderMaxQueueSize",mrQuSize))
-      }
+    if(is.na(proj@snpFile)){
+      align_Rhisat2(indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir,proj@splicedAlignment,proj@maxHits)
     }else{
-      # spliced alignment
-      if(is.na(proj@snpFile)){
-        align_Rhisat2(indexDir,proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFile,cacheDir,proj@splicedAlignment,proj@maxHits)
-      }else{
-        proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
-        on.exit(file.remove(unlist(proj@reads[sampleNr,na.omit(match(c("FileName","FileName1","FileName2"), colnames(proj@reads)))])),add = TRUE) # make sure that the temp file(s) are deleted at the end
-        samFileR <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
-        samFileA <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
-        on.exit(file.remove(samFileR),add = TRUE)
-        on.exit(file.remove(samFileA),add = TRUE)
-        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir,proj@splicedAlignment,proj@maxHits)
-        align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir,proj@splicedAlignment,proj@maxHits)
-        mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
-        print(paste("mergeReorderMaxQueueSize",mrQuSize))
-      }
+      proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr,],proj@paired,cacheDir) # add numeric id to the reads, this is required for the correct operation of mergeReorderSam in allelic mode
+      on.exit(file.remove(unlist(proj@reads[sampleNr,na.omit(match(c("FileName","FileName1","FileName2"), colnames(proj@reads)))])),add = TRUE) # make sure that the temp file(s) are deleted at the end
+      samFileR <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+      samFileA <- tempfile(tmpdir=cacheDir, pattern=basename(proj@reads[sampleNr,1]),fileext=".sam")
+      on.exit(file.remove(samFileR),add = TRUE)
+      on.exit(file.remove(samFileA),add = TRUE)
+      align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"R","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileR,cacheDir,proj@splicedAlignment,proj@maxHits)
+      align_Rhisat2(paste(proj@snpFile,basename(proj@genome),"A","fa",proj@alnModeID,sep="."),proj@reads[sampleNr,],proj@samplesFormat,proj@paired,proj@alignmentParameter,coresThisNode,samFileA,cacheDir,proj@splicedAlignment,proj@maxHits)
+      mrQuSize <- .Call(mergeReorderSam,c(samFileR,samFileA),samFile,as.integer(2),as.integer(proj@maxHits))
+      print(paste("mergeReorderMaxQueueSize",mrQuSize))
     }
   }else{stop("Fatal error 23484303");}
 
