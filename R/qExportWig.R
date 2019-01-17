@@ -108,19 +108,21 @@ qExportWig <- function(proj,
         shift <- rep(shift,n)
 
     # ...scaling
+    if (!(length(scaling) == 1L && (is.logical(scaling) || is.numeric(scaling))))
+      stop("'scaling' needs to be a logical(1) or a numeric(1)")
     fact <- rep(1,n)
-    if(scaling) {
+    if (is.numeric(scaling) || (is.logical(scaling) && scaling)) {
         message("collecting mapping statistics for scaling...", appendLF=FALSE)
         tmp <- alignmentStats(proj, collapseBySample=collapseBySample)
         N <- tmp[grepl(":genome$",rownames(tmp)),'mapped']
         names(N) <- sub(":genome$","",names(N))
-        if(is.logical(scaling)) {
-            #fact <- min(N) /N
-            fact <- mean(N) /N
-        } else if(is.numeric(scaling) && length(scaling)==1 && scaling>0) {
-            fact <- scaling /N
+        if (is.logical(scaling)) {
+            #fact <- min(N) / N
+            fact <- mean(N) / N
+        } else if(is.numeric(scaling) && length(scaling) == 1L && scaling > 0) {
+            fact <- scaling / N
         } else {
-            stop("'scaling' must be either 'TRUE', 'FALSE' or a positive numerical value")
+            stop("'scaling' must be greater than zero")
         }
         message("done")
     }
