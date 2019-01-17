@@ -7,10 +7,12 @@ createProjectSingle <- function(allelic=FALSE) {
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_plus)
   cat("@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:chrV\tLN:800\n", file = samfile_minus)
   pos <- seq.int(512)
-  cat(paste("seq1\t0\tchrV", pos, pos %% 256, "10M\t*\t0\t0\t*",
+  cat(paste(paste0(pos, "_", "seq", pos),
+            "0\tchrV", pos, pos %% 256, "5M10N5M\t*\t0\t0\t*",
             if (allelic) rep(c("*\tXV:A:R","*\tXV:A:A","*\tXV:A:U"), each = length(pos)) else "*", 
             sep = "\t", collapse = "\n"), file = samfile_plus, append = TRUE)
-  cat(paste("seq1\t16\tchrV", pos, pos %% 256, "10M\t*\t0\t0\t*",
+  cat(paste(paste0(pos + length(pos), "_", "seq", pos + length(pos)),
+            "16\tchrV", pos, pos %% 256, "5M10N5M\t*\t0\t0\t*",
             if (allelic) rep(c("*\tXV:A:R","*\tXV:A:A","*\tXV:A:U"), each = length(pos)) else "*",
             sep = "\t", collapse = "\n"), file = samfile_minus, append = TRUE)
   bamfile_plus <- Rsamtools::asBam(samfile_plus, indexDestination = TRUE)
@@ -50,30 +52,33 @@ createProjectPaired <- function() {
   cat("@HD\tVN:1.0\tSO:unsorted\n", file = sfile, append = FALSE)
   cat("@SQ\tSN:chrV\tLN:99\n", file = sfile, append = TRUE)
   # fr R1->left R2->right
-  cat("seq1\t99\tchrV\t4\t255\t5M\tchrV\t12\t13\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq1\t147\tchrV\t12\t255\t5M\tchrV\t4\t-13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq2\t99\tchrV\t4\t255\t5M\tchrV\t13\t14\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq2\t147\tchrV\t13\t255\t5M\tchrV\t4\t-14\t*\t*\n", file = sfile, append = TRUE)
+  cat("1_seq1\t99\tchrV\t4\t255\t5M\tchrV\t12\t13\t*\t*\n",      file = sfile, append = TRUE)
+  cat("1_seq1\t147\tchrV\t12\t255\t5M\tchrV\t4\t-13\t*\t*\n",    file = sfile, append = TRUE)
+  cat("2_seq2\t99\tchrV\t4\t255\t5M\tchrV\t13\t14\t*\t*\n",      file = sfile, append = TRUE)
+  cat("2_seq2\t147\tchrV\t13\t255\t5M\tchrV\t4\t-14\t*\t*\n",    file = sfile, append = TRUE)
   # fr R2->left R1->right
-  cat("seq3\t163\tchrV\t24\t255\t5M\tchrV\t32\t13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq3\t83\tchrV\t32\t255\t5M\tchrV\t24\t-13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq4\t163\tchrV\t24\t255\t5M\tchrV\t33\t14\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq4\t83\tchrV\t33\t255\t5M\tchrV\t24\t-14\t*\t*\n", file = sfile, append = TRUE)
+  cat("3_seq3\t163\tchrV\t24\t255\t5M\tchrV\t32\t13\t*\t*\n",    file = sfile, append = TRUE)
+  cat("3_seq3\t83\tchrV\t32\t255\t5M\tchrV\t24\t-13\t*\t*\n",    file = sfile, append = TRUE)
+  cat("4_seq4\t163\tchrV\t24\t255\t5M\tchrV\t33\t14\t*\t*\n",    file = sfile, append = TRUE)
+  cat("4_seq4\t83\tchrV\t33\t255\t5M\tchrV\t24\t-14\t*\t*\n",    file = sfile, append = TRUE)
   # ff R1->left R2->right
-  cat("seq5\t67\tchrV\t44\t255\t5M\tchrV\t52\t13\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq5\t131\tchrV\t52\t255\t5M\tchrV\t44\t-13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq6\t67\tchrV\t44\t255\t5M\tchrV\t53\t14\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq6\t131\tchrV\t53\t255\t5M\tchrV\t44\t-14\t*\t*\n", file = sfile, append = TRUE)
+  cat("5_seq5\t67\tchrV\t44\t255\t5M\tchrV\t52\t13\t*\t*\n",     file = sfile, append = TRUE)
+  cat("5_seq5\t131\tchrV\t52\t255\t5M\tchrV\t44\t-13\t*\t*\n",   file = sfile, append = TRUE)
+  cat("6_seq6\t67\tchrV\t44\t255\t5M\tchrV\t53\t14\t*\t*\n",     file = sfile, append = TRUE)
+  cat("6_seq6\t131\tchrV\t53\t255\t5M\tchrV\t44\t-14\t*\t*\n",   file = sfile, append = TRUE)
   # rr R2->left R1->right
-  cat("seq7\t115\tchrV\t64\t255\t5M\tchrV\t72\t13\t*\t*\n",  file = sfile, append = TRUE)
-  cat("seq7\t179\tchrV\t72\t255\t5M\tchrV\t64\t-13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq8\t115\tchrV\t64\t255\t5M\tchrV\t73\t14\t*\t*\n",  file = sfile, append = TRUE)
-  cat("seq8\t179\tchrV\t73\t255\t5M\tchrV\t64\t-14\t*\t*\n", file = sfile, append = TRUE)
+  cat("7_seq7\t115\tchrV\t64\t255\t5M\tchrV\t72\t13\t*\t*\n",    file = sfile, append = TRUE)
+  cat("7_seq7\t179\tchrV\t72\t255\t5M\tchrV\t64\t-13\t*\t*\n",   file = sfile, append = TRUE)
+  cat("8_seq8\t115\tchrV\t64\t255\t5M\tchrV\t73\t14\t*\t*\n",    file = sfile, append = TRUE)
+  cat("8_seq8\t179\tchrV\t73\t255\t5M\tchrV\t64\t-14\t*\t*\n",   file = sfile, append = TRUE)
   # rf R1->left R2->right
-  cat("seq9\t83\tchrV\t84\t255\t5M\tchrV\t92\t13\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq9\t163\tchrV\t92\t255\t5M\tchrV\t84\t-13\t*\t*\n", file = sfile, append = TRUE)
-  cat("seq0\t83\tchrV\t84\t255\t5M\tchrV\t93\t14\t*\t*\n",   file = sfile, append = TRUE)
-  cat("seq0\t163\tchrV\t93\t255\t5M\tchrV\t84\t-14\t*\t*\n", file = sfile, append = TRUE)
+  cat("9_seq9\t83\tchrV\t84\t255\t5M\tchrV\t92\t13\t*\t*\n",     file = sfile, append = TRUE)
+  cat("9_seq9\t163\tchrV\t92\t255\t5M\tchrV\t84\t-13\t*\t*\n",   file = sfile, append = TRUE)
+  cat("10_seq10\t83\tchrV\t84\t255\t5M\tchrV\t93\t14\t*\t*\n",   file = sfile, append = TRUE)
+  cat("10_seq10\t163\tchrV\t93\t255\t5M\tchrV\t84\t-14\t*\t*\n", file = sfile, append = TRUE)
+  # unmapped
+  cat("11_seq11\t77\t*\t0\t255\t*\t*\t0\t0\t*\t*\n",   file = sfile, append = TRUE)
+  cat("11_seq11\t141\t*\t0\t255\t*\t*\t0\t0\t*\t*\n", file = sfile, append = TRUE)
   
   # create bamfile
   bfile <- Rsamtools::asBam(sfile)

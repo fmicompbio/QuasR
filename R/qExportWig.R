@@ -41,75 +41,73 @@ qExportWig <- function(proj,
                        useRead=c("any","first","last"),
                        pairedAsSingle=FALSE)
 {
-    # validate parameters
-    # ...proj
-    if(!is(proj, "qProject"))
-        stop("'proj' must be a 'qProject' object")
+  # validate parameters
+  # ...proj
+  if (!is(proj, "qProject"))
+    stop("'proj' must be a 'qProject' object")
 
-    if(collapseBySample) {
-        bamfiles <- split(proj@alignments$FileName, as.factor(proj@alignments$SampleName))[unique(proj@alignments$SampleName)]
-        samplenames <- names(bamfiles)
-    } else {
-        bamfiles <- as.list(proj@alignments$FileName)
-        samplenames <- proj@alignments$SampleName
-    }
-    n <- length(bamfiles)
-    paired <- proj@paired != "no"
+  if (collapseBySample) {
+    bamfiles <- split(proj@alignments$FileName, as.factor(proj@alignments$SampleName))[unique(proj@alignments$SampleName)]
+    samplenames <- names(bamfiles)
+  } else {
+    bamfiles <- as.list(proj@alignments$FileName)
+    samplenames <- proj@alignments$SampleName
+  }
+  n <- length(bamfiles)
+  paired <- proj@paired != "no"
 
-    # ...strand
-    strand <- match.arg(strand)
-    if(length(strand) != 1)
-        stop("'strand' has to be a single character value: '+', '-' or '*'")
+  # ...strand
+  strand <- match.arg(strand) # checks if strand has length 1
+
+  # ...tracknames
+  if (is.null(tracknames)) {
+    tracknames <- if (collapseBySample) samplenames else displayNames(proj)
+    if (strand[1] != "*")
+      tracknames <- sprintf("%s (%s)",tracknames,strand)
+  }
     
-    # ...tracknames
-    if(is.null(tracknames)) {
-        tracknames <- if(collapseBySample) samplenames else displayNames(proj)
-        if(strand[1] != "*")
-            tracknames <- sprintf("%s (%s)",tracknames,strand)
-    }
-    
-    # ...file
-    if(is.null(file)) {
-        fileExt <- if(createBigWig) ".bw" else ".wig.gz"
-        if(collapseBySample)
-            file <- paste0(samplenames, fileExt)
-        else
-            file <- paste0(displayNames(proj), fileExt)
-    } else if(length(file) != n) {
-        stop(sprintf("the length of 'file' (%d) does not match the number of wig files to be generated (%d)",length(file),n))
-    }
-    if(createBigWig && any(!grepl(".bw$",file)))
-        stop("file names have to end with '.bw' for createBigWig=TRUE")
-    compressFormat <- compressedFileFormat(file)
-    if(!all(compressFormat %in% c("none","gzip")))
-        stop("only gzip compressed wig files (extension '.gz') are supported")
-    compress <- compressFormat == "gzip"
-    if(length(compress)==1)
-        compress <- rep(compress,n)
+  # ...file
+  if (is.null(file)) {
+    fileExt <- if (createBigWig) ".bw" else ".wig.gz"
+    if (collapseBySample)
+      file <- paste0(samplenames, fileExt)
+    else
+      file <- paste0(displayNames(proj), fileExt)
+  } else if (length(file) != n) {
+    stop(sprintf("the length of 'file' (%d) does not match the number of wig files to be generated (%d)",length(file),n))
+  }
+  if (createBigWig && any(!grepl(".bw$",file)))
+    stop("file names have to end with '.bw' for createBigWig=TRUE")
+  compressFormat <- compressedFileFormat(file)
+  if (!all(compressFormat %in% c("none","gzip")))
+    stop("only gzip compressed wig files (extension '.gz') are supported")
+  compress <- compressFormat == "gzip"
+  if (length(compress) == 1)
+    compress <- rep(compress,n)
 
-    # ...binsize
-    if(length(binsize)!=1)
-        stop("'binsize' must be a single integer value")
-    binsize <- as.integer(binsize)
-    if(is.na(binsize) || binsize<1)
-        stop("'binsize' must be a positive integer value")
+  # ...binsize
+  if (length(binsize) != 1)
+    stop("'binsize' must be a single integer value")
+  binsize <- as.integer(binsize)
+  if (is.na(binsize) || binsize < 1)
+    stop("'binsize' must be a positive integer value")
 
-    # ...shift
-    shift <- as.integer(shift)
-    if(any(is.na(shift)))
-        stop("'shift' has to be a vector of integer values")
-    if(length(shift)!=1 && length(shift)!=n)
-        stop(sprintf("'shift' has to contain either a single value or one value per output wig file (%d)",n))
-    if(paired && shift!=0L) {
-        warning("ignoring 'shift' value for paired-end alignments (will calculate alignment-specific values)")
-        shift <- 0L
-    }
-    if(length(shift)==1)
-        shift <- rep(shift,n)
+  # ...shift
+  shift <- as.integer(shift)
+  if (any(is.na(shift)))
+    stop("'shift' has to be a vector of integer values")
+  if (length(shift) != 1 && length(shift) != n)
+    stop(sprintf("'shift' has to contain either a single value or one value per output wig file (%d)",n))
+  if (paired && shift != 0L) {
+    warning("ignoring 'shift' value for paired-end alignments (will calculate alignment-specific values)")
+    shift <- 0L
+  }
+  if (length(shift) == 1)
+    shift <- rep(shift,n)
 
     # ...scaling
     if (!(length(scaling) == 1L && (is.logical(scaling) || is.numeric(scaling))))
-      stop("'scaling' needs to be a logical(1) or a numeric(1)")
+        stop("'scaling' needs to be a logical(1) or a numeric(1)")
     fact <- rep(1,n)
     if (is.numeric(scaling) || (is.logical(scaling) && scaling)) {
         message("collecting mapping statistics for scaling...", appendLF=FALSE)
@@ -126,84 +124,86 @@ qExportWig <- function(proj,
         }
         message("done")
     }
-
-    # ...log2p1
-    if(length(log2p1) != 1 || !is.logical(log2p1))
-        stop("'log2p1' has to be either 'TRUE' or 'FALSE'")
-    log2p1 <- rep(log2p1,n)
-    
-    # ...colors
-    if(length(colors) < n)
-        colors <- colorRampPalette(colors)(n)
-    colors <- apply(col2rgb(colors),2,paste,collapse=",")
-
-    # ...includeSecondary
-    if(length(includeSecondary) != 1 || !is.logical(includeSecondary))
-        stop("'includeSecondary' must be of type logical(1)")
-
-    # ...mapping qualities
-    if(length(mapqMin) != 1 || !is.integer(mapqMin) || any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
-        stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
-    mapqMin <- rep(mapqMin,n)
-    if(length(mapqMax) != 1 || !is.integer(mapqMax) || any(is.na(mapqMax)) || min(mapqMax) < 0L || max(mapqMax) > 255L)
-        stop("'mapqMax' must be of type integer(1) and have a values between 0 and 255")
-    mapqMax <- rep(mapqMax,n)
-
-    # ...absolute insert size
-    if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && !paired)
-        stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
-    if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
-        absIsizeMin <- -1L
-    if(is.null(absIsizeMax))
-        absIsizeMax <- -1L
-
-    # ...useRead
-    useRead <- match.arg(useRead)
-    if(useRead != "any" && !paired) {
-        warning("ignoring 'useRead' for single read experiments")
-        useRead <- "any"
-    } else if (paired && useRead != "any") {
-        message("'useRead' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
-        paired <- FALSE
-    } else if (pairedAsSingle) {
-        if(paired) {
-            message("'pairedAsSingle' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
-            paired <- FALSE
-        } else {
-          warning("ignoring 'pairedAsSingle' for single read experiments")
-        }
-    }
-
-    # translate useRead parameter
-    BAM_FREAD1 <- 64L
-    BAM_FREAD2 <- 128L
-    if(useRead == "any")
-        readBitMask <- BAM_FREAD1 + BAM_FREAD2
-    else if (useRead == "first")
-        readBitMask <- BAM_FREAD1
-    else if (useRead == "last")
-        readBitMask <- BAM_FREAD2
-    
-    # generate the wig file(s)
-    message("start creating ",if(createBigWig) "bigWig" else "wig"," file",if(n>1) "s" else "","...")
-    tempwigfile <- if(createBigWig) sapply(1:n, function(i) tempfile(fileext=".wig")) else file
-    if(createBigWig) {
-        tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
-        si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
-    }
-    lapply(1:n, function(i) {
-        message("  ",file[i]," (",tracknames[i],")")
-        .Call(bamfileToWig, as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
-              as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
-              as.character(tracknames[i]), as.logical(log2p1[i]),
-              as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
-              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask)
-        if(createBigWig) {
-            rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
-            unlink(tempwigfile[i])
-        }
-    })
     message("done")
+  }
+
+  # ...log2p1
+  if (length(log2p1) != 1 || !is.logical(log2p1))
+    stop("'log2p1' has to be either 'TRUE' or 'FALSE'")
+  log2p1 <- rep(log2p1,n)
     
-    return(invisible(file))
+  # ...colors
+  if (length(colors) < n)
+    colors <- colorRampPalette(colors)(n)
+  colors <- apply(col2rgb(colors),2,paste,collapse = ",")
+
+  # ...includeSecondary
+  if (length(includeSecondary) != 1 || !is.logical(includeSecondary))
+    stop("'includeSecondary' must be of type logical(1)")
+
+  # ...mapping qualities
+  if (length(mapqMin) != 1 || !is.integer(mapqMin) || any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
+    stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
+  mapqMin <- rep(mapqMin,n)
+  if (length(mapqMax) != 1 || !is.integer(mapqMax) || any(is.na(mapqMax)) || min(mapqMax) < 0L || max(mapqMax) > 255L)
+    stop("'mapqMax' must be of type integer(1) and have a values between 0 and 255")
+  mapqMax <- rep(mapqMax,n)
+
+  # ...absolute insert size
+  if ((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && !paired)
+    stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
+  if (is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering
+    absIsizeMin <- -1L
+  if (is.null(absIsizeMax))
+    absIsizeMax <- -1L
+
+  # ...useRead
+  useRead <- match.arg(useRead)
+  if (useRead != "any" && !paired) {
+    warning("ignoring 'useRead' for single read experiments")
+    useRead <- "any"
+  } else if (paired && useRead != "any") {
+    message("'useRead' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
+    paired <- FALSE
+  } else if (pairedAsSingle) {
+    if (paired) {
+      message("'pairedAsSingle' is set - will treat alignments as single reads (no calculation of fragment midpoints)")
+      paired <- FALSE
+    } else {
+      warning("ignoring 'pairedAsSingle' for single read experiments")
+    }
+  }
+
+  # translate useRead parameter
+  BAM_FREAD1 <- 64L
+  BAM_FREAD2 <- 128L
+  if (useRead == "any")
+    readBitMask <- BAM_FREAD1 + BAM_FREAD2
+  else if (useRead == "first")
+    readBitMask <- BAM_FREAD1
+  else if (useRead == "last")
+    readBitMask <- BAM_FREAD2
+    
+  # generate the wig file(s)
+  message("start creating ", if (createBigWig) "bigWig" else "wig"," file", if (n > 1) "s" else "", "...")
+  tempwigfile <- if (createBigWig) sapply(1:n, function(i) tempfile(fileext = ".wig")) else file
+  if (createBigWig) {
+    tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
+    si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
+  }
+  lapply(1:n, function(i) {
+    message("  ",file[i]," (",tracknames[i],")")
+    .Call(bamfileToWig, as.character(bamfiles[[i]]), as.character(tempwigfile[i]), as.logical(paired[1]),
+          as.integer(binsize[1]), as.integer(shift[i]), as.character(strand[1]), as.numeric(fact[i]),
+          as.character(tracknames[i]), as.logical(log2p1[i]),
+          as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
+          mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask)
+    if (createBigWig) {
+      rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
+      unlink(tempwigfile[i])
+    }
+  })
+  message("done")
+    
+  return(invisible(file))
 }

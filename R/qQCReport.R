@@ -4,35 +4,36 @@
 # clObj       : cluster object for parallelization
 
 calcQaInformation <- function(filename, label, filetype, chunkSize){
-    if(any(filetype == "fasta") && any(compressedFileFormat(filename) != "none")){
-        qa <- NULL
-        warning("compressed 'fasta' input is not yet supported")
-    }else{
-        reads <- switch(as.character(filetype),
-                        fastq = {
-                            f <- FastqSampler(filename, n=chunkSize)
-                            reads <- yield(f)
-                            close(f)
-                            reads[width(reads)>0]
-                        },
-                        fasta = {
-                            reads <- readFasta(as.character(filename), nrec=chunkSize)
-                            reads[width(reads)>0]
-                        },
-                        bam = {
-                            bf <- BamFile(filename, yieldSize=1e6)
-                            myyield <- function(x) {
-                                tmp <- Rsamtools::scanBam(x, param=ScanBamParam(what=c("seq", "qual", "strand")))[[1]]
-                                minusStrand <- !is.na(tmp$strand) & tmp$strand == "-"
-                                ShortRead::ShortReadQ(sread=c(tmp$seq[!minusStrand],reverseComplement(tmp$seq[minusStrand])),
-                                                      quality=c(tmp$qual[!minusStrand],reverse(tmp$qual[minusStrand])))
-                            }
-                            reads <- reduceByYield(X=bf, YIELD=myyield, MAP=identity,
-                                                   REDUCE=REDUCEsampler(sampleSize=chunkSize, verbose=FALSE),
-                                                   parallel=FALSE)
-                            reads[width(reads)>0]
-                        }
-                        )
+  if (any(filetype == "fasta") && any(compressedFileFormat(filename) != "none")) {
+      warning("compressed 'fasta' input is not yet supported")
+      return(NULL)
+  } else {
+    reads <- switch(as.character(filetype),
+                    fastq = {
+                      f <- ShortRead::FastqSampler(filename, n = chunkSize)
+                      reads <- ShortRead::yield(f)
+                      close(f)
+                      reads[ShortRead::width(reads) > 0]
+                    },
+                    fasta = {
+                      reads <- ShortRead::readFasta(as.character(filename), nrec = chunkSize)
+                      reads[ShortRead::width(reads) > 0]
+                    },
+                    bam = {
+                      bf <- Rsamtools::BamFile(filename, yieldSize = 1e6)
+                      myyield <- function(x) {
+                        tmp <- Rsamtools::scanBam(x, param = Rsamtools::ScanBamParam(what = c("seq", "qual", "strand")))[[1]]
+                        minusStrand <- !is.na(tmp$strand) & tmp$strand == "-"
+                        ShortRead::ShortReadQ(sread = c(tmp$seq[!minusStrand],
+                                                      Biostrings::reverseComplement(tmp$seq[minusStrand])),
+                                              quality = c(tmp$qual[!minusStrand],
+                                                          IRanges::reverse(tmp$qual[minusStrand])))
+                      }
+                      reads <- reduceByYield(X = bf, YIELD = myyield, MAP = identity,
+                                             REDUCE = GenomicFiles::REDUCEsampler(sampleSize = chunkSize, verbose = FALSE),
+                                             parallel = FALSE)
+                      reads[ShortRead::width(reads) > 0]
+                    })
     }
     return(qa(reads, label))
 }
