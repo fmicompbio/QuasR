@@ -109,18 +109,8 @@ static int _addJunction(const bam1_t *hit, void *data){
 	    }
 	    x += l;
 
-	} else if (op == BAM_CDEL) {
-	    // read skips reference region -> store junction and increase reference coordinate
-	    sprintf(strbuffer, "%s:%i:%i:%c", jinfo->tname, x+1, x+l, hit->core.flag & BAM_FREVERSE ? '-' : '+');
-	    //ss << jinfo->tname << ":" << (x+1) << ":" << (x+l) << ":" << (hit->core.flag & BAM_FREVERSE ? "-" : "+");
-	    //jid = ss.str();
-	    string jid(strbuffer);
-	    it = junctions->find(jid);
-	    if(it == junctions->end()) {
-		junctions->insert(pair<string,int>(jid, 1));
-	    } else {
-		it->second++;
-	    }
+	} else if (op == BAM_CDEL) { // deletion from the reference
+	    // read skips reference region, but has been classified as a deletion -> just increase reference coordinate
 	    x += l;
 
 	} else if (op == BAM_CINS || op == BAM_CSOFT_CLIP) {

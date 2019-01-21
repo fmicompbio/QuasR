@@ -3,6 +3,7 @@ CHANGES IN VERSION 1.24.0
 NEW FEATURES
 
     o migrated unit test from RUnit to testthat
+    o ignore reference deletions (BAM_CDEL) in qCount(..., reportLevel = "junction")
 
 
 CHANGES IN VERSION 1.10.0
