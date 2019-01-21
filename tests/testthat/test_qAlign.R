@@ -104,3 +104,20 @@ test_that("qAlign correctly works in undirectional bisulfite mode", {
   expect_identical(sum(as.numeric(start(aln))), 493991845)
   expect_identical(sum(as.numeric(end(aln))), 495876924)
 })
+
+
+context("qAlign helper functions")
+
+test_that("pathAsAbsoluteRedirected works as expected", {
+    expect_null(QuasR:::pathAsAbsoluteRedirected("test.txt", "../"))
+})
+
+test_that("resolveCacheDir works as expected", {
+    expect_identical("extdata", QuasR:::resolveCacheDir("extdata"))
+    expect_identical(tempdir(), QuasR:::resolveCacheDir(NA))
+})
+
+test_that("determineSamplesFormat correctly digests its arguments", {
+    expect_error(QuasR:::determineSamplesFormat(c("file1.notSupported")))
+    expect_error(QuasR:::determineSamplesFormat(c("file1.fasta", "file2.fastq")))
+})
