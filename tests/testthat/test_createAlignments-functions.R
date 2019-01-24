@@ -11,10 +11,11 @@ test_that("samToSortedBamParallel correctly digests its arguments", {
 })
 
 test_that("samToSortedBamParallel works as expected", {
+    cat("bamf: ", bamf, "\n")
+    cat("samf: ", samf, "\n")
+    cat("  first 10 lines:\n", paste(readLines(samf, n = 10L), collapse = "\n"), "\n")
+    cat("bamout: ", bamout, "\n")
     bamout <- QuasR:::samToSortedBamParallel(file = samf, destination = boutnext, p = 2L, cacheDir = NULL)
-    message("bamf: ", bamf)
-    message("samf: ", samf)
-    message("bamout: ", bamout)
     expect_identical(bamout, paste0(boutnext, ".bam"))
     expect_identical(unname(alignmentStats(bamout)),
                      unname(alignmentStats(bamf)))
