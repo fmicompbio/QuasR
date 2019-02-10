@@ -808,14 +808,14 @@ samToSortedBamParallel <- function(file,destination,p,cacheDir=NULL){
   clRet <- clusterEvalQ(clObjS, library("QuasR"))
   if(!all(sapply(clRet, function(x) "QuasR" %in% x))){stop("'QuasR' package could not be loaded on all nodes in 'clObj'")}
 
-  clusterApplyLB(clObjS,1:length(splitSamAndBamNames),samToSortedBamCore,splitSamAndBamNames[sortedOrder])
+  clusterApplyLB(clObjS, 1:length(splitSamAndBamNames), samToSortedBamCore, splitSamAndBamNames[sortedOrder])
 
   # concatenate all the sorted bam files in the order of the original sam file header
-  .Call(catBam,paste(do.call(rbind,splitSamAndBamNames)[,2],".bam",sep=""),paste(destination,".bam",sep=""))
+  .Call(catBam, paste0(do.call(rbind, splitSamAndBamNames)[,2], ".bam"), paste0(destination, ".bam"))
 
   # create index for the final bam file
-  indexBam(paste(destination,".bam",sep=""))
+  indexBam(paste0(destination, ".bam"))
 
-  invisible(paste(destination,".bam"))
+  invisible(paste0(destination, ".bam"))
 }
 

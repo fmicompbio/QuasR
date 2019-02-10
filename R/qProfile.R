@@ -50,6 +50,12 @@ qProfile <-
         selectReadPosition <- match.arg(selectReadPosition)
         orientation <- match.arg(orientation)
         useRead <- match.arg(useRead)
+        if(!is.logical(collapseBySample) || length(collapseBySample) != 1L)
+            stop("'collapseBySample' must be either TRUE or FALSE")
+        if(!is.logical(includeSpliced) || length(includeSpliced) != 1L)
+            stop("'includeSpliced' must be either TRUE or FALSE")
+        if(!is.logical(includeSecondary) || length(includeSecondary) != 1L)
+            stop("'includeSecondary' must be either TRUE or FALSE")
         if((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && proj@paired == "no")
             stop("'absIsizeMin' and 'absIsizeMax' can only be used for paired-end experiments")
         if(is.null(absIsizeMin)) # -1L -> do not apply TLEN filtering

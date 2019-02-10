@@ -40,8 +40,8 @@ sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
 #sMirnaSingle  <- file.path("extdata", "samples_mirna.txt")
 
 # ... ... as a BSgenome
-pChipSingle       <- qAlign(sChipSingle,  genomePkg,  clObj = clObj, lib.loc = rlibdir)
-pBisBSg           <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
+pChipSingle       <- qAlign(sChipSingle,  genomePkg,  clObj = clObj, lib.loc = rlibdir, cacheDir = tempdir())
+pBis              <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
 
 # ... ... as a fasta genome
 pChipSingleAux    <- qAlign(sChipSingle,  genomeFile, auxiliaryFile = auxFile, clObj = clObj)

@@ -3,6 +3,7 @@
 ^.gitignore$
 ^.Rbuildignore$
 ^.travis.yml$
+^appveyor.yml$
 ^codecov\.yml$
 ^Dockerfile$
 ^.BBSoptions$
