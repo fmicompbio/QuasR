@@ -142,14 +142,6 @@ test_that("qAlign correctly works in directional bisulfite mode", {
   expect_identical(sum(as.numeric(end(aln))), 495957570)
 })
 
-test_that("qAlign correctly works in directional bisulfite mode with BSgenome reference", {
-  aln <- GenomicAlignments::readGAlignments(pBisBSg@alignments$FileName[1], use.names = TRUE)
-  expect_length(runValue(strand(aln)), 8154L)
-  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(5973, 3997, 15528)))))
-  expect_identical(sum(as.numeric(start(aln))), 494072411)
-  expect_identical(sum(as.numeric(end(aln))), 495957570)
-})
-
 test_that("qAlign correctly works in undirectional bisulfite mode", {
   aln <- GenomicAlignments::readGAlignments(pBisUndir@alignments$FileName[1], use.names = TRUE)
   expect_length(runValue(strand(aln)), 8160L)
