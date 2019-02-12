@@ -13,7 +13,7 @@
 #include <queue>
 #include <map>
 #include <algorithm>
-#include "samtools/sam.h"
+#include "htslib/sam.h"
 
 
 int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, int maxhits);

@@ -13,7 +13,7 @@
 #include <cstring>
 #include <string>
 #include <stdbool.h>
-#include "samtools/sam.h"
+#include "htslib/sam.h"
 
 #define MAX_READ_LENGTH 500
 
