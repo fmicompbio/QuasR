@@ -2,6 +2,6 @@
 #include <R_ext/Boolean.h>
 #include <Rdefines.h>
 #include "utilities.h"
-#include "samtools/sam.h"
+#include "htslib/sam.h"
 
 SEXP split_sam_chr(SEXP samFile, SEXP outDir);

@@ -1,7 +1,6 @@
 useDynLib("QuasR", .registration=TRUE)
 
 import(methods)
-import(zlibbioc)
 
 import(BiocGenerics)
 importFrom(GenomeInfoDb, seqlengths, bsgenomeName, seqlevelsInUse, seqlevels, genome)
