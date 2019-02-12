@@ -32,9 +32,9 @@ int flush_allele(int, ofstream&, map<int, string>&, idLine&, char);     // same 
 int _make_unmapped_alignment(int, idLine&, map<int, string>&, bool, bool);
 int _get_nm_tag(const idLine&);
 
-class samFile { // handles a sam file
-    static int nTotal; // number of samFile instances created
-    static int nEof;   // number of samFile instances that reached fh.eof()
+class SAMFile { // handles a sam file
+    static int nTotal; // number of SAMFile instances created
+    static int nEof;   // number of SAMFile instances that reached fh.eof()
 
     const char *fname; // file name
     ifstream fh;       // input file stream
@@ -49,8 +49,8 @@ class samFile { // handles a sam file
 
     int getNextAln(); // read next (pair of) alignment, extract readid and flag
 public:
-    samFile(const char*);
-    ~samFile();
+    SAMFile(const char*);
+    ~SAMFile();
     int advance(int);
     int flush_simple(int, ofstream&, map<int, string>&);           // output alignments to ofstream, store unmapped in map<>
     bool isEmpty() { return queue.empty(); }
@@ -62,11 +62,11 @@ public:
     int get_alignments_allele(int, vector<idLine>&, map<int, string>&);
 };
 
-int samFile::nTotal=0;
-int samFile::nEof=0;
+int SAMFile::nTotal=0;
+int SAMFile::nEof=0;
 
 // constructor
-samFile::samFile (const char* myfname) {
+SAMFile::SAMFile (const char* myfname) {
     fname = myfname;
 
     // open file
@@ -83,14 +83,14 @@ samFile::samFile (const char* myfname) {
 }
 
 // destructor
-samFile::~samFile () {
+SAMFile::~SAMFile () {
     if(fh.is_open())
         fh.close();
 }
 
 
 // read next (pair of) alignment, extract readid and flag
-int samFile::getNextAln() {
+int SAMFile::getNextAln() {
     static size_t start_pos, end_pos;
     static int readflag, readid2, readflag2;
     static bool readIsMapped2;
@@ -172,7 +172,7 @@ int samFile::getNextAln() {
 }
 
 // read and store alignments from fh until readid == id, and then until readid != id
-int samFile::advance(int id) {
+int SAMFile::advance(int id) {
     //cout << "advancing(" << id << "), top: " << (queue.empty() ? -1 : queue.top().id) << endl;
 
     static int nr;
@@ -224,7 +224,7 @@ int samFile::advance(int id) {
 }
 
 // output all stored alignments for 'id' and remove them from memory, store unmapped reads in 'unmapped'
-int samFile::flush_simple(int id, ofstream &outfh, map<int, string> &unmapped) {
+int SAMFile::flush_simple(int id, ofstream &outfh, map<int, string> &unmapped) {
     static int numberFlushed;
 
     numberFlushed = 0;
@@ -253,7 +253,7 @@ int samFile::flush_simple(int id, ofstream &outfh, map<int, string> &unmapped) {
     return numberFlushed;
 }
 
-/* bisulfite-version of samFile::flush_simple, this does in addition:
+/* bisulfite-version of SAMFile::flush_simple, this does in addition:
    - correct identifier (remove readseq_ prefix)
    - fix sequence (replace read sequence with the one contained in the id)
    - fix MD tag (remove MD tag if present, as it could be inaccurate due to the read sequence exchange)
@@ -321,7 +321,7 @@ int flush_allele(int id, ofstream &outfh, map<int, string> &unmapped, idLine &cu
 //       always only one element, which correspond to the current id.
 //       The 'id' parameter exist because of historical reason.
 //       It could be removed but we keep it in case we change the algorithm.
-int samFile::flush_unmapped(int id, ofstream &outfh, map<int, string> &unmapped, int n) {
+int SAMFile::flush_unmapped(int id, ofstream &outfh, map<int, string> &unmapped, int n) {
     static map<int, string>::iterator it;
     static int numberFlushed;
     numberFlushed = 0;
@@ -337,7 +337,7 @@ int samFile::flush_unmapped(int id, ofstream &outfh, map<int, string> &unmapped,
     return numberFlushed;
 }
 
-int samFile::get_alignments_bisulfite(int id, int bisQueue, vector<idLine> &mapped, map<int, string> &unmapped, bool output, bool addId) {
+int SAMFile::get_alignments_bisulfite(int id, int bisQueue, vector<idLine> &mapped, map<int, string> &unmapped, bool output, bool addId) {
     static idLine currenttop;
     static char idbuffer[64];
 
@@ -377,7 +377,7 @@ int samFile::get_alignments_bisulfite(int id, int bisQueue, vector<idLine> &mapp
     return EXIT_SUCCESS;
 }
 
-int samFile::get_alignments_allele(int id, vector<idLine> &mapped, map<int, string> &unmapped) {
+int SAMFile::get_alignments_allele(int id, vector<idLine> &mapped, map<int, string> &unmapped) {
     static idLine currenttop;
 
     while(!queue.empty() && queue.top().id == id) {
@@ -403,7 +403,7 @@ int samFile::get_alignments_allele(int id, vector<idLine> &mapped, map<int, stri
     return EXIT_SUCCESS;
 }
 
-int samFile::get_nm_tag(int id){
+int SAMFile::get_nm_tag(int id){
     if(queue.top().id == id && queue.top().isMapped) {
 	// mapped get edit distance
 	return _get_nm_tag(queue.top());
@@ -721,7 +721,7 @@ int _copy_header(const char *headerin, ofstream &outfh) {
 }
 
 // define functions for output generation (will be called through pointers according to the merge mode, defined by 'bisulfiteMode' and 'alleleMode'
-int writeOutput_simple(int id, samFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
+int writeOutput_simple(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
     static int n, i;
     n = 0;
     for(i=0; i<nsamf; i++)
@@ -729,7 +729,7 @@ int writeOutput_simple(int id, samFile **samf, int nsamf, ofstream &outfh, map<i
     return n;
 }
 
-int writeOutput_bisulfite_core(int id, samFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits, bool addId) {
+int writeOutput_bisulfite_core(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits, bool addId) {
     static int n, i, min_nm, curr_nm, count;
     vector<idLine> mapped;
     n = 0; // number of flashed alignments
@@ -776,19 +776,19 @@ int writeOutput_bisulfite_core(int id, samFile **samf, int nsamf, ofstream &outf
     return n;
 }
 
-int writeOutput_bisulfite(int id, samFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
+int writeOutput_bisulfite(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
     static int n = 0;
     n = writeOutput_bisulfite_core(id, samf, nsamf, outfh, unmapped, maxhits, false);
     return n;
 }
 
-int writeOutput_bisulfite_before_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
+int writeOutput_bisulfite_before_allele(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
     static int n = 0;
     n = writeOutput_bisulfite_core(id, samf, nsamf, outfh, unmapped, maxhits, true);
     return n;
 }
 
-int writeOutput_allele(int id, samFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
+int writeOutput_allele(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<int, string> &unmapped, int maxhits) {
     if(nsamf != 2)
 	Rf_error("Only two input files are allowed for allele specific mode.");
 
@@ -851,7 +851,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
     int i, id, n, e, currQueueSize = 0, maxQueueSize = 0;
     map <int, string> unmapped;
 
-    typedef int (*OUTPUTFUNCTION) (int, samFile**, int, ofstream&, map<int, string>&, int); // pointer to the output function
+    typedef int (*OUTPUTFUNCTION) (int, SAMFile**, int, ofstream&, map<int, string>&, int); // pointer to the output function
     OUTPUTFUNCTION writeOutput = NULL;
 
     // set function pointer for output according to 'mode'
@@ -878,13 +878,13 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	Rf_error("error copying header from %s\n", fnin[0]);
     
     // open sam files
-    samFile **samfiles = new samFile*[nin];
+    SAMFile **samfiles = new SAMFile*[nin];
     for(i=0; i<nin; i++)
-	samfiles[i] = new samFile(fnin[i]);
+	samfiles[i] = new SAMFile(fnin[i]);
 
     // main loop over identifiers (1...allEof)
     id = 1;
-    while (!samFile::allEof()) {
+    while (!SAMFile::allEof()) {
 	// forward input files until current identifier is found
 	// unmapped reads from all samfiles are collected in unmappedQueue
 	for(i=0; i<nin; i++)
@@ -898,7 +898,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	n = writeOutput(id, samfiles, nin, outfile, unmapped, maxhits);
 
 	// output or delete unmapped
-	samFile::flush_unmapped(id, outfile, unmapped, n);
+	SAMFile::flush_unmapped(id, outfile, unmapped, n);
 	
 	// increase current identifier
 	id++;
@@ -920,7 +920,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 	}
 
 	// output or delete unmapped
-	samFile::flush_unmapped(id, outfile, unmapped, n);
+	SAMFile::flush_unmapped(id, outfile, unmapped, n);
 	
 	// increase current identifier
 	id++;
