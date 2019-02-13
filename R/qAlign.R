@@ -103,7 +103,7 @@ missingFilesMessage <- function(proj, checkOnly){
     }
     
     ## Splice site file
-    if (!is.na(proj@geneAnnotation)) {
+    if (!is.null(proj@geneAnnotation) && !is.na(proj@geneAnnotation)) {
       if (!file.exists(paste0(proj@geneAnnotation, ".SpliceSites.txt"))) {
         spliceSiteFileNeedsToBeCreated <- TRUE
       }

@@ -1,19 +1,19 @@
-qProjectUpdate <- function(object, quiet = TRUE) {
+qProjectUpdate <- function(proj, quiet = TRUE) {
   mod <- FALSE
-  if (!(.hasSlot(object, "geneAnnotation"))) {
-    object@geneAnnotation <- NA_character_
+  if (!(.hasSlot(proj, "geneAnnotation"))) {
+    proj@geneAnnotation <- NA_character_
     if (!quiet) message("Adding geneAnnotation slot")
     mod <- TRUE
   } 
-  if (!(.hasSlot(object, "geneAnnotationFormat"))) {
-    object@geneAnnotationFormat <- NA_character_
+  if (!(.hasSlot(proj, "geneAnnotationFormat"))) {
+    proj@geneAnnotationFormat <- NA_character_
     if (!quiet) message("Adding geneAnnotationFormat slot")
     mod <- TRUE
   }
   if (!mod) {
-    if (!quiet) message("Object up to date")
+    if (!quiet) message("qProject is up to date")
   }
-  object
+  proj
 }
 
 ### qProject class definition
