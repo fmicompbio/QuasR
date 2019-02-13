@@ -5,7 +5,7 @@ Version: 1.23.14
 Date: 2019-02-13
 Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
-Depends: parallel, GenomicRanges (>= 1.13.3), Rbowtie
+Depends: R (>= 3.6), parallel, GenomicRanges (>= 1.13.3), Rbowtie
 Imports: methods, grDevices, graphics, utils, BiocGenerics,
 	 S4Vectors (>= 0.9.25), IRanges, BiocManager, Biobase,
          Biostrings, BSgenome, Rsamtools (>= 1.99.1),
