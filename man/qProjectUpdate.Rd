@@ -11,7 +11,6 @@
   \item{proj}{a \code{\link[=qProject-class]{qProject}} object.}
   \item{quiet}{logical, whether to suppress update messages.}
 }
-\details{}
 \value{
   A \code{\link[=qProject-class]{qProject}} object.
 }
