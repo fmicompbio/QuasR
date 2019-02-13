@@ -65,8 +65,7 @@ SEXP filter_hisat2(SEXP samFile, SEXP outFile, SEXP maxHits) {
   bu->core.mtid = -1;
   bu->core.mpos = -1;
   bu->core.isize = 0;
-  bu->l_aux = 0;
-  
+
   // for each alignment ...
   while (0 <= samread(fin, b)) {
     
@@ -93,7 +92,8 @@ SEXP filter_hisat2(SEXP samFile, SEXP outFile, SEXP maxHits) {
           bu->core.flag -= BAM_FMREVERSE;
         
         // ... ... length of qname and qseq
-        bu->core.l_qname = b->core.l_qname;
+        bu->core.l_extranul = b->core.l_extranul;
+        bu->core.l_qname = b->core.l_qname; // includes the extra NULs
         bu->core.l_qseq = b->core.l_qseq;
         
         // ... ... data
