@@ -186,16 +186,6 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath){
 
 # generate splice site file
 buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
-  if (geneAnnotationFormat == "TxDb") {
-    txdb <- AnnotationDbi::loadDb(geneAnnotation)
-  } else if (geneAnnotationFormat == "gtf") {
-    txdb <- suppressWarnings(
-      GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
-    )
-  } else {
-    stop("Fatal error 81956293")
-  }
-  
   if (file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
     # if the SpliceSites.txt file exists, but not the md5sum file, remove the former
     if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt.md5"))) {
@@ -214,20 +204,27 @@ buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
       md5FromObj <- tools::md5sum(geneAnnotation)
       if (md5FromFile != md5FromObj) {
         message("The annotation file ", geneAnnotation,
-                "was changed. Recreating the SpliceSites file.")
+                " was changed. Recreating the SpliceSites file.")
         unlink(paste0(geneAnnotation, ".SpliceSites.txt"))
       }
     }
   }
   if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
-    Rhisat2::extract_splice_sites(txdb, paste0(geneAnnotation, ".SpliceSites.txt"), 
-                                  min_length = 5)
-    md5FromObj <- tools::md5sum(geneAnnotation)
-    write.table(md5FromObj, file = paste0(geneAnnotation, ".SpliceSites.txt.md5"),
-                row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
+      if (geneAnnotationFormat == "TxDb") {
+          txdb <- AnnotationDbi::loadDb(geneAnnotation)
+      } else if (geneAnnotationFormat == "gtf") {
+          txdb <- suppressWarnings(
+              GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
+          )
+      } else {
+          stop("Fatal error 81956293")
+      }
+      Rhisat2::extract_splice_sites(txdb, paste0(geneAnnotation, ".SpliceSites.txt"), 
+                                    min_length = 5)
+      md5FromObj <- tools::md5sum(geneAnnotation)
+      write.table(md5FromObj, file = paste0(geneAnnotation, ".SpliceSites.txt.md5"),
+                  row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
   }
-  # garbage collect, to close open connections
-  gc()
 }
 
 # build index for Rbowtie, base space, non-bisulfite converted
