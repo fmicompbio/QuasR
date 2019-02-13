@@ -176,6 +176,7 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath){
   indexFullPath <- file.path(indexPath,"hisat2Index")
   
   ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2-build"),c(shQuote(seqFile),shQuote(indexFullPath)), stdout=TRUE, stderr=TRUE)
+  print(tail(ret))
   if(!(grepl("^Total time for call to driver", ret[length(ret)]))){
     ret <- 1
   }else{
