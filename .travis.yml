@@ -3,6 +3,13 @@
 language: r
 r: bioc-devel
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libstdc++-4.9-dev
+
 warnings_are_errors: false
 cache: packages
 
