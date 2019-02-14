@@ -2,6 +2,7 @@ CHANGES IN VERSION 1.24.0
 -------------------------
 NEW FEATURES
 
+    o added support for spliced alignments using hisat2 (via Rhisat2 package)
     o migrated unit test from RUnit to testthat
     o ignore reference deletions (BAM_CDEL) in qCount(..., reportLevel = "junction")
 
