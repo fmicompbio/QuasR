@@ -2,14 +2,17 @@
 buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
   indexPackageName <- paste(genome,alnModeID,sep=".")
 
+  lib.locTemp <- lib.loc
+  if(is.na(lib.loc)){lib.locTemp<-NULL;} # this is a way to convert NA to NULL needed for install.packages
+  
   # Create the index and install it if it is not yet installed on the system
-  if(!(indexPackageName %in% installed.packages(lib.loc = lib.loc)[,'Package'])){
+  if(!(indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[,'Package'])){
     genomeObj <- get(genome) # access the BSgenome
     fastaFilepath <- BSgenomeSeqToFasta(genomeObj, tempfile(tmpdir=cacheDir, fileext=".fa"))  # flush the BSgenome to disk
     on.exit(unlink(fastaFilepath))
 
     # create the package (without installing it yet). if it is already in the temp dir, keep it. It might contain an index
-    # calculated in a previous round where the intallation was not successful (due to permissions)
+    # calculated in a previous round where the installation was not successful (due to permissions)
     if(!file.exists(file.path(cacheDir,indexPackageName))){
       seedList <- createSeedList(genomeObj, aligner, indexPackageName)
       templatePath <- system.file("AlignerIndexPkg-template", package="QuasR")
@@ -19,11 +22,9 @@ buildIndexPackage <- function(genome,aligner,alnModeID,cacheDir,lib.loc){
     buildIndex(fastaFilepath,file.path(cacheDir,indexPackageName,"inst","alignmentIndex"),alnModeID,cacheDir)
 
     # install the package
-    lib.locTemp <- lib.loc
-    if(is.na(lib.loc)){lib.locTemp<-NULL;} # this is a way to convert NA to NULL needed for install.packages
     install.packages(file.path(cacheDir,indexPackageName), repos=NULL, dependencies=FALSE, type="source", lib=lib.locTemp)
 
-    if(indexPackageName %in% installed.packages(lib.loc = lib.loc)[,'Package']){
+    if(indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[,'Package']){
       # package installation was successful, clean up
       unlink(file.path(cacheDir,indexPackageName),recursive=TRUE)
     }else{"Fatal error 2309420"}
@@ -153,6 +154,8 @@ buildIndex <- function(seqFile,indexPath,alnModeID,cacheDir,checkMD5=FALSE){
       ret <- buildIndex_RbowtieCtoT(seqFile,indexPath,cacheDir)
     }else if(alnModeID=="RbowtieCs"){
       ret <- buildIndex_RbowtieCs(seqFile,indexPath)
+    }else if(alnModeID=="Rhisat2"){
+      ret <- buildIndex_Rhisat2(seqFile,indexPath)
     }else{stop("Fatal error 2374027")}
 
     if(ret==0){
@@ -168,6 +171,63 @@ buildIndex <- function(seqFile,indexPath,alnModeID,cacheDir,checkMD5=FALSE){
   }
 }
 
+# build index for Rhisat2, base space, non-bisulfite converted
+buildIndex_Rhisat2 <- function(seqFile,indexPath){
+  indexFullPath <- file.path(indexPath,"hisat2Index")
+  
+  ret <- system2(file.path(system.file(package="Rhisat2"),"hisat2-build"),c(shQuote(seqFile),shQuote(indexFullPath)), stdout=TRUE, stderr=TRUE)
+  print(tail(ret, 25))
+  print(any(grepl("^Total time for call to driver", ret)))
+  if(!(grepl("^Total time for call to driver", ret[length(ret)]))){
+    ret <- 1
+  }else{
+    ret <- 0
+  }
+  return(ret)
+}
+
+# generate splice site file
+buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
+  if (file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
+    # if the SpliceSites.txt file exists, but not the md5sum file, remove the former
+    if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt.md5"))) {
+      message("Deleting an incomplete SpliceSites.txt file at: ",
+              paste0(geneAnnotation, ".SpliceSites.txt"))
+      unlink(paste0(geneAnnotation, ".SpliceSites.txt"))
+    } else {
+      # both SpliceSites.txt and md5 file exist
+      md5FromFile <- read.delim(paste0(geneAnnotation, ".SpliceSites.txt.md5"),
+                                header = FALSE, colClasses = "character")
+      if (!all(dim(md5FromFile) == c(1, 1))) {
+        stop("The md5sum file does not have the right format: ",
+             paste0(geneAnnotation, ".SpliceSites.txt.md5"), call. = FALSE)
+      }
+      md5FromFile <- md5FromFile[1, 1]
+      md5FromObj <- tools::md5sum(geneAnnotation)
+      if (md5FromFile != md5FromObj) {
+        message("The annotation file ", geneAnnotation,
+                " was changed. Recreating the SpliceSites file.")
+        unlink(paste0(geneAnnotation, ".SpliceSites.txt"))
+      }
+    }
+  }
+  if (!file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
+      if (geneAnnotationFormat == "TxDb") {
+          txdb <- AnnotationDbi::loadDb(geneAnnotation)
+      } else if (geneAnnotationFormat == "gtf") {
+          txdb <- suppressWarnings(
+              GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
+          )
+      } else {
+          stop("Fatal error 81956293")
+      }
+      Rhisat2::extract_splice_sites(txdb, paste0(geneAnnotation, ".SpliceSites.txt"), 
+                                    min_length = 5)
+      md5FromObj <- tools::md5sum(geneAnnotation)
+      write.table(md5FromObj, file = paste0(geneAnnotation, ".SpliceSites.txt.md5"),
+                  row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
+  }
+}
 
 # build index for Rbowtie, base space, non-bisulfite converted
 buildIndex_Rbowtie <- function(seqFile,indexPath){

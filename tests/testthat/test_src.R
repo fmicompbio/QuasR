@@ -204,3 +204,53 @@ test_that("removeUnmappedFromSamAndConvertToBam works as expected", {
   # results
   expect_identical(fun(samf1, bamf2), bamf2)
 })
+
+
+test_that("filterHisat2 works as expected", {
+  # create example sam file
+  fun    <- function(...) .Call(QuasR:::filterHisat2, ...)
+  samf1 <- tempfile(fileext = ".sam", tmpdir = "extdata")
+  samf2 <- tempfile(fileext = ".sam", tmpdir = "extdata")
+  writeLines(text = c("@HD\tVN:1.4",
+                      "@SQ\tSN:chr1\tLN:40000",
+                      "@SQ\tSN:chr2\tLN:10000",
+                      "@SQ\tSN:chr3\tLN:45000",
+                      "seq1\t163\tchr3\t12355\t255\t38M560N12M\t=\t13074\t769\tCAGCCCTTGAACGGAGAATAGAGTACATTGAAGCTCGGGTGACAAAAGGT\tggggggggggggggggggggggggggggghggggfggegccceacLSSTS\tNH:i:1",
+                      "seq1\t83\tchr3\t13074\t255\t50M\t=\t12355\t-769\tAGAGCAACAGGGCTTATTCTTGTTTTTCTTTTTTCAAAAGTGTGGCCTTT\tgggggggggggggggggggggggfffffffffgggggggggggggggggg\tNH:i:1",
+                      "seq2\t163\tchr2\t2927\t255\t14M241N36M\t=\t3424\t547\tCGGCGCTCGGCAAGTTCTCCCAGGAGAAAGCCATGTTCAGTTCGAGCGCC\tgggggggggghgggfggggggdggggggggggggggggggefeggdgggg\tNH:i:2",
+                      "seq2\t83\tchr2\t3424\t255\t50M\t=\t2927\t-547\tGATGAACTCGGACCTCAAGGCTCAGCTCAGGGAGCTGAATATTACGGCAG\tgggggggggggggfggggggggggggfgggfggggggggggggggggghg\tNH:i:2",
+                      "seq3\t163\tchr2\t5346\t255\t19M2335N31M\t=\t7796\t2500\tAGCAAAAGCGTCCCAGGAGCCGTACTCTGACAGCTGTGCACGATGCCATC\tgggggggggggggggggfggggggggggggggggdggggggggggegggg\tNH:i:3",
+                      "seq3\t83\tchr2\t7796\t255\t50M\t=\t5346\t-2500\tCCGGCTCATAAAGGTTCATTTGGACAAAGCACAGCAGAACAATGTGGAAC\tgggggggggggggggggggggggggggggggggggggggggggggggggg\tNH:i:3",
+                      "seq4\t99\tchr3\t2413\t255\t50M\t=\t12343\t9980\tCGGGAGATTCACCAGGACTGGGCTGACCAGGAGTACATTGAGATAATCAC\teggegddceedggggeZcec^]`^`ffffcTTSUTTSSTTfffaf]``]^\tNH:i:4",
+                      "seq4\t147\tchr3\t12343\t255\t50M\t=\t2413\t-9980\tACGAGAAATTGACAGCCCTTGAACGGAGAATAGAGTACATTGAAGCTCGG\tacaaccaeccTTTSS_]_]`__P__SSTTTgdgggghgbgTTTTSggggg\tNH:i:4",
+                      "seq5\t419\tchr1\t23628\t255\t50M\t=\t24226\t648\tCTCGTCCACTTTGAGTTCCTCGTTGAGCCTGATGGCGTCGGCAACCTCCT\tggfegfeeffTSSTSd`bbcc^c```^cc[aeefa_TT[ZTTTTTZ_[ZZ\tNH:i:1",
+                      "seq5\t339\tchr1\t24226\t255\t50M\t=\t23628\t-648\tTCCACGGCGCGGAAGTGTGTCTTGCTCTCCTCCATGGCCTCCTGGAAGTG\tgggggggfgfW`]``ggggggfdgd^^c``[d_cbgdggggdgeggggb^\tNH:i:1",
+                      "seq6\t77\t*\t0\t0\t*\t*\t0\t0\tGCCGCCCTCGCAGTGCTGCCAGAGAAGGGAGGGCATCCCCTGAGCCGCCG\tggggggggggggggggggggggggggggggggfffggggggggggdgggg",
+                      "seq6\t141\t*\t0\t0\t*\t*\t0\t0\tGGCCCCAAGGCCCCCGTCCCGCAGCCACGCTTGTGGTCGCTGCGTCCCGG\tgggggggggggggggggggggggggggdgcgggedbe`^bEbV__ed^bc"),
+             con = samf1)
+
+  # arguments
+  expect_error(fun(   1L, samf2,     1L))
+  expect_error(fun(samf1,    1L,     1L))
+  expect_error(fun(samf1, samf2,    "1L"))
+  expect_error(fun("err", samf2,     1L))
+
+  # results
+  r0 <- fun(samf1, samf2, 0L); n0 <- length(readLines(samf2))
+  r1 <- fun(samf1, samf2, 1L); n1 <- length(readLines(samf2))
+  r2 <- fun(samf1, samf2, 2L); n2 <- length(readLines(samf2))
+  r3 <- fun(samf1, samf2, 3L); n3 <- length(readLines(samf2))
+  r4 <- fun(samf1, samf2, 4L); n4 <- length(readLines(samf2))
+
+  expect_identical(n0, 14L)
+  expect_identical(n1, 14L)
+  expect_identical(n2, 14L)
+  expect_identical(n3, 14L)
+  expect_identical(n4, 14L)
+  
+  expect_identical(r0, c(n_secondary=2L, n_overmapped=8L))
+  expect_identical(r1, c(n_secondary=2L, n_overmapped=6L))
+  expect_identical(r2, c(n_secondary=2L, n_overmapped=4L))
+  expect_identical(r3, c(n_secondary=2L, n_overmapped=2L))
+  expect_identical(r4, c(n_secondary=2L, n_overmapped=0L)) 
+})

@@ -25,12 +25,25 @@ test_that("alignmentStats works as expected", {
 
 context("qAlign")
 
-test_that("qAlign distests arguments correctly", {
+test_that("qAlign digests arguments correctly", {
   expect_error(qAlign("nonexistent_file"))
   expect_error(qAlign(genome = genomeFile))
   expect_error(qAlign(sChipSingle, genome = genomeFile[c(1,1)]))
   expect_error(qAlign(sampleFile = sChipSingle))
   expect_error(qAlign(sChipSingle, genomeFile, splicedAlignment = TRUE, checkOnly = TRUE))
+  expect_error(qAlign(sChipSingle, genomeFile, aligner = "unsupportedAligner"))
+  expect_error(qAlign(sChipSingle, genomeFile, lib.loc = "notADirectory"))
+  expect_error(qAlign(sChipSingle, genomeFile, alignmentsDir = "notADirectory"))
+  expect_error(qAlign(sChipSingle, genomeFile, aligner = "Rhisat2", bisulfite = "dir"))
+  expect_error(qAlign(sChipSingle, genomeFile, aligner = "Rbowtie", splicedAlignment = TRUE, bisulfite = "dir"))
+  expect_error(qAlign(sRnaPaired, genomeFile, aligner = "Rbowtie", splicedAlignment = TRUE, paired = "rf"))
+  expect_error(qAlign(sBisSingle, genomeFile, bisulfite = "invalid"))
+  expect_error(qAlign(sRnaPaired, genomeFile, bisulfite = "dir", paired = "rf"))
+  expect_error(qAlign(sRnaPaired, genomeFile, auxiliaryFile = "nonExisting"))
+  expect_error(qAlign(sRnaPaired, genomeFile, aligner = "Rhisat2", geneAnnotation = "nonExisting"))
+  expect_error(qAlign(sRnaPaired, genomeFile, paired = "invalid"))
+  expect_error(qAlign(sampleFile = "nonExisting", genomeFile))
+  expect_error(qAlign(sChipSingle, genomeFile, paired = "fr"))
 })
 
 test_that("qAlign correctly works for single reads", {
@@ -77,6 +90,38 @@ test_that("qAlign correctly works for paired-end reads (spliced, Rbowtie)", {
   expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(850, 2924, 2228)))))
   expect_identical(sum(as.numeric(start(aln))), 69243139)
   expect_identical(sum(as.numeric(end(aln))), 71021433)
+})
+
+test_that("qAlign correctly works for single reads (spliced, without splice site file, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaSingleSplicedHisat2@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 601L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(420, 1457, 1104)))))
+  expect_identical(sum(as.numeric(start(aln))), 34122868)
+  expect_identical(sum(as.numeric(end(aln))), 35028897)
+})
+
+test_that("qAlign correctly works for paired reads (unspliced, without splice site file, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedUnsplicedHisat2@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 868L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(766, 2055, 2089)))))
+  expect_identical(sum(as.numeric(start(aln))), 62093887)
+  expect_identical(sum(as.numeric(end(aln))), 62334263)
+})
+
+test_that("qAlign correctly works for paired reads (spliced, with splice site file from gtf, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2Gtf@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1000L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2913, 2207)))))
+  expect_identical(sum(as.numeric(start(aln))), 68278227)
+  expect_identical(sum(as.numeric(end(aln))), 70288159)
+})
+
+test_that("qAlign correctly works for paired reads (spliced, with splice site file from TxDb, Rhisat2)", {
+  aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2TxDb@alignments$FileName[1], use.names = TRUE)
+  expect_length(runValue(strand(aln)), 1000L)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2913, 2207)))))
+  expect_identical(sum(as.numeric(start(aln))), 68278227)
+  expect_identical(sum(as.numeric(end(aln))), 70288159)
 })
 
 test_that("qAlign correctly works in allelic mode", {

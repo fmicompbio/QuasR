@@ -1,26 +1,46 @@
+qProjectUpdate <- function(proj, quiet = TRUE) {
+  mod <- FALSE
+  if (!(.hasSlot(proj, "geneAnnotation"))) {
+    proj@geneAnnotation <- NA_character_
+    if (!quiet) message("Adding geneAnnotation slot")
+    mod <- TRUE
+  } 
+  if (!(.hasSlot(proj, "geneAnnotationFormat"))) {
+    proj@geneAnnotationFormat <- NA_character_
+    if (!quiet) message("Adding geneAnnotationFormat slot")
+    mod <- TRUE
+  }
+  if (!mod) {
+    if (!quiet) message("qProject is up to date")
+  }
+  proj
+}
+
 ### qProject class definition
 setClass("qProject",
-         representation(reads="data.frame",
-                        reads_md5subsum="data.frame",
-                        alignments="data.frame",
-                        samplesFormat="character",
-                        genome="character",
-                        genomeFormat="character",
-                        aux="data.frame",
-                        auxAlignments="data.frame",
-                        aligner="character",
-                        maxHits="numeric",
-                        paired="character",
-                        splicedAlignment="logical",
-                        snpFile="character",
-                        bisulfite="character",
-                        alignmentParameter="character",
-                        projectName="character",
-                        alignmentsDir="character",
-                        lib.loc="character",
-                        cacheDir="character",
-                        alnModeID="character")
-         )
+         slots = c(reads="data.frame",
+                   reads_md5subsum="data.frame",
+                   alignments="data.frame",
+                   samplesFormat="character",
+                   genome="character",
+                   genomeFormat="character",
+                   aux="data.frame",
+                   auxAlignments="data.frame",
+                   aligner="character",
+                   maxHits="numeric",
+                   paired="character",
+                   splicedAlignment="logical",
+                   snpFile="character",
+                   bisulfite="character",
+                   alignmentParameter="character",
+                   projectName="character",
+                   alignmentsDir="character",
+                   lib.loc="character",
+                   cacheDir="character",
+                   alnModeID="character",
+                   geneAnnotation="character",
+                   geneAnnotationFormat="character")
+)
 
 ### Methods
 setMethod("length", "qProject", function(x) nrow(x@reads))
@@ -77,14 +97,17 @@ setMethod("[", signature(x="qProject", i="ANY", j="missing", drop="missing"), fu
 #setGeneric("niceprint", function(x) print(x))
 #setMethod("niceprint", "qProject", function(object) {
 setMethod("show", "qProject", function(object) {
-    # projet and global options
+    # project and global options
     cat("Project: " , object@projectName, "\n", sep="")
     cat(" Options   : maxHits         : ", object@maxHits,
         "\n             paired          : ", object@paired,
         "\n             splicedAlignment: ", object@splicedAlignment,
         "\n             bisulfite       : ", object@bisulfite,
-        "\n             snpFile         : ", if(is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32), "\n", sep="")
-    if(is.na(object@aligner))
+        "\n             snpFile         : ", if(length(object@snpFile) == 0 || is.na(object@snpFile)) "none" else truncPath(object@snpFile,getOption("width")-32),
+        "\n             geneAnnotation  : ", if(length(object@geneAnnotation) == 0 || is.null(object@geneAnnotation) || is.na(object@geneAnnotation)) "none" else paste0(truncPath(object@geneAnnotation,getOption("width")-39), 
+                                                                                                                                   " (", object@geneAnnotationFormat, ")"),
+        "\n", sep="")
+    if(length(object@aligner) == 0 || is.na(object@aligner))
         cat(" Aligner   : unknown\n")
     else
         cat(" Aligner   : ", object@aligner, " v", as.character(packageVersion(object@aligner)),
@@ -97,7 +120,9 @@ setMethod("show", "qProject", function(object) {
     ns <- length(unique(object@reads$SampleName))
     nss <- if(ns>1) "s" else ""
     cat("\n")
-    if(object@samplesFormat == "bam") {
+    if (length(object@samplesFormat) == 0) {
+      cat(" Reads     : none\n")
+    } else if(object@samplesFormat == "bam") {
         cat(" Reads     : none (bam file project)\n")
     } else {
         cat(" Reads     : ", nf, if(object@paired != "no") paste(" pair",nfs," of files, ",sep="") else paste(" file",nfs,", ",sep=""),
@@ -118,15 +143,19 @@ setMethod("show", "qProject", function(object) {
     }
     # alignments
     cat("\n")
-    cat(" Genome alignments: directory: ", if(is.na(object@alignmentsDir)) { if(object@samplesFormat == "bam") "not applicable (bam file project)" else "same as reads" } else truncPath(object@alignmentsDir,getOption("width")-31),"\n", sep="")
+    cat(" Genome alignments: directory: ", if (length(object@alignmentsDir) == 0) "" else if(is.na(object@alignmentsDir)) { if(object@samplesFormat == "bam") "not applicable (bam file project)" else "same as reads" } else truncPath(object@alignmentsDir,getOption("width")-31),"\n", sep="")
     #fw <- min(getOption("width") -8 -sw, max(nchar(basename(object@alignments[,"FileName"]))))
     #cat(sprintf(" %3d. %-*s  %-*s\n", 1:nf, fw, truncString(basename(object@alignments[,"FileName"]), fw), sw, object@reads$SampleName), sep="")
-    fw <- min(getOption("width") -6, max(nchar(basename(object@alignments[,"FileName"]))))
-    cat(sprintf(" %3d. %-*s\n", 1:nf, fw, truncString(basename(object@alignments[,"FileName"]), fw)), sep="")
+    if (length(object@alignments) > 0) {
+      tmpmax <- suppressWarnings(max(nchar(basename(object@alignments[,"FileName"])), na.rm = TRUE))
+      if (!is.finite(tmpmax)) tmpmax <- Inf
+      fw <- min(getOption("width") -6, tmpmax)
+      cat(sprintf(" %3d. %-*s\n", 1:nf, fw, truncString(basename(object@alignments[,"FileName"]), fw)), sep="")
+      cat("\n")
+    } 
     # auxiliaries
-    cat("\n")
     cat(" Aux. alignments: ", if(nrow(object@aux)==0) "none" else paste(nrow(object@aux), " file", if(nrow(object@aux)>1) "s" else "", ", directory: ", if(is.na(object@alignmentsDir)) "same as reads" else truncPath(object@alignmentsDir,getOption("width")-38), sep=""), "\n", sep="")
-    if(nrow(object@aux)>0) {
+    if(length(object@aux)>0) {
         for(i in seq.int(nrow(object@aux))) {
             fw <- getOption("width") -8 -nchar(object@aux[i,'AuxName'])
             cat(sprintf(" %3s. %-*s  %-s\n", letters[i], fw, truncPath(object@aux[i,'FileName'], fw), object@aux[i,'AuxName']))

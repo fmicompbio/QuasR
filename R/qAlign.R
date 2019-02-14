@@ -8,10 +8,11 @@
 # The orientation for paired end is set to "fr" by default. In case of bam input files, the user needs to specify manually the 
 # status ("no","fr","rf","ff")
 # snpFile need four columns (chrom, pos, ref, alt) with no header
+# geneAnnotation should be the path to either a gtf file or a TxDb sqlite file
 
 qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", maxHits=1, paired=NULL,
                    splicedAlignment=FALSE, snpFile=NULL, bisulfite="no", alignmentParameter=NULL, projectName="qProject",
-                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE){
+                   alignmentsDir=NULL, lib.loc=NULL, cacheDir=NULL, clObj=NULL, checkOnly=FALSE, geneAnnotation=NULL){
 
   # check if the user provided a samplefile and a genome
   if(missing(sampleFile)){stop("Missing 'sampleFile' parameter.")}
@@ -19,9 +20,9 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 
   # create a qProject, perform various tests, install required BSgenome and load aligner package
   # create fasta indices (.fai) files for all the reference sequences (genome & aux) as well as all md5 sum files
-  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir)
+  proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, lib.loc, cacheDir, geneAnnotation)
 
-  # display the status of the project. in case of checkOnly=TRUE, through an exception if there are alignment files missing
+  # display the status of the project. in case of checkOnly=TRUE, throw an exception if there are alignment files missing
   missingFilesMessage(proj,checkOnly)
 
   # check if there are any genomic alignment files missing. if so, create index and align
@@ -37,8 +38,13 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
       # create indices for the two secondary genomes specified by snps
       buildIndexSNP(proj@snpFile,paste(proj@snpFile,proj@alnModeID,sep="."),proj@genome,proj@genomeFormat,proj@alnModeID,resolveCacheDir(proj@cacheDir))
     }
+    
+    # Rhisat2, generate splice site file
+    if (proj@aligner == "Rhisat2" && !is.na(proj@geneAnnotation)) {
+      buildSpliceSiteFile(proj@geneAnnotation, proj@geneAnnotationFormat)
+    }
 
-    # align to the genome (qProject gets upadated with the alignment file names)
+    # align to the genome (qProject gets updated with the alignment file names)
     proj <- createGenomicAlignments(proj, clObj)
 
   }
@@ -62,6 +68,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile=NULL, aligner="Rbowtie", ma
 missingFilesMessage <- function(proj, checkOnly){
 
   genomeIndexNeedsToBeCreated <- FALSE
+  spliceSiteFileNeedsToBeCreated <- FALSE
   genomicAlignmentsNeedToBeCreated <- sum(is.na(proj@alignments$FileName))
   auxAlignmentsNeedToBeCreated <- sum(is.na(proj@auxAlignments))
 
@@ -94,13 +101,21 @@ missingFilesMessage <- function(proj, checkOnly){
         genomeIndexNeedsToBeCreated <- TRUE
       }
     }
+    
+    ## Splice site file
+    if (!is.null(proj@geneAnnotation) && !is.na(proj@geneAnnotation)) {
+      if (!file.exists(paste0(proj@geneAnnotation, ".SpliceSites.txt"))) {
+        spliceSiteFileNeedsToBeCreated <- TRUE
+      }
+    }
   }
 
-  if(!genomeIndexNeedsToBeCreated & genomicAlignmentsNeedToBeCreated==0 & auxAlignmentsNeedToBeCreated==0){
+  if(!genomeIndexNeedsToBeCreated & !spliceSiteFileNeedsToBeCreated & genomicAlignmentsNeedToBeCreated==0 & auxAlignmentsNeedToBeCreated==0){
     message("all necessary alignment files found")
   }else{
     message("alignment files missing - need to:")
     if(genomeIndexNeedsToBeCreated){message("    create alignment index for the genome")}
+    if(spliceSiteFileNeedsToBeCreated){message("    create splice site file for gene annotation")}
     if(genomicAlignmentsNeedToBeCreated>0){message("    create ",genomicAlignmentsNeedToBeCreated," genomic alignment(s)")}
     if(auxAlignmentsNeedToBeCreated>0){message("    create ",auxAlignmentsNeedToBeCreated," auxiliary alignment(s)")}
 
@@ -122,7 +137,7 @@ missingFilesMessage <- function(proj, checkOnly){
 # read all the input information, perform various checks and compile the data into a qProject object
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, paired, splicedAlignment, 
                            snpFile, bisulfite, alignmentParameter, projectName, alignmentsDir, 
-                           lib.loc, cacheDir){
+                           lib.loc, cacheDir, geneAnnotation){
 
   # instantiate a qProject
   proj <-new("qProject")
@@ -184,6 +199,24 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     }
   }
 
+  # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
+  if (!is.null(geneAnnotation)) {
+    if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 && 
+        file.exists(geneAnnotation) && 
+        tools::file_ext(geneAnnotation) %in% c("gtf", "gff", "gff3", "sqlite")) {
+      if (tools::file_ext(geneAnnotation) == "sqlite") {
+        proj@geneAnnotationFormat <- "TxDb"
+      } else {
+        proj@geneAnnotationFormat <- "gtf"
+      }
+    } else {
+      stop("'geneAnnotation' must be a path to an existing sqlite, gtf or gff file.")
+    }
+    proj@geneAnnotation <- tools::file_path_as_absolute(geneAnnotation)
+  } else {
+    proj@geneAnnotation <- NA_character_
+    proj@geneAnnotationFormat <- NA_character_
+  }
 
   # ---------------------------------------- PARSE THE PAIRED PARAMETER ---------------------------------
   if(!is.null(paired)){
@@ -212,7 +245,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           samples$FileName[i] <- pathRet
         }else{stop(samples$FileName[i]," listed in ",sampleFile," does not exist",call.=FALSE)}
       }
-      # deterime format of the files (fa,fasta,fna)
+      # determine format of the files (fa,fasta,fna)
       proj@samplesFormat <- determineSamplesFormat(samples$FileName)
 
       if(proj@samplesFormat == "bam"){
@@ -262,7 +295,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
           samples$FileName2[i] <- pathRet
         }else{stop(samples$FileName2[i]," listed in ",sampleFile," does not exist",call.=FALSE)}
       }
-      # deterime format of the files (fa,fasta,fna)
+      # determine format of the files (fa,fasta,fna)
       proj@samplesFormat <- determineSamplesFormat(c(samples$FileName1,samples$FileName2))
 
       if(proj@samplesFormat == "bam"){stop("Bam files need to be listed in a two column file: ",sampleFile,call.=FALSE)}
@@ -392,42 +425,6 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   # ----------------------------------- PARSE MAXHITS PARAMETER --------------------------------------
   proj@maxHits <- maxHits
 
-  #------------------------------------ PARSE SPLICED ALIGNMENT PARAMETER ---------------------------
-  proj@splicedAlignment <- splicedAlignment
-  if(proj@splicedAlignment & (proj@bisulfite!="no")){stop("The spliced alignment mode is not supported for bisulfite samples")}
-  if(proj@splicedAlignment & !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode only supports the pair orientation 'fr'")}
-
-  #------------------------------------ PARSE THE ALIGNMENT PRAMETERS ----------------------------------
-  if(is.null(alignmentParameter)){
-    if(!proj@splicedAlignment){
-      # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
-      # to be reinforced by bowtie.
-      if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
-        proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
-      }else{
-        proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
-      }
-      # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
-      if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
-        proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
-      }
-      if(proj@paired != "no"){
-        proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
-      }
-
-    }else{
-      if(is.na(proj@snpFile)){
-        proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
-      }else{
-        proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
-      }
-    }
-  }else{
-    if(length(alignmentParameter)==1){
-      proj@alignmentParameter <- alignmentParameter
-    }else{stop("The alignmentParameter should contain only a single character string",call.=FALSE)}
-  }
-
   #------------------------------------ PARSE THE PROJECT NAME ----------------------------------
   if(is.null(projectName)){
     proj@projectName <- NA_character_
@@ -488,7 +485,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
   # --------------- SET THE ALIGNERMODE ID AND LOAD THE ALIGNER PACKAGE IF REQUIRED --------------------
 
-  supportedAligners <- c("Rbowtie")
+  supportedAligners <- c("Rbowtie", "Rhisat2")
   if(aligner %in% supportedAligners){
     proj@aligner <- aligner
   }else{stop("The specified aligner is unknown, please select one of the following: ",paste(supportedAligners,collapse=","),call.=FALSE)}
@@ -496,8 +493,14 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   if((proj@samplesFormat %in% c("fasta","fastq")) & (proj@bisulfite=="no")){
     alnModeID <- proj@aligner
   }else if((proj@samplesFormat %in% c("fasta","fastq")) & (proj@bisulfite!="no")){
+    if(aligner == "Rhisat2"){
+      stop("Bisulfite alignment mode is not available for Rhisat2")
+    }
     alnModeID <- paste(proj@aligner,"CtoT",sep="")
   }else if((proj@samplesFormat %in% c("csfasta","csfastq")) & proj@bisulfite=="no"){
+    if(aligner == "Rhisat2"){
+      stop("Color space alignment mode is not available for Rhisat2")
+    }
     alnModeID <- paste(proj@aligner,"Cs",sep="")
   }else if((proj@samplesFormat %in% c("csfasta","csfastq")) & proj@bisulfite!="no"){
     stop("Bisulfite alignment mode is not available for color space reads")
@@ -521,7 +524,57 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     #QuasR_suggests_pkg <- grep(pkgname, QuasR_suggests, value=T)
   }
 
-
+  #------------------------------------ PARSE SPLICED ALIGNMENT PARAMETER ---------------------------
+  proj@splicedAlignment <- splicedAlignment
+  if(proj@splicedAlignment & (proj@bisulfite!="no")){stop("The spliced alignment mode is not supported for bisulfite samples")}
+  if(proj@aligner == "Rbowtie" && proj@splicedAlignment && !(proj@paired %in% c("no","fr"))){stop("The spliced alignment mode with Rbowtie only supports the pair orientation 'fr'")}
+  
+  #------------------------------------ PARSE THE ALIGNMENT PARAMETERS ----------------------------------
+  if (is.na(proj@aligner)) {
+    proj@alignmentParameter <- ""
+  } else {
+    if(is.null(alignmentParameter)){
+      if(!proj@splicedAlignment){
+        if(proj@aligner == "Rbowtie"){  # bowtie
+          # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to 
+          # to be reinforced by bowtie.
+          if((proj@bisulfite == "no") && (is.na(proj@snpFile))){
+            proj@alignmentParameter <- paste("-m",proj@maxHits,"--best --strata")
+          }else{
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--best --strata")
+          }
+          # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
+          if((proj@samplesFormat == "fasta") || !is.null(snpFile)){ 
+            proj@alignmentParameter <- paste(proj@alignmentParameter,"-v 2")
+          }
+          if(proj@paired != "no"){
+            proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
+          }
+        }else{  # hisat2
+          proj@alignmentParameter <- paste("-k",proj@maxHits+1)
+        }
+      }else{
+        if(proj@aligner == "Rbowtie") {  # spliced, bowtie
+          if(is.na(proj@snpFile)){
+            proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit TRUE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+          }else{
+            proj@alignmentParameter <- "-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selectSingleHit FALSE -seed_mismatch 1 -read_mismatch 2 -try_hard yes"
+          }
+        } else{  # spliced, hisat2
+          if (!is.na(proj@geneAnnotation)) {
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--known-splicesite-infile",paste0(proj@geneAnnotation,".SpliceSites.txt"))
+          } else {
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1)
+          }
+        }
+      }
+    }else{
+      if(length(alignmentParameter)==1){
+        proj@alignmentParameter <- alignmentParameter
+      }else{stop("The alignmentParameter should contain only a single character string",call.=FALSE)}
+    }
+  }
+  
   # ---------------------------------- CREATE .fai AND .md5 FILES --------------------------
 
   # create fasta indices (.fai) files for all the reference sequences (genome & aux)
@@ -535,6 +588,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
   for(i in 1:nrow(proj@reads)){
     if(is.na(proj@alignments$FileName[i])){
        projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i))
+       
        if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
        samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
        filesInBamDir <- list.files(bamDir, pattern=".bam$")
@@ -552,6 +606,15 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
            bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
 
            # compare the actual parameters to the one from the bam file on disk
+           ## Exclude slots related to the geneAnnotation if the aligner is Rbowtie
+           if (proj@aligner == "Rbowtie") {
+             projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                            c("geneAnnotation", "geneAnnotationFormat",
+                                              "geneAnnotation.md5"))]
+             bamInfoT <- bamInfoT[!(names(bamInfoT) %in% 
+                                      c("geneAnnotation", "geneAnnotationFormat",
+                                        "geneAnnotation.md5"))]
+           }
            if(identical(projBamInfo,bamInfoT)){
              compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
            }
@@ -572,41 +635,49 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
     for(i in 1:ncol(proj@auxAlignments)){
       for(j in 1:nrow(proj@auxAlignments)){
         projBamInfo <- bamInfoOnlyBaseName(qProjectBamInfo(proj,i,j))
-          if(is.na(proj@auxAlignments[j,i])){
-           if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
-           samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
-           filesInBamDir <- list.files(bamDir, pattern=".bam$")
-           bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
-           bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
-           bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
-           bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
-
-           compatibleBamFileInd=NULL
-           if(length(bamTxtFilesToInspectExist)>0){
-             for(m in 1:length(bamTxtFilesToInspectExist)){
-               bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],header=FALSE,row.names=1,stringsAsFactors=FALSE)
-               bamInfoT <- bamInfoT_DF[,1]
-               names(bamInfoT) <- rownames(bamInfoT_DF)
-               bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
-
-               # compare the actual parameters to the one from the bam file on disk
-               if(identical(projBamInfo,bamInfoT)){
-                 compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
-               }
-             }
-             if(length(compatibleBamFileInd)>1){
-               for(k in 1:length(compatibleBamFileInd)){message(bamFilesToInspectWithTxt[k])}
-               stop("Multiple bam files exist with same alignment parameters (see above list). QuasR is unable to decide which one to use. Please delete manually the respective bam files",call.=FALSE)
-             }
-             if(length(compatibleBamFileInd)==1){
-               proj@auxAlignments[j,i] <- bamFilesToInspectWithTxt[compatibleBamFileInd]
-             }
-           }
-         }
+      
+        if(is.na(proj@auxAlignments[j,i])){
+          if(is.na(proj@alignmentsDir)){bamDir <- dirname(proj@reads[i,1])}else{bamDir <- proj@alignmentsDir}
+          samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i,1],compression=TRUE))
+          filesInBamDir <- list.files(bamDir, pattern=".bam$")
+          bamFilesToInspect <- filesInBamDir[sub("\\_[^\\_]+.bam$","",filesInBamDir)==samplePrefix]
+          bamTxtFilesToInspect <- paste(file.path(bamDir,bamFilesToInspect),"txt",sep=".")
+          bamTxtFilesToInspectExist <- bamTxtFilesToInspect[file.exists(bamTxtFilesToInspect)]
+          bamFilesToInspectWithTxt <- file.path(bamDir,bamFilesToInspect[file.exists(bamTxtFilesToInspect)])
+          
+          compatibleBamFileInd=NULL
+          if(length(bamTxtFilesToInspectExist)>0){
+            for(m in 1:length(bamTxtFilesToInspectExist)){
+              bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],header=FALSE,row.names=1,stringsAsFactors=FALSE)
+              bamInfoT <- bamInfoT_DF[,1]
+              names(bamInfoT) <- rownames(bamInfoT_DF)
+              bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
+              
+              # compare the actual parameters to the one from the bam file on disk
+              if (proj@aligner == "Rbowtie") {
+                projBamInfo <- projBamInfo[!(names(projBamInfo) %in% 
+                                               c("geneAnnotation", "geneAnnotationFormat",
+                                                 "geneAnnotation.md5"))]
+                bamInfoT <- bamInfoT[!(names(bamInfoT) %in% 
+                                         c("geneAnnotation", "geneAnnotationFormat",
+                                           "geneAnnotation.md5"))]
+              }
+              if(identical(projBamInfo,bamInfoT)){
+                compatibleBamFileInd[length(compatibleBamFileInd)+1] <- m
+              }
+            }
+            if(length(compatibleBamFileInd)>1){
+              for(k in 1:length(compatibleBamFileInd)){message(bamFilesToInspectWithTxt[k])}
+              stop("Multiple bam files exist with same alignment parameters (see above list). QuasR is unable to decide which one to use. Please delete manually the respective bam files",call.=FALSE)
+            }
+            if(length(compatibleBamFileInd)==1){
+              proj@auxAlignments[j,i] <- bamFilesToInspectWithTxt[compatibleBamFileInd]
+            }
+          }
+        }
       }
     }
   }
-
 
   return(proj)
 }
@@ -679,6 +750,14 @@ createReferenceSequenceIndices <- function(proj){
       write.table(tools::md5sum(proj@snpFile),paste(proj@snpFile,"md5",sep="."),sep="\t",quote=FALSE,col.names=FALSE,row.names=FALSE)
     }
   }
+  
+  # create md5 sum file for the geneAnnotation
+  if (!is.na(proj@geneAnnotation)) {
+    if (!file.exists(paste0(proj@geneAnnotation, ".md5"))) {
+      write.table(tools::md5sum(proj@geneAnnotation), paste0(proj@geneAnnotation, ".md5"),
+                  sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+    }
+  }
 }
 
 
@@ -728,6 +807,9 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
   alnInfo["snpFile.md5"]=NA
   alnInfo["bisulfite"]=proj@bisulfite
   alnInfo["alignmentParameter"]=proj@alignmentParameter
+  alnInfo["geneAnnotation"] <- proj@geneAnnotation
+  alnInfo["geneAnnotationFormat"] <- proj@geneAnnotationFormat
+  alnInfo["geneAnnotation.md5"] <- NA
   alnInfo["QuasR.version"] = as.character(packageVersion('QuasR'))
 
   if(!is.null(auxNr)){
@@ -737,6 +819,11 @@ qProjectBamInfo <- function(proj,sampleNr,auxNr=NULL){
 
   if(!is.na(proj@snpFile)){
     alnInfo["snpFile.md5"]=as.character(read.delim(paste(proj@snpFile,"md5",sep="."),header=FALSE,colClasses="character")[1,1])
+  }
+  if (!is.na(proj@geneAnnotation)) {
+    alnInfo["geneAnnotation.md5"] <- as.character(read.delim(paste0(proj@geneAnnotation, ".md5"),
+                                                             header = FALSE, 
+                                                             colClasses = "character")[1, 1])
   }
 
   return(alnInfo)
@@ -751,6 +838,7 @@ bamInfoOnlyBaseName <- function(bamInfo){
   bamInfo["genome"] <- basename(bamInfo["genome"])
   bamInfo["aux"] <- basename(bamInfo["aux"])
   bamInfo["snpFile"] <- basename(bamInfo["snpFile"])
+  bamInfo["geneAnnotation"] <- basename(bamInfo["geneAnnotation"])
 
   if("aligner.version" %in% names(bamInfo)){
     bamInfo <- bamInfo[!(names(bamInfo) %in% "aligner.version")]

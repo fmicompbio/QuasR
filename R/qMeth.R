@@ -46,6 +46,8 @@ qMeth <-
             stop("'proj' is not a bisufite-seq project")
         if(proj@splicedAlignment)
             stop("'spliceAlignment==TRUE' is not supported by qMeth")
+      if (proj@aligner == "Rhisat2")
+        stop("Rhisat2 is not supported by qMeth")
 
         samples <- proj@alignments$SampleName
         nsamples <- length(samples)

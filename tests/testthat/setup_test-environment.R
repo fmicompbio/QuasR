@@ -28,6 +28,10 @@ genomeFile    <- file.path("extdata", "hg19sub.fa")
 snpFile       <- file.path("extdata", "hg19sub_snp.txt")
 auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
 auxFile       <- file.path("extdata", "auxiliaries.txt")
+gtfFile       <- file.path("extdata", "hg19sub_annotation.gtf")
+txdbFile      <- file.path("extdata", "hg19sub_annotation.sqlite")
+txdb <- GenomicFeatures::makeTxDbFromGFF(gtfFile, format = "gtf")
+AnnotationDbi::saveDb(txdb, file = txdbFile)
 
 sChipSingle   <- file.path("extdata", "samples_chip_single.txt")
 sRnaSingle    <- file.path("extdata", "samples_rna_single.txt")
@@ -45,6 +49,18 @@ pChipSingleSnps   <- qAlign(sChipSingle,  genomeFile, snpFile = snpFile, clObj =
 pRnaPaired        <- qAlign(sRnaPaired,   genomeFile, clObj = clObj)
 pRnaSingleSpliced <- qAlign(sRnaSingle,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
 pRnaPairedSpliced <- qAlign(sRnaPaired,   genomeFile, splicedAlignment = TRUE, aligner = "Rbowtie", clObj = clObj)
+
+pRnaSingleSplicedHisat2 <- qAlign(sRnaSingle, genomeFile, alignmentsDir = "extdata", 
+                                  splicedAlignment = TRUE, aligner = "Rhisat2", clObj = clObj)
+pRnaPairedUnsplicedHisat2 <- qAlign(sRnaPaired, genomeFile, splicedAlignment = FALSE, 
+                                    aligner = "Rhisat2", clObj = clObj)
+pRnaPairedSplicedHisat2Gtf <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE,
+                                     aligner = "Rhisat2", clObj = clObj, geneAnnotation = gtfFile)
+pRnaPairedSplicedHisat2TxDb <- qAlign(sRnaPaired, genomeFile, splicedAlignment = TRUE, 
+                                      aligner = "Rhisat2", clObj = clObj, geneAnnotation = txdbFile)
+
+pBis              <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", clObj = clObj)
+
 pBisUndir         <- qAlign(sBisSingle,   genomeFile, bisulfite = "undir", clObj = clObj)
 pBisSnps          <- qAlign(sBisSingle,   genomeFile, bisulfite = "dir", snpFile = snpFile, clObj = clObj)
 pPhiX             <- qAlign(file.path("extdata", "phiX_paired_withSecondary_sampleFile.txt"),
