@@ -3,14 +3,6 @@
 language: r
 r: bioc-devel
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
-      - libstdc++-7-dev
-
 warnings_are_errors: false
 cache: packages
 
