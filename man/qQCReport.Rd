@@ -5,8 +5,8 @@
 
 \description{
 Generate quality control plots for a \code{qProject} object or a vector
-of fasta/fastq/bam files. The available plot vary depending on the types
-of available input (fasta, fastq or bam files).
+of fasta/fastq/bam files. The available plots vary depending on the types
+of available input (\code{qProject} object, fasta, fastq or bam files).
 }
 
 \usage{
@@ -55,34 +55,33 @@ of available input (fasta, fastq or bam files).
       base quality values as a box plot for each position in the input
       sequence. The background color (green, orange or red)
       indicates ranges of high, intermediate and low qualtities. The
-      plot is available for fastq and bam files.}
+      plot is not available for fasta files.}
     \item{\emph{Nucleotide frequency}}{plot shows the frequency of A, C,
       G, T and N bases by position in the read. The plot is always
       available.}
     \item{\emph{Duplication level}}{plot shows for each sample the
       fraction of reads observed at different duplication levels
       (e.g. once, two-times, three-times, etc.). In addition, the most
-      frequent sequences are listed. The plot is available for fasta,
-      fastq and bam files.}
+      frequent sequences are listed. The plot is always available.}
     \item{\emph{Mapping statistics}}{shows fractions of reads that were
       (un)mappable to the reference genome. This plot is available for
-      bam input.}
+      bam files and \code{qProject} object input.}
     \item{\emph{Library complexity}}{shows fractions of unique
       read(-pair) alignment positions, as a measure of the complexity in
       the sequencing library. Please note that this measure is not
       independent from the total number of reads in a library, and is best
       compared between libraries of similar sizes. This plot is
-      available for bam input.}
+      available for \code{qProject} object input.}
     \item{\emph{Mismatch frequency}}{shows the frequency and position
       (relative to the read sequence) of mismatches in the alignments
-      against the reference genome. The plot is available for bam input.}
+      against the reference genome. The plot is available for \code{qProject} object input.}
     \item{\emph{Mismatch types}}{shows the frequency of
       read bases that caused mismatches in the alignments to the
       reference genome, separately for each genome base. This plot is
-      available for bam input.}
+      available for \code{qProject} object input.}
     \item{\emph{Fragment size}}{shows the distribution of fragment sizes
       inferred from aligned read pairs. This plot is available for
-      paired-end bam input.}
+      paired-end \code{qProject} object input.}
   }
 
   One approach to assess the quality of a sample is to compare its
