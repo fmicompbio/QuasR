@@ -134,6 +134,8 @@ calcMmInformation <- function(filename, genome, chunkSize){
 
 qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FALSE, clObj=NULL, ...)
 {
+    gpars <- par()
+    on.exit(par(gpars))
     # 'proj' is correct type?
     if(inherits(input, "qProject", which=FALSE)){
         filetype <- input@samplesFormat
