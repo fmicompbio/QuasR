@@ -1,3 +1,5 @@
+RNGversion("3.5")
+
 # copy sample data
 file.copy(system.file("extdata", package = "QuasR"), ".", recursive = TRUE)
 
