@@ -218,7 +218,7 @@ md5subsum <-
         # (non-uniform, see https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=17494,
         #  but QuasR on R-3.6 would otherwise re-create all bam files created by QuasR on R-3.5 or earlier)
         suppressWarnings(rng.orig <- RNGkind(kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rounding"))
-        on.exit(RNGkind(kind = rng.orig[1], normal.kind = rng.orig[2], sample.kind = rng.orig[3]))
+        on.exit(suppressWarnings(RNGkind(kind = rng.orig[1], normal.kind = rng.orig[2], sample.kind = rng.orig[3])))
         
         # calculate md5sum() on a repoducible random subset of the file's content
         unlist(lapply(filenames, function(fname) {
