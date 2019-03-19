@@ -32,6 +32,8 @@ of available input (fasta, fastq, bam files or \code{qProject} object; paired-en
       will not be unique.}
     \item{clObj}{a cluster object to be used for parallel processing of
       multiple input files.}
+    \item{a4layout}{a logical scalar. If TRUE, the output of mapping rate and 
+      uniqueness plots will be adjusted for a4 format devices.}
     \item{\dots}{additional arguments that will be passed to the functions
       generating the individual quality control plots, see \sQuote{Details}.}
 }
