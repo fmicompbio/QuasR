@@ -54,7 +54,7 @@ of available input (fasta, fastq, bam files or \code{qProject} object; paired-en
     \item{\emph{Quality score boxplot}}{shows the distribution of
       base quality values as a box plot for each position in the input
       sequence. The background color (green, orange or red)
-      indicates ranges of high, intermediate and low qualtities.}
+      indicates ranges of high, intermediate and low qualities.}
     \item{\emph{Nucleotide frequency}}{plot shows the frequency of A, C,
       G, T and N bases by position in the read.}
     \item{\emph{Duplication level}}{plot shows for each sample the
