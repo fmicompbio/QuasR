@@ -11,7 +11,7 @@ of available input (fasta, fastq, bam files or \code{qProject} object; paired-en
 
 \usage{
     qQCReport(input, pdfFilename=NULL, chunkSize=1e6L,
-              useSampleNames=FALSE, clObj=NULL, a4layout, \dots)
+              useSampleNames=FALSE, clObj=NULL, a4layout=TRUE, \dots)
 }
 
 \arguments{
