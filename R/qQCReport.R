@@ -132,7 +132,7 @@ calcMmInformation <- function(filename, genome, chunkSize){
 }
 
 
-qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FALSE, clObj=NULL, ...)
+qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FALSE, clObj=NULL, a4layout=TRUE, ...)
 {
     gpars <- par()
     on.exit(par(gpars))
@@ -285,13 +285,13 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
         plotdata[['raw']][['mapdata']] <- mapdata
         if(is.null(pdfFilename))
             dev.new()
-        plotdata[['mappings']] <- plotMappings(mapdata, ...)
+        plotdata[['mappings']] <- plotMappings(mapdata, a4layout = a4layout, ...)
     }
 
     if(!is.null(unique)){
         if(is.null(pdfFilename))
             dev.new()
-        plotdata[['uniqueness']] <- plotUniqueness(unique, ...)
+        plotdata[['uniqueness']] <- plotUniqueness(unique, a4layout = a4layout, ...)
     }
         
     if(!is.null(mm)){
@@ -506,15 +506,15 @@ plotMappings <- function(mapdata, cols=c("#006D2C","#E41A1C"), a4layout=TRUE) {
     
     # set page layout
     if(a4layout)
-        layout(rbind(c(0,1),c(0,2),c(0,0)), widths=c(2,3), heights=c(2, nr+2, max(28-nr,0.5)))
+        layout(rbind(c(0,1),c(0,2),c(0,0)), widths=c(2,3), heights=c(2, nr+2, max(25-nr,0.5)))
     else
         layout(rbind(c(0,1),c(0,2)), widths=c(2,3), heights=c(2, nr+2))
 
-    lapply(seq(1, nr, by=32), function(i) {
-        mapdataChunk <- mapdata[min(nr,i+32-1):i, , drop=FALSE]
+    lapply(seq(1, nr, by=29), function(i) {
+        mapdataChunk <- mapdata[min(nr,i+29-1):i, , drop=FALSE]
 
-        if(a4layout && nr>32 && nrow(mapdataChunk)<32)
-            mapdataChunk <- rbind(mapdataChunk, matrix(NA, ncol=2, nrow=32-nrow(mapdataChunk)))
+        if(a4layout && nr>29 && nrow(mapdataChunk)<29)
+            mapdataChunk <- rbind(mapdataChunk, matrix(NA, ncol=2, nrow=29-nrow(mapdataChunk)))
         
         # draw legend
         par(mar=c(0,1,0,3)+.1)
@@ -555,15 +555,15 @@ plotUniqueness <- function(data, cols=c("#ff8c00","#4682b4"), a4layout=TRUE) {
     
     # set page layout
     if(a4layout)
-        layout(rbind(c(0,1),c(0,2),c(0,0)), widths=c(2,3), heights=c(2, nr+2, max(28-nr,0.5)))
+        layout(rbind(c(0,1),c(0,2),c(0,0)), widths=c(2,3), heights=c(2, nr+2, max(25-nr,0.5)))
     else
         layout(rbind(c(0,1),c(0,2)), widths=c(2,3), heights=c(2, nr+2))
     
-    lapply(seq(1, nr, by=32), function(i) {
-        dataChunk <- data[min(nr,i+32-1):i, , drop=FALSE]
+    lapply(seq(1, nr, by=29), function(i) {
+        dataChunk <- data[min(nr,i+29-1):i, , drop=FALSE]
 
-        if(a4layout && nr>32 && nrow(dataChunk)<32)
-            dataChunk <- rbind(dataChunk, matrix(NA, ncol=2, nrow=32-nrow(dataChunk)))
+        if(a4layout && nr>29 && nrow(dataChunk)<29)
+            dataChunk <- rbind(dataChunk, matrix(NA, ncol=2, nrow=29-nrow(dataChunk)))
 
         # draw legend
         par(mar=c(0,1,0,3)+.1)
