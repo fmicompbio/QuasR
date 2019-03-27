@@ -34,9 +34,10 @@ options('useFancyQuotes' = FALSE, continue=" ", digits=3)
 
 # Introduction
 
-The `r Biocpkg("QuasR")` package (short for _Qu_antify and _a_nnotate _s_hort reads
+The `r Biocpkg("QuasR")` package (short for <i>Qu</i>antify and <i>a</i>nnotate <i>s</i>hort reads
 in _R_) integrates the functionality of several **R** packages (such as `r Biocpkg("IRanges")` [@IRanges]
-and `r Biocpkg("Rsamtools")`) and external software (e.g. `bowtie`, through the `r Biocpkg("Rbowtie")` package).
+and `r Biocpkg("Rsamtools")`) and external software (e.g. `bowtie`, through the 
+`r Biocpkg("Rbowtie")` package, and `HISAT2`, through the `r Biocpkg("Rhisat2")` package).
 The package aims to cover the whole analysis workflow of typical ultra-high throughput
 sequencing experiments, starting from the raw sequence reads, over pre-processing and
 alignment, up to quantification. A single **R** script can contain all steps of a complete
@@ -82,16 +83,18 @@ The development version will be installed if you are using the development versi
 release version always has an even second number (for example 1.20.1), whereas the
 developmental version has an odd second number (for example 1.21.4).
 
-## Loading of *QuasR* and other required libraries
-In order to run the code examples in this vignette, the `r Biocpkg("QuasR")` library
-and a few additional libraries need to be loaded:
+## Loading of *QuasR* and other required packages
+In order to run the code examples in this vignette, the `r Biocpkg("QuasR")` package
+and a few additional packages need to be loaded:
 ```{r loadLibraries, eval=TRUE}
-library(QuasR)
-library(BSgenome)
-library(Rsamtools)
-library(rtracklayer)
-library(GenomicFeatures)
-library(Gviz)
+suppressPackageStartupMessages({
+    library(QuasR)
+    library(BSgenome)
+    library(Rsamtools)
+    library(rtracklayer)
+    library(GenomicFeatures)
+    library(Gviz)
+})
 ```
 
 ## How to get help
@@ -212,7 +215,7 @@ for example where sequence and alignment files are stored, and what aligner and
 reference genome was used to generate the alignments.
 
 Now that the alignments have been generated, further analyses can be performed.
-A quality control report is saved to the `"extdata/qc\_report.pdf"` file using the
+A quality control report is saved to the `"extdata/qc_report.pdf"` file using the
 `qQCReport` function.
 ```{r SampleSession3, eval=TRUE}
 qQCReport(proj, "extdata/qc_report.pdf")
@@ -261,7 +264,7 @@ function `qMeth`) is done using the `qCount` function: It counts the alignments 
 regions of interest (e.g. promoters, genes, exons, etc.) and produces a count table
 (regions in rows, samples in columns) for further visualization and analysis. The
 count table can also be used as input to a statistical analysis using packages such
-as `r Biocpkg("edgeR")` [@edgeR], `r Biocpkg("DESeq")` [@DESeq], `r Biocpkg("DESeq2")`,
+as `r Biocpkg("edgeR")` [@edgeR], `r Biocpkg("DESeq")` [@DESeq], `r Biocpkg("DESeq2")` [@DESeq2],
 `r Biocpkg("TCC")` [@TCC], `r Biocpkg("DEXSeq")` [@DEXSeq] or `r Biocpkg("baySeq")` [@baySeq].
 
 In summary, a typical `r Biocpkg("QuasR")` analysis consists of the following steps
@@ -274,7 +277,8 @@ In summary, a typical `r Biocpkg("QuasR")` analysis consists of the following st
 - Prepare *auxiliary file* (optional): List additional reference sequences for
   alignment of reads not matching the reference genome (section \@ref(auxiliaryFile)).  
 - `qAlign`: Create `qProject` object and specify project parameters. Also download
-  BSgenome package, create aligner indices and align reads if not already existing ("qAlign").  
+  BSgenome package, create aligner indices and align reads if not already existing 
+  (section \@ref(qAlign)).  
 - `qQCReport` (optional): Create quality control report with plots on sequence qualities
   and alignment statistics (section \@ref(qQCReport)).  
 - `qExportWig` (optional): Export genomic alignments as wiggle tracks for genome
@@ -301,10 +305,10 @@ by type, together with their default location and how locations can be changed.
 - *Alignment files (`bam` format)* (default: same directory as the input sequence files):
   Alignments against reference genome and auxiliary targets are stored in `bam` format
   in the same directory that also contains the input sequence file (listed in `sampleFile`).
-  Please note that if the input sequence file correspond to a symbolic link, `r Biocpkg("QuasR")`
+  Please note that if the input sequence file corresponds to a symbolic link, `r Biocpkg("QuasR")`
   will follow the link and use the directory of the original file instead. An alternative
   directory can be specified with the `alignmentsDir` argument from `qAlign`, which
-  will store all `bam` in that directory even if the input sequence files are located
+  will store all `bam` files in that directory even if the input sequence files are located
   in different directories.  
 - *Alignment index files* (default: depends on `genome` and `snpFile` arguments):
   Many alignment tools including `bowtie` require an index of the reference sequence
@@ -423,7 +427,7 @@ sample file):
   values `R` (Reference), `U` (Unknown) and `A` (Alternative).  
 
 **fasta** and **fastq** files can be compressed with gzip, bzip2 or xz (file extensions
-'.gz', '.bz2' or 'xz', respectively) and will automatically decompressed when necessary.
+'.gz', '.bz2' or 'xz', respectively) and will be automatically decompressed when necessary.
 
 ### Working only with `bam` files after performing alignments
 Once alignments have been created, most analyses will only require the `bam` files
@@ -501,8 +505,8 @@ Sequence reads are primarily aligned against the reference genome. If necessary,
 `r Biocpkg("QuasR")` will create an aligner index for the genome. The reference
 genome can be provided in one of two different formats:
 
-- **a string*}**, referring to the name of a `r Biocpkg("BSgenome")` package:
-```{r selectGenomeBSgenome, eval=TRUE}
+- **a string**, referring to the name of a `r Biocpkg("BSgenome")` package:
+    ```{r selectGenomeBSgenome, eval=TRUE}
 available.genomes()
 genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
 ```
@@ -515,13 +519,13 @@ the genome will be used for creating the alignment index and further alignments.
 
 - **a file name**, referring to a sequence file containing one or several reference
   sequences (e.g. chromosomes) in `fasta` format:
-```{r selectGenomeFile, eval=FALSE}
+    ```{r selectGenomeFile, eval=FALSE}
 genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
 ```
 
 
 
-## Sequence data pre-processing{#preProcessing}
+## Sequence data pre-processing {#preProcessing}
 The `preprocessReads` function can be used to prepare the input sequence files
 prior to alignment. The function takes one or several sequence files (or pairs
 of files for a paired-end experiment) in `fasta` or `fastq` format as input and
@@ -594,10 +598,10 @@ file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 
 ### Align reads using the `qAlign` function
 We assume that the sequence reads have already been pre-processed as described
-in section \ref@(preProcessing). Also, a sample file (section \@ref(sampleFile))
+in section \@ref(preProcessing). Also, a sample file (section \@ref(sampleFile))
 that lists all sequence files to be analyzed has been prepared. A `fasta` file
 with the reference genome sequence(s) is also available (section \@ref(genome)),
-as well as a auxiliary file for alignment of reads that failed to match the reference
+as well as an auxiliary file for alignment of reads that failed to match the reference
 genome (section \@ref(auxiliaryFile)).
 
 By default, newly generated `bam` files will be stored at the location of the input
@@ -652,7 +656,7 @@ of diagnostic plots with details on sequences and alignments (see QuasR scheme f
 The plots are generated by calling the `qQCReport` function with the `qProject`
 object as argument. `qQCReport` uses `r Biocpkg("ShortRead")` [@ShortRead] internally
 to obtain some of the quality metrics, and some of the plots are inspired by the
-FastQC quality control tool by Simon Andrews ((http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/)).
+FastQC quality control tool by Simon Andrews (http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/).
 The plots will be stored into a multipage PDF document defined by the `pdfFilename`
 argument, or else shown as individual plot windows on the current graphics device.
 In order to keep the running time reasonably short, some quality metrics are obtained
@@ -814,7 +818,7 @@ of a `fasta` file as reference genome (see section \@ref(genome)).
 To use a `r Biocpkg("BSgenome")`, the `genome` argument of `qAlign` is set to a
 string matching the name of a `r Biocpkg("BSgenome")` package, for example 
 `"BSgenome.Hsapiens.UCSC.hg19"`. If that package is not already installed, `qAlign`
-will check if it is available from (bioconductor.org) and download it automatically.
+will check if it is available from http://bioconductor.org/ and download it automatically.
 The corresponding alignment index will be saved as a new package, named after the
 original `r Biocpkg("BSgenome")` package and the aligner used to build the index,
 for example `BSgenome.Hsapiens.UCSC.hg19.Rbowtie`.
@@ -840,12 +844,17 @@ proj1
 In `r Biocpkg("QuasR")`, an analysis workflow for an RNA-seq dataset is very similar
 to the one described above for a ChIP-seq experiment. The major difference is that
 here reads are aligned using `splicedAlignment=TRUE`, which will cause `qAlign` to
-align reads with SpliceMap[@SpliceMap], rather than bowtie[@bowtie] (both are
+align reads with SpliceMap [@SpliceMap], rather than bowtie [@bowtie] (both are
 contained in the `r Biocpkg("Rbowtie")` package). SpliceMap and `r Biocpkg("QuasR")`
 also support spliced paired-end alignments; the `splicedAlignment` argument can be
-freely combined with the `paired` argument.
+freely combined with the `paired` argument. In addition, reads can be aligned using 
+the HISAT2 aligner [@hisat2] (via the `r Biocpkg("Rhisat2")` package), by 
+specifying `aligner="Rhisat2"` in `qAlign()`. HISAT2 also allows the specification 
+of known splice sites, which can help in the read alignment. This is done by 
+specifying the argument `geneAnnotation` in `qAlign()`, to either a `.gtf` file 
+or a `sqlite` database generated by exporting a `TxDb` object.  
 
-### Spliced-alignment of RNA-seq reads
+### Spliced alignment of RNA-seq reads
 We start the example workflow by copying the example data files into the current
 working directly, into a subfolder called `"extdata"`, and then create spliced
 alignments using `qAlign`:
@@ -855,13 +864,13 @@ file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 sampleFile <- "extdata/samples_rna_paired.txt"
 genomeFile <- "extdata/hg19sub.fa"
 
-proj2 <- qAlign(sampleFile, genome=genomeFile, splicedAlignment=TRUE)
+proj2 <- qAlign(sampleFile, genome=genomeFile, splicedAlignment=TRUE, aligner="Rhisat2")
 proj2
 ```
 
-Aligning the reads with `splicedAlignment=TRUE` is much slower than the default,
-but will allow to also align reads that cross one or two exon junctions, and thus
-have a large deletion (the intron) relative to the reference genome. 
+Aligning the reads with `splicedAlignment=TRUE` will allow to also align reads 
+that cross exon junctions, and thus have a large deletion (the intron) 
+relative to the reference genome. 
 ```{r RNA_alignmentStats, eval=TRUE}
 proj2unspl <- qAlign(sampleFile, genome=genomeFile,
                      splicedAlignment=FALSE)
@@ -874,7 +883,7 @@ alignmentStats(proj2unspl)
 As with ChIP-seq experiments, `qCount` is used to quantify alignments. For
 quantification of gene or exon expression levels, `qCount` can be called with a
 query of type `TxDb`, such as the one we constructed in the ChIP-seq workflow above
-from a ``.gtf'' file. The argument `reportLevel` can be used to control if annotated
+from a `.gtf` file. The argument `reportLevel` can be used to control if annotated
 exonic regions should be quantified independently (`reportLevel="exon"`) or
 non-redundantly combined per gene (`reportLevel="gene"`): 
 ```{r RNA_qCount, eval=TRUE}
@@ -991,7 +1000,7 @@ res
 setwd(oldwd)
 ```
 
-The miRNA reads in `mirna\_1.fa` are by the way synthetic sequences and do not
+The miRNA reads in `mirna_1.fa` are by the way synthetic sequences and do not
 correspond to any existing miRNAs. As you can see above from the return value of
 `preprocessReads`, all reads matched to the 3'-adapter and were therefore truncated,
 reducing their length to roughly the expected 22nt:
@@ -1036,7 +1045,7 @@ of mature miRNAs. The locations can be obtained from the `r Biocpkg("mirbase.db"
 package, or directly from the species-specific gff files provided by the mirBase
 database (e.g. (ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3)). For the purpose
 of this example, the `r Biocpkg("QuasR")` package provides a small gff file
-(`"mirbaseXX\_qsr.gff3"`) that is formatted as the ones available from mirBase.
+(`"mirbaseXX_qsr.gff3"`) that is formatted as the ones available from mirBase.
 The gff file contains both the locations of pre-miRNAs (hairpin precursors), as
 well as mature miRNAs. The two can be discriminated by their `"type"`:
 ```{r miRNA_prepareQuery, eval=TRUE}
@@ -1137,8 +1146,8 @@ combining the data from plus and minus strands (`mode="CpGcomb"`). The results
 are returned as a `GRanges` object with coordinates of each CpG, and two metadata
 columns for each input sequence file in the `qProject` object. These two columns 
 contain the total number of aligned reads that overlap a given CpG (C-to-C matches
-or C-to-T mismatches, suffix `\_T` in the column name), and the number of read 
-alignments that had a C-to-C match at that position (methylated events, suffix `\_M`).
+or C-to-T mismatches, suffix `_T` in the column name), and the number of read 
+alignments that had a C-to-C match at that position (methylated events, suffix `_M`).
 
 Independent of the number of alignments, the returned object will list all CpGs
 in the target genome including the ones that have zero coverage, unless you set
@@ -1150,8 +1159,8 @@ length(qMeth(proj4))
 length(qMeth(proj4, keepZero=FALSE))
 ```
 
-The fraction methylation can easily be obtained as the ratio between `\_M` and 
-`\_T` columns:
+The fraction methylation can easily be obtained as the ratio between `_M` and 
+`_T` columns:
 ```{r Bis_visualize, eval=TRUE, fig.height=4.5, fig.width=8}
 percMeth <- mcols(meth)[,2] *100 /mcols(meth)[,1]
 summary(percMeth)
@@ -1229,7 +1238,7 @@ in the `bam` files under the `XV` tag):
 
 Using these alignment classifications, the `qCount` and `qMeth` functions will
 produce three counts instead of a single count; one for each class. The column
-names will be suffixed by `\_R`, `\_U` and `\_A`.
+names will be suffixed by `_R`, `_U` and `_A`.
 
 The examples below use data provided with the `r Biocpkg("QuasR")` package, which
 is first copied to the current working directory, into a subfolder called `"extdata"`:
@@ -1257,7 +1266,7 @@ head(qCount(proj1SNP, promRegSel))
 
 The example below illustrates use of a `snpFile` for Bis-seq experiments. Similarly
 as for `qCount`, the count types are labeled by `R`, `U` and `A`. These labels are
-added to the total and methylated column suffixes `\_T` and `\_M`, resulting in
+added to the total and methylated column suffixes `_T` and `_M`, resulting in
 a total of six instead of two counts per feature and sample:
 ```{r Allele_Bis, eval=TRUE}
 sampleFile <- "extdata/samples_bis_single.txt"
@@ -1274,7 +1283,7 @@ documentation (e.g. using `?qAlign`) for a complete description of `r Biocpkg("Q
 functions. The descriptions provided below are meant to give an overview over all
 functions and summarize the purpose of each one.
 
-## `preprocessReads`{#preprocessReads}
+## `preprocessReads` {#preprocessReads}
 The `preprocessReads` function can be used to prepare the input sequences before
 alignment to the reference genome, for example to filter out low quality reads 
 unlikely to produce informative alignments. When working with paired-end experiments,
@@ -1297,7 +1306,7 @@ formula $-\sum_i f_i \cdot \log_2 f_i$, where $f_i$ is the frequency of dinucleo
 $i$ ($i=1, 2, ..., 16$).
 
 
-## `qAlign`{#qAlign}
+## `qAlign` {#qAlign}
 `qAlign` is the function that generates alignment files in `bam` format, for all
 input sequence files listed in `sampleFile` (see section \@ref(sampleFile)),
 against the reference genome (`genome` argument), and for reads that do not match
@@ -1311,8 +1320,9 @@ it will be automatically downloaded.
 
 The alignment program is set by `aligner`, and parameters by `maxHits`, `paired`,
 `splicedAlignment` and `alignmentParameter`. Currently, `aligner` can only be set
-to `"Rbowtie"`, which is a wrapper for *bowtie* [@bowtie] and *SpliceMap* [@SpliceMap].
-*SpliceMap* will be used if `splicedAlignment=TRUE`. The alignment strategy is
+to `"Rbowtie"`, which is a wrapper for *bowtie* [@bowtie] and *SpliceMap* [@SpliceMap],
+or `"Rhisat2"`, which is a wrapper for *HISAT2* [@hisat2].
+When `aligner="Rbowtie"`, *SpliceMap* will be used if `splicedAlignment=TRUE`. The alignment strategy is
 affected by the parameters `snpFile` (alignments to variant genomes containing
 sequence polymorphisms) and `bisulfite` (alignment of bisulfite-converted reads).
 Finally, `clObj` can be used to enable parallelized alignment, sorting and 
@@ -1340,7 +1350,7 @@ object).
 
 
 
-## `qProject` class{#qProject}
+## `qProject` class {#qProject}
 The `qProject` objects are returned by `qAlign` and contain all information about
 a sequencing experiment needed for further analysis. It is the main argument passed
 to the functions that start with a *q* letter, such as `qCount`, `qQCReport` and
@@ -1366,7 +1376,7 @@ specific methods (in the examples below, `x` is a `qProject` object):
     can be an `NA`-free logical, numeric, or character vector.
 
 
-## `qQCReport`{#qQCReport}
+## `qQCReport` {#qQCReport}
 The `qQCReport` function samples a random subset of sequences and alignments from
 each sample or input file and generates a series of diagnostic plots for estimating
 data quality. The plots below show the currently available plots as produced by the
@@ -1435,7 +1445,7 @@ QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat=rbind(1:2))
 
 
 
-## `alignmentStats`{#alignmentStats}
+## `alignmentStats` {#alignmentStats}
 `alignmentStats` is comparable to the `idxstats` function from Samtools; it returns
 the size of the target sequence, as well as the number of mapped and unmapped reads
 that are contained in an indexed `bam` file. The function works for arguments of type
@@ -1464,7 +1474,7 @@ of reads to be aligned to the auxiliary target, which equals the number of unmap
 reads in the corresponding genomic `bam` file.
 
 
-## `qExportWig`{#qExportWig}
+## `qExportWig` {#qExportWig}
 `qExportWig` creates fixed-step wig files (see (http://genome.ucsc.edu/goldenPath/help/wiggle.html)
 for format definition) from the genomic alignments contained in a `qProject` object. 
 The `combine` argument controls if several input files are combined into a single 
@@ -1475,7 +1485,7 @@ resolution of the created wig file is defines by the `binsize` argument, and
 if `scaling=TRUE`, multiple alignment files in the `qProject` object are scaled by their total number of reads.
 
 
-## `qCount`{#qCount}
+## `qCount` {#qCount}
 `qCount` is the workhorse for counting alignments that overlap query regions. 
 Usage and details on parameters can be obtained from the `qCount` function
 documentation. Two aspects that are of special importance are also discussed here:
@@ -1562,7 +1572,7 @@ quantification mode allows counting of alignments supporting exon-exon juctions:
 
 
 
-## `qProfile`{#qProfile}
+## `qProfile` {#qProfile}
 The `qProfile` function differs from `qCount` in that it returns alignments counts
 relative to their position in the query region. Except for `upstream` and `downstream`,
 the arguments of `qProfile` and `qCount` are the same. This section will describe 
@@ -1587,7 +1597,7 @@ Be aware that query regions with a `*` strand are handled the same way as region
 on the plus strand.
 
 
-## `qMeth`{#qMeth}
+## `qMeth` {#qMeth}
 `qMeth` is used exclusively for Bis-seq experiments. In contrast to `qCount`,
 which counts the number of read alignments per query region, `qMeth` quantifies
 the number of C and T bases per cytosine in query regions, in order to determine
@@ -1628,8 +1638,8 @@ polymorphism will not be quantified.
 
 # Session information
 The output in this vignette was produced under:
-```{r sessionInfo, results='asis', echo=FALSE}
-toLatex(sessionInfo())
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
 ```
 
 ```{r cleanUp, eval=TRUE, echo=FALSE}
