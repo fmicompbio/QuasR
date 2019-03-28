@@ -412,9 +412,7 @@ sample file):
   within `r Biocpkg("QuasR")`, but making use of this option comes with a risk and
   should only be used by experienced users. For example, it cannot be guaranteed
   any more that certain assumptions made by `qCount` are fulfilled by the external
-  aligner (see below). In addition, since the data provided to `r Biocpkg("QuasR")`
-  has already been processed, quality control plots that are based on unprocessed
-  raw data will be missing from the output of `qQCReport`. When using external `bam`
+  aligner (see below). When using external `bam` 
   files, we recommend to use files which contain only one alignment per read. This
   may also include multi-hit reads, for which one of the alignments is randomly
   selected. This allows `r Biocpkg("QuasR")` to count the total number of reads by
@@ -1379,66 +1377,59 @@ specific methods (in the examples below, `x` is a `qProject` object):
 ## `qQCReport` {#qQCReport}
 The `qQCReport` function samples a random subset of sequences and alignments from
 each sample or input file and generates a series of diagnostic plots for estimating
-data quality. The plots below show the currently available plots as produced by the
-ChIP-seq example in section \@ref(ChIPseq) (except for the fragment size distributions which are based on an
-unspliced alignment of paired-end RNA seq reads):
+data quality. The available plots vary depending on the types of available input 
+(fasta, fastq, bam files or `qProject` object; paired-end or single-end). The plots
+below show the currently available plots as produced by the ChIP-seq example in 
+section \@ref(ChIPseq) (except for the fragment size distributions which are based 
+on an unspliced alignment of paired-end RNA seq reads):
 
 - **Quality score boxplot** shows the distribution of base quality values as a box
   plot for each position in the input sequence. The background color (green, orange
-  or red) indicates ranges of high, intermediate and low qualities. The plot is available
-  for fastq only (`bam` files may contain base quality information, which is however not
-  used here because reads contained in the `bam` file, e.g. aligned reads, may not be
-  a representative sub-sample of all sequenced reads).  
+  or red) indicates ranges of high, intermediate and low qualities. 
 ```{r qcplotsFig1, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotQualByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
 ```
 
 - **Nucleotide frequency** plot shows the frequency of A, C, G, T and N bases by
-  position in the read. The plot is always available.  
+  position in the read. 
 ```{r qcplotsFig2, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotNuclByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
 ```
 
 - **Duplication level** plot shows for each sample the fraction of reads observed
   at different duplication levels (e.g. once, two-times, three-times, etc.). In
-  addition, the most frequent sequences are listed. The plot is available for fasta
-  or fastq files, but not for bam files, again because contained reads may not be
-  representative for the experiment.  
+  addition, the most frequent sequences are listed. 
 ```{r qcplotsFig3, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotDuplicated(qcdat1$raw$qa, lmat=rbind(1:2))
 ```
 
 - **Mapping statistics** shows fractions of reads that were (un)mappable to the
-  reference genome. This plot is available for bam input, i.e. if `input` is a
-  vector of `bam` files, or a `qProject` with alignment files as returned by `qAlign`.  
+  reference genome. 
 ```{r qcplotsFig4, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout=FALSE)
 ```
 
 - **Library complexity** shows fractions of unique read(-pair) alignment positions. 
   Please note that this measure is not independent from the total number of reads 
-  in a library, and is best compared between libraries of similar sizes. This plot 
-  is available for bam input.  
+  in a library, and is best compared between libraries of similar sizes. 
 ```{r qcplotsFig5, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotUniqueness(qcdat1$raw$unique, a4layout=FALSE)
 ```
 
 - **Mismatch frequency** shows the frequency and position (relative to the read
-  sequence) of mismatches in the alignments against the reference genome. The plot
-  is available for bam input.  
+  sequence) of mismatches in the alignments against the reference genome. 
 ```{r qcplotsFig6, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotErrorsByCycle(qcdat1$raw$mm, lmat=rbind(1:2))
 ```
 
 - **Mismatch types** shows the frequency of read bases that caused mismatches in
-  the alignments to the reference genome, separately for each genome base. This 
-  plot is available for bam input.   
+  the alignments to the reference genome, separately for each genome base. 
 ```{r qcplotsFig7, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotMismatchTypes(qcdat1$raw$mm, lmat=rbind(1:2))
 ```
 
 - **Fragment size** shows the distribution of fragment sizes inferred from aligned
-  read pairs. This plot is available for paired-end bam input.  
+  read pairs.  
 ```{r qcplotsFig8, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
 QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat=rbind(1:2))
 ```
