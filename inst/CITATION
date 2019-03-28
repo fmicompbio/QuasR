@@ -1,4 +1,7 @@
-citHeader("Please use the QuasR reference below to cite the software itself. If you were using qAlign with Rbowtie as aligner, it can be cited as Langmead et al. (2009) (unspliced alignments) or Au et al. (2010) (spliced alignments).")
+citHeader("Please use the QuasR reference below to cite the software itself.
+If you were using qAlign with Rbowtie as aligner, it can be cited as Langmead et al. (2009) (unspliced alignments)
+or Au et al. (2010) (spliced alignments).
+If you were using qAlign with Rhisat2 as aligner, it can be cited as Kim et al. (2015).")
 
 citEntry(entry="article",
 	 title="QuasR: Quantification and annotation of short reads in R",
@@ -47,6 +50,20 @@ citEntry(entry="article",
 	 note="PMID:20371516",
 	 doi="10.1093/nar/gkq211",
 	 textVersion="Au KF, Jiang H, Lin L, Xing Y, Wong WH. Detection of splice junctions from paired-end RNA-seq data by SpliceMap. Nucleic Acids Research, 38(14):4570-8 (2010)."
+)
+
+citEntry(entry="article",
+  title="HISAT: a fast spliced aligner with low memory requirements",
+  author=personList(as.person("Daehwan Kim"),
+                    as.person("Ben Langmead"),
+                    as.person("Steven L Salzberg)),
+  journal="Nature Methods",
+  volume="12",
+  pages="357--360",
+  year=2015,
+  note="PMID:25751142",
+  doi="10.1038/nmeth.3317",
+  textVersion="Kim D, Langmead B, Salzberg SL. HISAT: a fast spliced aligner with low memory requirements. Nat Methods, 12(4):357-60 (2015)."
 )
 
 citFooter("This free open-source software implements academic
