@@ -35,10 +35,10 @@ options('useFancyQuotes' = FALSE, continue=" ", digits=3)
 # Introduction
 
 The `r Biocpkg("QuasR")` package (short for <i>Qu</i>antify and <i>a</i>nnotate <i>s</i>hort reads
-in _R_) integrates the functionality of several **R** packages (such as `r Biocpkg("IRanges")` [@IRanges]
+in <i>R</i>) integrates the functionality of several **R** packages (such as `r Biocpkg("IRanges")` [@IRanges]
 and `r Biocpkg("Rsamtools")`) and external software (e.g. `bowtie`, through the 
 `r Biocpkg("Rbowtie")` package, and `HISAT2`, through the `r Biocpkg("Rhisat2")` package).
-The package aims to cover the whole analysis workflow of typical ultra-high throughput
+The package aims to cover the whole analysis workflow of typical high throughput
 sequencing experiments, starting from the raw sequence reads, over pre-processing and
 alignment, up to quantification. A single **R** script can contain all steps of a complete
 analysis, making it simple to document, reproduce or share the workflow containing all
@@ -48,9 +48,8 @@ The current `r Biocpkg("QuasR")` release supports the analysis of single read an
 paired-end ChIP-seq (chromatin immuno-precipitation combined with sequencing), RNA-seq
 (gene expression profiling by sequencing of RNA) and Bis-seq (measurement of DNA
 methylation by sequencing of bisulfite-converted genomic DNA) experiments. It has
-been successfully used with data from Illumina GA/GA II/MiSeq/HiSeq, 454 Life
-Technologies and SOLiD sequencers, the latter by using bam files created externally
-of `r Biocpkg("QuasR")`.
+been successfully used with data from Illumina, 454 Life Technologies and SOLiD
+sequencers, the latter by using bam files created externally of `r Biocpkg("QuasR")`.
 
 # Preliminaries
 
@@ -842,11 +841,12 @@ proj1
 In `r Biocpkg("QuasR")`, an analysis workflow for an RNA-seq dataset is very similar
 to the one described above for a ChIP-seq experiment. The major difference is that
 here reads are aligned using `qAlign(..., splicedAlignment=TRUE, aligner="Rhisat2")`,
-which will cause `qAlign` to align reads with the HISAT2 aligner [@hisat2] (via the
-`r Biocpkg("Rhisat2")` package), rather than with bowtie [@bowtie]. Before the
-`r Biocpkg("Rhisat2")` package was available, `qAlign(... splicedAlignment=TRUE)`
-aligned reads using SpliceMap, which is still possible for legacy reasons, but not
-recommended. Spliced paired-end alignments are also supported; the `splicedAlignment`
+which will cause `qAlign` to align reads with the `HISAT2` aligner [@hisat2] (via the
+`r Biocpkg("Rhisat2")` package), rather than with `bowtie` [@bowtie]. Before the
+`r Biocpkg("Rhisat2")` package was available (introduced in Bioconductor 3.9),
+`qAlign(... splicedAlignment=TRUE)` aligned reads using `SpliceMap` [@SpliceMap], which
+is not recommended now but still possible in order to reproduce old results.
+Spliced paired-end alignments are also supported; the `splicedAlignment`
 argument can be freely combined with the `paired` argument. In addition, HISAT2
 also allows the specification of known splice sites, which can help in the read
 alignment. This is done by specifying the argument `geneAnnotation` in `qAlign()`,
