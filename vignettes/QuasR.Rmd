@@ -1320,8 +1320,12 @@ The alignment program is set by `aligner`, and parameters by `maxHits`, `paired`
 `splicedAlignment` and `alignmentParameter`. Currently, `aligner` can only be set
 to `"Rbowtie"`, which is a wrapper for *bowtie* [@bowtie] and *SpliceMap* [@SpliceMap],
 or `"Rhisat2"`, which is a wrapper for *HISAT2* [@hisat2].
-When `aligner="Rbowtie"`, *SpliceMap* will be used if `splicedAlignment=TRUE`. The alignment strategy is
-affected by the parameters `snpFile` (alignments to variant genomes containing
+When `aligner="Rbowtie"`, *SpliceMap* will be used if `splicedAlignment=TRUE`
+(not recommended anymore except for reproducing older analyses). However, it is
+recommended to create spliced alignment using `splicedAlignment=TRUE, aligner="Rhisat2"`,
+which will use the *HISAT2* aligner and typically leads to more sensistive
+alignments and shorter alignment times compared to *SpliceMap*. The alignment strategy
+is furthermore affected by the parameters `snpFile` (alignments to variant genomes containing
 sequence polymorphisms) and `bisulfite` (alignment of bisulfite-converted reads).
 Finally, `clObj` can be used to enable parallelized alignment, sorting and 
 conversion to `bam` format.
