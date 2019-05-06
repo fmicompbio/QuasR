@@ -42,9 +42,10 @@ qAlign(sampleFile,
     used as additional targets for alignment of reads not mapping to the
     reference genome (see \sQuote{Details}).}
   \item{aligner}{selects the aligner program to be used for aligning the
-    reads. Currently, only \dQuote{Rbowtie} is supported, which is an R
-    wrapper package for \sQuote{bowtie} and \sQuote{SpliceMap} (see
-    \code{\link[Rbowtie]{Rbowtie}} package).}
+    reads. Currently, only \dQuote{Rbowtie} and \dQuote{Rhisat2} are supported,
+    which are R wrapper packages for \sQuote{bowtie} / \sQuote{SpliceMap} and
+    \sQuote{hisat2}, respectively (see \code{\link[Rbowtie]{Rbowtie}} and
+    \code{\link[Rhisat2]{Rhisat2}} packages).}
   \item{maxHits}{sets the maximal number of allowed mapping positions
     per read (default: 1). If a read produces more than \code{maxHits}
     alignments, no alignments will be reported for it. In case of a
@@ -52,13 +53,22 @@ qAlign(sampleFile,
   \item{paired}{defines the type of paired-end library and can be set to
     one of \code{no} (single read experiment, default), \code{fr} (fw/rev),
     \code{ff} (fw/fw) or \code{rf} (rev/fw).}
-  \item{splicedAlignment}{if \code{TRUE}, reads will be aligned by
-    SpliceMap to produce spliced alignments (without using a database of
-    known exon-exon junctions). Using splicedAlignment=TRUE will
-    increase alignment times roughly by a factor of ten. The option can
-    only be used for reads with a minimal length of 50nt; SpliceMap
-    ignores reads that are shorter. Such short reads will not be
-    contained in the BAM file, neither as mapped or unmapped reads.}
+  \item{splicedAlignment}{if \code{TRUE}, reads will be aligned using a
+    spliced aligner, depending on the value of \code{aligner} described above:
+    \itemize{
+        \item{\code{aligner="Rhisat2"}: }{This is the recommended setting
+          for spliced alignments and will use hisat2 from the
+          \code{\link[Rhisat2]{Rhisat2}}. See also the \code{geneAnnotation}
+          argument below for providing known exon-exon junctions.}
+        \item{\code{aligner="Rbowtie"}: }{This is not recommended and only
+          available for legacy reasons. It will use SpliceMap to produce spliced
+          alignments (without using a database of known exon-exon junctions).
+          Compared to the alternative alignment modes (non-spliced or spliced using
+          \code{Rhisat2} as aligner), this alignment mode is about ten-fold slower
+          and also less sensitive. Furthermore, SpliceMap can only be used for
+          reads with a minimal length of 50nt; SpliceMap ignores reads that are
+          shorter, and these reads will not be contained in the BAM file,
+          neither as mapped or unmapped reads.}}}
   \item{snpFile}{the name of a text file listing single nucleotide
     polymorphisms to be used for allele-specific alignment and
     quantification (see \sQuote{Details}).}
@@ -188,7 +198,7 @@ qAlign(sampleFile,
 %% ~put references to the literature/web site here ~
 %}
 \author{
-Anita Lerch, Dimos Gaidatzis and Michael Stadler
+Anita Lerch, Dimos Gaidatzis, Charlotte Soneson and Michael Stadler
 }
 %\note{
 %%  ~~further notes~~
@@ -199,7 +209,8 @@ Anita Lerch, Dimos Gaidatzis and Michael Stadler
 \seealso{
   \code{\link[=qProject-class]{qProject}},
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel},
-  \code{\link[Rbowtie]{Rbowtie}} package
+  \code{\link[Rbowtie]{Rbowtie}} package,
+  \code{\link[Rhisat2]{Rhisat2}} package
 }
 \examples{
 \dontrun{
