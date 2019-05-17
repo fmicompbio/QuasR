@@ -44,8 +44,8 @@ qAlign(sampleFile,
   \item{aligner}{selects the aligner program to be used for aligning the
     reads. Currently, only \dQuote{Rbowtie} and \dQuote{Rhisat2} are supported,
     which are R wrapper packages for \sQuote{bowtie} / \sQuote{SpliceMap} and
-    \sQuote{hisat2}, respectively (see \code{\link[Rbowtie]{Rbowtie}} and
-    \code{\link[Rhisat2]{Rhisat2}} packages).}
+    \sQuote{hisat2}, respectively (see \code{\link[Rbowtie]{Rbowtie-package}} and
+    \code{\link[Rhisat2]{Rhisat2-package}} packages).}
   \item{maxHits}{sets the maximal number of allowed mapping positions
     per read (default: 1). If a read produces more than \code{maxHits}
     alignments, no alignments will be reported for it. In case of a
@@ -58,7 +58,7 @@ qAlign(sampleFile,
     \itemize{
         \item{\code{aligner="Rhisat2"}: }{This is the recommended setting
           for spliced alignments and will use hisat2 from the
-          \code{\link[Rhisat2]{Rhisat2}}. See also the \code{geneAnnotation}
+          \code{\link[Rhisat2]{Rhisat2-package}}. See also the \code{geneAnnotation}
           argument below for providing known exon-exon junctions.}
         \item{\code{aligner="Rbowtie"}: }{This is not recommended and only
           available for legacy reasons. It will use SpliceMap to produce spliced
@@ -209,8 +209,8 @@ Anita Lerch, Dimos Gaidatzis, Charlotte Soneson and Michael Stadler
 \seealso{
   \code{\link[=qProject-class]{qProject}},
   \code{\link[parallel]{makeCluster}} from package \pkg{parallel},
-  \code{\link[Rbowtie]{Rbowtie}} package,
-  \code{\link[Rhisat2]{Rhisat2}} package
+  \code{\link[Rbowtie]{Rbowtie-package}} package,
+  \code{\link[Rhisat2]{Rhisat2-package}} package
 }
 \examples{
 \dontrun{
