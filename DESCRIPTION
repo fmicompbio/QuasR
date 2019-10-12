@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.25.2
-Date: 2019-03-28
+Version: 1.25.3
+Date: 2019-10-12
 Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
 Depends: R (>= 3.6), parallel, GenomicRanges (>= 1.13.3), Rbowtie
@@ -20,6 +20,7 @@ Suggests:
     covr,
     testthat
 LinkingTo: Rhtslib (>= 1.15.3)
+SystemRequirements: GNU make
 Description: This package provides a framework for the quantification
     and analysis of Short Reads. It covers a complete workflow
     starting from raw sequence reads, over creation of alignments
