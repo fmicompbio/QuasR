@@ -242,7 +242,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
         
         # test if all sequence lengths in all bam files as well as the genome are identical
         # ... add the sequences lengths of the genome to the sequence lengths of all bam files
-        seqlen_all_compatL <- c(seqLen_bam_compatL, list(seqlen_genome_compat))
+        seqlen_all_compatL <- c(list(seqlen_genome_compat), seqLen_bam_compatL)
         
         # ... sort by sequence name in case there is a difference in the order
         seqlen_all_compat_sort_L <- lapply(seqlen_all_compatL, function(x) x[order(names(x))])
