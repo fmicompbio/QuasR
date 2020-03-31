@@ -229,7 +229,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
     if(!is.null(alnFilename) && !is.null(genome)) {
       
         # get bamfile index statistics for all bam files
-        seqLen_bam_compatL <- lapply(alnFilename,function(x){st=.Call(idxstatsBam,x);sl=st[,"seqlength"];names(sl)=st[,"seqnames"];return(sl)})
+        seqLen_bam_compatL <- lapply(alnFilename, function(x) seqlengths(BamFile(x)))
         
         # get sequence length of the genome
         if(is(genome, "BSgenome")) {
@@ -242,10 +242,10 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
         
         # test if all sequence lengths in all bam files as well as the genome are identical
         # ... add the sequences lengths of the genome to the sequence lengths of all bam files
-        seqlen_all_compatL <- c(seqLen_bam_compatL,list(seqlen_genome_compat))
+        seqlen_all_compatL <- c(seqLen_bam_compatL, list(seqlen_genome_compat))
         
         # ... sort by sequence name in case there is a difference in the order
-        seqlen_all_compat_sort_L <- lapply(seqlen_all_compatL,function(x){x[order(names(x))]})
+        seqlen_all_compat_sort_L <- lapply(seqlen_all_compatL, function(x) x[order(names(x))])
         
         # ... check if sequence lengths are identical
         dupStatus <- !duplicated(seqlen_all_compat_sort_L)[-1]
