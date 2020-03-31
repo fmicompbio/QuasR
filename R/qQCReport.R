@@ -134,8 +134,10 @@ calcMmInformation <- function(filename, genome, chunkSize){
 
 qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FALSE, clObj=NULL, a4layout=TRUE, ...)
 {
-    gpars <- par()
-    on.exit(par(gpars))
+    if (grDevices::dev.cur() != 1L) { # only query current par if a device is open
+        gpars <- par(no.readonly = TRUE)
+        on.exit(par(gpars))
+    }
     # 'proj' is correct type?
     if(inherits(input, "qProject", which=FALSE)){
         filetype <- input@samplesFormat
