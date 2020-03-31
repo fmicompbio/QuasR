@@ -151,7 +151,7 @@ qQCReport <- function(input, pdfFilename=NULL, chunkSize=1e6L, useSampleNames=FA
             mapLabel <- label
         } else {
             if(filetype == "bam"){
-                readFilename <- rep(input@alignments$FileName, 2)
+                readFilename <- rep(input@alignments$FileName, each=2)
                 if(useSampleNames) {
                     label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments),each=2), 1:2, rep(input@alignments$SampleName,each=2))
                     mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), input@alignments$SampleName)
