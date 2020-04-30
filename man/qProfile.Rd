@@ -23,6 +23,7 @@ qProfile(proj,
          absIsizeMin=NULL,
          absIsizeMax=NULL,
          maxInsertSize=500L,
+         binSize=1L,
          clObj=NULL)
 }
 \arguments{
@@ -109,6 +110,10 @@ qProfile(proj,
     ensure that query regions are made wide enough to emcompass all
     alignment pairs whose mid falls into the query region. The default
     value is \code{500} bases.}
+  \item{binSize}{Numeric scalar giving the size of bins. The default value (\code{1})
+    gives back counts for single bases. Otherwise, alignments
+    are counted in sequential windows of size \code{binSize} that tile the
+    interval defined by \code{upstream} and \code{downstream}.}
   \item{clObj}{a cluster object to be used for parallel processing (see
     \sQuote{Details}).}
 }
@@ -136,7 +141,11 @@ qProfile(proj,
 \value{
   A \code{list} of matrices with \code{length(unique(names(query)))} rows
   with profile names, and \code{max(upstream)+max(downstream)+1} columns
-  indicating relative position.
+  indicating relative position (for \code{binsize=1}). For \code{binSize} values
+  greater than 1, the number of columns corresponds to the number of bins
+  (tiles), namely \code{ceiling(max(upstream)/binSize)+ceiling(max(downstream)/binSize)}.
+  The relative positions are given as column names (for \code{binSize > 1}
+  they refer to the bin mid).
   
   The first list element is called \dQuote{coverage} and contains, for each
   profile and relative position, the number of overlapping regions

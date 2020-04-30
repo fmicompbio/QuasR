@@ -20,8 +20,8 @@
   @field sumU         int[] over position with counts for the fetch region (non-allelic or allelic Unknown)
   @field sumR         int[] over position with counts for the fetch region (allelic Reference)
   @field sumA         int[] over position with counts for the fetch region (allelic Alternative)
-  @field offset       int offset of anchor position within sumU/sumR/sumA arrays
-  @field len          int length of sumU/sumR/sumA arrays
+  @field offset       int (basepair) offset of anchor position within sumU/sumR/sumA arrays
+  @field len          int (basepair) length of sumU/sumR/sumA arrays
   @field start        start position of the fetch region
   @field end          end position of the fetch region
   @field ref          reference postition of the fetch region
@@ -36,7 +36,8 @@
   @field mapqMin      minimum mapping quality (MAPQ >= mapqMin)
   @field mapqMax      maximum mapping quality (MAPQ <= mapqMax)
   @field absIsizeMin  minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
-  @field absIsizeMax  maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
+  @field absIsizeMax  maximum absolute insert size (abs(ISIZE) <= absIsizeMax)
+  @field binSize      size of counting bins that tile the region
 */
 typedef struct {
     int *sumU;
@@ -59,6 +60,7 @@ typedef struct {
     uint8_t mapqMax;
     int32_t absIsizeMin;
     int32_t absIsizeMax;
+    uint32_t binSize;
 } regionProfile;
 
 
@@ -105,7 +107,7 @@ static int _sum_allelic(const bam1_t *hit, regionProfile *rinfo, int relpos){
 static int _addValidHitToSums(const bam1_t *hit, void *data){
     regionProfile *rinfo = (regionProfile*)data;
     static double shift = 0;
-    static int pos = 0, relpos = 0;
+    static int pos = 0, relpos = 0, relposBin = 0;
 
     // skip alignment if rinfo->includeSpliced == false and alignmend is spliced
     if(rinfo->includeSpliced == 0 && _isSpliced(hit) == 1)
@@ -170,10 +172,11 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     // check if in region
     if(rinfo->start <= pos && pos < rinfo->end &&
        relpos >= 0 && relpos < rinfo->len){
+        relposBin = relpos / rinfo->binSize; // integer-division
         if(rinfo->allelic == 0)
-            rinfo->sumU[relpos] += 1;
+            rinfo->sumU[relposBin] += 1;
         else
-            _sum_allelic(hit, rinfo, relpos);
+            _sum_allelic(hit, rinfo, relposBin);
     }
 
     return 0;
@@ -186,8 +189,9 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
  */
 int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP start, SEXP end, SEXP refpos,
                                SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                               SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced,
-                               SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
+                               SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP maxUpBin, SEXP maxDownBin,
+                               SEXP includeSpliced, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax,
+                               SEXP binSize, SEXP binNames){
     // check bamfile parameter
     if(!Rf_isString(bamfile) || Rf_length(bamfile) != 1)
         Rf_error("'bamfile' must be of type character(1)");
@@ -232,6 +236,10 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
         Rf_error("'maxUp' must be of type integer(1)");
     if(!Rf_isInteger(maxDown) && Rf_length(maxDown) != 1)
         Rf_error("'maxDown' must be of type integer(1)");
+    if(!Rf_isInteger(maxUpBin) && Rf_length(maxUpBin) != 1)
+        Rf_error("'maxUpBin' must be of type integer(1)");
+    if(!Rf_isInteger(maxDownBin) && Rf_length(maxDownBin) != 1)
+        Rf_error("'maxDownBin' must be of type integer(1)");
     if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
         Rf_error("'includeSpliced' must be of type logical(1)");
         
@@ -251,6 +259,11 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
     if(INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMax)[0] != NO_ISIZE_FILTER && INTEGER(absIsizeMin)[0] > INTEGER(absIsizeMax)[0])
 	Rf_error("'absIsizeMin' must not be greater than 'absIsizeMax'");
 
+    if(!Rf_isInteger(binSize) || Rf_length(binSize) != 1)
+        Rf_error("'binSize' must be a single value of type integer");
+    if(!Rf_isString(binNames) || Rf_length(binNames) != INTEGER(maxUpBin)[0] + INTEGER(maxDownBin)[0] + 1)
+        Rf_error("'binNames' must be of type character and have the same length as the number of bins");
+    
     return 0;
 }
 
@@ -274,22 +287,27 @@ int _verify_profile_parameters(SEXP bamfile, SEXP profileids, SEXP tid,  SEXP st
   @param  broaden             extend query region for bam_fetch to catch alignments with overlaps due to shifting
   @param  maxUp               maximal upstream length of region
   @param  maxDown             maximal downstream length of region
+  @param  maxUpBin            maximal upstream bin of region
+  @param  maxDownBin          maximal downstream bin of region
   @param  includeSpliced      also count spliced alignments
   @param  mapqMin             minimal mapping quality to count alignment (MAPQ >= mapqMin)
   @param  mapqMax             maximum mapping quality to count alignment (MAPQ <= mapqMax)
   @param  absIsizeMin         minimum absolute insert size (abs(ISIZE) >= absIsizeMin)
   @param  absIsizeMax         maximum absolute isnert size (abs(ISIZE) <= absIsizeMax)
+  @param  binSize             size of counting bins that tile the region
   @return          vector of length maxWidth with alignment counts per relative position in regions
  */
 SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                     SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced,
-                                    SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
+                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP maxUpBin, SEXP maxDownBin,
+                                    SEXP includeSpliced, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax,
+                                    SEXP binSize, SEXP binNames){
 
     // check parameters
     _verify_profile_parameters(bamfile, profileids, tid, start, end, refpos, selstrand, regstrand,
-                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-			       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
+                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown,
+                               maxUpBin, maxDownBin, includeSpliced,
+			                   mapqMin, mapqMax, absIsizeMin, absIsizeMax, binSize, binNames);
     
     // open bam file
     samfile_t *fin = 0;
@@ -314,7 +332,7 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
     for(i=Rf_length(tid)-1; i>=0; i--)
         profId[i] = profId[i] - profId[0];
     int profIdNum = profId[Rf_length(tid)-1] + 1;
-    int mu = INTEGER(maxUp)[0], md = INTEGER(maxDown)[0];
+    int mu = INTEGER(maxUpBin)[0], md = INTEGER(maxDownBin)[0];
     int mw = mu+md+1;
     SEXP profU;
     PROTECT(profU = allocMatrix(INTSXP, mw, profIdNum));
@@ -323,8 +341,8 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
         profU_c[i] = 0;
 
     regionProfile rprof;
-    rprof.offset = mu;
-    rprof.len = mw;
+    rprof.offset = INTEGER(maxUp)[0]; // base-space
+    rprof.len = INTEGER(maxUp)[0] + INTEGER(maxDown)[0] + 1; // base-space
     rprof.shift = INTEGER(shift)[0];
     rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
     rprof.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
@@ -335,6 +353,7 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
     rprof.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     rprof.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
     rprof.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
+    rprof.binSize = (uint32_t)(INTEGER(binSize)[0]);
    
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
@@ -361,23 +380,32 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
                   &rprof, fetch_func);
     }
     
+    // set dim names
+    SEXP dimnames;
+    PROTECT(dimnames = allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dimnames, 0, binNames);
+    SET_VECTOR_ELT(dimnames, 1, R_NilValue);
+    setAttrib(profU, R_DimNamesSymbol, dimnames);
+    
     // clean up
     samclose(fin);
     bam_index_destroy(idx);
     
-    UNPROTECT(1);
+    UNPROTECT(2);
     
     return profU;
 }
 
 SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                 SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced,
-                                SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax){
+                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP maxUpBin, SEXP maxDownBin,
+                                SEXP includeSpliced, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax,
+                                SEXP binSize, SEXP binNames){
     // check parameters
     _verify_profile_parameters(bamfile, profileids, tid, start, end, refpos, selstrand, regstrand,
-                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-			       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
+                               selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown,
+                               maxUpBin, maxDownBin, includeSpliced,
+			                   mapqMin, mapqMax, absIsizeMin, absIsizeMax, binSize, binNames);
     
     // open bam file
     samfile_t *fin = 0;
@@ -402,7 +430,7 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
     for(i=Rf_length(tid)-1; i>=0; i--)
         profId[i] = profId[i] - profId[0];
     int profIdNum = profId[Rf_length(tid)-1] + 1;
-    int mu = INTEGER(maxUp)[0], md = INTEGER(maxDown)[0];
+    int mu = INTEGER(maxUpBin)[0], md = INTEGER(maxDownBin)[0];
     int mw = mu+md+1;
     SEXP profU, profR, profA, prof, attrib;
     PROTECT(profU = allocMatrix(INTSXP, mw, profIdNum));
@@ -415,8 +443,8 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
         profU_c[i] = profR_c[i] = profA_c[i] = 0;
 
     regionProfile rprof;
-    rprof.offset = mu;
-    rprof.len = mw;
+    rprof.offset = INTEGER(maxUp)[0]; // base-space
+    rprof.len = INTEGER(maxUp)[0] + INTEGER(maxDown)[0] + 1; // base-space
     rprof.shift = INTEGER(shift)[0];
     rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
     rprof.skipSecondary = ((INTEGER(readBitMask)[0] & BAM_FSECONDARY) ? 0 : 1);
@@ -427,6 +455,7 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
     rprof.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     rprof.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
     rprof.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
+    rprof.binSize = (uint32_t)(INTEGER(binSize)[0]);
 
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
@@ -455,6 +484,15 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
                   &rprof, fetch_func);
     }
 
+    // set dim names
+    SEXP dimnames;
+    PROTECT(dimnames = allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dimnames, 0, binNames);
+    SET_VECTOR_ELT(dimnames, 1, R_NilValue);
+    setAttrib(profR, R_DimNamesSymbol, dimnames);
+    setAttrib(profU, R_DimNamesSymbol, dimnames);
+    setAttrib(profA, R_DimNamesSymbol, dimnames);
+    
     // pack results into list
     PROTECT(prof = allocVector(VECSXP, 3));
     PROTECT(attrib = allocVector(STRSXP, 3));
@@ -471,7 +509,7 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
     samclose(fin);
     bam_index_destroy(idx);
     
-    UNPROTECT(5);
+    UNPROTECT(6);
     
     return prof;
 }

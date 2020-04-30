@@ -51,8 +51,8 @@ static const R_CallMethodDef callMethods[] = {
     /* count_junctions.cpp */
     {"countJunctions", (DL_FUNC) &count_junctions, 8},
     /* profile_alignments.c */
-    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 19},
-    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 19},
+    {"profileAlignmentsNonAllelic", (DL_FUNC) &profile_alignments_non_allelic, 23},
+    {"profileAlignmentsAllelic", (DL_FUNC) &profile_alignments_allelic, 23},
     /* count_alignments_subregions.c */
     // {"countAlignmentsSubregions", (DL_FUNC) &count_alignments_subregions, 10},
     /* quantify_methylation.cpp */
