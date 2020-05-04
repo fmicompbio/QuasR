@@ -173,7 +173,7 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     if(rinfo->start <= pos && pos < rinfo->end &&
        relpos >= 0 && relpos < rinfo->len){
         relposBin = relpos / rinfo->binSize; // integer-division
-        if(rinfo->allelic == 0)
+        if (rinfo->allelic == 0)
             rinfo->sumU[relposBin] += 1;
         else
             _sum_allelic(hit, rinfo, relposBin);
@@ -341,7 +341,7 @@ SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEX
         profU_c[i] = 0;
 
     regionProfile rprof;
-    rprof.offset = INTEGER(maxUp)[0]; // base-space
+    rprof.offset = INTEGER(maxUp)[0] - (INTEGER(binSize)[0] / 2); // base-space (need to shift half a bin upstream to make middle bin centerd on zero)
     rprof.len = INTEGER(maxUp)[0] + INTEGER(maxDown)[0] + 1; // base-space
     rprof.shift = INTEGER(shift)[0];
     rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
@@ -443,7 +443,7 @@ SEXP profile_alignments_allelic(SEXP bamfile, SEXP profileids, SEXP tid, SEXP st
         profU_c[i] = profR_c[i] = profA_c[i] = 0;
 
     regionProfile rprof;
-    rprof.offset = INTEGER(maxUp)[0]; // base-space
+    rprof.offset = INTEGER(maxUp)[0] - (INTEGER(binSize)[0] / 2); // base-space (need to shift half a bin upstream to make middle bin centerd on zero)
     rprof.len = INTEGER(maxUp)[0] + INTEGER(maxDown)[0] + 1; // base-space
     rprof.shift = INTEGER(shift)[0];
     rprof.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
