@@ -121,28 +121,28 @@ qProfile <-
                 stop(sprintf("the length of 'downstream' (%d) must be one or the same as 'query' (%d)",
                              length(downstream), length(query)))
 
-            plusStrand <- as.character(strand(query)) != "-"
-            refpos <- ifelse(plusStrand, start(query), end(query))
-            queryWin <- GRanges(seqnames(query),
-                                IRanges(start=pmax(1, ifelse(plusStrand, refpos -upstream, refpos -downstream)),
-                                        end=ifelse(plusStrand, refpos +downstream, refpos +upstream)),
-                                strand=strand(query))
-
             # define 'maxUp', 'maxDown', 'maxUpBin' and 'maxDownBin'
             # (have one bin that is centered at anchor point, relative position of bin mid at zero)
-            maxUpBin <- as.integer(ceiling(max(upstream) / binSize))
-            maxDownBin <- as.integer(ceiling(max(downstream) / binSize))
+            maxUpBin <- as.integer(ceiling((max(upstream) - binSize/2) / binSize))
+            maxDownBin <- as.integer(ceiling((max(downstream) - binSize/2) / binSize))
             if (binSize == 1L) { # keep backwards-compatibility for binSize==1
-                maxUp <- as.integer(max(upstream))
-                maxDown <- as.integer(max(downstream))
+              maxUp <- as.integer(max(upstream))
+              maxDown <- as.integer(max(downstream))
             } else {
-                maxUp <- as.integer(round(maxUpBin * binSize + binSize/2))
-                maxDown <- as.integer(round(maxDownBin * binSize + binSize/2))
+              maxUp <- as.integer(round(maxUpBin * binSize + binSize/2))
+              maxDown <- as.integer(round(maxDownBin * binSize + binSize/2))
             }
             binNames <- as.character(seq(-maxUpBin * binSize, maxDownBin * binSize, by = binSize))
             if((maxUpBin + maxDownBin + 1) > 20000L)
-                warning(sprintf("profiling over large region (%d basepairs, %d bins) - may be slow and require a lot of memory",
-                                maxUp + maxDown + 1, maxUpBin + maxDownBin))
+              warning(sprintf("profiling over large region (%d basepairs, %d bins) - may be slow and require a lot of memory",
+                              maxUp + maxDown + 1, maxUpBin + maxDownBin))
+            
+            plusStrand <- as.character(strand(query)) != "-"
+            refpos <- ifelse(plusStrand, start(query), end(query))
+            queryWin <- GRanges(seqnames(query),
+                                IRanges(start = pmax(1, ifelse(plusStrand, refpos - maxUp, refpos - maxDown + as.numeric(binSize > 1))),
+                                        end = ifelse(plusStrand, refpos + maxDown - as.numeric(binSize > 1), refpos + maxUp)),
+                                strand = strand(query))
 
             # split 'queryWin' --> 'queryWinL' and 'refpos' --> 'refposL' by 'querynames'
             if(!is.null(clObj) & inherits(clObj,"cluster",which=FALSE)) {
