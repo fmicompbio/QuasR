@@ -64,8 +64,17 @@ test_that("qProfile works as expected", {
   pr2 <- qProfile(pChipSingle, qreg, upstream = 100, downstream = 100, binSize = 10)
   expect_identical(colnames(pr2[[1]]), as.character(seq(-100, 100, by = 10)))
   expect_identical(sapply(pr1[-1], sum), sapply(pr2[-1], sum))
+
+  # ... compare to qCount
   cnt1 <- qCount(pChipSingle, resize(qreg, width = 201, fix = "start"))
-  # cnt2 <- qCount(pChipSingle, resize(qreg, width = 210, fix = "start"))
   expect_identical(cnt1[, -1], do.call(cbind, lapply(pr1[-1], rowSums)))
-  # expect_identical(cnt2[, -1], do.call(cbind, lapply(pr2[-1], rowSums)))
+
+  cnt2 <- qCount(pChipSingle, GRanges(seqnames(qreg),
+                               IRanges(ifelse(as.logical(strand(qreg) != "-"),
+                                              start(qreg) - 105, end(qreg) - 104),
+                                       ifelse(as.logical(strand(qreg) != "-"),
+                                              start(qreg) + 104, end(qreg) + 105),
+                                       names = names(qreg)),
+                               strand = strand(qreg)))
+  expect_identical(cnt2[, -1], do.call(cbind, lapply(pr2[-1], rowSums)))
 })
