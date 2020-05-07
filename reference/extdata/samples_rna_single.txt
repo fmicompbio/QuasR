@@ -1,0 +1,5 @@
+FileName	SampleName
+rna_1_1.fq.bz2	Sample1
+rna_1_2.fq.bz2	Sample1
+rna_2_1.fq.bz2	Sample2
+rna_2_2.fq.bz2	Sample2

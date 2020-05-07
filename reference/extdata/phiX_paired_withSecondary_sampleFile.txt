@@ -1,0 +1,2 @@
+FileName	SampleName
+phiX_paired_withSecondary.bam	test

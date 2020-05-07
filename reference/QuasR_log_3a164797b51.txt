@@ -1,0 +1,7 @@
+[1] "Decompressing file on Mac-1557.local : /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpke6ji2/file3a161ef760b5/reference/extdata/bis_1_1.fa.bz2"
+[1] "Executing bowtie (CtoT and GtoA) on Mac-1557.local using 1 cores. Parameters:"
+[1] "'/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpke6ji2/file3a161ef760b5/reference/extdata/hg19sub.fa.RbowtieCtoT/bowtieIndexCtoT' '/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpTtHZnc/bis_1_1.fa.bz23af3760c9aff.fasta_readsCtoT_3af3dacd6de.fasta' -k 2 --best --strata -v 2 -f -S -p 1 --norc '/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpTtHZnc/bis_1_1.fa.bz23af3760c9aff.fasta_readsCtoT_genomeCtoT_3af34e4e8fd5.sam'"
+[1] "'/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpke6ji2/file3a161ef760b5/reference/extdata/hg19sub.fa.RbowtieCtoT/bowtieIndexGtoA' '/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpTtHZnc/bis_1_1.fa.bz23af3760c9aff.fasta_readsCtoT_3af3dacd6de.fasta' -k 2 --best --strata -v 2 -f -S -p 1 --nofw '/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpTtHZnc/bis_1_1.fa.bz23af3760c9aff.fasta_readsCtoT_genomeGtoA_3af37c5111d.sam'"
+[1] "mergeReorderMaxQueueSize 1"
+[1] "Converting sam file to sorted bam file on Mac-1557.local : /var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpTtHZnc/bis_1_1.fa.bz23af3760c9aff.fasta3af3359417e5.sam"
+[1] "Genomic alignments for sample 1 (Sample1) have been successfully created on Mac-1557.local"

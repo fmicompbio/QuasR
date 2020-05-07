@@ -1,0 +1,16 @@
+##gff-version 3
+##date 2013-8-13
+#
+# Chromosomal coordinates of QuasR example microRNAs
+# microRNAs			miRBase vXX
+# genome-build-id		hg19sub
+# genome-build-accession	hg19sub
+#
+# Hairpin precursor sequences have type "miRNA_primary_transcript". 
+# Note, these sequences do not represent the full primary transcript, 
+# rather a predicted stem-loop portion that includes the precursor 
+# miRNA. Mature sequences have type "miRNA".
+#
+chr3	.	miRNA_primary_transcript	24951	25025	.	+	.	ID=QI0099881_1;accession_number=QI0099881;Name=qsr-mir-9876
+chr3	.	miRNA	24995	25019	.	+	.	ID=QIMAT0088711_1;accession_number=QIMAT0088711;Name=qsr-miR-9876-5p;derives_from=QI0099881_1
+chr3	.	miRNA	24956	24976	.	+	.	ID=QIMAT00887712_1;accession_number=QIMAT00887712;Name=qsr-miR-9876-3p;derives_from=QI0099881_1
