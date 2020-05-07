@@ -123,17 +123,21 @@ qProfile <-
                 stop(sprintf("the length of 'downstream' (%d) must be one or the same as 'query' (%d)",
                              length(downstream), length(query)))
 
+            # adjust 'upstream', 'downstream' to include full bins
+            upstream   <- ceiling((upstream   - (binSize - 1)/2) / binSize) * binSize + (binSize - 1)/2
+            downstream <- ceiling((downstream - (binSize - 1)/2) / binSize) * binSize + (binSize - 1)/2
+
             # define 'maxUp', 'maxDown', 'maxUpBin' and 'maxDownBin'
             # (have one bin that is centered at anchor point, relative position of bin mid at zero)
-            maxUpBin <- as.integer(ceiling((max(upstream) - binSize/2) / binSize))
-            maxDownBin <- as.integer(ceiling((max(downstream) - binSize/2) / binSize))
-            if (binSize == 1L) { # keep backwards-compatibility for binSize==1
-              maxUp <- as.integer(max(upstream))
-              maxDown <- as.integer(max(downstream))
-            } else {
-              maxUp <- as.integer(round(maxUpBin * binSize + binSize/2))
-              maxDown <- as.integer(round(maxDownBin * binSize + binSize/2))
-            }
+            #   maxUp, maxDown: number of bases upstream/downstream of start(query) --> includes half of middle bin, but not the anchor posittion
+            #                   (total number of covered bases: maxUp + maxDown + 1)
+            #   maxUpBin, maxDownBin: number of bins upstream/downstream of middle bin
+            #                         (total number of bins: maxUpBin + maxDownBin + 1)
+            maxUpBin   = as.integer(ceiling((max(upstream)   + 1 - (binSize + 1)/2)/binSize))
+            maxDownBin = as.integer(ceiling((max(downstream) + 1 - (binSize + 1)/2)/binSize))
+            maxUp   = as.integer(maxUpBin   * binSize + (binSize - 1)/2)
+            maxDown = as.integer(maxDownBin * binSize + (binSize - 1)/2)
+            # err = (maxUp + maxDown + 1) %% binSize # has to be zero
             binNames <- as.character(seq(-maxUpBin * binSize, maxDownBin * binSize, by = binSize))
             if((maxUpBin + maxDownBin + 1) > 20000L)
               warning(sprintf("profiling over large region (%d basepairs, %d bins) - may be slow and require a lot of memory",
@@ -142,8 +146,8 @@ qProfile <-
             plusStrand <- as.character(strand(query)) != "-"
             refpos <- ifelse(plusStrand, start(query), end(query))
             queryWin <- GRanges(seqnames(query),
-                                IRanges(start = pmax(1, ifelse(plusStrand, refpos - maxUp, refpos - maxDown + as.numeric(binSize > 1))),
-                                        end = ifelse(plusStrand, refpos + maxDown - as.numeric(binSize > 1), refpos + maxUp)),
+                                IRanges(start = pmax(1, ifelse(plusStrand, refpos -upstream, refpos -downstream)),
+                                        end = ifelse(plusStrand, refpos +downstream, refpos +upstream)),
                                 strand = strand(query))
 
             # split 'queryWin' --> 'queryWinL' and 'refpos' --> 'refposL' by 'querynames'

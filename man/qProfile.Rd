@@ -133,10 +133,14 @@ qProfile(proj,
   This anchor position will be extended (with regard to strand) by
   the number of bases specified by \code{upstream} and \code{downstream}.
   In the return value, the anchor position will be at position zero.
+
+  If \code{binSize} is greater than one, \code{upstream} and \code{downstream}
+  will be slightly increased in order to include the complete first and last
+  bins of \code{binSize} bases.
   
   Regions with identical names in \code{names{query}} will be summed, and
   profiles will be padded with zeros to accomodate the length of all 
-  profiles (\code{max(upstream)+max(downstream)+1}).
+  profiles.
 }
 \value{
   A \code{list} of matrices with \code{length(unique(names(query)))} rows
