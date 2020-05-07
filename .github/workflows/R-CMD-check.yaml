@@ -84,7 +84,12 @@ jobs:
       - name: Install special QuasR Windows dependencies
         if: runner.os == 'Windows'
         run: |
-          choco install curl
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.sh
+          ./vcpkg integrate install
+          vcpkg install curl
+#          choco install curl --no-progress
 #          choco install openssl
 #          choco install openssh
         
