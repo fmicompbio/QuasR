@@ -17,6 +17,8 @@ test_that("qProfile correctly digests its arguments", {
   expect_warning(qProfile(pSingle, qTiles, useRead = "first"))
   expect_error(qProfile(pSingle, qGenome, upstream = c(100, 100)))
   expect_error(qProfile(pSingle, qGenome, downstream = c(100, 100)))
+  expect_error(qProfile(pSingle, qGenome, binSize = "error"))
+  expect_error(qProfile(pSingle, qGenome, binSize = 10))
   expect_warning(qProfile(pSingle, qGenome, upstream = 100001))
 })
 
@@ -57,4 +59,15 @@ test_that("qProfile works as expected", {
   pr2 <- qProfile(pChipSingleSnps, qreg, collapseBySample = FALSE)
   expect_identical(unname(pr1), unname(pr2))
   expect_length(pr1, 7L)
+  
+  # binSize
+  qreg2 <- reduce(qreg + 200) - 200
+  names(qreg2) <- seq_along(qreg2)
+  pr1 <- qProfile(pChipSingle, qreg2, upstream = 104, downstream = 104)
+  pr2 <- qProfile(pChipSingle, qreg2, upstream = 100, downstream = 100, binSize = 11)
+  expect_identical(colnames(pr2[[1]]), as.character(seq(-99, 99, by = 11)))
+  expect_identical(sapply(pr1[-1], rowSums), sapply(pr2[-1], rowSums))
+  cnt <- qCount(pChipSingle, promoters(qreg2, upstream = 104, downstream = 105))
+  expect_identical(cnt[, -1], do.call(cbind, lapply(pr1[-1], rowSums)))
+  expect_identical(cnt[, -1], do.call(cbind, lapply(pr2[-1], rowSums)))
 })

@@ -6,11 +6,13 @@
 
 SEXP profile_alignments_non_allelic(SEXP bamfile, SEXP targetprofile, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                     SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced,
-                                    SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax);
+                                    SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP maxUpBin, SEXP maxDownBin,
+                                    SEXP includeSpliced, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax,
+                                    SEXP binSize, SEXP binNames);
 
 SEXP profile_alignments_allelic(SEXP bamfile, SEXP targetprofile, SEXP tid, SEXP start, SEXP end, SEXP refpos,
                                 SEXP selstrand, SEXP regstrand, SEXP selectReadPosition, SEXP readBitMask,
-                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP includeSpliced,
-                                SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax);
+                                SEXP shift, SEXP broaden, SEXP maxUp, SEXP maxDown, SEXP maxUpBin, SEXP maxDownBin,
+                                SEXP includeSpliced, SEXP mapqMin, SEXP mapqMax, SEXP absIsizeMin, SEXP absIsizeMax,
+                                SEXP binSize, SEXP binNames);
 

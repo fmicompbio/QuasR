@@ -23,6 +23,7 @@ qProfile(proj,
          absIsizeMin=NULL,
          absIsizeMax=NULL,
          maxInsertSize=500L,
+         binSize=1L,
          clObj=NULL)
 }
 \arguments{
@@ -109,6 +110,10 @@ qProfile(proj,
     ensure that query regions are made wide enough to emcompass all
     alignment pairs whose mid falls into the query region. The default
     value is \code{500} bases.}
+  \item{binSize}{Numeric scalar giving the size of bins (must be an odd number).
+    The default value (\code{1}) gives back counts for single bases. Otherwise,
+    alignments are counted in adjacent, non-overlapping windows of size \code{binSize}
+    that tile the interval defined by \code{upstream} and \code{downstream}.}
   \item{clObj}{a cluster object to be used for parallel processing (see
     \sQuote{Details}).}
 }
@@ -128,16 +133,33 @@ qProfile(proj,
   This anchor position will be extended (with regard to strand) by
   the number of bases specified by \code{upstream} and \code{downstream}.
   In the return value, the anchor position will be at position zero.
+
+  If \code{binSize} is greater than one, \code{upstream} and \code{downstream}
+  will be slightly increased in order to include the complete first and last
+  bins of \code{binSize} bases.
   
   Regions with identical names in \code{names{query}} will be summed, and
   profiles will be padded with zeros to accomodate the length of all 
-  profiles (\code{max(upstream)+max(downstream)+1}).
+  profiles.
 }
 \value{
   A \code{list} of matrices with \code{length(unique(names(query)))} rows
   with profile names, and \code{max(upstream)+max(downstream)+1} columns
-  indicating relative position.
+  indicating relative position (for \code{binsize=1}).
   
+  For \code{binSize} values greater than 1, the number of columns corresponds to
+  the number of bins (tiles), namely \code{ceiling(max(upstream)/binSize)+ceiling(max(downstream)/binSize)}.
+  A middle bin of size \code{binSize} is always positioned centered at the anchor
+  of each region. Additional bins are positioned upstream and downstream, adjacent
+  to that middle bin, in order to include at least \code{upstream} and
+  \code{downstream} bases, respectively (potentially more in order to fill the first
+  and last bins).
+  
+  The relative positions are given as column names (for \code{binSize > 1}
+  they refer to the bin mid). In that case, the bins are "right-open". For
+  example, if \code{binSize = 10}, the bin with the midpoint "-50" contains
+  counts for the alignments in [-55,-45).
+
   The first list element is called \dQuote{coverage} and contains, for each
   profile and relative position, the number of overlapping regions
   that contributed to the profile.

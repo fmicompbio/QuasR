@@ -22,6 +22,7 @@ qProfile <-
              absIsizeMin=NULL,
              absIsizeMax=NULL,
              maxInsertSize=500L,
+             binSize=1L,
              clObj=NULL) {
         ## setup variables from 'proj' -----------------------------------------------------------------------
         ## 'proj' is correct type?
@@ -62,7 +63,13 @@ qProfile <-
             absIsizeMin <- -1L
         if(is.null(absIsizeMax))
             absIsizeMax <- -1L
-
+        if(!is.numeric(maxInsertSize) || length(maxInsertSize) != 1L)
+          stop("'maxInsertSize' must be a numerical scalar")
+        if(!is.numeric(binSize) || length(binSize) != 1L || binSize <= 0)
+          stop("'binSize' must be a single numerical value greater than zero")
+        if(binSize %% 2 != 1)
+          stop("'binSize' must be an odd number")
+        
         ## check shift
         if(length(shift) == 1 && shift == "halfInsert") {
             if(proj@paired == "no") {
@@ -94,7 +101,7 @@ qProfile <-
 
 
         ## preprocess query -------------------------------------------------------------------------------
-        ##    --> extract 'querynames', 'refpos', 'queryWin', 'maxUp', 'maxDown'
+        ##    --> extract 'querynames', 'refpos', 'queryWin', 'maxUp', 'maxDown', 'maxUpBin', 'maxDownBin'
         ##        split into 'queryWinL', 'refposL', 'querynamesIntL' by name
         ##    GRanges query -------------------------------------------------------------------------------
         if(inherits(query,"GRanges")) {
@@ -116,18 +123,32 @@ qProfile <-
                 stop(sprintf("the length of 'downstream' (%d) must be one or the same as 'query' (%d)",
                              length(downstream), length(query)))
 
+            # adjust 'upstream', 'downstream' to include full bins
+            upstream   <- ceiling((upstream   - (binSize - 1)/2) / binSize) * binSize + (binSize - 1)/2
+            downstream <- ceiling((downstream - (binSize - 1)/2) / binSize) * binSize + (binSize - 1)/2
+
+            # define 'maxUp', 'maxDown', 'maxUpBin' and 'maxDownBin'
+            # (have one bin that is centered at anchor point, relative position of bin mid at zero)
+            #   maxUp, maxDown: number of bases upstream/downstream of start(query) --> includes half of middle bin, but not the anchor posittion
+            #                   (total number of covered bases: maxUp + maxDown + 1)
+            #   maxUpBin, maxDownBin: number of bins upstream/downstream of middle bin
+            #                         (total number of bins: maxUpBin + maxDownBin + 1)
+            maxUpBin   = as.integer(ceiling((max(upstream)   + 1 - (binSize + 1)/2)/binSize))
+            maxDownBin = as.integer(ceiling((max(downstream) + 1 - (binSize + 1)/2)/binSize))
+            maxUp   = as.integer(maxUpBin   * binSize + (binSize - 1)/2)
+            maxDown = as.integer(maxDownBin * binSize + (binSize - 1)/2)
+            # err = (maxUp + maxDown + 1) %% binSize # has to be zero
+            binNames <- as.character(seq(-maxUpBin * binSize, maxDownBin * binSize, by = binSize))
+            if((maxUpBin + maxDownBin + 1) > 20000L)
+              warning(sprintf("profiling over large region (%d basepairs, %d bins) - may be slow and require a lot of memory",
+                              maxUp + maxDown + 1, maxUpBin + maxDownBin))
+            
             plusStrand <- as.character(strand(query)) != "-"
             refpos <- ifelse(plusStrand, start(query), end(query))
             queryWin <- GRanges(seqnames(query),
-                                IRanges(start=pmax(1, ifelse(plusStrand, refpos -upstream, refpos -downstream)),
-                                        end=ifelse(plusStrand, refpos +downstream, refpos +upstream)),
-                                strand=strand(query))
-
-            # define 'maxUp' and 'maxDown'
-            maxUp <- max(upstream)
-            maxDown <- max(downstream)
-            if((maxUp+maxDown+1) > 100000L)
-                warning(sprintf("profiling over large region (%d basepairs)",maxUp+maxDown+1))
+                                IRanges(start = pmax(1, ifelse(plusStrand, refpos -upstream, refpos -downstream)),
+                                        end = ifelse(plusStrand, refpos +downstream, refpos +upstream)),
+                                strand = strand(query))
 
             # split 'queryWin' --> 'queryWinL' and 'refpos' --> 'refposL' by 'querynames'
             if(!is.null(clObj) & inherits(clObj,"cluster",which=FALSE)) {
@@ -144,11 +165,13 @@ qProfile <-
             querynamesIntL <- lapply(taskL, function(i) querynamesInt[i])
 
             # calculate coverage
-            cvgL <- lapply(seq_along(queryWin), function(i) (maxUp-upstream[i]+1):(maxUp+downstream[i]+1))
-            cvg <- do.call(rbind, lapply(split(seq_along(queryWin),factor(querynames,levels=unique(querynames))),
-                                         function(i) tabulate(unlist(cvgL[i]))))
-            colnames(cvg) <- as.character(seq(-maxUp, maxDown, by=1))
-                           
+            cvgBaseL <- lapply(seq_along(queryWin), function(i) (maxUp-upstream[i]+1):(maxUp+downstream[i]+1))
+            cvgBase <- do.call(rbind, lapply(split(seq_along(queryWin),factor(querynames,levels=unique(querynames))),
+                                            function(i) tabulate(unlist(cvgBaseL[i]), nbins = maxUp + maxDown + 1)))
+            cvg <- do.call(cbind, lapply(split(seq.int(maxUp + maxDown + 1), rep(seq(-maxUpBin, maxDownBin), each = binSize)),
+                                        function(i) rowSums(cvgBase[, i, drop = FALSE])))
+            colnames(cvg) <- binNames
+
         } else {
             stop("'query' must be an object of type 'GRanges'")
         }
@@ -192,12 +215,16 @@ qProfile <-
                            allelic=!is.na(proj@snpFile),
                            maxUp=maxUp,
                            maxDown=maxDown,
+                           maxUpBin=maxUpBin,
+                           maxDownBin=maxDownBin,
                            includeSpliced=includeSpliced,
                            includeSecondary=includeSecondary,
                            mapqmin=as.integer(mapqMin)[1],
                            mapqmax=as.integer(mapqMax)[1],
                            absisizemin=as.integer(absIsizeMin)[1],
-                           absisizemax=as.integer(absIsizeMax)[1]))
+                           absisizemax=as.integer(absIsizeMax)[1],
+                           binsize=as.integer(binSize),
+                           binNames=binNames))
         message("done")
         
         ## fuse by input file, rename and collapse by sample
@@ -242,8 +269,9 @@ qProfile <-
 ## profile alignments (with the C-function) for single bamfile, multiple regions, single shift
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectReadPosition,
-                              orientation, useRead, broaden, allelic, maxUp, maxDown, includeSpliced, includeSecondary,
-                              mapqmin, mapqmax, absisizemin, absisizemax)
+                              orientation, useRead, broaden, allelic, maxUp, maxDown, maxUpBin, maxDownBin,
+                              includeSpliced, includeSecondary,
+                              mapqmin, mapqmax, absisizemin, absisizemax, binsize, binNames)
 {
     tryCatch({ # try catch block contains whole function
         
@@ -283,18 +311,13 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift, selectR
         ## count alignments by position
         if(!allelic) {
             count <- t(.Call(profileAlignmentsNonAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
-                             selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                             mapqmin, mapqmax, absisizemin, absisizemax))
-            colnames(count) <- as.character(seq(-maxUp, maxDown, by=1))
+                             selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, maxUpBin, maxDownBin,
+                             includeSpliced, mapqmin, mapqmax, absisizemin, absisizemax, binsize, binNames))
+
         } else {
             count <- lapply(.Call(profileAlignmentsAllelic, bamfile, queryids, tid, s, e, rp, selstrand, regstrand,
-                                  selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, includeSpliced,
-                                  mapqmin, mapqmax, absisizemin, absisizemax),
-                            function(x) {
-                                x <- t(x)
-                                colnames(x) <- as.character(seq(-maxUp, maxDown, by=1))
-                                x
-                            })
+                                  selectReadPosition, readBitMask, shift, broaden, maxUp, maxDown, maxUpBin, maxDownBin,
+                                  includeSpliced, mapqmin, mapqmax, absisizemin, absisizemax, binsize, binNames), t)
         }
         
         return(count)
