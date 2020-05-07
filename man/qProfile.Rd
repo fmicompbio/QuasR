@@ -110,9 +110,9 @@ qProfile(proj,
     ensure that query regions are made wide enough to emcompass all
     alignment pairs whose mid falls into the query region. The default
     value is \code{500} bases.}
-  \item{binSize}{Numeric scalar giving the size of bins. The default value (\code{1})
-    gives back counts for single bases. Otherwise, alignments
-    are counted in adjacent, non-overlapping windows of size \code{binSize}
+  \item{binSize}{Numeric scalar giving the size of bins (must be an odd number).
+    The default value (\code{1}) gives back counts for single bases. Otherwise,
+    alignments are counted in adjacent, non-overlapping windows of size \code{binSize}
     that tile the interval defined by \code{upstream} and \code{downstream}.}
   \item{clObj}{a cluster object to be used for parallel processing (see
     \sQuote{Details}).}

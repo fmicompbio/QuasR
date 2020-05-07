@@ -67,6 +67,8 @@ qProfile <-
           stop("'maxInsertSize' must be a numerical scalar")
         if(!is.numeric(binSize) || length(binSize) != 1L || binSize <= 0)
           stop("'binSize' must be a single numerical value greater than zero")
+        if(binSize %% 2 != 1)
+          stop("'binSize' must be an odd number")
         
         ## check shift
         if(length(shift) == 1 && shift == "halfInsert") {
