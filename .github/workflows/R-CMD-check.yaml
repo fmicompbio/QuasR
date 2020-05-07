@@ -82,7 +82,7 @@ jobs:
           sudo -s eval "$sysreqs"
 
       - name: Install special QuasR Windows dependencies
-        if: runner.os == 'windows-latest'
+        if: runner.os == 'Windows'
         run: |
           choco install curl
 #          choco install openssl
