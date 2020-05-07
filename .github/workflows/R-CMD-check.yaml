@@ -81,6 +81,14 @@ jobs:
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
 
+      - name: Install special QuasR Windows dependencies
+        if: runner.os == 'windows-latest'
+        run: |
+          choco install curl
+#          choco install openssl
+#          choco install openssh
+        
+
       - name: Install R package dependencies
         run: |
           local_deps <- remotes::local_package_deps(dependencies = TRUE)
