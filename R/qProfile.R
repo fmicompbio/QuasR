@@ -165,9 +165,11 @@ qProfile <-
             querynamesIntL <- lapply(taskL, function(i) querynamesInt[i])
 
             # calculate coverage
-            cvgL <- lapply(seq_along(queryWin), function(i) (maxUpBin-ceiling(upstream[i] / binSize) + 1):(maxUpBin + ceiling(downstream[i] / binSize) + 1))
-            cvg <- do.call(rbind, lapply(split(seq_along(queryWin),factor(querynames,levels=unique(querynames))),
-                                         function(i) tabulate(unlist(cvgL[i]))))
+            cvgBaseL <- lapply(seq_along(queryWin), function(i) (maxUp-upstream[i]+1):(maxUp+downstream[i]+1))
+            cvgBase <- do.call(rbind, lapply(split(seq_along(queryWin),factor(querynames,levels=unique(querynames))),
+                                            function(i) tabulate(unlist(cvgBaseL[i]), nbins = maxUp + maxDown + 1)))
+            cvg <- do.call(cbind, lapply(split(seq.int(maxUp + maxDown + 1), rep(seq(-maxUpBin, maxDownBin), each = binSize)),
+                                        function(i) rowSums(cvgBase[, i, drop = FALSE])))
             colnames(cvg) <- binNames
 
         } else {
