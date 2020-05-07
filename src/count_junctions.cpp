@@ -54,7 +54,7 @@ static int _addJunction(const bam1_t *hit, void *data){
     static map<string,int>::iterator it;
 
     uint32_t *cigar = bam1_cigar(hit);
-    uint i = 0; // current position of cigar operations
+    unsigned int i = 0; // current position of cigar operations
     int l; // length of current cigar operation
     int x; // leftmost coordinate of the current cigar operation in reference string
     int y; // leftmost coordinate of the current cigar operation in read
