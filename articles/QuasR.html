@@ -69,7 +69,7 @@
                         <h4 class="author">Charlotte Soneson</h4>
                         <h4 class="author">Anita Lerch</h4>
             
-            <h4 class="date">07 May, 2020</h4>
+            <h4 class="date">08 May, 2020</h4>
       
       
       <div class="hidden name"><code>QuasR.Rmd</code></div>
@@ -205,9 +205,9 @@
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c30fee5e8.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c31fe01722.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="no">proj</span></pre></body></html></div>
 <pre><code>## Project: qProject
@@ -225,8 +225,8 @@
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_3b1c2ea7fb79.bam
-##    2. chip_2_1_3b1c166edcdd.bam
+##    1. chip_1_1_18c3310ec987.bam
+##    2. chip_2_1_18c341d0d73a.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The <code>proj</code> object keeps track of all the information of a sequencing experiment, for example where sequence and alignment files are stored, and what aligner and reference genome was used to generate the alignments.</p>
@@ -607,10 +607,10 @@ NC_001422.1.fa  phiX174
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:</code></pre>
 <pre><code>## nodeNames
-## Mac-1557.local 
+## Mac-1486.local 
 ##              1</code></pre>
 <pre><code>## Performing auxiliary alignments for 2 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c625287a7.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c3f2a4341.txt
 ## Auxiliary alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb58"><html><body><pre class="r"><span class="no">proj1</span></pre></body></html></div>
 <pre><code>## Project: qProject
@@ -628,22 +628,22 @@ NC_001422.1.fa  phiX174
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_3b1c2ea7fb79.bam
-##    2. chip_2_1_3b1c166edcdd.bam
+##    1. chip_1_1_18c3310ec987.bam
+##    2. chip_2_1_18c341d0d73a.bam
 ## 
 ##  Aux. alignments: 1 file, directory: same as reads
 ##    a. /Users/runner/runners/2.169.1/work/QuasR/QuasR/.../NC_001422.1.fa  phiX174
-##      1. chip_1_1_3b1c1848175f.bam
-##      2. chip_2_1_3b1c24f66a6d.bam</code></pre>
+##      1. chip_1_1_18c31fa5682e.bam
+##      2. chip_2_1_18c3245ab43d.bam</code></pre>
 <p><code>qAlign</code> will build alignment indices if they do not yet exist (by default, if the genome and auxiliary sequences are given in the form of <code>fasta</code> files, they will be stored in the same folder). The <code>qProject</code> object (<code>proj1</code>) returned by <code>qAlign</code> now contains all information about the ChIP-seq experiment: the (optional) project name, the project options, aligner package, reference genome, and at the bottom the sequence and alignment files. For each input sequence file, there will be one <code>bam</code> file with alignments against the reference genome, and one for each auxiliary target sequence with alignments of reads without genome hits. Our <code>auxFile</code> contains a single auxiliary target sequence, so we expect two <code>bam</code> files per input sequence file:</p>
 <div class="sourceCode" id="cb60"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="st">"extdata"</span>, <span class="kw">pattern</span><span class="kw">=</span><span class="st">".bam$"</span>)</pre></body></html></div>
-<pre><code>## [1] "chip_1_1_3b1c1848175f.bam"     "chip_1_1_3b1c2ea7fb79.bam"    
-## [3] "chip_2_1_3b1c166edcdd.bam"     "chip_2_1_3b1c24f66a6d.bam"    
+<pre><code>## [1] "chip_1_1_18c31fa5682e.bam"     "chip_1_1_18c3310ec987.bam"    
+## [3] "chip_2_1_18c3245ab43d.bam"     "chip_2_1_18c341d0d73a.bam"    
 ## [5] "phiX_paired_withSecondary.bam"</code></pre>
 <p>The <code>bam</code> file names consist of the base name of the sequence file with an added random string. The random suffix makes sure that newly generated alignment files do not overwrite existing ones, for example of the same reads aligned against an alternative reference genome. Each alignment file is accompanied by two additional files with suffixes <code>.bai</code> and <code>.txt</code>:</p>
 <div class="sourceCode" id="cb62"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="st">"extdata"</span>, <span class="kw">pattern</span><span class="kw">=</span><span class="st">"^chip_1_1_"</span>)[<span class="fl">1</span>:<span class="fl">3</span>]</pre></body></html></div>
-<pre><code>## [1] "chip_1_1_3b1c1848175f.bam"     "chip_1_1_3b1c1848175f.bam.bai"
-## [3] "chip_1_1_3b1c1848175f.bam.txt"</code></pre>
+<pre><code>## [1] "chip_1_1_18c31fa5682e.bam"     "chip_1_1_18c31fa5682e.bam.bai"
+## [3] "chip_1_1_18c31fa5682e.bam.txt"</code></pre>
 <p>The <code>.bai</code> file is the <code>bam</code> index used for fast access by genomic coordinate. The <code>.txt</code> file contains all the parameters used to generate the corresponding <code>bam</code> file. Before new alignments are generated, <code>qAlign</code> will look for available <code>.txt</code> files in default locations (the directory containing the input sequence file, or the value of <code>alignmentsDir</code>), and read their contents to determine if a compatible <code>bam</code> file already exists. A compatible <code>bam</code> file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible <code>bam</code> file is not found, or the <code>.txt</code> file is missing, <code>qAlign</code> will generate a new <code>bam</code> file. It is therefore recommended not to delete the <code>.txt</code> file - without it, the corresponding <code>bam</code> file will become unusable for <em><a href="https://bioconductor.org/packages/3.12/QuasR">QuasR</a></em>.</p>
 </div>
 <div id="create-a-quality-control-report" class="section level3">
@@ -840,9 +840,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c3be6309a.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c378273464.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb105"><html><body><pre class="r"><span class="no">proj2</span></pre></body></html></div>
 <pre><code>## Project: qProject
@@ -860,8 +860,8 @@ NC_001422.1.fa  phiX174
 ##    2. rna_2_1.fq.bz2  rna_2_2.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. rna_1_1_3b1c580ed2f.bam 
-##    2. rna_2_1_3b1c5353ab7b.bam
+##    1. rna_1_1_18c355e0cedc.bam
+##    2. rna_2_1_18c31a2cf990.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Aligning the reads with <code>splicedAlignment=TRUE</code> will allow to also align reads that cross exon junctions, and thus have a large deletion (the intron) relative to the reference genome.</p>
@@ -872,9 +872,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c648579f3.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c35ec2d5f0.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb111"><html><body><pre class="r"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span>(<span class="no">proj2</span>)</pre></body></html></div>
 <pre><code>##                seqlength mapped unmapped
@@ -1061,9 +1061,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c7699f6c5.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c33773d35f.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb159"><html><body><pre class="r"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span>(<span class="no">proj3</span>)</pre></body></html></div>
 <pre><code>##               seqlength mapped unmapped
@@ -1128,9 +1128,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c2c3969ed.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c342d4cc59.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb181"><html><body><pre class="r"><span class="no">proj4</span></pre></body></html></div>
 <pre><code>## Project: qProject
@@ -1147,7 +1147,7 @@ NC_001422.1.fa  phiX174
 ##    1. bis_1_1.fa.bz2  Sample1
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. bis_1_1_3b1c6d595d49.bam
+##    1. bis_1_1_18c320b40956.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The resulting alignments are not different from those of non-Bis-seq experiments, apart from the fact that they may contain many C-to-T (or A-to-G) mismatches that are not counted as mismatches when aligning the reads. The number of alignments in specific genomic regions could be quantified using <code>qCount</code> as with ChIP-seq or RNA-seq experiments. For quantification of methylation the <code>qMeth</code> function is used:</p>
@@ -1275,9 +1275,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c614f65db.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c339f56f51.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb214"><html><body><pre class="r"><span class="no">proj1SNP</span></pre></body></html></div>
 <pre><code>## Project: qProject
@@ -1295,8 +1295,8 @@ chr1    4195    C   T
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_3b1c23a83ec6.bam
-##    2. chip_2_1_3b1c7ab14b73.bam
+##    1. chip_1_1_18c3205f4c91.bam
+##    2. chip_2_1_18c3509bd431.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Instead of one count per promoter region and sample, <code>qCount</code> now returns three (<code>promRegSel</code> was generated in the ChIP-seq example workflow):</p>
@@ -1340,9 +1340,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1557.local: 1
+## Mac-1486.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_3b1c6ab99090.txt
+## /Users/runner/runners/2.169.1/work/QuasR/QuasR/vignettes/QuasR_log_18c371a03143.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb231"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="../reference/qMeth.html">qMeth</a></span>(<span class="no">proj4SNP</span>, <span class="kw">mode</span><span class="kw">=</span><span class="st">"CpGcomb"</span>, <span class="kw">collapseBySample</span><span class="kw">=</span><span class="fl">TRUE</span>))</pre></body></html></div>
 <pre><code>## GRanges object with 6 ranges and 6 metadata columns:
@@ -1443,12 +1443,12 @@ chr1    4195    C   T
 <div class="sourceCode" id="cb233"><html><body><pre class="r"><span class="co"># using bam files</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span>(<span class="fu"><a href="../reference/qProject-class.html">alignments</a></span>(<span class="no">proj1</span>)$<span class="no">genome</span>$<span class="no">FileName</span>)</pre></body></html></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_3b1c2ea7fb79.bam     95000   2339      258
-## chip_2_1_3b1c166edcdd.bam     95000   3609      505</code></pre>
+## chip_1_1_18c3310ec987.bam     95000   2339      258
+## chip_2_1_18c341d0d73a.bam     95000   3609      505</code></pre>
 <div class="sourceCode" id="cb235"><html><body><pre class="r"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span>(<span class="fu"><a href="../reference/qProject-class.html">alignments</a></span>(<span class="no">proj1</span>)$<span class="no">aux</span>))</pre></body></html></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_3b1c1848175f.bam      5386    251        0
-## chip_2_1_3b1c24f66a6d.bam      5386    493        0</code></pre>
+## chip_1_1_18c31fa5682e.bam      5386    251        0
+## chip_2_1_18c3245ab43d.bam      5386    493        0</code></pre>
 <div class="sourceCode" id="cb237"><html><body><pre class="r"><span class="co"># using a qProject object</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span>(<span class="no">proj1</span>)</pre></body></html></div>
 <pre><code>##                 seqlength mapped unmapped
@@ -1570,8 +1570,8 @@ chr1    4195    C   T
 ##  [4] Biobase_2.49.0         Rsamtools_2.5.0        BSgenome_1.57.0       
 ##  [7] rtracklayer_1.49.1     Biostrings_2.57.0      XVector_0.29.0        
 ## [10] QuasR_1.29.2           Rbowtie_1.29.0         GenomicRanges_1.41.1  
-## [13] GenomeInfoDb_1.25.0    IRanges_2.23.4         S4Vectors_0.27.4      
-## [16] BiocGenerics_0.35.1    BiocStyle_2.17.0      
+## [13] GenomeInfoDb_1.25.0    IRanges_2.23.4         S4Vectors_0.27.5      
+## [16] BiocGenerics_0.35.2    BiocStyle_2.17.0      
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] colorspace_1.4-1            hwriter_1.3.2              
