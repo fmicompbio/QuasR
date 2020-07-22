@@ -340,7 +340,7 @@ createSeedList <- function(genome, aligner, indexPackageName)
                  PROVIDER=provider(genome),
                  PROVIDERVERSION=ifelse(!is.null(pv) && is.character(pv) && length(pv) == 1L, pv, "not_available"),
                  RELEASEDATE=releaseDate(genome),
-                 RELEASENAME=releaseName(genome),
+                 RELEASENAME="not_available",
                  ORGANISM=organism(genome),
                  SPECIES=commonName(genome),
                  SRCDATAFILES=bsgenomeName(genome),
