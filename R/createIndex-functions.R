@@ -323,6 +323,7 @@ BSgenomeSeqToFasta <- function(bsgenome, outFile)
 
 createSeedList <- function(genome, aligner, indexPackageName)
 {
+    pv <- metadata(genome)$genome
     seed <- list(##package seeds
                  PKGTITLE=paste(aligner, "Index of", bsgenomeName(genome)),
                  PKGDESCRIPTION=paste(aligner, "Index of", bsgenomeName(genome)),
@@ -337,7 +338,7 @@ createSeedList <- function(genome, aligner, indexPackageName)
                  ##genome seeds
                  GENOMENAME=bsgenomeName(genome),
                  PROVIDER=provider(genome),
-                 PROVIDERVERSION=providerVersion(genome),
+                 PROVIDERVERSION=ifelse(!is.null(pv) && is.character(pv) && length(pv) == 1L, pv, "not_available"),
                  RELEASEDATE=releaseDate(genome),
                  RELEASENAME=releaseName(genome),
                  ORGANISM=organism(genome),
