@@ -73,7 +73,7 @@ jobs:
           key: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
           restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-
 
-      - name: Install system dependencies
+      - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         env:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
@@ -82,9 +82,9 @@ jobs:
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
 
-     - name: Install special QuasR Windows dependencies
-       if: runner.os == 'Windows'
-       run: |
+      - name: Install Windows system dependencies
+        if: runner.os == 'Windows'
+        run: |
           conda install -c conda-forge curl
           conda install -c conda-forge openssl
           conda install -c conda-forge libssh2
