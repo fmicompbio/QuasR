@@ -84,9 +84,13 @@ jobs:
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          choco install openssl
-          choco install curl
+          choco install --no-progress openssl
+          choco install --no-progress curl
+          Write-Host "::add-path::C:\ProgramData\chocolatey\bin"
+          curl-config --libs
+          Write-Host "::set-env name=LIBRARY_PATH::C:\ProgramData\chocolatey\lib\:$($env:LIBRARY_PATH)"
 
       - name: Install R package dependencies
         run: |
