@@ -88,9 +88,6 @@ jobs:
           conda install -c conda-forge curl
           conda install -c conda-forge openssl
           conda install -c conda-forge libssh2
-#          choco install curl --no-progress
-#          choco install openssl
-#          choco install openssh
 
       - name: Install R package dependencies
         run: |
