@@ -1,0 +1,10 @@
+name: 'Run rchk tests'
+description: 'Run rchk tests'
+rchk:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: r-lib/actions/run-rchk@master
+      with:
+        apt: ''
+        package: ''
