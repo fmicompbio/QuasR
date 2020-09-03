@@ -11,5 +11,5 @@ jobs:
     - name: Run rchk to detect memory protection errors in C/C++ code
       uses: r-lib/actions/run-rchk@master
       with:
-        apt: 'libxml2-dev'
+        apt: 'libxml2-dev' 'libssl-dev'
         package: ''
