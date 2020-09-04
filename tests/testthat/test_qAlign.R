@@ -6,7 +6,7 @@ test_that("alignmentStats correctly digests its arguments", {
   expect_error(alignmentStats("nonexistent.bam"))
 })
 
-test_that("alignmentStats works as expected", {    
+test_that("alignmentStats works as expected", {
   resSoll <- matrix(c(95000,95000,
                       2339,3609,
                       258,505), nrow = 2, ncol = 3)
@@ -14,7 +14,7 @@ test_that("alignmentStats works as expected", {
   expect_identical(resSoll, unname(res))
   res <- alignmentStats(alignments(pChipSingle)$genome$FileName)
   expect_identical(resSoll, unname(res))
-  
+
   resSoll <- matrix(c(95000,95000,5386,5386,
                       2339,3609,251,493,
                       258,505,7,12), nrow = 4, ncol = 3)
@@ -26,6 +26,17 @@ test_that("alignmentStats works as expected", {
 context("qAlign")
 
 test_that("qAlign digests arguments correctly", {
+  # test redundant sample files
+  tmpf1 <- tempfile(fileext = ".txt")
+  tmpf2 <- tempfile(fileext = ".txt")
+  tab1 <- pChipSingle@reads
+  tab2 <- pChipSingle@alignments
+  write.table(tab1[c(1,1), ], tmpf1, sep = "\t", row.names = FALSE)
+  write.table(tab2[c(1,1), ], tmpf2, sep = "\t", row.names = FALSE)
+  expect_error(qAlign(tmpf1, genomeFile))
+  expect_error(qAlign(tmpf2, genomeFile))
+
+  # other arguments
   expect_error(qAlign("nonexistent_file"))
   expect_error(qAlign(genome = genomeFile))
   expect_error(qAlign(sChipSingle, genome = genomeFile[c(1,1)]))
