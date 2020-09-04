@@ -1,0 +1,15 @@
+name: run-rchk
+on:
+  workflow_dispatch:
+    branches:
+      - master
+jobs:
+  run-rchk:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v2
+    - name: Run rchk to detect memory protection errors in C/C++ code
+      uses: r-lib/actions/run-rchk@master
+      with:
+        apt: libxml2-dev libssl-dev
