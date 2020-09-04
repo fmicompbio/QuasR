@@ -1,8 +1,8 @@
 name: run-rchk
 on:
-  push:
+  workflow_dispatch:
     branches:
-      - gha_rchk
+      - master
 jobs:
   run-rchk:
     runs-on: ubuntu-latest
