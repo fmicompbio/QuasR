@@ -73,7 +73,7 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29.5</span>
       </span>
     </div>
 
@@ -117,14 +117,14 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
 quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>preprocessReads</span>(<span class='no'>filename</span>, <span class='kw'>outputFilename</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-             <span class='kw'>filenameMate</span><span class='kw'>=</span><span class='kw'>NULL</span>, <span class='kw'>outputFilenameMate</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-             <span class='kw'>truncateStartBases</span><span class='kw'>=</span><span class='kw'>NULL</span>, <span class='kw'>truncateEndBases</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-             <span class='kw'>Lpattern</span><span class='kw'>=</span><span class='st'>""</span>, <span class='kw'>Rpattern</span><span class='kw'>=</span><span class='st'>""</span>,
-             <span class='kw'>max.Lmismatch</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span>)), <span class='kw'>max.Rmismatch</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span>)),
-             <span class='kw'>with.Lindels</span><span class='kw'>=</span><span class='fl'>FALSE</span>, <span class='kw'>with.Rindels</span><span class='kw'>=</span><span class='fl'>FALSE</span>,
-             <span class='kw'>minLength</span><span class='kw'>=</span><span class='fl'>14L</span>, <span class='kw'>nBases</span><span class='kw'>=</span><span class='fl'>2L</span>, <span class='kw'>complexity</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-             <span class='kw'>nrec</span><span class='kw'>=</span><span class='fl'>1000000L</span>, <span class='kw'>clObj</span><span class='kw'>=</span><span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>preprocessReads</span>(<span class='kw'>filename</span>, outputFilename=<span class='kw'>NULL</span>,
+             filenameMate=<span class='kw'>NULL</span>, outputFilenameMate=<span class='kw'>NULL</span>,
+             truncateStartBases=<span class='kw'>NULL</span>, truncateEndBases=<span class='kw'>NULL</span>, 
+             Lpattern=<span class='st'>""</span>, Rpattern=<span class='st'>""</span>,
+             max.Lmismatch=<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span>)), max.Rmismatch=<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span>)),
+             with.Lindels=<span class='fl'>FALSE</span>, with.Rindels=<span class='fl'>FALSE</span>,
+             minLength=<span class='fl'>14L</span>, nBases=<span class='fl'>2L</span>, complexity=<span class='kw'>NULL</span>,
+             nrec=<span class='fl'>1000000L</span>, clObj=<span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -276,6 +276,9 @@ sequences, containing:</p><ul>
 </ul></li>
 </ul>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/Biostrings/man/trimLRPatterns.html'>trimLRPatterns</a></code> from package <span class="pkg">Biostrings</span>,
@@ -283,34 +286,37 @@ sequences, containing:</p><ul>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># sample files</span>
-<span class='no'>infiles</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='kw'>package</span><span class='kw'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span>,
+<span class='kw'>infiles</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(package=<span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span>,
                        <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"rna_1_1.fq.bz2"</span>,<span class='st'>"rna_1_2.fq.bz2"</span>))
-<span class='no'>outfiles</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(<span class='kw'>pattern</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"output_1_"</span>,<span class='st'>"output_2_"</span>)),<span class='st'>".fastq"</span>,<span class='kw'>sep</span><span class='kw'>=</span><span class='st'>""</span>)
+<span class='kw'>outfiles</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(pattern=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"output_1_"</span>,<span class='st'>"output_2_"</span>)),<span class='st'>".fastq"</span>,sep=<span class='st'>""</span>)
 
 <span class='co'># single read example</span>
-<span class='fu'>preprocessReads</span>(<span class='no'>infiles</span>, <span class='no'>outfiles</span>, <span class='kw'>nBases</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>complexity</span><span class='kw'>=</span><span class='fl'>0.6</span>)</div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/runners/2.169.1/work/_temp/Library/.../rna_1_1.fq.bz2</span></div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/runners/2.169.1/work/_temp/Library/.../rna_1_2.fq.bz2</span></div><div class='output co'>#&gt;                  rna_1_1.fq.bz2 rna_1_2.fq.bz2
+<span class='fu'>preprocessReads</span>(<span class='kw'>infiles</span>, <span class='kw'>outfiles</span>, nBases=<span class='fl'>0</span>, complexity=<span class='fl'>0.6</span>)
+</div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_1.fq.bz2</span></div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_2.fq.bz2</span></div><div class='output co'>#&gt;                  rna_1_1.fq.bz2 rna_1_2.fq.bz2
 #&gt; totalSequences             3002           3002
 #&gt; matchTo5pAdapter              0              0
 #&gt; matchTo3pAdapter              0              0
 #&gt; tooShort                      0              0
 #&gt; tooManyN                      3              0
 #&gt; lowComplexity                 0              0
-#&gt; totalPassed                2999           3002</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span>(<span class='no'>outfiles</span>)
+#&gt; totalPassed                2999           3002</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span>(<span class='kw'>outfiles</span>)
 
 <span class='co'># paired-end example</span>
-<span class='fu'>preprocessReads</span>(<span class='kw'>filename</span><span class='kw'>=</span><span class='no'>infiles</span>[<span class='fl'>1</span>],
-                <span class='kw'>outputFilename</span><span class='kw'>=</span><span class='no'>outfiles</span>[<span class='fl'>1</span>],
-                <span class='kw'>filenameMate</span><span class='kw'>=</span><span class='no'>infiles</span>[<span class='fl'>2</span>],
-                <span class='kw'>outputFilenameMate</span><span class='kw'>=</span><span class='no'>outfiles</span>[<span class='fl'>2</span>],
-                <span class='kw'>nBases</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>complexity</span><span class='kw'>=</span><span class='fl'>0.6</span>)</div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/runners/2.169.1/work/_temp/Libr.../rna_1_1.fq.bz2 and</span>
-#&gt; <span class='message'>    /Users/runner/runners/2.169.1/work/_temp/Libra.../rna_1_2.fq.bz2</span></div><div class='output co'>#&gt;                  rna_1_1.fq.bz2:rna_1_2.fq.bz2
+<span class='fu'>preprocessReads</span>(filename=<span class='kw'>infiles</span>[<span class='fl'>1</span>],
+                outputFilename=<span class='kw'>outfiles</span>[<span class='fl'>1</span>],
+                filenameMate=<span class='kw'>infiles</span>[<span class='fl'>2</span>],
+                outputFilenameMate=<span class='kw'>outfiles</span>[<span class='fl'>2</span>],
+                nBases=<span class='fl'>0</span>, complexity=<span class='fl'>0.6</span>)
+</div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_1.fq.bz2 and</span>
+#&gt; <span class='message'>    /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_2.fq.bz2</span></div><div class='output co'>#&gt;                  rna_1_1.fq.bz2:rna_1_2.fq.bz2
 #&gt; totalSequences                            3002
 #&gt; matchTo5pAdapter                            NA
 #&gt; matchTo3pAdapter                            NA
 #&gt; tooShort                                     0
 #&gt; tooManyN                                     3
 #&gt; lowComplexity                                0
-#&gt; totalPassed                               2999</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span>(<span class='no'>outfiles</span>)</div></pre>
+#&gt; totalPassed                               2999</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span>(<span class='kw'>outfiles</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

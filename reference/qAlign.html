@@ -74,7 +74,7 @@ the aligner." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29.5</span>
       </span>
     </div>
 
@@ -119,23 +119,23 @@ targets if not yet existing. If necessary, also build target indices for
 the aligner.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qAlign</span>(<span class='no'>sampleFile</span>,
-       <span class='no'>genome</span>,
-       <span class='kw'>auxiliaryFile</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>aligner</span><span class='kw'>=</span><span class='st'>"Rbowtie"</span>,
-       <span class='kw'>maxHits</span><span class='kw'>=</span><span class='fl'>1</span>,
-       <span class='kw'>paired</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>splicedAlignment</span><span class='kw'>=</span><span class='fl'>FALSE</span>,
-       <span class='kw'>snpFile</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>bisulfite</span><span class='kw'>=</span><span class='st'>"no"</span>,
-       <span class='kw'>alignmentParameter</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>projectName</span><span class='kw'>=</span><span class='st'>"qProject"</span>,
-       <span class='kw'>alignmentsDir</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>lib.loc</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>cacheDir</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>clObj</span><span class='kw'>=</span><span class='kw'>NULL</span>,
-       <span class='kw'>checkOnly</span><span class='kw'>=</span><span class='fl'>FALSE</span>,
-       <span class='kw'>geneAnnotation</span><span class='kw'>=</span><span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>qAlign</span>(<span class='kw'>sampleFile</span>, 
+       <span class='kw'>genome</span>, 
+       auxiliaryFile=<span class='kw'>NULL</span>, 
+       aligner=<span class='st'>"Rbowtie"</span>, 
+       maxHits=<span class='fl'>1</span>, 
+       paired=<span class='kw'>NULL</span>, 
+       splicedAlignment=<span class='fl'>FALSE</span>, 
+       snpFile=<span class='kw'>NULL</span>, 
+       bisulfite=<span class='st'>"no"</span>, 
+       alignmentParameter=<span class='kw'>NULL</span>, 
+       projectName=<span class='st'>"qProject"</span>, 
+       alignmentsDir=<span class='kw'>NULL</span>, 
+       lib.loc=<span class='kw'>NULL</span>, 
+       cacheDir=<span class='kw'>NULL</span>, 
+       clObj=<span class='kw'>NULL</span>,
+       checkOnly=<span class='fl'>FALSE</span>,
+       geneAnnotation=<span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -353,6 +353,9 @@ the aligner.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code><a href='qProject-class.html'>qProject</a></code> object.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis, Charlotte Soneson and Michael Stadler</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qProject-class.html'>qProject</a></code>,
@@ -361,12 +364,13 @@ the aligner.</p>
   <code><a href='https://rdrr.io/pkg/Rhisat2/man/Rhisat2-package.html'>Rhisat2-package</a></code> package</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
     <span class='co'># see qCount, qMeth and qProfile manual pages for examples</span>
-    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='no'>qCount</span>)
-    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='no'>qMeth</span>)
-    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='no'>qProfile</span>)
-}</div></pre>
+    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='kw'>qCount</span>)
+    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='kw'>qMeth</span>)
+    <span class='fu'><a href='https://rdrr.io/r/utils/example.html'>example</a></span>(<span class='kw'>qProfile</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
