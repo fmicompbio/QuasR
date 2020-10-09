@@ -555,7 +555,12 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
             proj@alignmentParameter <- paste(proj@alignmentParameter,"--maxins 500")
           }
         }else{  # hisat2
-          proj@alignmentParameter <- paste("-k",proj@maxHits+1)
+          if (is.na(proj@snpFile)) {
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1)
+          } else {
+            # XV tag is not added to singly aligned reads and will make qCount fail
+            proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--no-mixed --no-discordant")
+          }
         }
       }else{
         if(proj@aligner == "Rbowtie") {  # spliced, bowtie
@@ -569,6 +574,10 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
             proj@alignmentParameter <- paste("-k",proj@maxHits+1,"--known-splicesite-infile",paste0(proj@geneAnnotation,".SpliceSites.txt"))
           } else {
             proj@alignmentParameter <- paste("-k",proj@maxHits+1)
+          }
+          if (!is.na(proj@snpFile)) {
+            # XV tag is not added to singly aligned reads and will make qCount fail
+            proj@alignmentParameter <- paste(proj@alignmentParameter,"--no-mixed --no-discordant")
           }
         }
       }
