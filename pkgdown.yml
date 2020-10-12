@@ -1,6 +1,7 @@
 pandoc: 2.7.3
-pkgdown: 1.5.1.9000
-pkgdown_sha: c6b35532515a7ae433eff4b547d77eeae4278664
-articles: []
-last_built: 2020-09-07T07:25Z
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  QuasR: QuasR.html
+last_built: 2020-10-12T09:41Z
 
