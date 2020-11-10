@@ -85,7 +85,7 @@ jobs:
       - name: Install macOS system dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install curl --with-openssl
+          brew install curl-openssl
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
