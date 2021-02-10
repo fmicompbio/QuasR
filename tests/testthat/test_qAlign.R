@@ -55,6 +55,29 @@ test_that("qAlign digests arguments correctly", {
   expect_error(qAlign(sRnaPaired, genomeFile, paired = "invalid"))
   expect_error(qAlign(sampleFile = "nonExisting", genomeFile))
   expect_error(qAlign(sChipSingle, genomeFile, paired = "fr"))
+  
+  # inconsistent bam header and BSgenome reference
+  # ... create bam file with inconsistent header
+  pBad <- pChipSingle
+  goodbamfile <- pChipSingle@alignments$FileName[1]
+  goodsamfile <- Rsamtools::asSam(goodbamfile, tempfile())
+  goodsamlines <- readLines(goodsamfile)
+  badsamlines <- c(goodsamlines[1:4], "@SQ\tSN:chr4\tLN:9999", goodsamlines[5:length(goodsamlines)])
+  badsamfile <- tempfile(fileext = ".sam")
+  writeLines(badsamlines, badsamfile)
+  badbamfile <- Rsamtools::asBam(badsamfile, file.path(dirname(goodbamfile), paste0("bad_", sub(".bam$", "", basename(goodbamfile)))))
+  # ... incorporate it into a sample file
+  goodfnames <- c(pChipSingle@reads$FileName[1], paste0(pChipSingle@alignments$FileName[1], ".txt"))
+  badfnames <- file.path(dirname(goodfnames), paste0("bad_", basename(goodfnames)))
+  file.copy(goodfnames, badfnames)
+  txtlines <- readLines(badfnames[2])
+  txtlines[1] <- sub("chip_1_1", "bad_chip_1_1", txtlines[1])
+  writeLines(txtlines, badfnames[2])
+  badsamplefile <- tempfile(tmpdir = dirname(goodfnames[1]), fileext = ".txt")
+  samplelines <- readLines(sChipSingle)
+  samplelines[2] <- paste0("bad_", samplelines[2])
+  writeLines(samplelines, badsamplefile)
+  expect_warning(qAlign(badsamplefile, genomePkg, clObj = clObj, lib.loc = rlibdir, cacheDir = tempdir()))
 })
 
 test_that("qAlign correctly works for single reads", {

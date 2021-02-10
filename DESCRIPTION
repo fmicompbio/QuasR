@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.31.0
-Date: 2020-10-09
+Version: 1.31.1
+Date: 2021-02-09
 Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
 Depends: R (>= 4.0), parallel, GenomicRanges, Rbowtie
