@@ -114,9 +114,13 @@ missingFilesMessage <- function(proj, checkOnly){
   ## bam files are consistent with BSgenome reference
   if (proj@samplesFormat != "bam" && any(!is.na(proj@alignments$FileName)) &&
       proj@genomeFormat == "BSgenome") {
-    refchrs <- sort(seqlengths(get(proj@genome)))
+    refchrs <- seqlengths(get(proj@genome))
+    refchrs <- refchrs[order(names(refchrs))]
     bamchrsL <- lapply(scanBamHeader(na.omit(proj@alignments$FileName)),
-                       function(bh) sort(bh$targets))
+                       function(bh) {
+                         x <- bh$targets
+                         x[order(names(x))]
+                      })
     ok <- unlist(lapply(bamchrsL, function(x) identical(x, refchrs)))
     if (!all(ok)) {
       warnfiles <- na.omit(proj@alignments$FileName)[!ok]
