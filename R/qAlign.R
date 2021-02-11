@@ -124,9 +124,10 @@ missingFilesMessage <- function(proj, checkOnly){
     ok <- unlist(lapply(bamchrsL, function(x) identical(x, refchrs)))
     if (!all(ok)) {
       warnfiles <- na.omit(proj@alignments$FileName)[!ok]
-      warning("The following pre-existing bam files were generated",
-              " for reference sequences that are inconsistent with",
-              " the current reference genome (", proj@genome, "):\n  ",
+      warning("The genome in ", proj@genome, " has changed since some bam files\n",
+              "in this project were generated.\n",
+              "The following pre-existing bam files were generated for a genome\n",
+              "that is inconsistent with the current verion of ", proj@genome, ":\n  ",
               paste(warnfiles, collapse = "\n  "))
     }
   }
