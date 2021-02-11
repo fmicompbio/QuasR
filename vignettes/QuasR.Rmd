@@ -549,7 +549,7 @@ details).
 
 When using a `r Biocpkg("BSgenome")` reference, `r Biocpkg("QuasR")` will check
 in the `qAlign` function whether the chromosome names and lengths contained
-in the header of pre-existing bam files are identical to the ones provided by
+in the header of any pre-existing bam files are identical to the ones provided by
 the genome and warn if this is not the case.
 
 ## Sequence data pre-processing {#preProcessing}
