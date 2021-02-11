@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -60,8 +60,7 @@
 
       
 
-      </header><script src="QuasR_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="QuasR_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="QuasR_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="QuasR_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>An introduction to QuasR</h1>
@@ -70,7 +69,7 @@
                         <h4 class="author">Charlotte Soneson</h4>
                         <h4 class="author">Anita Lerch</h4>
             
-            <h4 class="date">26 November, 2020</h4>
+            <h4 class="date">11 February, 2021</h4>
       
       
       <div class="hidden name"><code>QuasR.Rmd</code></div>
@@ -158,7 +157,7 @@
 <div id="how-to-get-help" class="section level2">
 <h2 class="hasAnchor">
 <a href="#how-to-get-help" class="anchor"></a>How to get help</h2>
-<p>Most questions about <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> will hopefully be answered by the documentation or references. If you’ve run into a question which isn’t addressed by the documentation, or you’ve found a conflict between the documentation and software itself, then there is an active support community which can offer help.</p>
+<p>Most questions about <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> will hopefully be answered by the documentation or references. If you’ve run into a question which isn’t addressed by the documentation, or you’ve found a conflict between the documentation and software, then there is an active support community which can offer help.</p>
 <p>The authors of the package (maintainer: Michael Stadler <a href="mailto:michael.stadler@fmi.ch" class="email">michael.stadler@fmi.ch</a>) always appreciate receiving reports of bugs in the package functions or in the documentation. The same goes for well-considered suggestions for improvements.</p>
 <p>Any other questions or problems concerning <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> should be posted to the Bioconductor support site (<a href="https://support.bioconductor.org" class="uri">https://support.bioconductor.org</a>). Users posting to the support site for the first time should read the helpful posting guide at (<a href="https://support.bioconductor.org/info/faq/" class="uri">https://support.bioconductor.org/info/faq/</a>). Note that each function in <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> has it’s own help page, as described in the section @ref(introToR). Posting etiquette requires that you read the relevant help page carefully before posting a problem to the site.</p>
 </div>
@@ -170,7 +169,7 @@
 <h2 class="hasAnchor">
 <a href="#introToR" class="anchor"></a>A brief introduction to <strong>R</strong>
 </h2>
-<p>If you already use <strong>R</strong> and know about its command line interface, just skip this section and continue with section @ref(sampleQuasRsession).</p>
+<p>If you already use <strong>R</strong> and know about its interface, just skip this section and continue with section @ref(sampleQuasRsession).</p>
 <p>The structure of this vignette and in particular this section is based on the excellent user guide of the <em><a href="https://bioconductor.org/packages/3.13/limma">limma</a></em> package, which we would like to hereby acknowledge. <strong>R</strong> is a program for statistical computing. It is a command-driven language meaning that you have to type commands into it rather than pointing and clicking using a mouse. In this guide it will be assumed that you have successfully downloaded and installed <strong>R</strong> from (<a href="http://www.r-project.org" class="uri">http://www.r-project.org</a>) as well as <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> (see section @ref(installation)). A good way to get started is to type</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/help.start.html">help.start</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
@@ -184,17 +183,17 @@
 <p>or equivalently</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/help.html">help</a></span><span class="op">(</span><span class="st">"preprocessReads"</span><span class="op">)</span></code></pre></div>
-<p>for detailed help on the <code>preprocessReads</code> function. The individual function help pages are especially important for listing all the arguments which a function will accept and what values the arguments can take.</p>
-<p>A key to understanding <strong>R</strong> is to appreciate that anything that you create in <strong>R</strong> is an <em>object</em>. Objects might include data sets, variables, functions, anything at all. For example</p>
+<p>for detailed help on the <code>preprocessReads</code> function. The function help page is especially useful to learn about its arguments and its return value.</p>
+<p>Working with <strong>R</strong> usually means creating and transforming <em>objects</em>. Objects might include data sets, variables, functions, anything at all. For example</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fl">2</span></code></pre></div>
 <p>will create a variable <code>x</code> and will assign it the value 2. At any stage of your <strong>R</strong> session you can type</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/ls.html">ls</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>to get a list of all the objects you have created. You can see the contents of any object by typing the name of the object at the prompt. The following command will print out the contents of <code>x</code>:</p>
+<p>to get a list of all the objects currently existing in your session. You can display an object by typing its name on the prompt. The following displays the object <code>x</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">x</span></code></pre></div>
-<p>We hope that you can use <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> without having to spend a lot of time learning about the <strong>R</strong> language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> or in the other Bioconductor packages. For more details about the <strong>R</strong> language see <em>An Introduction to R</em> which is available from the online help. For more background on using <strong>R</strong> for statistical analysis see <span class="citation">(Dalgaard 2002)</span>.</p>
+<p>We hope that you can use <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> without having to spend a lot of time learning about the <strong>R</strong> language itself but a little knowledge in this direction will be very helpful, especially when you want to do something not explicitly provided for in <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> or in the other Bioconductor packages. For more details about the <strong>R</strong> language see <em>An Introduction to R</em> which is available from the online help, or one of the many great online resources, like the documentation at <a href="https://www.r-project.org/">r-project.org</a>, the growing list of free books at <a href="https://bioconductor.org/books/release/">bioconductor.org</a>, or the books from <a href="https://rstudio.com/resources/books/">rstudio.com</a> (many of which are also available for free). For more background on using <strong>R</strong> for statistical analysis see <span class="citation">(Dalgaard 2002)</span>.</p>
 </div>
 <div id="sampleQuasRsession" class="section level2">
 <h2 class="hasAnchor">
@@ -203,7 +202,8 @@
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<p>The sequence files to be analyzed are listed in <code>sampleFile</code> (see section @ref(sampleFile) for details). The sequence reads will be aligned using <code>bowtie</code> <span class="citation">(Langmead et al. 2009)</span> (from the <em><a href="https://bioconductor.org/packages/3.13/Rbowtie">Rbowtie</a></em> package <span class="citation">(Hahne, Lerch, and Stadler 2012)</span>) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg19">BSgenome.Hsapiens.UCSC.hg19</a></em> package). Make sure that you have sufficient disk space, both in your <strong>R</strong> temporary directory (<code><a href="https://rdrr.io/r/base/tempfile.html">tempdir()</a></code>) as well as to store the resulting alignments (see section @ref(qAlign)).</p>
+<p>The sequence files to be analyzed are listed in <code>sampleFile</code> (see section @ref(sampleFile) for details). The sequence reads will be aligned using <code>bowtie</code> <span class="citation">(Langmead et al. 2009)</span> (from the <em><a href="https://bioconductor.org/packages/3.13/Rbowtie">Rbowtie</a></em> package <span class="citation">(Hahne, Lerch, and Stadler 2012)</span>) to a small reference genome (consisting of three short segments from the hg19 human genome assembly, available in full for example in the <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg19">BSgenome.Hsapiens.UCSC.hg19</a></em> package). Information on selecting an appropriate reference genome is summarized in section @ref(genome).</p>
+<p>Make sure that you have sufficient disk space, both in your <strong>R</strong> temporary directory (<code><a href="https://rdrr.io/r/base/tempfile.html">tempdir()</a></code>) as well as to store the resulting alignments (see section @ref(qAlign)).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
@@ -218,9 +218,9 @@
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d5d9c966d.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b683312d4dd8.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj</span></code></pre></div>
@@ -231,7 +231,7 @@
 ##              bisulfite       : no
 ##              snpFile         : none
 ##              geneAnnotation  : none
-##  Aligner   : Rbowtie v1.31.4 (parameters: -m 1 --best --strata)
+##  Aligner   : Rbowtie v1.31.6 (parameters: -m 1 --best --strata)
 ##  Genome    : /Users/runner/work/QuasR/QuasR/vignettes/extdata/hg19sub.fa (file)
 ## 
 ##  Reads     : 2 files, 2 samples (fastq format):
@@ -239,8 +239,8 @@
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b27d5357fe1e.bam
-##    2. chip_2_1_b27d35ec8e51.bam
+##    1. chip_1_1_b6831551b921.bam
+##    2. chip_2_1_b68328513076.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The <code>proj</code> object keeps track of all the information of a sequencing experiment, for example where sequence and alignment files are stored, and what aligner and reference genome was used to generate the alignments.</p>
@@ -433,7 +433,7 @@ NC_001422.1.fa  phiX174
 <div id="genome" class="section level2">
 <h2 class="hasAnchor">
 <a href="#genome" class="anchor"></a>Select the reference genome</h2>
-<p>Sequence reads are primarily aligned against the reference genome. If necessary, <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> will create an aligner index for the genome. The reference genome can be provided in one of two different formats:</p>
+<p>Sequence reads are primarily aligned against the reference genome (see section @ref(redundancy) on how to choose a suitable reference assembly). If necessary, <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> will create an aligner index for the genome. The reference genome can be provided in one of two different formats:</p>
 <ul>
 <li>
 <p><strong>a string</strong>, referring to the name of a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> package:</p>
@@ -545,7 +545,7 @@ NC_001422.1.fa  phiX174
 <code class="sourceCode R"><span class="va">genomeName</span> <span class="op">&lt;-</span> <span class="st">"BSgenome.Hsapiens.UCSC.hg19"</span></code></pre></div>
 </li>
 </ul>
-<p>In this example, the BSgenome package <code>"BSgenome.Hsapiens.UCSC.hg19"</code> refers to an unmasked genome; alignment index and alignments will be performed on the full unmasked genome sequence (recommended). If using a masked genome (e.g. <code>"BSgenome.Hsapiens.UCSC.hg19.masked"</code>), masked regions will be replaced with <code>"N"</code> bases, and this hard-masked version of the genome will be used for creating the alignment index and further alignments.</p>
+<p>In this example, the BSgenome package <code>"BSgenome.Hsapiens.UCSC.hg19"</code> refers to an unmasked genome; alignment index and alignments will be performed on the full unmasked genome sequence (recommended). If using a masked genome (e.g. <code>"BSgenome.Hsapiens.UCSC.hg19.masked"</code>), masked regions will be replaced with <code>"N"</code> bases, and this hard-masked version of the genome will be used for creating the alignment index and further alignments. Please also see section @ref(redundancy) for potential issues with redundant sequences contained in the reference genome, e.g. in <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg19">BSgenome.Hsapiens.UCSC.hg19</a></em> or <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg38">BSgenome.Hsapiens.UCSC.hg38</a></em>.</p>
 <ul>
 <li>
 <p><strong>a file name</strong>, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in <code>fasta</code> format:</p>
@@ -553,6 +553,13 @@ NC_001422.1.fa  phiX174
 <code class="sourceCode R"><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span>, <span class="st">"hg19sub.fa"</span><span class="op">)</span></code></pre></div>
 </li>
 </ul>
+<div id="redundancy" class="section level3">
+<h3 class="hasAnchor">
+<a href="#redundancy" class="anchor"></a>Choosing a suitable (non-redundant) reference genome</h3>
+<p>For some organisms, several versions of the genome assembly exist. These differ for example in whether or not they include alternative variants for sequences that are variable within the species. This may lead to redundant sequences in the assembly, and thus reads mapping to such sequences being wrongly classified as “multi-mapping”, and comparing data aligned to different assembly version may give rise to incorrect results. A nice summary of this issue is provided in this <a href="https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use">blog post</a> from Heng Li.</p>
+<p>The <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> packages <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg19">BSgenome.Hsapiens.UCSC.hg19</a></em> (versions newer than 1.4.0 from Bioconductor 3.10) and <em><a href="https://bioconductor.org/packages/3.13/BSgenome.Hsapiens.UCSC.hg38">BSgenome.Hsapiens.UCSC.hg38</a></em> (all versions) do contain such redundant sequences and are therefore not ideal references for alignment of human data. Specific “analysis set” or “primary assembly” versions of the assembly should be used instead (see the before-mentioned <a href="https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use">blog post</a> for details).</p>
+<p>When using a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> reference, <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> will check in the <code>qAlign</code> function whether the chromosome names and lengths contained in the header of any pre-existing bam files are identical to the ones provided by the genome and warn if this is not the case.</p>
+</div>
 </div>
 <div id="preProcessing" class="section level2">
 <h2 class="hasAnchor">
@@ -641,10 +648,10 @@ NC_001422.1.fa  phiX174
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:</code></pre>
 <pre><code>## nodeNames
-## Mac-1606410485286.local 
+## Mac-1613056568279.local 
 ##                       1</code></pre>
 <pre><code>## Performing auxiliary alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27dfecb44c.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6833d761951.txt
 ## Auxiliary alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1</span></code></pre></div>
@@ -655,7 +662,7 @@ NC_001422.1.fa  phiX174
 ##              bisulfite       : no
 ##              snpFile         : none
 ##              geneAnnotation  : none
-##  Aligner   : Rbowtie v1.31.4 (parameters: -m 1 --best --strata)
+##  Aligner   : Rbowtie v1.31.6 (parameters: -m 1 --best --strata)
 ##  Genome    : /Users/runner/work/QuasR/QuasR/vignettes/extdata/hg19sub.fa (file)
 ## 
 ##  Reads     : 2 files, 2 samples (fastq format):
@@ -663,24 +670,24 @@ NC_001422.1.fa  phiX174
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b27d5357fe1e.bam
-##    2. chip_2_1_b27d35ec8e51.bam
+##    1. chip_1_1_b6831551b921.bam
+##    2. chip_2_1_b68328513076.bam
 ## 
 ##  Aux. alignments: 1 file, directory: same as reads
 ##    a. /Users/runner/work/QuasR/QuasR/vignettes/extdata/NC_001422.1.fa    phiX174
-##      1. chip_1_1_b27d7d30f1be.bam
-##      2. chip_2_1_b27d184f3128.bam</code></pre>
+##      1. chip_1_1_b6831478345d.bam
+##      2. chip_2_1_b6835fb5d02a.bam</code></pre>
 <p><code>qAlign</code> will build alignment indices if they do not yet exist (by default, if the genome and auxiliary sequences are given in the form of <code>fasta</code> files, they will be stored in the same folder). The <code>qProject</code> object (<code>proj1</code>) returned by <code>qAlign</code> now contains all information about the ChIP-seq experiment: the (optional) project name, the project options, aligner package, reference genome, and at the bottom the sequence and alignment files. For each input sequence file, there will be one <code>bam</code> file with alignments against the reference genome, and one for each auxiliary target sequence with alignments of reads without genome hits. Our <code>auxFile</code> contains a single auxiliary target sequence, so we expect two <code>bam</code> files per input sequence file:</p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern<span class="op">=</span><span class="st">".bam$"</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_b27d5357fe1e.bam"     "chip_1_1_b27d7d30f1be.bam"    
-## [3] "chip_2_1_b27d184f3128.bam"     "chip_2_1_b27d35ec8e51.bam"    
+<pre><code>## [1] "chip_1_1_b6831478345d.bam"     "chip_1_1_b6831551b921.bam"    
+## [3] "chip_2_1_b68328513076.bam"     "chip_2_1_b6835fb5d02a.bam"    
 ## [5] "phiX_paired_withSecondary.bam"</code></pre>
 <p>The <code>bam</code> file names consist of the base name of the sequence file with an added random string. The random suffix makes sure that newly generated alignment files do not overwrite existing ones, for example of the same reads aligned against an alternative reference genome. Each alignment file is accompanied by two additional files with suffixes <code>.bai</code> and <code>.txt</code>:</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern<span class="op">=</span><span class="st">"^chip_1_1_"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_b27d5357fe1e.bam"     "chip_1_1_b27d5357fe1e.bam.bai"
-## [3] "chip_1_1_b27d5357fe1e.bam.txt"</code></pre>
+<pre><code>## [1] "chip_1_1_b6831478345d.bam"     "chip_1_1_b6831478345d.bam.bai"
+## [3] "chip_1_1_b6831478345d.bam.txt"</code></pre>
 <p>The <code>.bai</code> file is the <code>bam</code> index used for fast access by genomic coordinate. The <code>.txt</code> file contains all the parameters used to generate the corresponding <code>bam</code> file. Before new alignments are generated, <code>qAlign</code> will look for available <code>.txt</code> files in default locations (the directory containing the input sequence file, or the value of <code>alignmentsDir</code>), and read their contents to determine if a compatible <code>bam</code> file already exists. A compatible <code>bam</code> file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible <code>bam</code> file is not found, or the <code>.txt</code> file is missing, <code>qAlign</code> will generate a new <code>bam</code> file. It is therefore recommended not to delete the <code>.txt</code> file - without it, the corresponding <code>bam</code> file will become unusable for <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em>.</p>
 </div>
 <div id="create-a-quality-control-report" class="section level3">
@@ -777,10 +784,10 @@ NC_001422.1.fa  phiX174
 ## ENSG00000134075  1500       7       3</code></pre>
 <p>The counts returned by <code>qCount</code> are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the <em><a href="https://bioconductor.org/packages/3.13/Gviz">Gviz</a></em> package:</p>
 <div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gr1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/export.html">import</a></span><span class="op">(</span><span class="st">"Sample1.wig.gz"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">gr1</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"Sample1.wig.gz"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning in asMethod(object): NAs introduced by coercion</code></pre>
 <div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gr2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/export.html">import</a></span><span class="op">(</span><span class="st">"Sample2.wig.gz"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">gr2</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"Sample2.wig.gz"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning in asMethod(object): NAs introduced by coercion</code></pre>
 <div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ivanek/Gviz">Gviz</a></span><span class="op">)</span>
@@ -895,9 +902,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d3f80c8b6.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b683169a1352.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj2</span></code></pre></div>
@@ -916,8 +923,8 @@ NC_001422.1.fa  phiX174
 ##    2. rna_2_1.fq.bz2  rna_2_2.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. rna_1_1_b27d1ff9454c.bam
-##    2. rna_2_1_b27d263490fa.bam
+##    1. rna_1_1_b6835d6a7815.bam
+##    2. rna_2_1_b68378f1da9c.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Aligning the reads with <code>splicedAlignment=TRUE</code> will allow to also align reads that cross exon junctions, and thus have a large deletion (the intron) relative to the reference genome.</p>
@@ -929,9 +936,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d62bfb2ca.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6833b3f03c1.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj2</span><span class="op">)</span></code></pre></div>
@@ -1141,9 +1148,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d32a4359d.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6832b68f584.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb159"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj3</span><span class="op">)</span></code></pre></div>
@@ -1156,7 +1163,7 @@ NC_001422.1.fa  phiX174
 <a href="#quantification-of-small-rna-mirna-reads" class="anchor"></a>Quantification of small RNA (miRNA) reads</h3>
 <p>As with other experiment types, miRNAs are quantified using <code>qCount</code>. For this purpose, we first construct a query <code>GRanges</code> object with the genomic locations of mature miRNAs. The locations can be obtained from the <em><a href="https://bioconductor.org/packages/3.13/mirbase.db">mirbase.db</a></em> package, or directly from the species-specific gff files provided by the mirBase database (e.g. (<a href="ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3" class="uri">ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3</a>)). For the purpose of this example, the <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> package provides a small gff file (<code>"mirbaseXX_qsr.gff3"</code>) that is formatted as the ones available from mirBase. The gff file contains both the locations of pre-miRNAs (hairpin precursors), as well as mature miRNAs. The two can be discriminated by their <code>"type"</code>:</p>
 <div class="sourceCode" id="cb161"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mirs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/export.html">import</a></span><span class="op">(</span><span class="st">"extdata/mirbaseXX_qsr.gff3"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">mirs</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"extdata/mirbaseXX_qsr.gff3"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">mirs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">$</span><span class="va">Name</span>
 <span class="va">preMirs</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">[</span> <span class="va">mirs</span><span class="op">$</span><span class="va">type</span><span class="op">==</span><span class="st">"miRNA_primary_transcript"</span> <span class="op">]</span>
 <span class="va">matureMirs</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">[</span> <span class="va">mirs</span><span class="op">$</span><span class="va">type</span><span class="op">==</span><span class="st">"miRNA"</span> <span class="op">]</span></code></pre></div>
@@ -1218,9 +1225,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d4f242229.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6837f8b1ce4.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb181"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj4</span></code></pre></div>
@@ -1231,14 +1238,14 @@ NC_001422.1.fa  phiX174
 ##              bisulfite       : dir
 ##              snpFile         : none
 ##              geneAnnotation  : none
-##  Aligner   : Rbowtie v1.31.4 (parameters: -k 2 --best --strata -v 2)
+##  Aligner   : Rbowtie v1.31.6 (parameters: -k 2 --best --strata -v 2)
 ##  Genome    : /Users/runner/work/QuasR/QuasR/vignettes/extdata/hg19sub.fa (file)
 ## 
 ##  Reads     : 1 file, 1 sample (fasta format):
 ##    1. bis_1_1.fa.bz2  Sample1
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. bis_1_1_b27d4d3eda56.bam
+##    1. bis_1_1_b683615fe27.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The resulting alignments are not different from those of non-Bis-seq experiments, apart from the fact that they may contain many C-to-T (or A-to-G) mismatches that are not counted as mismatches when aligning the reads. The number of alignments in specific genomic regions could be quantified using <code>qCount</code> as with ChIP-seq or RNA-seq experiments. For quantification of methylation the <code>qMeth</code> function is used:</p>
@@ -1376,9 +1383,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d589c6dfa.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b68324424c65.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb214"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1SNP</span></code></pre></div>
@@ -1389,7 +1396,7 @@ chr1    4195    C   T
 ##              bisulfite       : no
 ##              snpFile         : /Users/runner/work/QuasR/Quas.../hg19sub_snp.txt
 ##              geneAnnotation  : none
-##  Aligner   : Rbowtie v1.31.4 (parameters: -k 2 --best --strata -v 2)
+##  Aligner   : Rbowtie v1.31.6 (parameters: -k 2 --best --strata -v 2)
 ##  Genome    : /Users/runner/work/QuasR/QuasR/vignettes/extdata/hg19sub.fa (file)
 ## 
 ##  Reads     : 2 files, 2 samples (fastq format):
@@ -1397,8 +1404,8 @@ chr1    4195    C   T
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b27d5f86589.bam 
-##    2. chip_2_1_b27d76d2086e.bam
+##    1. chip_1_1_b6837ca58d7b.bam
+##    2. chip_2_1_b68358ebc62b.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Instead of one count per promoter region and sample, <code>qCount</code> now returns three (<code>promRegSel</code> was generated in the ChIP-seq example workflow):</p>
@@ -1445,9 +1452,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1606410485286.local: 1
+## Mac-1613056568279.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b27d15bff5d8.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b68376baa790.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb231"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4SNP</span>, mode<span class="op">=</span><span class="st">"CpGcomb"</span>, collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -1550,13 +1557,13 @@ chr1    4195    C   T
 <code class="sourceCode R"><span class="co"># using bam files</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_b27d5357fe1e.bam     95000   2339      258
-## chip_2_1_b27d35ec8e51.bam     95000   3609      505</code></pre>
+## chip_1_1_b6831551b921.bam     95000   2339      258
+## chip_2_1_b68328513076.bam     95000   3609      505</code></pre>
 <div class="sourceCode" id="cb235"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">aux</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_b27d7d30f1be.bam      5386    251        0
-## chip_2_1_b27d184f3128.bam      5386    493        0</code></pre>
+## chip_1_1_b6831478345d.bam      5386    251        0
+## chip_2_1_b6835fb5d02a.bam      5386    493        0</code></pre>
 <div class="sourceCode" id="cb237"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># using a qProject object</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span></code></pre></div>
@@ -1659,7 +1666,7 @@ chr1    4195    C   T
 <h1 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session information</h1>
 <p>The output in this vignette was produced under:</p>
-<pre><code>## R Under development (unstable) (2020-11-25 r79505)
+<pre><code>## R Under development (unstable) (2021-02-07 r79964)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.7
 ## 
@@ -1675,66 +1682,70 @@ chr1    4195    C   T
 ##  [8] datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] Gviz_1.35.1            GenomicFeatures_1.43.2 AnnotationDbi_1.53.0  
-##  [4] Biobase_2.51.0         Rsamtools_2.7.0        BSgenome_1.59.1       
-##  [7] rtracklayer_1.51.0     Biostrings_2.59.0      XVector_0.31.0        
-## [10] QuasR_1.31.0           Rbowtie_1.31.4         GenomicRanges_1.43.0  
-## [13] GenomeInfoDb_1.27.1    IRanges_2.25.2         S4Vectors_0.29.3      
-## [16] BiocGenerics_0.37.0    BiocStyle_2.19.1      
+##  [1] Gviz_1.35.4            GenomicFeatures_1.43.3 AnnotationDbi_1.53.1  
+##  [4] Biobase_2.51.0         Rsamtools_2.7.1        BSgenome_1.59.2       
+##  [7] rtracklayer_1.51.4     Biostrings_2.59.2      XVector_0.31.1        
+## [10] QuasR_1.31.1           Rbowtie_1.31.6         GenomicRanges_1.43.3  
+## [13] GenomeInfoDb_1.27.6    IRanges_2.25.6         S4Vectors_0.29.7      
+## [16] BiocGenerics_0.37.1    BiocStyle_2.19.1      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-0            hwriter_1.3.2              
-##   [3] ellipsis_0.3.1              rprojroot_2.0.2            
-##   [5] biovizBase_1.39.0           htmlTable_2.1.0            
-##   [7] base64enc_0.1-3             fs_1.5.0                   
-##   [9] dichromat_2.0-0             rstudioapi_0.13            
-##  [11] bit64_4.0.5                 xml2_1.3.2                 
-##  [13] splines_4.1.0               knitr_1.30                 
-##  [15] Formula_1.2-4               cluster_2.1.0              
-##  [17] dbplyr_2.0.0                png_0.1-7                  
-##  [19] BiocManager_1.30.10         compiler_4.1.0             
-##  [21] httr_1.4.2                  backports_1.2.0            
-##  [23] lazyeval_0.2.2              assertthat_0.2.1           
-##  [25] Matrix_1.2-18               htmltools_0.5.0            
-##  [27] prettyunits_1.1.1           tools_4.1.0                
-##  [29] gtable_0.3.0                glue_1.4.2                 
-##  [31] GenomeInfoDbData_1.2.4      dplyr_1.0.2                
-##  [33] rappdirs_0.3.1              ShortRead_1.49.0           
-##  [35] Rcpp_1.0.5                  pkgdown_1.6.1              
-##  [37] vctrs_0.3.5                 xfun_0.19                  
-##  [39] stringr_1.4.0               lifecycle_0.2.0            
-##  [41] ensembldb_2.15.1            XML_3.99-0.5               
-##  [43] zlibbioc_1.37.0             scales_1.1.1               
-##  [45] VariantAnnotation_1.37.0    ProtGenerics_1.23.1        
-##  [47] ragg_0.4.0                  hms_0.5.3                  
-##  [49] MatrixGenerics_1.3.0        SummarizedExperiment_1.21.0
-##  [51] AnnotationFilter_1.15.0     RColorBrewer_1.1-2         
-##  [53] yaml_2.2.1                  curl_4.3                   
-##  [55] memoise_1.1.0               gridExtra_2.3              
-##  [57] ggplot2_3.3.2               biomaRt_2.47.1             
-##  [59] rpart_4.1-15                latticeExtra_0.6-29        
-##  [61] stringi_1.5.3               RSQLite_2.2.1              
-##  [63] desc_1.2.0                  checkmate_2.0.0            
-##  [65] filelock_1.0.2              BiocParallel_1.25.1        
-##  [67] rlang_0.4.9                 pkgconfig_2.0.3            
-##  [69] systemfonts_0.3.2           GenomicFiles_1.27.0        
-##  [71] matrixStats_0.57.0          bitops_1.0-6               
-##  [73] evaluate_0.14               lattice_0.20-41            
-##  [75] purrr_0.3.4                 htmlwidgets_1.5.2          
-##  [77] GenomicAlignments_1.27.1    bit_4.0.4                  
-##  [79] tidyselect_1.1.0            magrittr_2.0.1             
-##  [81] bookdown_0.21               R6_2.5.0                   
-##  [83] generics_0.1.0              Hmisc_4.4-1                
-##  [85] DelayedArray_0.17.3         DBI_1.1.0                  
-##  [87] pillar_1.4.7                foreign_0.8-80             
-##  [89] survival_3.2-7              RCurl_1.98-1.2             
-##  [91] nnet_7.3-14                 tibble_3.0.4               
-##  [93] crayon_1.3.4                BiocFileCache_1.15.1       
-##  [95] rmarkdown_2.5               jpeg_0.1-8.1               
-##  [97] progress_1.2.2              data.table_1.13.2          
-##  [99] blob_1.2.1                  digest_0.6.27              
-## [101] textshaping_0.2.1           openssl_1.4.3              
-## [103] munsell_0.5.0               askpass_1.1</code></pre>
+##   [1] colorspace_2.0-0            rjson_0.2.20               
+##   [3] hwriter_1.3.2               ellipsis_0.3.1             
+##   [5] rprojroot_2.0.2             htmlTable_2.1.0            
+##   [7] biovizBase_1.39.0           base64enc_0.1-3            
+##   [9] fs_1.5.0                    dichromat_2.0-0            
+##  [11] rstudioapi_0.13             bit64_4.0.5                
+##  [13] xml2_1.3.2                  splines_4.1.0              
+##  [15] cachem_1.0.3                knitr_1.31                 
+##  [17] Formula_1.2-4               cluster_2.1.0              
+##  [19] dbplyr_2.1.0                png_0.1-7                  
+##  [21] BiocManager_1.30.10         compiler_4.1.0             
+##  [23] httr_1.4.2                  backports_1.2.1            
+##  [25] lazyeval_0.2.2              assertthat_0.2.1           
+##  [27] Matrix_1.3-2                fastmap_1.1.0              
+##  [29] htmltools_0.5.1.1           prettyunits_1.1.1          
+##  [31] tools_4.1.0                 gtable_0.3.0               
+##  [33] glue_1.4.2                  GenomeInfoDbData_1.2.4     
+##  [35] dplyr_1.0.4                 rappdirs_0.3.3             
+##  [37] ShortRead_1.49.2            Rcpp_1.0.6                 
+##  [39] pkgdown_1.6.1               vctrs_0.3.6                
+##  [41] xfun_0.21                   stringr_1.4.0              
+##  [43] lifecycle_0.2.0             ensembldb_2.15.2           
+##  [45] restfulr_0.0.13             XML_3.99-0.5               
+##  [47] zlibbioc_1.37.0             scales_1.1.1               
+##  [49] VariantAnnotation_1.37.1    ProtGenerics_1.23.6        
+##  [51] ragg_0.4.1                  hms_1.0.0                  
+##  [53] MatrixGenerics_1.3.1        SummarizedExperiment_1.21.1
+##  [55] AnnotationFilter_1.15.0     RColorBrewer_1.1-2         
+##  [57] yaml_2.2.1                  curl_4.3                   
+##  [59] gridExtra_2.3               memoise_2.0.0              
+##  [61] ggplot2_3.3.3               rpart_4.1-15               
+##  [63] biomaRt_2.47.4              latticeExtra_0.6-29        
+##  [65] stringi_1.5.3               RSQLite_2.2.3              
+##  [67] highr_0.8                   BiocIO_1.1.2               
+##  [69] desc_1.2.0                  checkmate_2.0.0            
+##  [71] filelock_1.0.2              BiocParallel_1.25.4        
+##  [73] rlang_0.4.10                pkgconfig_2.0.3            
+##  [75] systemfonts_1.0.1           GenomicFiles_1.27.0        
+##  [77] matrixStats_0.58.0          bitops_1.0-6               
+##  [79] evaluate_0.14               lattice_0.20-41            
+##  [81] purrr_0.3.4                 htmlwidgets_1.5.3          
+##  [83] GenomicAlignments_1.27.2    bit_4.0.4                  
+##  [85] tidyselect_1.1.0            magrittr_2.0.1             
+##  [87] bookdown_0.21               R6_2.5.0                   
+##  [89] generics_0.1.0              Hmisc_4.4-2                
+##  [91] DelayedArray_0.17.7         DBI_1.1.1                  
+##  [93] foreign_0.8-81              pillar_1.4.7               
+##  [95] nnet_7.3-15                 survival_3.2-7             
+##  [97] KEGGREST_1.31.1             RCurl_1.98-1.2             
+##  [99] tibble_3.0.6                crayon_1.4.1               
+## [101] BiocFileCache_1.15.1        rmarkdown_2.6              
+## [103] jpeg_0.1-8.1                progress_1.2.2             
+## [105] data.table_1.13.6           blob_1.2.1                 
+## [107] digest_0.6.27               textshaping_0.3.0          
+## [109] openssl_1.4.3               munsell_0.5.0              
+## [111] askpass_1.1</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
