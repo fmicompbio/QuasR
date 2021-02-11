@@ -110,6 +110,28 @@ missingFilesMessage <- function(proj, checkOnly){
     }
   }
 
+  ## for non-bam projects, check if sequence names and lengths in pre-existing
+  ## bam files are consistent with BSgenome reference
+  if (proj@samplesFormat != "bam" && any(!is.na(proj@alignments$FileName)) &&
+      proj@genomeFormat == "BSgenome") {
+    refchrs <- seqlengths(get(proj@genome))
+    refchrs <- refchrs[order(names(refchrs))]
+    bamchrsL <- lapply(scanBamHeader(na.omit(proj@alignments$FileName)),
+                       function(bh) {
+                         x <- bh$targets
+                         x[order(names(x))]
+                      })
+    ok <- unlist(lapply(bamchrsL, function(x) identical(x, refchrs)))
+    if (!all(ok)) {
+      warnfiles <- na.omit(proj@alignments$FileName)[!ok]
+      warning("The genome in ", proj@genome, " has changed since some bam files\n",
+              "in this project were generated.\n",
+              "The following pre-existing bam files were generated for a genome\n",
+              "that is inconsistent with the current verion of ", proj@genome, ":\n  ",
+              paste(warnfiles, collapse = "\n  "))
+    }
+  }
+
   if(!genomeIndexNeedsToBeCreated & !spliceSiteFileNeedsToBeCreated & genomicAlignmentsNeedToBeCreated==0 & auxAlignmentsNeedToBeCreated==0){
     message("all necessary alignment files found")
   }else{

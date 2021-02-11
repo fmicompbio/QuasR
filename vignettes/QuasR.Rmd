@@ -99,7 +99,7 @@ suppressPackageStartupMessages({
 ## How to get help
 Most questions about `r Biocpkg("QuasR")` will hopefully be answered by the documentation
 or references. If you've run into a question which isn't addressed by the documentation,
-or you've found a conflict between the documentation and software itself, then there
+or you've found a conflict between the documentation and software, then there
 is an active support community which can offer help.
 
 The authors of the package (maintainer: `r maintainer("QuasR")`) always appreciate
@@ -117,7 +117,7 @@ posting a problem to the site.
 
 # Quick Start
 ## A brief introduction to **R**{#introToR}
-If you already use **R** and know about its command line interface, just skip this
+If you already use **R** and know about its interface, just skip this
 section and continue with section \@ref(sampleQuasRsession).
 
 The structure of this vignette and in particular this section is based on the excellent
@@ -153,26 +153,25 @@ or equivalently
 help("preprocessReads")
 ```
 
-for detailed help on the `preprocessReads` function. The individual function help
-pages are especially important for listing all the arguments which a function will
-accept and what values the arguments can take.
+for detailed help on the `preprocessReads` function. The function help
+page is especially useful to learn about its arguments and its return value.
 
-A key to understanding **R** is to appreciate that anything that you create in **R**
-is an *object*. Objects might include data sets, variables, functions, anything at all.
+Working with **R** usually means creating and transforming *objects*.
+Objects might include data sets, variables, functions, anything at all.
 For example
 ```{r assign, eval=FALSE}
 x <- 2
 ```
 
-will create a variable `x` and will assign it the value 2. At any stage of your **R**
-session you can type
+will create a variable `x` and will assign it the value 2. At any stage of your
+**R** session you can type
 ```{r ls, eval=FALSE}
 ls()
 ```
 
-to get a list of all the objects you have created. You can see the contents of any
-object by typing the name of the object at the prompt. The following command will
-print out the contents of `x`:
+to get a list of all the objects currently existing in your session. You can
+display an object by typing its name on the prompt. The following displays the
+object `x`:
 ```{r printObject, eval=FALSE}
 x
 ```
@@ -182,7 +181,10 @@ learning about the **R** language itself but a little knowledge in this directio
 will be very helpful, especially when you want to do something not explicitly provided
 for in `r Biocpkg("QuasR")` or in the other Bioconductor packages. For more details
 about the **R** language see *An Introduction to R* which is available from the online
-help. For more background on using **R** for statistical analysis see [@Dalgaard].
+help, or one of the many great online resources, like the documentation at [r-project.org](https://www.r-project.org/),
+the growing list of free books at [bioconductor.org](https://bioconductor.org/books/release/),
+or the books from [rstudio.com](https://rstudio.com/resources/books/) (many of which are
+also available for free). For more background on using **R** for statistical analysis see [@Dalgaard].
 
 
 ## Sample *QuasR* session{#sampleQuasRsession}
@@ -194,13 +196,17 @@ into a subfolder called `"extdata"`:
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 ```
 
-The sequence files to be analyzed are listed in `sampleFile` (see section \@ref(sampleFile) for details).
+The sequence files to be analyzed are listed in `sampleFile` (see section
+\@ref(sampleFile) for details).
 The sequence reads will be aligned using `bowtie` [@bowtie] (from the `r Biocpkg("Rbowtie")`
 package [@Rbowtie]) to a small reference genome (consisting of three short segments
 from the hg19 human genome assembly, available in full for example in the
-`r Biocpkg("BSgenome.Hsapiens.UCSC.hg19")` package). Make sure that you have sufficient
-disk space, both in your **R** temporary directory (`tempdir()`) as well as to
-store the resulting alignments (see section \@ref(qAlign)).
+`r Biocpkg("BSgenome.Hsapiens.UCSC.hg19")` package). Information on selecting
+an appropriate reference genome is summarized in section \@ref(genome).
+
+Make sure that you have sufficient disk space, both in your **R** temporary
+directory (`tempdir()`) as well as to store the resulting alignments
+(see section \@ref(qAlign)).
 ```{r SampleSession2, eval=TRUE}
 sampleFile <- "extdata/samples_chip_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
@@ -498,9 +504,10 @@ auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
 ```
 
 ## Select the reference genome{#genome}
-Sequence reads are primarily aligned against the reference genome. If necessary,
-`r Biocpkg("QuasR")` will create an aligner index for the genome. The reference
-genome can be provided in one of two different formats:
+Sequence reads are primarily aligned against the reference genome (see
+section \@ref(redundancy) on how to choose a suitable reference assembly).
+If necessary, `r Biocpkg("QuasR")` will create an aligner index for the genome.
+The reference genome can be provided in one of two different formats:
 
 - **a string**, referring to the name of a `r Biocpkg("BSgenome")` package:
     ```{r selectGenomeBSgenome, eval=TRUE}
@@ -513,6 +520,9 @@ an unmasked genome; alignment index and alignments will be performed on the full
 unmasked genome sequence (recommended). If using a masked genome (e.g. `"BSgenome.Hsapiens.UCSC.hg19.masked"`),
 masked regions will be replaced with `"N"` bases, and this hard-masked version of
 the genome will be used for creating the alignment index and further alignments.
+Please also see section \@ref(redundancy) for potential issues with redundant
+sequences contained in the reference genome, e.g. in `r Biocpkg("BSgenome.Hsapiens.UCSC.hg19")`
+or `r Biocpkg("BSgenome.Hsapiens.UCSC.hg38")`.
 
 - **a file name**, referring to a sequence file containing one or several reference
   sequences (e.g. chromosomes) in `fasta` format:
@@ -520,7 +530,27 @@ the genome will be used for creating the alignment index and further alignments.
 genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
 ```
 
+### Choosing a suitable (non-redundant) reference genome{#redundancy}
+For some organisms, several versions of the genome assembly exist. These
+differ for example in whether or not they include alternative variants for
+sequences that are variable within the species. This may lead to 
+redundant sequences in the assembly, and thus reads mapping to
+such sequences being wrongly classified as "multi-mapping", and comparing
+data aligned to different assembly version may give rise to incorrect
+results. A nice summary of this issue is provided in this [blog post](https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use) from
+Heng Li.
 
+The `r Biocpkg("BSgenome")` packages `r Biocpkg("BSgenome.Hsapiens.UCSC.hg19")` (versions
+newer than 1.4.0 from Bioconductor 3.10) and `r Biocpkg("BSgenome.Hsapiens.UCSC.hg38")`
+(all versions) do contain such redundant sequences and are therefore not ideal
+references for alignment of human data. Specific "analysis set" or "primary assembly"
+versions of the assembly should be used instead (see the before-mentioned [blog post](https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use) for
+details).
+
+When using a `r Biocpkg("BSgenome")` reference, `r Biocpkg("QuasR")` will check
+in the `qAlign` function whether the chromosome names and lengths contained
+in the header of any pre-existing bam files are identical to the ones provided by
+the genome and warn if this is not the case.
 
 ## Sequence data pre-processing {#preProcessing}
 The `preprocessReads` function can be used to prepare the input sequence files
