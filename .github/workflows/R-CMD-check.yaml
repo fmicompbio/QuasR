@@ -107,10 +107,10 @@ jobs:
           remotes::install_cran('rcmdcheck', Ncpu = 2L)
         shell: Rscript {0}
       
-      - name: Install GenomicFeatures manually (temporary fix)
+      - name: Install GenomicFeatures/Gviz manually (temporary fix)
         if: runner.os == 'macOS'
         run: |
-          BiocManager::install("GenomicFeatures", type = "binary")
+          BiocManager::install(c("GenomicFeatures", "Gviz"), type = "binary")
         shell: Rscript {0}
 
       - name: Session info
