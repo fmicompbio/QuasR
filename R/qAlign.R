@@ -542,6 +542,11 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, maxHits, 
 
     pkgname <- aligner
 
+    if (!requireNamespace(pkgname, quietly = TRUE)) {
+      stop("The ", pkgname, " package is required for alignments, but not ",
+           "installed. Install it using ", 
+           paste0("BiocManager::install(\"", pkgname, "\")"), call. = FALSE)
+    }
     # these test are not needed while Rbowtie is in "Depends"
     #if(!(pkgname %in% installed.packages()[,"Package"])){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
     #if(!require(pkgname, character.only=TRUE, quietly=TRUE)){stop("Fatal error 340954")}
