@@ -3,8 +3,14 @@ Type: Package
 Title: Quantify and Annotate Short Reads in R
 Version: 1.31.2
 Date: 2021-02-09
-Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
-Maintainer: Michael Stadler <michael.stadler@fmi.ch>
+Authors@R: c(person("Anita", "Lerch", role = c("aut")),
+             person("Charlotte", "Soneson", role = c("aut"), 
+                    email = "charlottesoneson@gmail.com", 
+                    comment = c(ORCID = "0000-0003-3833-2169")),
+             person("Dimos", "Gaidatzis", role = c("aut")),
+             person("Michael", "Stadler", role = c("aut", "cre"), 
+                    email = "michael.stadler@fmi.ch", 
+                    comment = c(ORCID = "0000-0002-2269-4934")))
 Depends: R (>= 4.0), 
     parallel, 
     GenomicRanges, 
