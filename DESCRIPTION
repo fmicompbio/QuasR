@@ -5,13 +5,31 @@ Version: 1.31.2
 Date: 2021-02-09
 Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
 Maintainer: Michael Stadler <michael.stadler@fmi.ch>
-Depends: R (>= 4.0), parallel, GenomicRanges, Rbowtie
-Imports: methods, grDevices, graphics, utils, BiocGenerics,
-	S4Vectors, IRanges, BiocManager, Biobase,
-    Biostrings, BSgenome, Rsamtools,
-    GenomicFeatures, ShortRead,
-    GenomicAlignments, BiocParallel, GenomeInfoDb,
-    rtracklayer, GenomicFiles, AnnotationDbi
+Depends: R (>= 4.0), 
+    parallel, 
+    GenomicRanges, 
+    Rbowtie
+Imports: 
+    methods, 
+    grDevices, 
+    graphics, 
+    utils, 
+    BiocGenerics,
+	S4Vectors, 
+	IRanges, 
+	BiocManager, 
+	Biobase,
+    Biostrings, 
+    BSgenome, 
+    Rsamtools,
+    GenomicFeatures, 
+    ShortRead,
+    GenomicAlignments, 
+    BiocParallel, 
+    GenomeInfoDb,
+    rtracklayer, 
+    GenomicFiles, 
+    AnnotationDbi
 Suggests: 
     Gviz,
     BiocStyle,
