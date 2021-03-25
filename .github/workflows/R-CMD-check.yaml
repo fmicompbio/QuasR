@@ -108,7 +108,7 @@ jobs:
         shell: Rscript {0}
       
       - name: Install GenomicFeatures manually (temporary fix)
-        if: runner.os == "macOS"
+        if: runner.os == 'macOS'
         run: |
           BiocManager::install("GenomicFeatures", type = "binary")
         shell: Rscript {0}
