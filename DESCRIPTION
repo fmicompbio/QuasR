@@ -56,3 +56,4 @@ biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
+RoxygenNote: 7.1.1
