@@ -45,6 +45,7 @@ Suggests:
     covr,
     testthat
 LinkingTo: Rhtslib
+Encoding: UTF-8
 SystemRequirements: GNU make
 Description: This package provides a framework for the quantification
     and analysis of Short Reads. It covers a complete workflow
