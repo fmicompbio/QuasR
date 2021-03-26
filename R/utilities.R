@@ -36,6 +36,8 @@ displayNames <- function(proj) { # create unique names for each sequence file
 #' 
 #' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
 #' 
+#' @export
+#' 
 #' @seealso 
 #' \code{\link[=qProject-class]{qProject}},
 #' \code{\link[Rsamtools]{quickBamFlagSummary}} from package \pkg{Rsamtools}

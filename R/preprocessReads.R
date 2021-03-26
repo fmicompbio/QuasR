@@ -107,6 +107,8 @@
 #' 
 #' @keywords utilities misc 
 #' 
+#' @export
+#' 
 #' @seealso \code{\link[Biostrings]{trimLRPatterns}} from package \pkg{Biostrings},
 #' \code{\link[parallel]{makeCluster}} from package \pkg{parallel}
 #' 

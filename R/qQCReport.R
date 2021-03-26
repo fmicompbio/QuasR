@@ -237,6 +237,8 @@ calcMmInformation <- function(filename, genome, chunkSize) {
 #' 
 #' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
 #' 
+#' @export
+#' 
 #' @seealso 
 #' \code{\linkS4class{qProject}}, \code{\link{qAlign}},
 #' \code{\link[=ShortReadBase-package]{ShortRead}} package
