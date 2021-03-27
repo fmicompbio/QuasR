@@ -1,7 +1,5 @@
 # bowtie alignments: --best --strata -m 1 (return one alignment, but only if it is a unique mapper)
 # plus -q/-f [--phred33/64-quals] [-C] -S --quiet
-
-
 # paired:
 # valid values are NULL, "no", "fr", "rf", "ff"
 # in case of NULL, QuasR determines the paired status automatically from the given sampleFile (2 columns:unpaired, 3 columns:paired).
@@ -219,17 +217,21 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
         stop("Missing 'genome' parameter.")
     }
     
-    # create a qProject, perform various tests, install required BSgenome and load aligner package
-    # create fasta indices (.fai) files for all the reference sequences (genome & aux) as well as all md5 sum files
+    # create a qProject, perform various tests, install required 
+    # BSgenome and load aligner package
+    # create fasta indices (.fai) files for all the reference sequences 
+    # (genome & aux) as well as all md5 sum files
     proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, 
                            maxHits, paired, splicedAlignment, snpFile, 
                            bisulfite, alignmentParameter, projectName, 
                            alignmentsDir, lib.loc, cacheDir, geneAnnotation)
     
-    # display the status of the project. in case of checkOnly=TRUE, throw an exception if there are alignment files missing
+    # display the status of the project. in case of checkOnly=TRUE, 
+    # throw an exception if there are alignment files missing
     missingFilesMessage(proj, checkOnly)
 
-    # check if there are any genomic alignment files missing. if so, create index and align
+    # check if there are any genomic alignment files missing. if so, 
+    # create index and align
     if (any(is.na(proj@alignments$FileName))) {
         # build genome index
         if (is.na(proj@snpFile)) {
@@ -259,7 +261,8 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
         
     }
     
-    # create indices for the auxiliary files if necessary (if there are any alignment files missing)
+    # create indices for the auxiliary files if necessary 
+    # (if there are any alignment files missing)
     if (any(is.na(proj@auxAlignments))) {
         for (i in 1:nrow(proj@aux)) {
             buildIndex(proj@aux$FileName[i], 
@@ -270,13 +273,14 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
         
         proj <- createAuxAlignments(proj, clObj)
     }
-    
     return(proj)
 }
 
 
 # inspect the qProject and give an overview of all the files that need to be computed
 #' @keywords internal
+#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom Rsamtools scanBamHeader
 missingFilesMessage <- function(proj, checkOnly) {
     
     genomeIndexNeedsToBeCreated <- FALSE
@@ -331,9 +335,9 @@ missingFilesMessage <- function(proj, checkOnly) {
     ## bam files are consistent with BSgenome reference
     if (proj@samplesFormat != "bam" && any(!is.na(proj@alignments$FileName)) &&
         proj@genomeFormat == "BSgenome") {
-        refchrs <- seqlengths(get(proj@genome))
+        refchrs <- GenomeInfoDb::seqlengths(get(proj@genome))
         refchrs <- refchrs[order(names(refchrs))]
-        bamchrsL <- lapply(scanBamHeader(na.omit(proj@alignments$FileName)),
+        bamchrsL <- lapply(Rsamtools::scanBamHeader(na.omit(proj@alignments$FileName)),
                            function(bh) {
                                x <- bh$targets
                                x[order(names(x))]
@@ -341,10 +345,11 @@ missingFilesMessage <- function(proj, checkOnly) {
         ok <- unlist(lapply(bamchrsL, function(x) identical(x, refchrs)))
         if (!all(ok)) {
             warnfiles <- na.omit(proj@alignments$FileName)[!ok]
-            warning("The genome in ", proj@genome, " has changed since some bam files\n",
+            warning("The genome in ", proj@genome, 
+                    " has changed since some bam files\n",
                     "in this project were generated.\n",
-                    "The following pre-existing bam files were generated for a genome\n",
-                    "that is inconsistent with the current verion of ", 
+                    "The following pre-existing bam files were generated for a\n",
+                    "genome that is inconsistent with the current verion of ", 
                     proj@genome, ":\n  ",
                     paste(warnfiles, collapse = "\n  "))
         }
@@ -371,8 +376,8 @@ missingFilesMessage <- function(proj, checkOnly) {
         }
         
         if (checkOnly) {
-            stop("alignment or index files are missing and checkOnly=TRUE. Aborting execution",
-                 call. = FALSE)
+            stop("alignment or index files are missing and checkOnly=TRUE. ", 
+                 "Aborting execution", call. = FALSE)
         }
 
         if (interactive()) {
@@ -387,8 +392,12 @@ missingFilesMessage <- function(proj, checkOnly) {
 }
 
 
-
 # read all the input information, perform various checks and compile the data into a qProject object
+#' @keywords internal
+#' @importFrom tools file_path_as_absolute file_ext file_path_sans_ext
+#' @importFrom BSgenome available.genomes
+#' @importFrom BiocManager install
+#' @importFrom ShortRead FastqStreamer yield quality
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, 
                            maxHits, paired, splicedAlignment,
                            snpFile, bisulfite, alignmentParameter, 
@@ -404,8 +413,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         stop("The genome parameter should contain only a single entry", call. = FALSE)
     }
     
-    # if there exists a / or \\ at the end of the genome string, remove it. this is required for the
-    # consistent behavior of file.exists on windows systems. file.exists("dir/") != file.exists("dir").
+    # if there exists a / or \\ at the end of the genome string, remove it. 
+    # this is required for the consistent behavior of file.exists on windows 
+    # systems. file.exists("dir/") != file.exists("dir").
     genome <- sub("(\\\\|/)$", "", genome)
     
     if (file.exists(genome)) {
@@ -432,7 +442,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             if (!require(genome, character.only = TRUE, quietly = TRUE,
                          lib.loc = lib.loc)) {
                 stop("The BSgenome ", genome,
-                     " is installed but cannot be loaded. The version of the BSgenome might be too old",
+                     " is installed but cannot be loaded. ", 
+                     "The version of the BSgenome might be too old",
                      call. = FALSE)
             }
             
@@ -445,7 +456,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             if (testBioCConnection()) {
                 # Connection to Bioconductor OK
                 message("OK")
-                if (genome %in% available.genomes()) {
+                if (genome %in% BSgenome::available.genomes()) {
                     # The genome is available in Bioconductor, install it
                     message("Downloading genome... ", genome, " from Bioconductor")
                     BiocManager::install(genome, update = FALSE, lib = lib.loc)
@@ -461,7 +472,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                 } else {
                     # The genome is not available in Bioconductor
                     stop(genome,
-                         " is not available in Bioconductor. Type available.genomes() for a complete list",
+                         " is not available in Bioconductor. ", 
+                         "Type available.genomes() for a complete list",
                          call. = FALSE)
                 }
             } else {
@@ -541,8 +553,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                 }
                 
                 if (length(unique(samples$FileName)) != nrow(samples)) {
-                    stop("There are duplicate files in sampleFile. This is not allowed.",
-                         call. = FALSE)
+                    stop("There are duplicate files in sampleFile. ", 
+                         "This is not allowed.", call. = FALSE)
                 }
 
                 if (paired == "no") {
@@ -562,12 +574,15 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                 if (!is.null(paired)) {
                     if (paired != "no") {
                         stop(sampleFile,
-                             " contains 2 columns which represents unpaired end data. Please reset the paired parameter",
+                             " contains 2 columns which represents unpaired end data.", 
+                             " Please reset the paired parameter",
                              call. = FALSE)
                     }
                 }
                 if (length(unique(samples$FileName)) != nrow(samples)) {
-                    stop("There are duplicate files in sampleFile. This is not allowed as it would result in non-unique alignment file names",
+                    stop("There are duplicate files in sampleFile. ", 
+                         "This is not allowed as it would result in ", 
+                         "non-unique alignment file names",
                          call. = FALSE)
                 }
                 
@@ -577,10 +592,11 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                 proj@alignments$FileName <- NA_character_
             }
         } else {
+            # incorrect format
             stop(sampleFile,
                  " should contain column names FileName,SampleName (single end data)",
                  call. = FALSE)
-        } # incorrect format
+        } 
         # Check if the reads are paired data
     } else if (ncol(samples) == 3) {
         if (all(colnames(samples) == c("FileName1", "FileName2", "SampleName"))) {
@@ -625,13 +641,16 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             if (!is.null(paired)) {
                 if (paired == "no") {
                     stop(sampleFile, 
-                         " contains 3 columns which represents paired end data. Please reset the paired parameter",
+                         " contains 3 columns which represents paired end data. ", 
+                         "Please reset the paired parameter",
                          call. = FALSE)
                 }
             }
             if (length(unique(c(samples$FileName1, samples$FileName2))) != 
                 (2 * nrow(samples))) {
-                stop("There are duplicate files in sampleFile. This is not allowed as it would result in non-unique alignment file names", 
+                stop("There are duplicate files in sampleFile. ", 
+                     "This is not allowed as it would result in ", 
+                     "non-unique alignment file names", 
                      call. = FALSE)
             }
 
@@ -669,11 +688,11 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) 
         for (i in 1:nrow(proj@reads)) {
             # take only first column even for paired end data
-            fastq_fs <- FastqStreamer(proj@reads[i, 1], n = 2000,
-                                      readerBlockSize = 5e5) 
+            fastq_fs <- ShortRead::FastqStreamer(proj@reads[i, 1], n = 2000,
+                                                 readerBlockSize = 5e5) 
             
             tryCatch({
-                fastq_sq <- yield(fastq_fs)
+                fastq_sq <- ShortRead::yield(fastq_fs)
             }, error = function(ex) {
                 close(fastq_fs)
                 stop("Incorrect format for the fastq file: ",
@@ -681,9 +700,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             })
             close(fastq_fs)
             # determine the format of the quality values
-            if (inherits(quality(fastq_sq), "FastqQuality")) {
+            if (inherits(ShortRead::quality(fastq_sq), "FastqQuality")) {
                 proj@reads$phred[i] <- "33"
-            } else if (inherits(quality(fastq_sq), "SFastqQuality")) {
+            } else if (inherits(ShortRead::quality(fastq_sq), "SFastqQuality")) {
                 proj@reads$phred[i] <- "64"
             } else {
                 stop("The quality values of the provided sequences files are not interpretable: ",
@@ -884,7 +903,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         if (file.exists(cacheDir)) {
             # it's a directory or a file
             if (file.info(cacheDir)$isdir) {
-                # if not already present, create a subdirectory in the cacheDir, this prevent collisions
+                # if not already present, create a subdirectory in the cacheDir, 
+                # this prevent collisions
                 # when the the same cacheDir is being used by multiple users
                 proj@cacheDir <- file.path(tools::file_path_as_absolute(cacheDir),
                                            basename(tempdir()))
@@ -916,7 +936,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
     
     if ((proj@samplesFormat %in% c("fasta", "fastq")) & (proj@bisulfite == "no")) {
         alnModeID <- proj@aligner
-    } else if ((proj@samplesFormat %in% c("fasta", "fastq")) & (proj@bisulfite != "no")) {
+    } else if ((proj@samplesFormat %in% c("fasta", "fastq")) & 
+               (proj@bisulfite != "no")) {
         if (aligner == "Rhisat2") {
             stop("Bisulfite alignment mode is not available for Rhisat2")
         }
@@ -939,7 +960,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
     
     proj@alnModeID <- alnModeID
     
-    # load the aligner package in the case where there are missing alignments (genomic or aux)
+    # load the aligner package in the case where there are missing 
+    # alignments (genomic or aux)
     if (any(is.na(proj@alignments$FileName)) | any(is.na(proj@auxAlignments))) {
         
         pkgname <- aligner
@@ -974,7 +996,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         if (is.null(alignmentParameter)) {
             if (!proj@splicedAlignment) {
                 if (proj@aligner == "Rbowtie") {  # bowtie
-                    # Test for the case where no merge reorder is going to be executed later on. In that case maxhits needs to
+                    # Test for the case where no merge reorder is going to be 
+                    # executed later on. In that case maxhits needs to
                     # to be reinforced by bowtie.
                     if ((proj@bisulfite == "no") && (is.na(proj@snpFile))) {
                         proj@alignmentParameter <- 
@@ -983,7 +1006,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                         proj@alignmentParameter <- 
                             paste("-k", proj@maxHits + 1, "--best --strata")
                     }
-                    # For the allelic case, ignore qualities. Anyways the assignment to the R or A genome is based on sequence.
+                    # For the allelic case, ignore qualities. Anyways the 
+                    # assignment to the R or A genome is based on sequence.
                     if ((proj@samplesFormat == "fasta") || !is.null(snpFile)) {
                         proj@alignmentParameter <- 
                             paste(proj@alignmentParameter, "-v 2")
@@ -997,7 +1021,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                         proj@alignmentParameter <- 
                             paste("-k", proj@maxHits + 1)
                     } else {
-                        # XV tag is not added to singly aligned reads and will make qCount fail
+                        # XV tag is not added to singly aligned reads and 
+                        # will make qCount fail
                         proj@alignmentParameter <- 
                             paste("-k", proj@maxHits + 1, "--no-mixed --no-discordant")
                     }
@@ -1022,7 +1047,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                             paste("-k", proj@maxHits + 1)
                     }
                     if (!is.na(proj@snpFile)) {
-                        # XV tag is not added to singly aligned reads and will make qCount fail
+                        # XV tag is not added to singly aligned reads and 
+                        # will make qCount fail
                         proj@alignmentParameter <- 
                             paste(proj@alignmentParameter, "--no-mixed --no-discordant")
                     }
@@ -1032,7 +1058,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             if (length(alignmentParameter) == 1) {
                 proj@alignmentParameter <- alignmentParameter
             } else {
-                stop("The alignmentParameter should contain only a single character string",
+                stop("The alignmentParameter should contain only a ", 
+                     "single character string",
                      call. = FALSE)
             }
         }
@@ -1084,11 +1111,13 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                     if (proj@aligner == "Rbowtie") {
                         projBamInfo <- 
                             projBamInfo[!(names(projBamInfo) %in%
-                                              c("geneAnnotation", "geneAnnotationFormat",
+                                              c("geneAnnotation", 
+                                                "geneAnnotationFormat",
                                                 "geneAnnotation.md5"))]
                         bamInfoT <- 
                             bamInfoT[!(names(bamInfoT) %in%
-                                           c("geneAnnotation", "geneAnnotationFormat",
+                                           c("geneAnnotation", 
+                                             "geneAnnotationFormat",
                                              "geneAnnotation.md5"))]
                     }
                     if (identical(projBamInfo, bamInfoT)) {
@@ -1188,31 +1217,39 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
 # create an .md5 file that contains the md5sum of the referece sequences
 # if snp file exists, calculate md5 and store it in a (.md5) file
 #' @keywords internal
+#' @importFrom Biostrings fasta.seqlengths
+#' @importFrom Rsamtools indexFa scanFaIndex
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom tools md5sum
 createReferenceSequenceIndices <- function(proj) {
     # create fasta index for the genome if it is not a BSgenome and if the .fai file is not present
     if (proj@genomeFormat == "file") {
         if (!file.exists(paste(proj@genome, "fai", sep = "."))) {
-            # test if the sequence file is a valid fasta file using the fasta.seqlengths() function from biostrings
-            # this is necessary because indexFa() from Rsamtools would crash R if it is passed an invalid fasta file
+            # test if the sequence file is a valid fasta file using the 
+            # fasta.seqlengths() function from Biostrings
+            # this is necessary because indexFa() from Rsamtools would 
+            # crash R if it is passed an invalid fasta file
             message(paste("Creating .fai file for:", proj@genome))
-            result <- try(fasta.seqlengths(proj@genome))
+            result <- try(Biostrings::fasta.seqlengths(proj@genome))
             if (class(result) == "try-error") {
                 stop("The fasta file ", proj@genome,
                      " is not a valid fasta file", call. = FALSE)
             }
-            # remove everything after the white space after the id (not done by fasta.seqlengths)
+            # remove everything after the white space after the id 
+            # (not done by fasta.seqlengths)
             faInfoNames <- sub("\\s+.+", "", names(result), perl = TRUE) 
             if (length(unique(faInfoNames)) != length(faInfoNames)) {
                 stop("Sequence names in the file: ", proj@genome,
                      " are not unique", call. = FALSE)
             }
-            if (class(try(indexFa(proj@genome))) == "try-error") {
+            if (class(try(Rsamtools::indexFa(proj@genome))) == "try-error") {
                 stop("Cannot write into the directory where ", proj@genome,
                      " is located. Make sure you have the right permissions",
                      call. = FALSE)
             }
         } else {
-            faiSeqNames <- as.character(seqnames(scanFaIndex(proj@genome)))
+            faiSeqNames <- as.character(GenomeInfoDb::seqnames(
+                Rsamtools::scanFaIndex(proj@genome)))
             if (length(unique(faiSeqNames)) != length(faiSeqNames)) {
                 stop("Sequence names in the file: ", proj@genome,
                      " are not unique (information extracted from the .fai file",
@@ -1231,20 +1268,24 @@ createReferenceSequenceIndices <- function(proj) {
     if (nrow(proj@aux) > 0) {
         for (i in 1:nrow(proj@aux)) {
             if (!file.exists(paste(proj@aux$FileName[i], "fai", sep = "."))) {
-                # test if the sequence file is a valid fasta file using the fasta.seqlengths() function from biostrings
-                # this is necessary because indexFa() from Rsamtools would crash R if it is passed an invalid fasta file (R version 2.14.1)
-                result <- try(fasta.seqlengths(proj@aux$FileName[i]))
+                # test if the sequence file is a valid fasta file using the 
+                # fasta.seqlengths() function from Biostrings
+                # this is necessary because indexFa() from Rsamtools would 
+                # crash R if it is passed an invalid fasta file (R version 2.14.1)
+                result <- try(Biostrings::fasta.seqlengths(proj@aux$FileName[i]))
                 if (class(result) == "try-error") {
                     stop("The fasta file ", proj@aux$FileName[i],
                          " is not a valid fasta file", call. = FALSE)
                 }
-                # remove everything after the white space after the id (not done by fasta.seqlengths)
+                # remove everything after the white space after the id 
+                # (not done by fasta.seqlengths)
                 faInfoNames <- sub("\\s+.+", "", names(result), perl = TRUE) 
                 if (length(unique(faInfoNames)) != length(faInfoNames)) {
                     stop("Sequence names in the file: ", proj@aux$FileName[i],
                          " are not unique", call. = FALSE)
                 }
-                if (class(try(indexFa(proj@aux$FileName[i]))) == "try-error") {
+                if (class(try(Rsamtools::indexFa(proj@aux$FileName[i]))) ==
+                    "try-error") {
                     stop("Cannot write into the directory where ",
                          proj@aux$FileName[i],
                          " is located. Make sure you have the right permissions",
@@ -1287,6 +1328,8 @@ createReferenceSequenceIndices <- function(proj) {
 # returns information for one bam file in qProject
 # sampleNr specifies the sample for which the information is compiled
 # if auxNr is not NULL, it returns information about aux bam file
+#' @keywords internal
+#' @importFrom utils packageVersion
 qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
     
     if (sampleNr > nrow(proj@reads)) {
@@ -1326,7 +1369,7 @@ qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
     alnInfo["aux.md5"] <- NA
     alnInfo["aligner"] <- proj@aligner
     if (!is.na(proj@aligner)) {
-        alnInfo["aligner.version"] <- as.character(packageVersion(proj@aligner))
+        alnInfo["aligner.version"] <- as.character(utils::packageVersion(proj@aligner))
     } else {
         alnInfo["aligner.version"] <- NA
     }
@@ -1366,6 +1409,7 @@ qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
 
 # replace full file paths in bamInfo by base name
 # remove the aligner and QuasR version. this allows using bam files generated with an older QuasR version
+#' @keywords internal
 bamInfoOnlyBaseName <- function(bamInfo) {
     bamInfo["reads.FileName1"] <- basename(bamInfo["reads.FileName1"])
     bamInfo["reads.FileName2"] <- basename(bamInfo["reads.FileName2"])
@@ -1390,6 +1434,8 @@ bamInfoOnlyBaseName <- function(bamInfo) {
 # is not located in the working directory.
 # returns the absolute path if the file exists
 # returns NULL if the file does not exist
+#' @keywords internal
+#' @importFrom tools file_path_as_absolute
 pathAsAbsoluteRedirected <- function(fileName, redirectPath) {
     curwd <- getwd() # store the original working directory required to jump back
     on.exit(setwd(curwd)) # make sure that it will jump back in a case of error or not
@@ -1405,6 +1451,7 @@ pathAsAbsoluteRedirected <- function(fileName, redirectPath) {
 # helper function that returns the temporary directory given the cacheDir (from qProject)
 # if the user specified cacheDir, then it returns it. but if the user did not specify a cacheDir
 # it returns the R temporary directory (which can be different for different machines)
+#' @keywords internal
 resolveCacheDir <- function(cacheDir) {
     if (is.na(cacheDir))
         return(tempdir())
@@ -1417,6 +1464,7 @@ resolveCacheDir <- function(cacheDir) {
 # taking into account all the different types of extensions for
 # sequence files. Throughs an error if one ore more samples do not contain
 # a valid file extension
+#' @keywords internal
 determineSamplesFormat <- function(filename) {
     fileExtension <- consolidateFileExtensions(filename, compressed = TRUE)
     
@@ -1433,7 +1481,9 @@ determineSamplesFormat <- function(filename) {
         }
     } else {
         stop(filename[!validExtsSel][1],
-             " does not have a valid file extension (fa,fna,fasta,fq,fastq,bam,csfasta,csfastq)", call. = FALSE)
+             " does not have a valid file extension ", 
+             "(fa,fna,fasta,fq,fastq,bam,csfasta,csfastq)", 
+             call. = FALSE)
     }
 }
 

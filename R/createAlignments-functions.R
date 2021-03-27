@@ -288,7 +288,7 @@ createGenomicAlignmentsController <- function(params) {
             } else {
                 if (is.na(proj@snpFile)) {
                     # in the case of BSgenome, flush it because it is needed by SpliceMap
-                    if (proj@genomeFormat=="BSgenome") {
+                    if (proj@genomeFormat == "BSgenome") {
                         if (!require(paste(proj@genome, proj@alnModeID, sep = "."),
                                      character.only = TRUE, quietly = TRUE)) {
                             stop("Could not load the genome index package ",
@@ -331,7 +331,8 @@ createGenomicAlignmentsController <- function(params) {
                     align_RbowtieSpliced(paste(proj@snpFile, basename(proj@genome),
                                                "R", "fa", sep = "."),
                                          paste(proj@snpFile, basename(proj@genome),
-                                               "R", "fa", proj@alnModeID, sep="."),
+                                               "R", "fa", proj@alnModeID, 
+                                               sep = "."),
                                          proj@reads[sampleNr, ], proj@samplesFormat,
                                          proj@paired, proj@alignmentParameter,
                                          coresThisNode, samFileR, cacheDir)
@@ -754,7 +755,7 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
         sm_cfg[["reads_list2"]] <- reads$FileName2
     }
     sm_cfg[["read_format"]] <- toupper(samplesFormat)
-    if (samplesFormat=="fastq") {
+    if (samplesFormat == "fastq") {
         sm_cfg[["quality_format"]] <- paste("phred", reads$phred, sep = "-")
     }
     sm_cfg[["temp_path"]] <- cacheDir
