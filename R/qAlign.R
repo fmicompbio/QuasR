@@ -397,7 +397,8 @@ missingFilesMessage <- function(proj, checkOnly) {
 #' @importFrom tools file_path_as_absolute file_ext file_path_sans_ext
 #' @importFrom BSgenome available.genomes
 #' @importFrom BiocManager install
-#' @importFrom ShortRead FastqStreamer yield quality
+#' @importFrom ShortRead FastqStreamer yield
+#' @importFrom Biostrings quality
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, 
                            maxHits, paired, splicedAlignment,
                            snpFile, bisulfite, alignmentParameter, 
@@ -700,9 +701,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             })
             close(fastq_fs)
             # determine the format of the quality values
-            if (inherits(ShortRead::quality(fastq_sq), "FastqQuality")) {
+            if (inherits(Biostrings::quality(fastq_sq), "FastqQuality")) {
                 proj@reads$phred[i] <- "33"
-            } else if (inherits(ShortRead::quality(fastq_sq), "SFastqQuality")) {
+            } else if (inherits(Biostrings::quality(fastq_sq), "SFastqQuality")) {
                 proj@reads$phred[i] <- "64"
             } else {
                 stop("The quality values of the provided sequences files are not interpretable: ",

@@ -1,10 +1,12 @@
 #' @keywords internal
+#' @importFrom parallel makeCluster stopCluster clusterEvalQ parLapply
+#' @importFrom tools file_path_sans_ext
 createGenomicAlignments <- function(proj, clObj) {
     
     # check if a cluster object is provided. if not, use only one core.
     if (is.null(clObj)) {
-        clObj <- makeCluster(1)
-        on.exit(stopCluster(clObj))
+        clObj <- parallel::makeCluster(1)
+        on.exit(parallel::stopCluster(clObj))
     }
     # retrieve information about the cluster  
     message("Testing the compute nodes...", appendLF = FALSE)
@@ -12,7 +14,9 @@ createGenomicAlignments <- function(proj, clObj) {
         nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
     }, error = function(ex) {
         message("FAILED")
-        stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE);
+        stop("The cluster object does not work properly on this system. ", 
+             "Please consult the manual of the package 'parallel'\n", 
+             call. = FALSE)
     })
     message("OK")
     
@@ -30,28 +34,35 @@ createGenomicAlignments <- function(proj, clObj) {
     for (i in seq_along(coresPerNode))
         message(names(coresPerNode)[i], ": ", as.character(coresPerNode[i]))
     
-    # log file that is passed to all the nodes. each node can write into that file and serves as a monitor of their progress
+    # log file that is passed to all the nodes. each node can write into 
+    # that file and serves as a monitor of their progress
     logFile <- tempfile(tmpdir = getwd(), pattern = "QuasR_log_", fileext = ".txt")
     
-    #create the parameters necessary for the individual processes performing the genomic alignments
+    #create the parameters necessary for the individual processes 
+    # performing the genomic alignments
     paramsListGenomic = NULL
     for (i in 1:nrow(proj@reads)) {
         if (is.na(proj@alignments$FileName)[i]) {
-            # create a filename for the current bam file and update the qProject. ensure uniqueness by adding a random suffix
+            # create a filename for the current bam file and update the 
+            # qProject. ensure uniqueness by adding a random suffix
             if (is.na(proj@alignmentsDir)) {
                 bamDir <- dirname(proj@reads[i, 1])
             } else {
                 bamDir <- proj@alignmentsDir
             }
-            samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1], compression = TRUE))
+            samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1],
+                                                               compression = TRUE))
             proj@alignments$FileName[i] <- tempfile(tmpdir = bamDir, 
-                                                    pattern = paste(samplePrefix, "_", sep = ""), 
+                                                    pattern = paste(samplePrefix, 
+                                                                    "_", sep = ""), 
                                                     fileext = ".bam")
 
-            paramsListGenomic[[length(paramsListGenomic) + 1]] <- list("sampleNr" = i,
-                                                                       "qProject" = proj,
-                                                                       "coresPerNode" = coresPerNode,
-                                                                       "logFile" = logFile)
+            paramsListGenomic[[length(paramsListGenomic) + 1]] <- list(
+                "sampleNr" = i,
+                "qProject" = proj,
+                "coresPerNode" = coresPerNode,
+                "logFile" = logFile
+            )
         }
     }
 
@@ -61,11 +72,14 @@ createGenomicAlignments <- function(proj, clObj) {
                       "samples. See progress in the log file:"))
         message(logFile)
         
-        # create a cluster object that has only one entry per machine. multithreading (on a lower level) results 
-        # in a fully occupied node. This new clObj does not have to be stopped. it closes once the original one closes
+        # create a cluster object that has only one entry per machine. 
+        # multithreading (on a lower level) results 
+        # in a fully occupied node. This new clObj does not have to be stopped. 
+        # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
         
-        parLapply(clObjNR, paramsListGenomic, createGenomicAlignmentsController)
+        parallel::parLapply(clObjNR, paramsListGenomic,
+                            createGenomicAlignmentsController)
         message("Genomic alignments have been created successfully")
         message("")
     }
@@ -74,26 +88,30 @@ createGenomicAlignments <- function(proj, clObj) {
 }
 
 #' @keywords internal
+#' @importFrom parallel makeCluster stopCluster clusterEvalQ parLapply
+#' @importFrom tools file_path_sans_ext
 createAuxAlignments <- function(proj, clObj) {
     
     # check if a cluster object is provided. if not, use only one core.
     if (is.null(clObj)) {
-        clObj <- makeCluster(1)
-        on.exit(stopCluster(clObj))
+        clObj <- parallel::makeCluster(1)
+        on.exit(parallel::stopCluster(clObj))
     }
     # retrieve information about the cluster  
     message("Testing the compute nodes...", appendLF = FALSE)
     tryCatch({
-        nodeNamesList <- clusterEvalQ(clObj, Sys.info()['nodename'])
+        nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
     }, error = function(ex) {
         message("FAILED")
-        stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE);
+        stop("The cluster object does not work properly on this system. ", 
+             "Please consult the manual of the package 'parallel'\n", 
+             call. = FALSE)
     })
     message("OK")
     
     message("Loading QuasR on the compute nodes...", appendLF = FALSE)
     # load QuasR package on all the nodes
-    clRet <- clusterEvalQ(clObj, library("QuasR"))
+    clRet <- parallel::clusterEvalQ(clObj, library("QuasR"))
     if (!all(sapply(clRet, function(x) "QuasR" %in% x))) {
         stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
     }
@@ -104,33 +122,40 @@ createAuxAlignments <- function(proj, clObj) {
     message("Available cores:")
     print(coresPerNode)
     
-    # log file that is passed to all the nodes. each node can write into that file and serves as a monitor of their progress
+    # log file that is passed to all the nodes. each node can write into 
+    # that file and serves as a monitor of their progress
     logFile <- tempfile(tmpdir = getwd(), pattern = "QuasR_log_", fileext = ".txt")
     
-    #create the parameters necessary for the individual processes performing the aux alignments
+    # create the parameters necessary for the individual processes 
+    # performing the aux alignments
     paramsListAux = NULL
     for (i in 1:ncol(proj@auxAlignments)) {
-        if (any(is.na(proj@auxAlignments[,i]))) {
+        if (any(is.na(proj@auxAlignments[, i]))) {
             if (is.na(proj@alignmentsDir)) {
                 bamDir <- dirname(proj@reads[i, 1])
             } else {
                 bamDir <- proj@alignmentsDir
             }
-            samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1], compression = TRUE))
+            samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1],
+                                                               compression = TRUE))
             auxNrs <- NULL # the aux files to map in the children
             for (j in 1:nrow(proj@auxAlignments)) {
                 if (is.na(proj@auxAlignments[j,i])) {
                     auxNrs <- c(auxNrs, j)
-                    proj@auxAlignments[j, i] <- tempfile(tmpdir = bamDir, 
-                                                         pattern = paste(samplePrefix, "_", sep = ""), 
-                                                         fileext = ".bam")
+                    proj@auxAlignments[j, i] <- tempfile(
+                        tmpdir = bamDir, 
+                        pattern = paste(samplePrefix, "_", sep = ""), 
+                        fileext = ".bam"
+                    )
                 }
             }
-            paramsListAux[[length(paramsListAux) + 1]] <- list("sampleNr" = i,
-                                                               "auxNrs" = auxNrs,
-                                                               "qProject" = proj,
-                                                               "coresPerNode" = coresPerNode,
-                                                               "logFile" = logFile)
+            paramsListAux[[length(paramsListAux) + 1]] <- list(
+                "sampleNr" = i,
+                "auxNrs" = auxNrs,
+                "qProject" = proj,
+                "coresPerNode" = coresPerNode,
+                "logFile" = logFile
+            )
         }
     }
     
@@ -139,11 +164,13 @@ createAuxAlignments <- function(proj, clObj) {
                       length(paramsListAux), "samples. See progress in the log file:"))
         message(logFile)
         
-        # create a cluster object that has only one entry per machine. multithreading (on a lower level) results 
-        # in a fully occupied node. This new clObj does not have to be stopped. it closes once the original one closes
+        # create a cluster object that has only one entry per machine. 
+        # multithreading (on a lower level) results 
+        # in a fully occupied node. This new clObj does not have to be stopped. 
+        # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
         
-        parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
+        parallel::parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
         message("Auxiliary alignments have been created successfully")
         message("")
     }
@@ -152,6 +179,7 @@ createAuxAlignments <- function(proj, clObj) {
 }
 
 #' @keywords internal
+#' @importFrom tools file_path_sans_ext
 createGenomicAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
         
@@ -163,15 +191,18 @@ createGenomicAlignmentsController <- function(params) {
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
         
-        # find out how many threads are available on this node (for running the alignments)
+        # find out how many threads are available on this node 
+        # (for running the alignments)
         thisNodesName <- Sys.info()['nodename']
         if (!(thisNodesName %in% names(coresPerNode))) {
             stop("Fatal error 2394793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
         
-        # try to load all the required libraries on the compute node. these are the aligner package
-        # and in the case of a BSgenome, the BSgenome itself needs to be loaded and the associated index
+        # try to load all the required libraries on the compute node. 
+        # these are the aligner package
+        # and in the case of a BSgenome, the BSgenome itself needs to be 
+        # loaded and the associated index
         if (!require(proj@aligner, character.only = TRUE, quietly = TRUE)) {
             stop("Could not load the aligner package ", proj@aligner)
         }
@@ -224,7 +255,8 @@ createGenomicAlignmentsController <- function(params) {
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads1, readsUNC1, remove = FALSE)
                 proj@reads$FileName1[sampleNr] <- readsUNC1
-                on.exit(file.remove(readsUNC1)) # make sure that the temp file is deleted at the end
+                # make sure that the temp file is deleted at the end
+                on.exit(file.remove(readsUNC1)) 
             }
             # decompress the second read pair if necessary
             reads2 <- proj@reads$FileName2[sampleNr]
@@ -234,14 +266,16 @@ createGenomicAlignmentsController <- function(params) {
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads2, readsUNC2, remove = FALSE)
                 proj@reads$FileName2[sampleNr] <- readsUNC2
-                on.exit(file.remove(readsUNC2), add = TRUE) # make sure that the temp file is deleted at the end
+                # make sure that the temp file is deleted at the end
+                on.exit(file.remove(readsUNC2), add = TRUE) 
             }
         }
 
         samFile <- tempfile(tmpdir = cacheDir, 
                             pattern = basename(proj@reads[sampleNr, 1]),
                             fileext = ".sam")
-        on.exit(file.remove(samFile), add = TRUE) # make sure that the temp file is deleted at the end
+        # make sure that the temp file is deleted at the end
+        on.exit(file.remove(samFile), add = TRUE) 
         
         # perform the required alignments based on the information in qProject
         if (proj@alnModeID == "Rbowtie") {
@@ -385,7 +419,8 @@ createGenomicAlignmentsController <- function(params) {
                 if (is.na(proj@snpFile)) {
                     align_RbowtieCtoT_undir(indexDir, proj@reads[sampleNr, ],
                                             proj@samplesFormat, proj@paired,
-                                            proj@alignmentParameter, !is.na(proj@snpFile),
+                                            proj@alignmentParameter, 
+                                            !is.na(proj@snpFile),
                                             proj@maxHits, coresThisNode, samFile, cacheDir)
                 } else {
                     samFileR <- tempfile(tmpdir = cacheDir, 
@@ -482,8 +517,10 @@ createGenomicAlignmentsController <- function(params) {
                     ") have been successfully created on ",
                     Sys.info()['nodename'], sep = ""))
         
-        # if one process stops due to an error, catch it, concatenate the message with specific information about
-        # the compute node and then print it to the log file. this procedure provides the information about which
+        # if one process stops due to an error, catch it, concatenate the 
+        # message with specific information about
+        # the compute node and then print it to the log file. this procedure 
+        # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
         emsg <- paste("Error on", Sys.info()['nodename'],
@@ -496,6 +533,8 @@ createGenomicAlignmentsController <- function(params) {
 }
 
 #' @keywords internal
+#' @importFrom tools file_path_sans_ext
+#' @importFrom Rsamtools sortBam indexBam
 createAuxAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
         
@@ -513,21 +552,24 @@ createAuxAlignmentsController <- function(params) {
             stop("Could not load the aligner package ", proj@aligner)
         }
         
-        # find out how many threads are available on this node (for running the alignments)
+        # find out how many threads are available on this node 
+        # (for running the alignments)
         thisNodesName <- Sys.info()['nodename']
         if (!(thisNodesName %in% names(coresPerNode))) {
             stop("Fatal error 23594793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
         
-        # extract the unmapped reads from bam file. in the case of a bisulfite sample, this requires the conversion from ff (that is present in the bam file)
-        # to fr to make the rest of the execution compatible (see last parameter of extractUnmappedReads)
+        # extract the unmapped reads from bam file. in the case of a bisulfite 
+        # sample, this requires the conversion from ff (that is present in the bam file)
+        # to fr to make the rest of the execution compatible (see last parameter 
+        # of extractUnmappedReads)
         unmappedReadsInfo <- proj@reads[sampleNr, ]
         if (proj@paired == "no") {
             unmappedReadsFile <- tempfile(
                 tmpdir = cacheDir, 
                 pattern = basename(proj@alignments$FileName[sampleNr]),
-                fileext=proj@samplesFormat
+                fileext = proj@samplesFormat
             )
             .Call(extractUnmappedReads, proj@alignments$FileName[sampleNr],
                   unmappedReadsFile, proj@samplesFormat == "fastq",
@@ -610,9 +652,9 @@ createAuxAlignmentsController <- function(params) {
             .Call(removeUnmappedFromSamAndConvertToBam, samFile, bamFileNoUnmapped)
             file.remove(samFile)
             # sort bam
-            sortBam(bamFileNoUnmapped,
-                    tools::file_path_sans_ext(proj@auxAlignments[j, sampleNr]))
-            indexBam(proj@auxAlignments[j, sampleNr])
+            Rsamtools::sortBam(bamFileNoUnmapped,
+                               tools::file_path_sans_ext(proj@auxAlignments[j, sampleNr]))
+            Rsamtools::indexBam(proj@auxAlignments[j, sampleNr])
             file.remove(bamFileNoUnmapped)
 
             # create the info file for the bam file
@@ -628,8 +670,10 @@ createAuxAlignmentsController <- function(params) {
 
   }
 
-        # if one process stops due to an error, catch it, concatenate the message with specific information about
-        # the compute node and then print it to the log file. this procedure provides the information about which
+        # if one process stops due to an error, catch it, concatenate the 
+        # message with specific information about
+        # the compute node and then print it to the log file. this procedure 
+        # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
         emsg <- paste("Error on", Sys.info()['nodename'],"processing sample",
@@ -642,6 +686,7 @@ createAuxAlignmentsController <- function(params) {
 }
 
 #' @keywords internal
+#' @importFrom Rbowtie bowtie
 align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
                           alignmentParameter, threads, outFile, cacheDir) {
     
@@ -677,6 +722,7 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
 }
 
 #' @keywords internal
+#' @importFrom Rhisat2 hisat2
 align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired, 
                           alignmentParameter, threads, outFile, cacheDir,
                           splicedAlignment, maxHits) {
@@ -718,12 +764,14 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
 }
 
 #' @keywords internal
+#' @importFrom Rbowtie SpliceMap
+#' @importFrom Rsamtools scanFaIndex
 align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
                                  paired, alignmentParameter, threads,
                                  outFile, cacheDir) {
     # determine the number of chromosomes (or sequences in case of aux). this is needed to ensure that no more threads 
     # than chromosomes are used in the spliced alignment step of SpliceMap
-    nrChr <- length(scanFaIndex(genomeFilepath))
+    nrChr <- length(Rsamtools::scanFaIndex(genomeFilepath))
     nrChrTogether <- min(threads, nrChr)
     
     # parse alignment parameters
@@ -745,7 +793,6 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
     # convert boolean to actual logicals
     all.logicals <- grep("^(TRUE|FALSE)$", keyValueMatrix[, 2])
     sm_cfg[all.logicals] <- lapply(sm_cfg[all.logicals], as.logical)
-    
     
     sm_cfg[["genome_dir"]] <- genomeFilepath
     if (paired == "no") {
@@ -770,10 +817,11 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
                 "using", threads, "cores. Parameters:"))
     print(paste(paste(sm_cfgParString[, 1], sm_cfgParString[, 2]), collapse = " "))
     
-    SpliceMap(sm_cfg)
+    Rbowtie::SpliceMap(sm_cfg)
 }
 
 #' @keywords internal
+#' @importFrom Rbowtie bowtie
 align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                                   alignmentParameter, allelic, maxHits,
                                   threads, outFile, cacheDir) {
@@ -786,9 +834,9 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
     
     # set the format of the read identifier. this is necessary for mergeReorderSam outside of this function in allelic mode
     if (!allelic) {
-        idMode=1
+        idMode <- 1
     } else {
-        idMode=3
+        idMode <- 3
     }
     
     print(paste("Executing bowtie (CtoT and GtoA) on", Sys.info()['nodename'],
@@ -829,7 +877,8 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "--nofw", shQuote(readsCtoT_genomeGtoA))
         print(argsCtoT)
         print(argsGtoA)
-        # perform two alignments, readsCtoT agains genomeCtoT (plus strand) and readsCtoT agains genomeGtoA (minus strand)
+        # perform two alignments, readsCtoT agains genomeCtoT (plus strand) 
+        # and readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsCtoT, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -895,7 +944,8 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
         print(argsCtoT)
         print(argsGtoA)
         
-        # perform two alignments, readsCtoT against genomeCtoT (plus strand) and readsCtoT against genomeGtoA (minus strand)
+        # perform two alignments, readsCtoT against genomeCtoT (plus strand) and
+        # readsCtoT against genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsCtoT, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -934,6 +984,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
 # * reverse complemented twice which cancels out
 
 #' @keywords internal
+#' @importFrom Rbowtie bowtie
 align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                                     alignmentParameter, allelic, maxHits,
                                     threads, outFile, cacheDir) {
@@ -1027,7 +1078,8 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
         print(args2)
         print(args3)
         
-        # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and readsCtoT agains genomeGtoA (minus strand)
+        # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
+        # readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         args0, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -1149,7 +1201,8 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
         print(args2)
         print(args3)
         
-        # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and readsCtoT agains genomeGtoA (minus strand)
+        # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
+        # readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         args0, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -1185,6 +1238,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
 # For a given sample, add an integer to the id. This is necessary for allelic analysis 
 # when calling mergeReorderSam
 #' @keywords internal
+#' @importFrom tools file_ext
 addNumericToID <- function(reads, paired, cacheDir) {
 
     if (paired == "no") {
@@ -1217,6 +1271,7 @@ addNumericToID <- function(reads, paired, cacheDir) {
 
 # helper function executed in parallel by samToSortedBamParallel
 #' @keywords internal
+#' @importFrom Rsamtools asBam sortBam
 samToSortedBamCore <- function(ind, paramsL) {
     set.seed(0)
     params <- paramsL[[ind]]
@@ -1224,11 +1279,11 @@ samToSortedBamCore <- function(ind, paramsL) {
     # don't sort in the case of splitChrSam_unaligned
     if (basename(params[2]) != "splitChrSam_unaligned") {
         bamtempFile <- tempfile()
-        asBam(params[1], bamtempFile, indexDestination = FALSE)
+        Rsamtools::asBam(params[1], bamtempFile, indexDestination = FALSE)
         on.exit(file.remove(bamtempFile))
-        sortBam(paste(bamtempFile, "bam", sep = "."), params[2])
+        Rsamtools::sortBam(paste(bamtempFile, "bam", sep = "."), params[2])
     } else {
-        asBam(params[1], params[2], indexDestination = FALSE)
+        Rsamtools::asBam(params[1], params[2], indexDestination = FALSE)
     }
 }
 
@@ -1237,7 +1292,9 @@ samToSortedBamCore <- function(ind, paramsL) {
 # p nodes and sort and converts to bam in parallel fashion. After this step, the bam
 # files are concatentated (in the order of the header of the original sam file and 
 # an index in built for the final bam file
-#' @keywords internal
+#' @keywords internal 
+#' @importFrom parallel makeCluster stopCluster clusterEvalQ clusterApplyLB
+#' @importFrom Rsamtools indexBam
 samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     # test if the input file exists
     if (!file.exists(file)) {
@@ -1247,17 +1304,20 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     if (is.null(cacheDir))
         cacheDir <- tempdir()
     
-    # split the input sam file into seperate files, one per chromosome in a temporary directory
+    # split the input sam file into seperate files, one per chromosome in 
+    # a temporary directory
     splitDir <- tempfile(tmpdir = cacheDir, pattern = "samToBam_")
     if (!dir.create(path = splitDir, showWarnings = FALSE)) {
         stop("No permissions to create a directory in the cacheDir", call. = FALSE)
     }
-    on.exit(unlink(splitDir, recursive = TRUE)) # make sure that the temp dir is deleted
+    # make sure that the temp dir is deleted
+    on.exit(unlink(splitDir, recursive = TRUE)) 
     
     # perform the split
     chrNames <- .Call(splitSamChr, file, splitDir)
     
-    # collect the sam files that are not empty. The empty ones would cause a problem during sam to bam conversion
+    # collect the sam files that are not empty. The empty ones would cause a 
+    # problem during sam to bam conversion
     splitSamAndBamNames <- NULL
     for (i in 1:length(chrNames)) {
         samName <- file.path(splitDir, paste(chrNames[i], "sam", sep = "."))
@@ -1267,7 +1327,8 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
                          sep = "\t", comment.char = "@", fill = TRUE,
                          nmax = 30, quiet = TRUE)
         if (length(fileHead[[1]]) > 0) {
-            splitSamAndBamNames[[length(splitSamAndBamNames) + 1]] <- c(samName, bamName)
+            splitSamAndBamNames[[length(splitSamAndBamNames) + 1]] <- 
+                c(samName, bamName)
         }
         close(con)
     }
@@ -1276,24 +1337,24 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     sortedOrder <- order(file.info(do.call(rbind, splitSamAndBamNames)[, 1])$size,
                          decreasing = TRUE)
     
-    clObjS <- makeCluster(p)
-    on.exit(stopCluster(clObjS), add = TRUE)
+    clObjS <- parallel::makeCluster(p)
+    on.exit(parallel::stopCluster(clObjS), add = TRUE)
     
     # load QuasR package on all the nodes
-    clRet <- clusterEvalQ(clObjS, library("QuasR"))
+    clRet <- parallel::clusterEvalQ(clObjS, library("QuasR"))
     if (!all(sapply(clRet, function(x) "QuasR" %in% x))) {
         stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
     }
     
-    clusterApplyLB(clObjS, 1:length(splitSamAndBamNames), samToSortedBamCore,
-                   splitSamAndBamNames[sortedOrder])
+    parallel::clusterApplyLB(clObjS, 1:length(splitSamAndBamNames), samToSortedBamCore,
+                             splitSamAndBamNames[sortedOrder])
     
     # concatenate all the sorted bam files in the order of the original sam file header
     .Call(catBam, paste0(do.call(rbind, splitSamAndBamNames)[, 2], ".bam"), 
           paste0(destination, ".bam"))
     
     # create index for the final bam file
-    indexBam(paste0(destination, ".bam"))
+    Rsamtools::indexBam(paste0(destination, ".bam"))
     
     invisible(paste0(destination, ".bam"))
 }
