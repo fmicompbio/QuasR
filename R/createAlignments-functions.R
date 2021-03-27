@@ -686,7 +686,7 @@ createAuxAlignmentsController <- function(params) {
 }
 
 #' @keywords internal
-#' @importFrom Rbowtie bowtie
+#' @import Rbowtie
 align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
                           alignmentParameter, threads, outFile, cacheDir) {
     
@@ -722,7 +722,7 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
 }
 
 #' @keywords internal
-#' @importFrom Rhisat2 hisat2
+#' @import Rhisat2
 align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired, 
                           alignmentParameter, threads, outFile, cacheDir,
                           splicedAlignment, maxHits) {
@@ -821,7 +821,7 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
 }
 
 #' @keywords internal
-#' @importFrom Rbowtie bowtie
+#' @import Rbowtie
 align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                                   alignmentParameter, allelic, maxHits,
                                   threads, outFile, cacheDir) {
@@ -984,7 +984,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
 # * reverse complemented twice which cancels out
 
 #' @keywords internal
-#' @importFrom Rbowtie bowtie
+#' @import Rbowtie
 align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                                     alignmentParameter, allelic, maxHits,
                                     threads, outFile, cacheDir) {
