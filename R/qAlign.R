@@ -286,7 +286,7 @@ missingFilesMessage <- function(proj, checkOnly) {
     
     if (any(is.na(proj@alignments$FileName))) {
         if (is.na(proj@snpFile)) {
-            if (proj@genomeFormat ==" file") {
+            if (proj@genomeFormat == "file") {
                 indexPath <- paste(proj@genome, proj@alnModeID, sep = ".")
                 if (file.exists(indexPath)) {
                     if (!("ref_md5Sum.txt" %in% dir(indexPath))) {
