@@ -281,6 +281,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
 #' @keywords internal
 #' @importFrom GenomeInfoDb seqlengths
 #' @importFrom Rsamtools scanBamHeader
+#' @importFrom utils flush.console
 missingFilesMessage <- function(proj, checkOnly) {
     
     genomeIndexNeedsToBeCreated <- FALSE
@@ -381,9 +382,9 @@ missingFilesMessage <- function(proj, checkOnly) {
         }
 
         if (interactive()) {
-            message("will start in ", appendLF = FALSE); flush.console()
+            message("will start in ", appendLF = FALSE); utils::flush.console()
             for (i in 9:1) { 
-                message("..", i, "s", appendLF = FALSE); flush.console();
+                message("..", i, "s", appendLF = FALSE); utils::flush.console()
                 Sys.sleep(1) 
             }
             message("")
@@ -399,6 +400,7 @@ missingFilesMessage <- function(proj, checkOnly) {
 #' @importFrom BiocManager install
 #' @importFrom ShortRead FastqStreamer yield
 #' @importFrom Biostrings quality
+#' @importFrom Biobase testBioCConnection
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, 
                            maxHits, paired, splicedAlignment,
                            snpFile, bisulfite, alignmentParameter, 
@@ -454,7 +456,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             message("The specified genome is not a fasta file or an installed BSgenome.")
             message("Connecting to Bioconductor and searching for a matching genome (internet connection required)...", appendLF = FALSE)
             
-            if (testBioCConnection()) {
+            if (Biobase::testBioCConnection()) {
                 # Connection to Bioconductor OK
                 message("OK")
                 if (genome %in% BSgenome::available.genomes()) {
@@ -549,7 +551,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             if (proj@samplesFormat == "bam") {
                 # samples are provided as bam files
                 if (is.null(paired)) {
-                    stop("Paired status of the provided bam files cannot be determined automatically, please set the paired parameter",
+                    stop("Paired status of the provided bam files cannot be ", 
+                         "determined automatically, please set the paired parameter",
                          call. = FALSE)
                 }
                 

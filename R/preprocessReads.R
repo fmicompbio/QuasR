@@ -172,7 +172,8 @@ preprocessReads <- function(filename, outputFilename = NULL,
     if (paired) {
         paired <- TRUE
         if (Lpattern != "" || Rpattern != "")
-            stop("Removing adapters from paired-end samples is not yet supported ('Lpattern' and 'Rpattern' must be set to \"\").")
+            stop("Removing adapters from paired-end samples is not yet ", 
+                 "supported ('Lpattern' and 'Rpattern' must be set to \"\").")
         if (!is.character(filenameMate))
             stop("'filenameMate' must be of type character.")
         if (is.null(outputFilenameMate)) {
@@ -267,7 +268,7 @@ preprocessReads <- function(filename, outputFilename = NULL,
 #' @keywords internal
 #' @importFrom ShortRead readFasta writeFastq FastqStreamer yield
 #' @importFrom Biostrings trimLRPatterns
-#' @importFrom IRanges narrow
+#' @importFrom Biostrings narrow
 #' @importFrom S4Vectors evalSeparately
 #' @importFrom BiocGenerics width start end
 preprocessSingleReads <- function(filename, outputFilename, fileformat, filecompr,
@@ -307,10 +308,12 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
         cycle <- 1L
         while (length(chunks <- ShortRead::readFasta(filename, nrec = nrec, 
                                                      skip = (cycle - 1)*nrec)) != 0L) {
-            filterReport['totalSequences'] <- filterReport['totalSequences'] + length(chunks)
+            filterReport['totalSequences'] <- filterReport['totalSequences'] + 
+                length(chunks)
             
             ## truncate start or end bases
-            chunks <- IRanges::narrow(x = chunks, start = truncateFromBase, end = truncateToBase)
+            chunks <- Biostrings::narrow(x = chunks, start = truncateFromBase, 
+                                         end = truncateToBase)
             
             ## trim adaptor
             ranges <- Biostrings::trimLRPatterns(
@@ -323,8 +326,9 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
                 sum(BiocGenerics::start(ranges) != 1)
             filterReport['matchTo3pAdapter'] <- filterReport['matchTo3pAdapter'] + 
                 sum(BiocGenerics::end(ranges) != BiocGenerics::width(chunks))
-            chunks <- IRanges::narrow(x = chunks, start = BiocGenerics::start(ranges), 
-                                      end = BiocGenerics::end(ranges))
+            chunks <- Biostrings::narrow(x = chunks, 
+                                         start = BiocGenerics::start(ranges), 
+                                         end = BiocGenerics::end(ranges))
         
             ## filter and write short reads
             filterResults <- S4Vectors::evalSeparately(filters, chunks)
@@ -355,7 +359,8 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
             filterReport['totalSequences'] <- filterReport['totalSequences'] + length(chunks)
             
             ## truncate start or end bases
-            chunks <- IRanges::narrow(x = chunks, start = truncateFromBase, end = truncateToBase)
+            chunks <- Biostrings::narrow(x = chunks, start = truncateFromBase, 
+                                         end = truncateToBase)
             
             ## trim adaptor
             ranges <- Biostrings::trimLRPatterns(
@@ -368,8 +373,9 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
                 sum(BiocGenerics::start(ranges) != 1)
             filterReport['matchTo3pAdapter'] <- filterReport['matchTo3pAdapter'] + 
                 sum(BiocGenerics::end(ranges) != BiocGenerics::width(chunks))
-            chunks <- IRanges::narrow(x = chunks, start = BiocGenerics::start(ranges), 
-                                      end = BiocGenerics::end(ranges))
+            chunks <- Biostrings::narrow(x = chunks, 
+                                         start = BiocGenerics::start(ranges), 
+                                         end = BiocGenerics::end(ranges))
         
             ## filter and write short reads
             filterResults <- S4Vectors::evalSeparately(filters, chunks)
@@ -401,7 +407,7 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
 #' @keywords internal
 #' @importFrom ShortRead readFasta writeFastq FastqStreamer yield
 #' @importFrom Biostrings trimLRPatterns
-#' @importFrom IRanges narrow
+#' @importFrom Biostrings narrow
 #' @importFrom S4Vectors evalSeparately
 #' @importFrom BiocGenerics width start end
 preprocessPairedReads <- function(filename, filenameMate, outputFilename, 
@@ -437,8 +443,11 @@ preprocessPairedReads <- function(filename, filenameMate, outputFilename,
                                                skip = (cycle - 1)*nrec)
             filterReport['totalSequences'] <- filterReport['totalSequences'] + length(chunks)
             
-            chunks <- IRanges::narrow(x = chunks, start = truncateFromBase, end = truncateToBase)
-            chunksMate <- IRanges::narrow(x = chunksMate, start = truncateFromBase, end = truncateToBase)
+            chunks <- Biostrings::narrow(x = chunks, start = truncateFromBase, 
+                                         end = truncateToBase)
+            chunksMate <- Biostrings::narrow(x = chunksMate, 
+                                             start = truncateFromBase, 
+                                             end = truncateToBase)
             
             ## filter and write short reads
             filterResults <- S4Vectors::evalSeparately(filters, chunks)
@@ -482,8 +491,11 @@ preprocessPairedReads <- function(filename, filenameMate, outputFilename,
             chunksMate <- ShortRead::yield(fs2)
             filterReport['totalSequences'] <- filterReport['totalSequences'] + length(chunks)
             
-            chunks <- IRanges::narrow(x = chunks, start = truncateFromBase, end = truncateToBase)
-            chunksMate <- IRanges::narrow(x = chunksMate, start = truncateFromBase, end = truncateToBase)
+            chunks <- Biostrings::narrow(x = chunks, start = truncateFromBase, 
+                                         end = truncateToBase)
+            chunksMate <- Biostrings::narrow(x = chunksMate, 
+                                             start = truncateFromBase, 
+                                             end = truncateToBase)
                 
             ## filter and write short reads
             filterResults <- S4Vectors::evalSeparately(filters, chunks)
