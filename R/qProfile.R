@@ -196,6 +196,13 @@
 #' lapply(pr2, dim)
 #' lapply(pr2, "[", 1:3, 1:5)
 #' 
+#' @importFrom Rsamtools scanBamHeader
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom BiocGenerics start end strand
+#' @importFrom GenomeInfoDb seqnames seqlevels
+#' @importFrom parallel clusterEvalQ clusterMap
+#' 
 qProfile <- function(proj,
                      query,
                      upstream = 1000,
@@ -284,9 +291,9 @@ qProfile <- function(proj,
     trTab <- table(unlist(lapply(Rsamtools::scanBamHeader(bamfiles), 
                                  function(bh) names(bh$targets))))
     trCommon <- names(trTab)[trTab == length(bamfiles)]
-    if (any(f <- !(seqlevels(query) %in% trCommon)))
+    if (any(f <- !(GenomeInfoDb::seqlevels(query) %in% trCommon)))
         stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
-                     paste(seqlevels(query)[f], collapse = ", ")))
+                     paste(GenomeInfoDb::seqlevels(query)[f], collapse = ", ")))
     
     ## 'useRead' set but not a paired-end experiment?
     if (useRead != "any" && proj@paired == "no")
@@ -338,14 +345,16 @@ qProfile <- function(proj,
             warning(sprintf("profiling over large region (%d basepairs, %d bins) - may be slow and require a lot of memory",
                             maxUp + maxDown + 1, maxUpBin + maxDownBin))
         
-        plusStrand <- as.character(strand(query)) != "-"
-        refpos <- ifelse(plusStrand, start(query), end(query))
+        plusStrand <- as.character(BiocGenerics::strand(query)) != "-"
+        refpos <- ifelse(plusStrand, BiocGenerics::start(query), 
+                         BiocGenerics::end(query))
         queryWin <- GenomicRanges::GRanges(
-            seqnames(query),
-            IRanges::IRanges(start = pmax(1, ifelse(plusStrand, 
-                                                    refpos - upstream, refpos - downstream)),
-                             end = ifelse(plusStrand, refpos + downstream, refpos + upstream)),
-            strand = strand(query)
+            GenomeInfoDb::seqnames(query),
+            IRanges::IRanges(
+              start = pmax(1, ifelse(plusStrand, 
+                                     refpos - upstream, refpos - downstream)),
+              end = ifelse(plusStrand, refpos + downstream, refpos + upstream)),
+            strand = BiocGenerics::strand(query)
         )
 
         # split 'queryWin' --> 'queryWinL' and 'refpos' --> 'refposL' by 'querynames'
@@ -366,13 +375,17 @@ qProfile <- function(proj,
         # calculate coverage
         cvgBaseL <- lapply(seq_along(queryWin), function(i) 
             (maxUp - upstream[i] + 1):(maxUp + downstream[i] + 1))
-        cvgBase <- do.call(rbind, lapply(split(seq_along(queryWin),
-                                               factor(querynames, levels = unique(querynames))),
-                                         function(i) tabulate(unlist(cvgBaseL[i]), 
-                                                              nbins = maxUp + maxDown + 1)))
-        cvg <- do.call(cbind, lapply(split(seq.int(maxUp + maxDown + 1), 
-                                           rep(seq(-maxUpBin, maxDownBin), each = binSize)),
-                                     function(i) rowSums(cvgBase[, i, drop = FALSE])))
+        cvgBase <- do.call(
+          rbind, lapply(split(seq_along(queryWin),
+                              factor(querynames, levels = unique(querynames))),
+                        function(i) tabulate(unlist(cvgBaseL[i]), 
+                                             nbins = maxUp + maxDown + 1))
+        )
+        cvg <- do.call(
+          cbind, lapply(split(seq.int(maxUp + maxDown + 1), 
+                              rep(seq(-maxUpBin, maxDownBin), each = binSize)),
+                        function(i) rowSums(cvgBase[, i, drop = FALSE]))
+        )
         colnames(cvg) <- binNames
         
     } else {
@@ -383,7 +396,7 @@ qProfile <- function(proj,
     
     ## apply 'mask' to queryWinL -----------------------------------------------
     if (!is.null(mask)) {
-        if (!inherits(mask,"GRanges"))
+        if (!inherits(mask, "GRanges"))
             stop("'mask' must be an object of type 'GRanges'")
         stop("'mask' is not yet supported for qProfile")
     }        
@@ -392,11 +405,11 @@ qProfile <- function(proj,
     ## setup tasks for parallelization -----------------------------------------
     if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
         message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
-        ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
+        ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
         if (!all(sapply(ret, function(x) "QuasR" %in% x)))
             stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
-        myapply <- function(...) clusterMap(clObj, ..., SIMPLIFY = FALSE, 
-                                            .scheduling = "dynamic")
+        myapply <- function(...) parallel::clusterMap(clObj, ..., SIMPLIFY = FALSE, 
+                                                      .scheduling = "dynamic")
         message("done")
     } else {
         myapply <- function(...) mapply(..., SIMPLIFY = FALSE)
@@ -472,6 +485,10 @@ qProfile <- function(proj,
 
 ## profile alignments (with the C-function) for single bamfile, multiple regions, single shift
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
+#' @keywords internal
+#' @importFrom Rsamtools scanBamHeader
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom BiocGenerics start end strand
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, 
                               selectReadPosition, orientation, useRead, 
                               broaden, allelic, maxUp, maxDown, maxUpBin, 
@@ -484,13 +501,13 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
         seqnamesBamHeader <- names(Rsamtools::scanBamHeader(bamfile)[[1]]$targets)
         
         # prepare region vectors
-        tid <- as.vector(match(seqnames(regions), seqnamesBamHeader) - 1L) 
-        s <- start(regions) - 1L # Samtools library has 0-based inclusive start
-        e <- end(regions) # Samtools library has 0-based exclusive end
+        tid <- as.vector(match(GenomeInfoDb::seqnames(regions), seqnamesBamHeader) - 1L) 
+        s <- BiocGenerics::start(regions) - 1L # Samtools library has 0-based inclusive start
+        e <- BiocGenerics::end(regions) # Samtools library has 0-based exclusive end
         rp <- refpos - 1L # Samtools library has 0-based inclusive start
         
         ## swap selstrand for 'orientation="opposite"'
-        regstrand <- as.character(strand(regions))
+        regstrand <- as.character(BiocGenerics::strand(regions))
         if (orientation == "any")
             selstrand <- rep("*", length(regions))
         else if (orientation == "opposite")
@@ -536,8 +553,10 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
         reg <- regions[c(1, length(regions))]
         emsg <- paste("Internal error on ", Sys.info()['nodename'], 
                       ", bamfile ", bamfile," with regions\n\t", 
-                      paste(seqnames(reg), ":", start(reg), "-" , end(reg),
-                            ":", strand(reg), sep = "", collapse = "\n\t...\n\t"), 
+                      paste(GenomeInfoDb::seqnames(reg), ":", 
+                            BiocGenerics::start(reg), "-" , BiocGenerics::end(reg),
+                            ":", BiocGenerics::strand(reg), sep = "", 
+                            collapse = "\n\t...\n\t"), 
                       "\n Error message is: ", ex$message, sep = "")
         stop(emsg)
     })
