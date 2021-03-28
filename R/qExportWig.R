@@ -163,6 +163,7 @@
 #' 
 #' @importFrom Rsamtools scanBamHeader
 #' @importFrom GenomeInfoDb Seqinfo
+#' @importFrom grDevices col2rgb colorRampPalette
 #' 
 #' @examples 
 #' # copy example data to current working directory
@@ -219,7 +220,7 @@ qExportWig <- function(proj,
     if (is.null(tracknames)) {
         tracknames <- if (collapseBySample) samplenames else displayNames(proj)
         if (strand[1] != "*")
-            tracknames <- sprintf("%s (%s)",tracknames,strand)
+            tracknames <- sprintf("%s (%s)", tracknames, strand)
     }
     
     # ...file
@@ -235,7 +236,7 @@ qExportWig <- function(proj,
     if (createBigWig && any(!grepl(".bw$", file)))
         stop("file names have to end with '.bw' for createBigWig=TRUE")
     compressFormat <- compressedFileFormat(file)
-    if (!all(compressFormat %in% c("none","gzip")))
+    if (!all(compressFormat %in% c("none", "gzip")))
         stop("only gzip compressed wig files (extension '.gz') are supported")
     compress <- compressFormat == "gzip"
     if (length(compress) == 1)
@@ -264,12 +265,12 @@ qExportWig <- function(proj,
     # ...scaling
     if (!(length(scaling) == 1L && (is.logical(scaling) || is.numeric(scaling))))
         stop("'scaling' needs to be a logical(1) or a numeric(1)")
-    fact <- rep(1,n)
+    fact <- rep(1, n)
     if (is.numeric(scaling) || (is.logical(scaling) && scaling)) {
-        message("collecting mapping statistics for scaling...", appendLF=FALSE)
-        tmp <- alignmentStats(proj, collapseBySample=collapseBySample)
-        N <- tmp[grepl(":genome$",rownames(tmp)),'mapped']
-        names(N) <- sub(":genome$","",names(N))
+        message("collecting mapping statistics for scaling...", appendLF = FALSE)
+        tmp <- alignmentStats(proj, collapseBySample = collapseBySample)
+        N <- tmp[grepl(":genome$", rownames(tmp)), 'mapped']
+        names(N) <- sub(":genome$", "", names(N))
         if (is.logical(scaling)) {
             #fact <- min(N) / N
             fact <- mean(N) / N
@@ -288,8 +289,8 @@ qExportWig <- function(proj,
     
     # ...colors
     if (length(colors) < n)
-        colors <- colorRampPalette(colors)(n)
-    colors <- apply(col2rgb(colors),2,paste,collapse = ",")
+        colors <- grDevices::colorRampPalette(colors)(n)
+    colors <- apply(grDevices::col2rgb(colors), 2, paste, collapse = ",")
 
     # ...includeSecondary
     if (length(includeSecondary) != 1 || !is.logical(includeSecondary))
@@ -299,11 +300,11 @@ qExportWig <- function(proj,
     if (length(mapqMin) != 1 || !is.integer(mapqMin) || 
         any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
         stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
-    mapqMin <- rep(mapqMin,n)
+    mapqMin <- rep(mapqMin, n)
     if (length(mapqMax) != 1 || !is.integer(mapqMax) || 
         any(is.na(mapqMax)) || min(mapqMax) < 0L || max(mapqMax) > 255L)
         stop("'mapqMax' must be of type integer(1) and have a values between 0 and 255")
-    mapqMax <- rep(mapqMax,n)
+    mapqMax <- rep(mapqMax, n)
 
     # ...absolute insert size
     if ((!is.null(absIsizeMin) || !is.null(absIsizeMax)) && !paired)
@@ -356,8 +357,10 @@ qExportWig <- function(proj,
               as.integer(binsize[1]), as.integer(shift[i]), 
               as.character(strand[1]), as.numeric(fact[i]),
               as.character(tracknames[i]), as.logical(log2p1[i]),
-              as.character(colors[i]), as.logical(compress[i]), as.logical(includeSecondary[1]),
-              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), as.integer(absIsizeMax), readBitMask)
+              as.character(colors[i]), as.logical(compress[i]), 
+              as.logical(includeSecondary[1]),
+              mapqMin[i], mapqMax[i], as.integer(absIsizeMin), 
+              as.integer(absIsizeMax), readBitMask)
         if (createBigWig) {
             rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
             unlink(tempwigfile[i])
