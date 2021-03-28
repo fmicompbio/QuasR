@@ -17,6 +17,8 @@
 #' 
 #' @docType package
 #' 
+#' @useDynLib QuasR, .registration=TRUE
+#' 
 #' @examples 
 #' \dontrun{
 #' # see qCount, qMeth and qProfile manual pages for examples

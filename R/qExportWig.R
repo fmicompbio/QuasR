@@ -164,6 +164,7 @@
 #' @importFrom Rsamtools scanBamHeader
 #' @importFrom GenomeInfoDb Seqinfo
 #' @importFrom grDevices col2rgb colorRampPalette
+#' @importFrom rtracklayer wigToBigWig
 #' 
 #' @examples 
 #' # copy example data to current working directory

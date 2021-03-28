@@ -1030,4 +1030,5 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
     ShortRead:::.ShortReadQQA(lst)
 }
 
+#' @export
 setMethod(qa, "ShortRead", .qa_ShortRead)

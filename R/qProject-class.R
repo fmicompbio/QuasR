@@ -19,14 +19,16 @@
 #' 
 #' @export
 #' 
+#' @importFrom methods .hasSlot
+#' 
 qProjectUpdate <- function(proj, quiet = TRUE) {
     mod <- FALSE
-    if (!(.hasSlot(proj, "geneAnnotation"))) {
+    if (!(methods::.hasSlot(proj, "geneAnnotation"))) {
         proj@geneAnnotation <- NA_character_
         if (!quiet) message("Adding geneAnnotation slot")
         mod <- TRUE
     } 
-    if (!(.hasSlot(proj, "geneAnnotationFormat"))) {
+    if (!(methods::.hasSlot(proj, "geneAnnotationFormat"))) {
         proj@geneAnnotationFormat <- NA_character_
         if (!quiet) message("Adding geneAnnotationFormat slot")
         mod <- TRUE
@@ -38,6 +40,118 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 }
 
 ### qProject class definition
+#' qProject objects
+#' 
+#' The qProject class is a container for the meta-data (e.g. sample
+#' names, paths and names of sequence and alignment files) associated
+#' with a high-throughput sequencing experiment analyzed with \code{QuasR}.
+#' 
+#' The qProject class is returned by \link{qAlign} and stores all 
+#' information on a high-throughput sequencing experiment analyzed with
+#' \code{QuasR}. qProject objects can be conveniently passed to
+#' \sQuote{q}-functions (function name starting with the letter
+#' \sQuote{q}). The information is stored in the following slots:
+#' \describe{
+#'   \item{\code{reads}}{a 'data.frame' with sequence read files.}
+#'   \item{\code{reads_md5subsum}}{a 'data.frame' with fingerprints for
+#'   sequence read files.}
+#'   \item{\code{alignments}}{a 'data.frame' with alignment files.}
+#'   \item{\code{samplesFormat}}{a 'character(1)' specifying the format
+#'   of input files.}
+#'   \item{\code{genome}}{a 'character(1)' specifying the reference genome.}
+#'   \item{\code{genomeFormat}}{a 'character(1)' specifying the format of
+#'   the reference genome.}
+#'   \item{\code{aux}}{a 'data.frame' with auxiliary reference sequence files.}
+#'   \item{\code{auxAlignments}}{a 'data.frame' with alignment files for
+#'   auxiliary reference sequence files.}
+#'   \item{\code{aligner}}{a 'character(1)' specifying the aligner.}
+#'   \item{\code{maxHits}}{a 'numeric(1)' specifying the maximum number
+#'   of alignments per sequence.}
+#'   \item{\code{paired}}{a 'character(1)' specifying the paired-type;
+#'   one of "no", "fr", "rf", "ff".}
+#'   \item{\code{splicedAlignment}}{a 'logical(1)'; \code{TRUE} when
+#'   performing spliced-alignments.}
+#'   \item{\code{snpFile}}{a 'character(1)' with a file name containing
+#'   SNP information.}
+#'   \item{\code{bisulfite}}{a 'character(1)' defining the bisulfite
+#'   type; one of "no", "dir", "undir".}
+#'   \item{\code{alignmentParameter}}{a 'character(1)' with aligner
+#'   command line parameters.}
+#'   \item{\code{projectName}}{a 'character(1)' with the project name.}
+#'   \item{\code{alignmentsDir}}{a 'character(1)' with the directory to
+#'   be used to store alignment files.}
+#'   \item{\code{lib.loc}}{a 'character(1)' with the library directory to
+#'   use for installing of alignment index packages.}
+#'   \item{\code{cacheDir}}{a 'character(1)' with a directory to use for
+#'   temporary files.}
+#'   \item{\code{alnModeID}}{a 'character(1)' used internally to indicate
+#'   the alignment mode.}
+#' }
+#' 
+#' @section Accessors
+#' In the following code snippets, \code{x} is a qProject object.
+#' \describe{
+#'   \item{}{\code{length(x)}: Gets the number of input files.}
+#'   \item{}{\code{genome(x)}: Gets the reference genome as a 'character(1)'. 
+#'   The type of genome is stored as an attribute in
+#'   \code{attr(genome(x),"genomeFormat")}: "BSgenome" indicates that
+#'   \code{genome(x)} refers to the name of a BSgenome package, "file"
+#'   indicates that it contains the path and filename of a genome in
+#'   FASTA format.}
+#'   \item{}{\code{auxiliaries(x)}: Gets a \code{data.frame} with auxiliary 
+#'   target sequences, with one row per auxiliary target, and columns 
+#'   "FileName" and "AuxName".}
+#'   \item{}{ \code{alignments(x)}: Gets a list with two elements "genome" and
+#'   "aux". \code{alignments(x)$genome} contains a \code{data.frame} 
+#'   with \code{length(x)} rows and the columns "FileName" (containing
+#'   the path to bam files with genomic alignments) and 
+#'   "SampleName". \code{alignments(x)$aux} contains a 
+#'   \code{data.frame} with one row per auxiliary target sequence (with
+#'   auxiliary names as row names), and \code{length(x)} columns.}
+#' }
+#' 
+#' @section Subsetting
+#' In the following code snippets, \code{x} is a qProject object.
+#' \describe{
+#'   \item{}{\code{x[i]}: Get \code{qProject} object instance with \code{i} 
+#'   input files, where \code{i} can be an NA-free logical, numeric, or 
+#'   character vector.}
+#' }
+#' 
+#' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
+#' 
+#' @aliases show,qProject-method
+#' @aliases [,qProject,ANY,missing,missing-method alignments,qProject-method
+#' @aliases alignments auxiliaries,qProject-method auxiliaries 
+#'   genome,qProject-method length,qProject-method qProject qProject-class
+#'   class:qProject
+#'   
+#' @name qProject-class
+#' @docType class
+#' 
+#' @seealso \link{qAlign}
+#' 
+#' @export
+#' 
+#' @examples 
+#' # copy example data to current working directory
+#' file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+#' 
+#' # create alignments
+#' sampleFile <- "extdata/samples_chip_single.txt"
+#' genomeFile <- "extdata/hg19sub.fa"
+#' auxFile <- "extdata/auxiliaries.txt"
+#' 
+#' proj <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile)
+#' proj
+#' 
+#' # alignment statistics using a qProject
+#' alignmentStats(proj)
+#' 
+#' # alignment statistics using bam files
+#' alignmentStats(alignments(proj)$genome$FileName)
+#' alignmentStats(unlist(alignments(proj)$aux))
+#' 
 setClass("qProject",
          slots = c(reads = "data.frame",
                    reads_md5subsum = "data.frame",
@@ -64,6 +178,7 @@ setClass("qProject",
 )
 
 ### Methods
+#' @export
 setMethod("length", "qProject", function(x) nrow(x@reads))
 
 #setGeneric("sampleNames", function(x) names(x))
@@ -81,20 +196,26 @@ setMethod("length", "qProject", function(x) nrow(x@reads))
 #    x
 #})
 
+#' @export
 setMethod("genome", signature(x = "qProject"), function(x) {
     y <- x@genome
     attr(y, "genomeFormat") <- x@genomeFormat
     return(y)
 })
 
+#' @export
 setGeneric("auxiliaries", function(x) return(NULL))
+#' @export
 setMethod("auxiliaries", signature(x = "qProject"), function(x) return(x@aux))
 
+#' @export
 setGeneric("alignments", function(x) return(NULL))
+#' @export
 setMethod("alignments", signature(x = "qProject"), function(x) {
     return(list(genome = x@alignments, aux = x@auxAlignments))
 })
 
+#' @export
 setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
                          drop = "missing"), 
           function(x, i) {
@@ -124,6 +245,7 @@ setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
 
 #setGeneric("niceprint", function(x) print(x))
 #setMethod("niceprint", "qProject", function(object) {
+#' @export
 setMethod("show", "qProject", function(object) {
     # project and global options
     cat("Project: " , object@projectName, "\n", sep = "")
