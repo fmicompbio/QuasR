@@ -307,25 +307,31 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
             if (filetype == "bam") {
                 readFilename <- rep(input@alignments$FileName, each = 2)
                 if (useSampleNames) {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), each = 2), 
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), 
+                                                        each = 2), 
                                      1:2, rep(input@alignments$SampleName, each = 2))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), input@alignments$SampleName)
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments),
+                                        input@alignments$SampleName)
                 } else {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), each = 2), 
+                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), 
+                                                        each = 2), 
                                      1:2, basename(readFilename))
                     mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), 
                                         basename(input@alignments$FileName))
                 }
             } else {
-                readFilename <- as.vector(rbind(input@reads$FileName1, input@reads$FileName2))
+                readFilename <- as.vector(rbind(input@reads$FileName1,
+                                                input@reads$FileName2))
                 if (useSampleNames) {
                     label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads), each = 2), 
                                      1:2, rep(input@reads$SampleName, each = 2))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), input@reads$SampleName)
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads),
+                                        input@reads$SampleName)
                 } else {
                     label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads), each = 2),
                                      1:2, basename(readFilename))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), basename(input@reads$FileName1))
+                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), 
+                                        basename(input@reads$FileName1))
                 }
             }
         }
@@ -357,7 +363,8 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
                 genome <- NULL
             }
         } else {
-            stop("could not find the files '", paste(input[!file.exists(input)], collapse = " "), "'")
+            stop("could not find the files '", paste(input[!file.exists(input)],
+                                                     collapse = " "), "'")
         }        
     } else {
         stop("'input' must be an object of type 'qProject' (returned by 'qAlign') or filenames")
@@ -864,7 +871,7 @@ plotErrorsByCycle <- function(data, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
         abline(h = 0, lty = 2, col = 'gray')
         #abline(v=c(12,25), lty=3, col='red')
         cxy <- par('cxy')
-        text(x = par('usr')[1] + cxy[1]/4, y = par('usr')[4] - cxy[2]/4, adj = c(0,1),
+        text(x = par('usr')[1] + cxy[1]/4, y = par('usr')[4] - cxy[2]/4, adj = c(0, 1),
              labels = truncStringToPlotWidth(names(data)[i],
                                              diff(par("usr")[1:2]) - cxy[1]/2))
         if (all(is.na(data[[i]])))
@@ -898,7 +905,7 @@ plotMismatchTypes <- function(data, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
              adj = c(1,1), col = mycols, labels = rownames(pmtypes))
         text(x = par('usr')[2] - cxy[1]/4 - 5*cxy[1]*0.8, 
              y = par('usr')[4] - cxy[2]/4,
-             col = "black", labels = "Read:", adj = c(1,1))
+             col = "black", labels = "Read:", adj = c(1, 1))
         text(x = par('usr')[1] + cxy[1]/4,
              y = par('usr')[4] - cxy[2]/4, 
              adj = c(0, 1), col = "black",

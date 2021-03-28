@@ -99,6 +99,7 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
 }
 
 #' @keywords internal
+#' @importFrom tools file_path_as_absolute
 freeDiskSpace <- function(path) {
     # return the number of free bytes at 'path' as reported by operating system utilities
     path <- sub("(\\\\|/)$", "", path)
@@ -164,6 +165,7 @@ consolidateFileExtensions <- function(filename, compressed = FALSE) {
 }
 
 #' @keywords internal
+#' @importFrom tools file_ext
 compressedFileFormat <- function(filename) {
     ifelse(grepl("[.](gz|bz2|xz)$", filename),
            c("gz" = "gzip", "bz2" = "bzip2", "xz" = "xz")[tools::file_ext(filename)],
@@ -267,6 +269,7 @@ compressFile <- function(filename, destname, level = 6,
 #     }
 
 #' @keywords internal
+#' @importFrom tools md5sum
 md5subsum <- function(filenames) {
     # use RNG kind for sample() from R version 3.5 and earlier
     # (non-uniform, see https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=17494,
@@ -316,6 +319,8 @@ md5subsum <- function(filenames) {
 #  [[2]] is used to parallelize across threads (accessing a single file) -> has to be a MulticoreParam or SerialParam object
 # for downwards compatibility, a parallel::cluster object can be passed that will be used to create the BiocParallel parameter objects
 #' @keywords internal
+#' @importFrom BiocParallel SerialParam MulticoreParam
+#' @importFrom parallel clusterEvalQ
 getListOfBiocParallelParam <- function(clObj = NULL) {
     if (is.null(clObj)) { # no 'clObj' argument
         bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
