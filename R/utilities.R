@@ -51,6 +51,9 @@ displayNames <- function(proj) { # create unique names for each sequence file
 #' # see qProject manual page for an example
 #' example(qProject)
 #' }
+#' 
+#' @importFrom stats aggregate
+#' 
 alignmentStats <- function(x, collapseBySample = TRUE) {
     # check argument and extract named vector of 'bamfiles'
     if (is.character(x)) {
@@ -84,13 +87,14 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
     }))
     # fix unmapped counts for auxiliaries
     if (inherits(x, "qProject", which = FALSE))
-        res[-iGenome,'unmapped'] <- rep(res[iGenome,'unmapped'], 
-                                        each = nrow(aln$aux)) - res[-iGenome, 'mapped']
+        res[-iGenome, 'unmapped'] <- rep(res[iGenome, 'unmapped'], 
+                                         each = nrow(aln$aux)) - 
+        res[-iGenome, 'mapped']
     # collapse by sample
     if (collapseBySample) {
         res.old <- res
-        tmp <- aggregate(res, list(factor(rownames(res),
-                                          levels = unique(rownames(res)))), sum)
+        tmp <- stats::aggregate(res, list(factor(rownames(res),
+                                                 levels = unique(rownames(res)))), sum)
         res <- as.matrix(tmp[, -1])
         rownames(res) <- as.character(tmp[, 1])
         res[, 'seqlength'] <- res.old[rownames(res), 'seqlength']
@@ -321,6 +325,7 @@ md5subsum <- function(filenames) {
 #' @keywords internal
 #' @importFrom BiocParallel SerialParam MulticoreParam
 #' @importFrom parallel clusterEvalQ
+#' @importFrom methods as
 getListOfBiocParallelParam <- function(clObj = NULL) {
     if (is.null(clObj)) { # no 'clObj' argument
         bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
@@ -339,7 +344,7 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
             bppl <- if (min(coresPerNode) == 1)
                 list(as(clObj, "SnowParam"), BiocParallel::SerialParam())
             else
-                list(as(clObjSub, "SnowParam"), 
+                list(methods::as(clObjSub, "SnowParam"), 
                      BiocParallel::MulticoreParam(workers = min(coresPerNode)))
         } else if(is.list(clObj) && all(sapply(clObj, inherits, "BiocParallelParam"))) {
             bppl <- clObj
@@ -349,5 +354,5 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
         bppl[[2]] <- BiocParallel::SerialParam()
     if (!inherits(bppl[[2]], c("MulticoreParam", "SerialParam")))
         stop('Error configuring the parallel backend. The second registered backend (registered()[[2]] or clObj[[2]]) has to be of class "MulticoreParam" or "SerialParam"')
-    return(bppl[1:2])
+    return(bppl[seq_len(2)])
 }

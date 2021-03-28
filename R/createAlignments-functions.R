@@ -41,7 +41,7 @@ createGenomicAlignments <- function(proj, clObj) {
     #create the parameters necessary for the individual processes 
     # performing the genomic alignments
     paramsListGenomic = NULL
-    for (i in 1:nrow(proj@reads)) {
+    for (i in seq_len(nrow(proj@reads))) {
         if (is.na(proj@alignments$FileName)[i]) {
             # create a filename for the current bam file and update the 
             # qProject. ensure uniqueness by adding a random suffix
@@ -129,7 +129,7 @@ createAuxAlignments <- function(proj, clObj) {
     # create the parameters necessary for the individual processes 
     # performing the aux alignments
     paramsListAux = NULL
-    for (i in 1:ncol(proj@auxAlignments)) {
+    for (i in seq_len(ncol(proj@auxAlignments))) {
         if (any(is.na(proj@auxAlignments[, i]))) {
             if (is.na(proj@alignmentsDir)) {
                 bamDir <- dirname(proj@reads[i, 1])
@@ -139,7 +139,7 @@ createAuxAlignments <- function(proj, clObj) {
             samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1],
                                                                compression = TRUE))
             auxNrs <- NULL # the aux files to map in the children
-            for (j in 1:nrow(proj@auxAlignments)) {
+            for (j in seq_len(nrow(proj@auxAlignments))) {
                 if (is.na(proj@auxAlignments[j,i])) {
                     auxNrs <- c(auxNrs, j)
                     proj@auxAlignments[j, i] <- tempfile(
@@ -180,6 +180,8 @@ createAuxAlignments <- function(proj, clObj) {
 
 #' @keywords internal
 #' @importFrom tools file_path_sans_ext
+#' @importFrom utils installed.packages
+#' @importFrom stats na.omit
 createGenomicAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
         
@@ -210,12 +212,12 @@ createGenomicAlignmentsController <- function(params) {
         if (proj@genomeFormat == "file") {
             indexDir <- paste(proj@genome, proj@alnModeID, sep = ".")
         } else if (proj@genomeFormat == "BSgenome") {
-            if (!(proj@genome %in% installed.packages()[, 'Package'])) {
+            if (!(proj@genome %in% utils::installed.packages()[, 'Package'])) {
                 stop("The genome package ", proj@genome, " is not installed")
             }
             if (is.na(proj@snpFile)) {
                 if (!(paste(proj@genome, proj@alnModeID, sep = ".") %in% 
-                      installed.packages()[, 'Package'])) {
+                      utils::installed.packages()[, 'Package'])) {
                     stop("The genome index package ", paste(proj@genome, 
                                                             proj@alnModeID, sep = "."),
                          " is not installed")
@@ -292,9 +294,10 @@ createGenomicAlignmentsController <- function(params) {
                                                              proj@paired, cacheDir) 
                     # make sure that the temp file(s) are deleted at the end
                     on.exit(file.remove(unlist(
-                        proj@reads[sampleNr, na.omit(match(c("FileName", "FileName1",
-                                                             "FileName2"), 
-                                                           colnames(proj@reads)))]
+                        proj@reads[sampleNr, stats::na.omit(match(c("FileName",
+                                                                    "FileName1",
+                                                                    "FileName2"), 
+                                                                  colnames(proj@reads)))]
                     )), add = TRUE) 
                     
                     samFileR <- tempfile(tmpdir = cacheDir, 
@@ -349,9 +352,10 @@ createGenomicAlignmentsController <- function(params) {
                                                              proj@paired, cacheDir) 
                     # make sure that the temp file(s) are deleted at the end
                     on.exit(file.remove(unlist(
-                        proj@reads[sampleNr, na.omit(match(c("FileName", "FileName1",
-                                                             "FileName2"), 
-                                                           colnames(proj@reads)))]
+                        proj@reads[sampleNr, stats::na.omit(match(c("FileName",
+                                                                    "FileName1",
+                                                                    "FileName2"), 
+                                                                  colnames(proj@reads)))]
                     )), add = TRUE) 
 
                     samFileR <- tempfile(tmpdir = cacheDir, 
@@ -462,9 +466,9 @@ createGenomicAlignmentsController <- function(params) {
                                                         proj@paired, cacheDir) 
                 # make sure that the temp file(s) are deleted at the end
                 on.exit(file.remove(unlist(
-                    proj@reads[sampleNr, na.omit(match(c("FileName", "FileName1",
-                                                         "FileName2"), 
-                                                       colnames(proj@reads)))]
+                    proj@reads[sampleNr, stats::na.omit(match(c("FileName", "FileName1",
+                                                                "FileName2"), 
+                                                              colnames(proj@reads)))]
                 )), add = TRUE) 
                 samFileR <- tempfile(tmpdir = cacheDir, 
                                      pattern = basename(proj@reads[sampleNr, 1]),
@@ -722,7 +726,6 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
 }
 
 #' @keywords internal
-#' @import Rhisat2
 align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired, 
                           alignmentParameter, threads, outFile, cacheDir,
                           splicedAlignment, maxHits) {
@@ -1319,7 +1322,7 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     # collect the sam files that are not empty. The empty ones would cause a 
     # problem during sam to bam conversion
     splitSamAndBamNames <- NULL
-    for (i in 1:length(chrNames)) {
+    for (i in seq_len(length(chrNames))) {
         samName <- file.path(splitDir, paste(chrNames[i], "sam", sep = "."))
         bamName <- file.path(splitDir, chrNames[i])
         con <- file(samName, "r")
@@ -1346,7 +1349,8 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
         stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
     }
     
-    parallel::clusterApplyLB(clObjS, 1:length(splitSamAndBamNames), samToSortedBamCore,
+    parallel::clusterApplyLB(clObjS, seq_len(length(splitSamAndBamNames)),
+                             samToSortedBamCore,
                              splitSamAndBamNames[sortedOrder])
     
     # concatenate all the sorted bam files in the order of the original sam file header

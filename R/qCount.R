@@ -313,13 +313,14 @@
 #' res5
 #' 
 #' @importFrom Rsamtools scanBamHeader
-#' @importFrom GenomeInfoDb seqlevels seqlevelsInUse seqnames seqlengths
+#' @importFrom GenomeInfoDb seqlevels seqlevelsInUse seqlengths
 #' @importFrom parallel clusterMap clusterEvalQ splitIndices
-#' @importFrom GenomicRanges GRanges reduce findOverlaps
+#' @importFrom GenomicRanges GRanges reduce findOverlaps seqnames
 #' @importFrom IRanges IRanges ranges
 #' @importFrom S4Vectors mcols elementNROWS endoapply Rle subjectHits queryHits
-#' @importFrom BiocGenerics width strand end start setdiff
-#' @importFrom GenomicFeatures exons promoters
+#'   split
+#' @importFrom BiocGenerics width strand end start setdiff unlist
+#' @importFrom GenomicFeatures exons promoters exonsBy
 qCount <- function(proj,
                    query,
                    reportLevel = c(NULL, "gene", "exon", "promoter", "junction"),
@@ -346,7 +347,7 @@ qCount <- function(proj,
     samples <- proj@alignments$SampleName
     nsamples <- length(samples)
     bamfiles <-
-        if(is.null(auxiliaryName))
+        if (is.null(auxiliaryName))
             proj@alignments$FileName
     else if(!is.na(i <- match(auxiliaryName, proj@aux$AuxName)))
         unlist(proj@auxAlignments[i, ], use.names = FALSE)
@@ -460,7 +461,7 @@ qCount <- function(proj,
             allJunctions <- unique(Reduce(c, lapply(resL, "[[", "id")))
             res <- matrix(0, nrow = length(allJunctions), 
                           ncol = 3*length(resL), dimnames = list(allJunctions, NULL))
-            for (i in 1:length(resL)) # make res a matrix with 3 columns per sample
+            for (i in seq_len(length(resL))) # make res a matrix with 3 columns per sample
                 res[resL[[i]]$id, ((i-1)*3+1):((i-1)*3+3)] <- 
                 do.call(cbind, resL[[i]][c("R", "U", "A")])
             if (nsamples > length(unique(samples))) {
@@ -487,7 +488,7 @@ qCount <- function(proj,
             allJunctions <- unique(Reduce(c, lapply(resL, names)))
             res <- matrix(0, nrow = length(allJunctions), ncol = length(resL),
                           dimnames = list(allJunctions, NULL))
-            for (i in 1:length(resL))
+            for (i in seq_len(length(resL)))
                 res[names(resL[[i]]),i] <- resL[[i]]
             if (nsamples > length(unique(samples))) {
                 if (collapseBySample) {
@@ -531,11 +532,11 @@ qCount <- function(proj,
         ## preprocess query ----------------------------------------------------
         ##    --> create 'flatquery', 'querynames', 'querylengths' and 'zeroquerynames'
         ##    GRanges query ----------------------------------------------------
-        if (inherits(query,"GRanges")) {
+        if (inherits(query, "GRanges")) {
             if (!is.null(names(query)) && length(query) > length(unique(names(query)))) {
                 # remove redundancy from 'query' by names
-                tmpquery <- reduce(split(query, names(query))[unique(names(query))])
-                flatquery <- unlist(tmpquery, use.names = FALSE)
+                tmpquery <- GenomicRanges::reduce(S4Vectors::split(query, names(query))[unique(names(query))])
+                flatquery <- BiocGenerics::unlist(tmpquery, use.names = FALSE)
                 querynames <- rep(names(tmpquery), S4Vectors::elementNROWS(tmpquery))
                 rm(tmpquery)
             } else {
@@ -583,7 +584,9 @@ qCount <- function(proj,
             message(sprintf("extracting %s regions from TxDb...", reportLevel), 
                     appendLF = FALSE)
             if (reportLevel == "gene") {
-                tmpquery <- GenomicRanges::reduce(exonsBy(query, by = "gene"))
+                tmpquery <- GenomicRanges::reduce(
+                    GenomicFeatures::exonsBy(query, by = "gene")
+                )
                 flatquery <- unlist(tmpquery, use.names = FALSE)
                 querynames <- rep(names(tmpquery), elementNROWS(tmpquery))
                 querylengths <- unlist(BiocGenerics::width(tmpquery), use.names = FALSE)
@@ -631,9 +634,9 @@ qCount <- function(proj,
                 )
             )
             SD <- BiocGenerics::setdiff(gr1, gr2)
-            notOverlappingMaskInd <- which(!((1:length(flatquery)) %in% qOM))
+            notOverlappingMaskInd <- which(!((seq_len(length(flatquery))) %in% qOM))
             completelyMaskedInd <- 
-                qOM[!(qOM %in% as.numeric(as.character(unique(GenomeInfoDb::seqnames(SD)))))]
+                qOM[!(qOM %in% as.numeric(as.character(unique(GenomicRanges::seqnames(SD)))))]
             
             # 'zeroquery' contains regions that are completely masked (will get zero count and length)
             #zeroquery <- flatquery[completelyMaskedInd]
@@ -644,12 +647,12 @@ qCount <- function(proj,
             # masked 'flatquery' maybe split into several non-masked pieces
             flatquery <- c(flatquery[notOverlappingMaskInd],
                            GenomicRanges::GRanges(
-                               seqnames = GenomeInfoDb::seqnames(flatquery)[as.numeric(as.character(GenomeInfoDb::seqnames(SD)))],
+                               seqnames = GenomicRanges::seqnames(flatquery)[as.numeric(as.character(GenomicRanges::seqnames(SD)))],
                                ranges = IRanges::ranges(SD), 
-                               strand = BiocGenerics::strand(flatquery)[as.numeric(as.character(GenomeInfoDb::seqnames(SD)))],
+                               strand = GenomicRanges::strand(flatquery)[as.numeric(as.character(GenomicRanges::seqnames(SD)))],
                                seqlengths = GenomeInfoDb::seqlengths(flatquery)),
                            ignore.mcols = TRUE)
-            querynames <- querynames[c(notOverlappingMaskInd, as.numeric(as.character(seqnames(SD))))]
+            querynames <- querynames[c(notOverlappingMaskInd, as.numeric(as.character(GenomicRanges::seqnames(SD))))]
             querylengths <- BiocGenerics::width(flatquery)
             message("done")
         }
@@ -767,7 +770,7 @@ qCount <- function(proj,
             message("collapsing counts by query name...", appendLF = FALSE)
             iByQuery <- split(seq_len(nrow(res)), querynames)[unique(querynames)]
             res <- do.call(rbind, lapply(iByQuery, function(i) 
-                colSums(res[i, 1:ncol(res), drop = FALSE])))
+                colSums(res[i, seq_len(ncol(res)), drop = FALSE])))
             rownames(res) <- querynames <- names(iByQuery)
             message("done")
         }
@@ -802,7 +805,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic,
         bh <- Rsamtools::scanBamHeader(bamfile)[[1]]$targets
         tid <- seq_along(bh) - 1L
         if (!is.null(targets)) {
-            if (any(is.na(i <- match(targets,names(bh)))))
+            if (any(is.na(i <- match(targets, names(bh)))))
                 stop(sprintf("some targets not found in bamfile '%s': %s",
                              bamfile, targets[which(is.na(i))]))
             bh <- bh[i]
@@ -828,8 +831,8 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic,
 ## return a numeric vector with length(regions) elements (same order as regions)
 #' @keywords internal
 #' @importFrom Rsamtools scanBamHeader
-#' @importFrom GenomeInfoDb seqnames
-#' @importFrom BiocGenerics strand start end
+#' @importFrom GenomicRanges seqnames
+#' @importFrom BiocGenerics strand start end match
 countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
                             useRead, broaden, allelic, includeSpliced, includeSecondary,
                             mapqmin, mapqmax, absisizemin, absisizemax) {
@@ -840,9 +843,10 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         
         ## prepare region vectors
         #tid <- IRanges::as.vector(IRanges::match(seqnames(regions), seqnamesBamHeader)) - 1L
-        tid <- as.vector(match(GenomeInfoDb::seqnames(regions), seqnamesBamHeader) - 1L) 
-        start <- start(regions) - 1L ## samtool library has 0-based inclusiv start
-        end <- end(regions) ## samtools library has 0-based exclusive end
+        tid <- as.vector(BiocGenerics::match(GenomicRanges::seqnames(regions),
+                                             seqnamesBamHeader) - 1L) 
+        start <- BiocGenerics::start(regions) - 1L ## samtool library has 0-based inclusiv start
+        end <- BiocGenerics::end(regions) ## samtools library has 0-based exclusive end
         
         ## swap strand for 'orientation="opposite"' 
         if (orientation == "any")
@@ -885,7 +889,7 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         reg <- regions[c(1, length(regions))]
         emsg <- paste("Internal error on", Sys.info()['nodename'], 
                       "query bamfile", bamfile,"with regions\n", 
-                      paste(GenomeInfoDb::seqnames(reg), BiocGenerics::start(reg),
+                      paste(GenomicRanges::seqnames(reg), BiocGenerics::start(reg),
                             "-" , BiocGenerics::end(reg), 
                             BiocGenerics::strand(reg), collapse = "\n\t...\n"), 
                       "\n Error message is:", ex$message)

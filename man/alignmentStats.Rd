@@ -41,6 +41,7 @@ bam files.
 # see qProject manual page for an example
 example(qProject)
 }
+
 }
 \seealso{
 \code{\link[=qProject-class]{qProject}},

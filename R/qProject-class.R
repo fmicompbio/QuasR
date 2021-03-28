@@ -195,6 +195,7 @@ setMethod("length", "qProject", function(x) nrow(x@reads))
 #    x
 #})
 
+#' @importFrom GenomeInfoDb genome
 #' @export
 setMethod("genome", signature(x = "qProject"), function(x) {
     y <- x@genome
@@ -242,6 +243,7 @@ setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
 
 #setGeneric("niceprint", function(x) print(x))
 #setMethod("niceprint", "qProject", function(object) {
+#' @importFrom methods show
 #' @export
 setMethod("show", "qProject", function(object) {
     # project and global options
@@ -281,13 +283,13 @@ setMethod("show", "qProject", function(object) {
         sw <- max(nchar(object@reads$SampleName))
         if (object@paired != "no") {
             fw <- min(fw, floor((getOption("width") - 10 - sw - max(nchar(qual))) / 2))
-            cat(sprintf(" %3d. %-*s  %-*s  %-*s%s\n", 1:nf,
+            cat(sprintf(" %3d. %-*s  %-*s  %-*s%s\n", seq_len(nf),
                         fw, truncString(basename(object@reads$FileName1), fw),
                         fw, truncString(basename(object@reads$FileName2), fw),
                         sw, object@reads$SampleName, qual), sep = "")
         } else {
             fw <- min(fw, getOption("width") - 8 - sw - max(nchar(qual)))
-            cat(sprintf(" %3d. %-*s  %-*s%s\n", 1:nf, fw, 
+            cat(sprintf(" %3d. %-*s  %-*s%s\n", seq_len(nf), fw, 
                         truncString(basename(object@reads$FileName),fw), 
                         sw, object@reads$SampleName, qual), sep = "")
         }
@@ -301,7 +303,7 @@ setMethod("show", "qProject", function(object) {
       tmpmax <- suppressWarnings(max(nchar(basename(object@alignments[, "FileName"])), na.rm = TRUE))
       if (!is.finite(tmpmax)) tmpmax <- Inf
       fw <- min(getOption("width") - 6, tmpmax)
-      cat(sprintf(" %3d. %-*s\n", 1:nf, fw, 
+      cat(sprintf(" %3d. %-*s\n", seq_len(nf), fw, 
                   truncString(basename(object@alignments[, "FileName"]), fw)), sep = "")
       cat("\n")
     } 
@@ -317,7 +319,7 @@ setMethod("show", "qProject", function(object) {
             #cat(sprintf("   %3d. %-*s  %-*s\n", 1:nf, fw, truncString(basename(unlist(object@auxAlignments[i,])), fw), sw, object@reads$SampleName), sep="")
             fw <- min(getOption("width") - 8, 
                       max(nchar(basename(unlist(object@auxAlignments[i, ])))))
-            cat(sprintf("   %3d. %-*s\n", 1:nf, fw, 
+            cat(sprintf("   %3d. %-*s\n", seq_len(nf), fw, 
                         truncString(basename(unlist(object@auxAlignments[i,])), fw)), sep = "")
         }
     }

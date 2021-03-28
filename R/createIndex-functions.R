@@ -1,6 +1,7 @@
 # build an index based on a given BSgenome, create a package with the files and install it on the system
 #' @keywords internal
 #' @importFrom Biobase createPackage
+#' @importFrom utils installed.packages install.packages
 buildIndexPackage <- function(genome, aligner, alnModeID, cacheDir, lib.loc) {
     indexPackageName <- paste(genome, alnModeID, sep = ".")
     
@@ -10,7 +11,7 @@ buildIndexPackage <- function(genome, aligner, alnModeID, cacheDir, lib.loc) {
     } # this is a way to convert NA to NULL needed for install.packages
     
     # Create the index and install it if it is not yet installed on the system
-    if (!(indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[, 'Package'])) {
+    if (!(indexPackageName %in% utils::installed.packages(lib.loc = lib.locTemp)[, 'Package'])) {
         genomeObj <- get(genome) # access the BSgenome
         # flush the BSgenome to disk
         fastaFilepath <- BSgenomeSeqToFasta(genomeObj, tempfile(tmpdir = cacheDir, 
@@ -32,10 +33,12 @@ buildIndexPackage <- function(genome, aligner, alnModeID, cacheDir, lib.loc) {
                                            "alignmentIndex"), alnModeID, cacheDir)
         
         # install the package
-        install.packages(file.path(cacheDir, indexPackageName), repos = NULL, 
-                         dependencies = FALSE, type = "source", lib = lib.locTemp)
+        utils::install.packages(
+            file.path(cacheDir, indexPackageName), repos = NULL, 
+            dependencies = FALSE, type = "source", lib = lib.locTemp
+        )
         
-        if (indexPackageName %in% installed.packages(lib.loc = lib.locTemp)[, 'Package']) {
+        if (indexPackageName %in% utils::installed.packages(lib.loc = lib.locTemp)[, 'Package']) {
             # package installation was successful, clean up
             unlink(file.path(cacheDir, indexPackageName), recursive = TRUE)
         } else {
@@ -96,14 +99,14 @@ buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat,
         }
     }
 
-    for (j in 1:2) {
+    for (j in seq_len(2)) {
         fastaOutFile <- c(fastaOutFileR, fastaOutFileA)[j]
         
         if (!file.exists(fastaOutFile)) {
             append <- FALSE
             message(paste("Creating the genome fasta file containing the SNPs:",
                           fastaOutFile))
-            for (i in 1:length(allChrs)) {
+            for (i in seq_len(length(allChrs))) {
                 if (genomeFormat == "file") {
                     seq <- Rsamtools::scanFa(genome, idx[i])[[1]]
                 } else {
@@ -229,7 +232,6 @@ buildIndex <- function(seqFile, indexPath, alnModeID, cacheDir, checkMD5 = FALSE
 
 # build index for Rhisat2, base space, non-bisulfite converted
 #' @keywords internal
-#' @import Rhisat2 
 buildIndex_Rhisat2 <- function(seqFile,indexPath) {
     indexFullPath <- file.path(indexPath, "hisat2Index")
     
@@ -249,7 +251,6 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath) {
 #' @importFrom GenomicFeatures makeTxDbFromGFF
 #' @importFrom AnnotationDbi loadDb
 #' @importFrom tools md5sum
-#' @importFrom Rhisat2 extract_splice_sites
 #' @importFrom utils read.delim write.table
 buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
     if (file.exists(paste0(geneAnnotation, ".SpliceSites.txt"))) {
@@ -332,7 +333,7 @@ buildIndex_RbowtieCtoT <- function(seqFile, indexPath, cacheDir) {
     
     # read one chromosome after the other, convert and write to disk
     append <- FALSE
-    for (i in 1:length(idx)) {
+    for (i in seq_len(length(idx))) {
         seq <- Rsamtools::scanFa(seqFile, idx[i])
         plus_strand <- Biostrings::chartr("C", "T", seq)
         minus_strand <- Biostrings::chartr("G", "A", seq)
