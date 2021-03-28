@@ -199,6 +199,11 @@
 #' meth <- qMeth(proj, mode="CpGcomb")
 #' meth
 #' 
+#' @importFrom Rsamtools scanBamHeader scanFaIndex
+#' @importFrom parallel clusterEvalQ clusterApplyLB
+#' @importFrom GenomeInfoDb seqlevels seqinfo
+#' @importFrom IRanges IRanges
+#' @importFrom GenomicRanges GRanges
 qMeth <- function(proj,
                   query = NULL,
                   reportLevel = c("C", "alignment"),
@@ -246,8 +251,9 @@ qMeth <- function(proj,
     if (is.null(query)) {
         if (reportLevel == "alignment")
             stop("'query' must be an object of type 'GRanges' with length 1 for reportLevel='alignment'")
-        tr <- scanBamHeader(bamfiles[1])[[1]]$targets
-        query <- GRanges(names(tr), IRanges(start = 1, end = tr))
+        tr <- Rsamtools::scanBamHeader(bamfiles[1])[[1]]$targets
+        query <- GenomicRanges::GRanges(names(tr), 
+                                        IRanges::IRanges(start = 1, end = tr))
     } else if(!inherits(query, "GRanges")) {
         stop("'query' must be either NULL or an object of type 'GRanges'")
     }
@@ -274,23 +280,26 @@ qMeth <- function(proj,
     }
     
     # all query chromosomes present in all bamfiles?
-    trTab <- table(unlist(lapply(scanBamHeader(bamfiles), function(bh) names(bh$targets))))
+    trTab <- table(unlist(lapply(Rsamtools::scanBamHeader(bamfiles), 
+                                 function(bh) names(bh$targets))))
     trCommon <- names(trTab)[trTab == length(bamfiles)]
-    if (any(f <- !(seqlevels(query) %in% trCommon)))
+    if (any(f <- !(GenomeInfoDb::seqlevels(query) %in% trCommon)))
         stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
-                     paste(seqlevels(query)[f], collapse = ", ")))
+                     paste(GenomeInfoDb::seqlevels(query)[f], collapse = ", ")))
     
     
     ## apply 'mask' to query ---------------------------------------------------
     if (!is.null(mask)) {
         if (reportLevel == "alignment")
             warning("ignoring 'mask' for reportLevel='alignment'")
-        stop("'mask' (masking of query regions, e.g. unmappable genomic regions) is not implemented yet")
+        stop("'mask' (masking of query regions, e.g. unmappable genomic ", 
+             "regions) is not implemented yet")
     }
     
     ## setup tasks for parallelization -----------------------------------------
     ## TODO: create several chunks per chromosome?
-    taskIByQuery <- split(seq.int(length(query)), as.factor(seqnames(query)))
+    taskIByQuery <- split(seq.int(length(query)), 
+                          as.factor(GenomeInfoDb::seqnames(query)))
     taskIByQuery <- taskIByQuery[sapply(taskIByQuery,length) > 0]
     nChunkQuery <- length(taskIByQuery)
     
@@ -310,7 +319,7 @@ qMeth <- function(proj,
     if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
         message("preparing to run on ", min(nChunk, length(clObj)), " nodes...", 
                 appendLF = FALSE)
-        ret <- clusterEvalQ(clObj, library("QuasR")) # load libraries on nodes
+        ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
         if (!all(sapply(ret, function(x) "QuasR" %in% x)))
             stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
         myapply <- function(...)
@@ -323,7 +332,8 @@ qMeth <- function(proj,
     
     ## quantify methylation  ---------------------------------------------------
     if (reportLevel == "alignment") {
-        # ...per alignment reporting mode: list(nSamples) of list(3) with "aid","Cid","meth" elements
+        # ...per alignment reporting mode: list(nSamples) of list(3) with 
+        # "aid","Cid","meth" elements
         resL <- myapply(
             seq_len(nChunk), #nChunk is always equal to nChunkBamfile (length(taskBamfiles))
             function(i) quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments(
@@ -430,13 +440,15 @@ qMeth <- function(proj,
     
     if (asGRanges && reportLevel != "alignment") {
         if (referenceFormat == "file") {
-            si <- seqinfo(scanFaIndex(referenceSource))
+            si <- GenomeInfoDb::seqinfo(Rsamtools::scanFaIndex(referenceSource))
         } else {
             library(referenceSource, character.only = TRUE)
             gnmObj <- get(referenceSource)
-            si <- seqinfo(gnmObj)
+            si <- GenomeInfoDb::seqinfo(gnmObj)
         }
-        res <- GRanges(seqnames = res$chr, IRanges(start = res$start, end = res$end),
+        res <- GenomicRanges::GRanges(seqnames = res$chr, 
+                                      IRanges::IRanges(start = res$start, 
+                                                       end = res$end),
                        strand = res$strand, seqinfo = si, res[, 5:ncol(res)])
     }
     
@@ -450,29 +462,40 @@ qMeth <- function(proj,
 #  - multiple regions (all on single chromosome, never collapsed)
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+2*nSamples vectors: chr, start, end, strand of C, counts of T (total) and M (match) reads
+#' @keywords internal
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom IRanges IRanges
+#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Rsamtools scanFaIndex scanFa
+#' @importFrom BSgenome getSeq
+#' @importFrom S4Vectors queryHits
+#' @importFrom BiocGenerics start end
+#' 
 detectVariantsBamfilesRegionsSingleChromosome <- function(bamfiles, regions, 
                                                           referenceFormat, 
                                                           reference, keepZero, 
                                                           mapqmin, mapqmax) {
     ## verify parameters
-    if (length(chr <- as.character(unique(seqnames(regions)))) != 1)
+    if (length(chr <- as.character(unique(GenomeInfoDb::seqnames(regions)))) != 1)
         stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
     
     ## collapse regions
-    regionsStart <- as.integer(min(start(regions)))
-    regionsEnd   <- as.integer(max(end(regions)))
-    regionsGr    <- GRanges(chr, IRanges(start = regionsStart, end = regionsEnd))
+    regionsStart <- as.integer(min(BiocGenerics::start(regions)))
+    regionsEnd   <- as.integer(max(BiocGenerics::end(regions)))
+    regionsGr    <- GenomicRanges::GRanges(
+        chr, IRanges::IRanges(start = regionsStart, end = regionsEnd)
+    )
     
     ## get sequence string from...
     #message("loading reference sequence (", chr, ")...", appendLF=FALSE)
     if (referenceFormat == "file") { # genome file
-        chrLen <- as.integer(seqlengths(scanFaIndex(reference))[chr])
-        seqstr <- as.character(scanFa(reference, regionsGr)[[1]])
+        chrLen <- as.integer(GenomeInfoDb::seqlengths(Rsamtools::scanFaIndex(reference))[chr])
+        seqstr <- as.character(Rsamtools::scanFa(reference, regionsGr)[[1]])
     } else {                        # BSgenome object
         library(reference, character.only = TRUE)
         referenceObj <- get(reference) # access the BSgenome
         chrLen <- as.integer(length(referenceObj[[chr]]))
-        seqstr <- getSeq(referenceObj, regionsGr, as.character = TRUE)
+        seqstr <- BSgenome::getSeq(referenceObj, regionsGr, as.character = TRUE)
     }
     #message("done")
     
@@ -484,9 +507,13 @@ detectVariantsBamfilesRegionsSingleChromosome <- function(bamfiles, regions,
     
     ## filter out C's that do not fall into 'regions'
     #message("processing results...", appendLF=FALSE)
-    ov <- findOverlaps(query = GRanges(chr, IRanges(start = resL$position, width = 1)), 
-                       subject = regions)
-    resL <- lapply(resL, "[", unique(queryHits(ov)))
+    ov <- GenomicRanges::findOverlaps(
+        query = GenomicRanges::GRanges(
+            chr, IRanges::IRanges(start = resL$position, width = 1
+            )
+        ), 
+        subject = regions)
+    resL <- lapply(resL, "[", unique(S4Vectors::queryHits(ov)))
     
     res <- data.frame(chr = resL$chr,
                       start = resL$position,
@@ -506,6 +533,14 @@ detectVariantsBamfilesRegionsSingleChromosome <- function(bamfiles, regions,
 #  - mode (defines which and how C's are quantified)
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a list(4) with elements "aid","Cid","strand","meth"
+#' @keywords internal
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Rsamtools scanFaIndex scanFa
+#' @importFrom BSgenome getSeq
+#' @importFrom BiocGenerics start end
+#' 
 quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
     function(bamfiles, regions, collapseByQueryRegion, mode = c("CpG","allC"), 
              referenceFormat, reference, mapqmin, mapqmax) {
@@ -513,20 +548,24 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
         if (length(regions) != 1)
             stop("'regions' must be of length 1 for 'quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments'")
         mode <- c("CpG" = 1L, "allC" = 2L)[match.arg(mode)]
-        chr <- as.character(unique(seqnames(regions)))
-        regionsStart <- as.integer(start(regions))
-        regionsEnd   <- as.integer(end(regions))
-        regionsGr    <- GRanges(chr, IRanges(start = regionsStart, end = regionsEnd))
+        chr <- as.character(unique(GenomeInfoDb::seqnames(regions)))
+        regionsStart <- as.integer(BiocGenerics::start(regions))
+        regionsEnd   <- as.integer(BiocGenerics::end(regions))
+        regionsGr    <- GenomicRanges::GRanges(
+            chr, IRanges::IRanges(start = regionsStart, end = regionsEnd)
+        )
         
         ## get sequence string from...
         if (referenceFormat == "file") { # genome file
-            chrLen <- as.integer(seqlengths(scanFaIndex(reference))[chr])
-            seqstr <- as.character(scanFa(reference, regionsGr)[[1]])
+            chrLen <- as.integer(GenomeInfoDb::seqlengths(
+                Rsamtools::scanFaIndex(reference))[chr]
+            )
+            seqstr <- as.character(Rsamtools::scanFa(reference, regionsGr)[[1]])
         } else {                         # BSgenome object
             library(reference, character.only = TRUE)
             referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
-            seqstr <- getSeq(referenceObj, regionsGr, as.character = TRUE)
+            seqstr <- BSgenome::getSeq(referenceObj, regionsGr, as.character = TRUE)
         }
         
         ## call CPP function (multiple bam files, single region)
@@ -542,32 +581,44 @@ quantifyMethylationBamfilesRegionsSingleChromosomeSingleAlignments <-
 #  - mode (defines which and how C's are quantified)
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+2*nSamples vectors: chr, start, end, strand of C, counts of T (total) and M (methylated) reads
+#' @keywords internal
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom IRanges IRanges
+#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Rsamtools scanFaIndex scanFa
+#' @importFrom BSgenome getSeq
+#' @importFrom S4Vectors queryHits subjectHits
+#' @importFrom BiocGenerics start end
 quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions, 
                                                                collapseByRegion, 
                                                                mode = c("CpGcomb", "CpG", "allC"),
                                                                referenceFormat, reference,
                                                                keepZero, mapqmin, mapqmax) {
     ## verify parameters
-    if (length(chr <- as.character(unique(seqnames(regions)))) != 1)
+    if (length(chr <- as.character(unique(GenomeInfoDb::seqnames(regions)))) != 1)
         stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
     mode <- c("CpGcomb" = 0L, "CpG" = 1L, "allC" = 2L)[match.arg(mode)]
     Cwidth <- ifelse(mode == 0, 2L, 1L)
     
     ## collapse regions
-    regionsStart <- as.integer(min(start(regions)))
-    regionsEnd   <- as.integer(max(end(regions)))
-    regionsGr    <- GRanges(chr, IRanges(start = regionsStart, end = regionsEnd))
+    regionsStart <- as.integer(min(BiocGenerics::start(regions)))
+    regionsEnd   <- as.integer(max(BiocGenerics::end(regions)))
+    regionsGr    <- GenomicRanges::GRanges(
+        chr, IRanges::IRanges(start = regionsStart, end = regionsEnd)
+    )
     
     ## get sequence string from...
     #message("loading reference sequence (", chr, ")...", appendLF=FALSE)
     if (referenceFormat == "file") { # genome file
-        chrLen <- as.integer(seqlengths(scanFaIndex(reference))[chr])
-        seqstr <- as.character(scanFa(reference, regionsGr)[[1]])
+        chrLen <- as.integer(GenomeInfoDb::seqlengths(
+            Rsamtools::scanFaIndex(reference))[chr]
+        )
+        seqstr <- as.character(Rsamtools::scanFa(reference, regionsGr)[[1]])
     } else {                         # BSgenome object
-        library(reference, character.only=TRUE)
+        library(reference, character.only = TRUE)
         referenceObj <- get(reference) # access the BSgenome
         chrLen <- as.integer(length(referenceObj[[chr]]))
-        seqstr <- getSeq(referenceObj, regionsGr, as.character = TRUE)
+        seqstr <- BSgenome::getSeq(referenceObj, regionsGr, as.character = TRUE)
     }
     #message("done")
     
@@ -579,17 +630,18 @@ quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions
     
     ## collapse by region
     #message("processing results...", appendLF=FALSE)
-    ov <- findOverlaps(query = GRanges(chr, IRanges(start = resL$position,
-                                                    width = Cwidth)),
-                       subject = regions)
+    ov <- GenomicRanges::findOverlaps(
+        query = GenomicRanges::GRanges(chr, IRanges::IRanges(start = resL$position,
+                                                             width = Cwidth)),
+        subject = regions)
     
     if (collapseByRegion) {
         tmpT <- tmpM <- numeric(length(regions))
-        tmp <- tapply(resL$T[queryHits(ov)], subjectHits(ov), sum)
+        tmp <- tapply(resL$T[S4Vectors::queryHits(ov)], S4Vectors::subjectHits(ov), sum)
         tmpT[as.integer(names(tmp))] <- tmp
-        tmp <- tapply(resL$M[queryHits(ov)], subjectHits(ov), sum)
+        tmp <- tapply(resL$M[S4Vectors::queryHits(ov)], S4Vectors::subjectHits(ov), sum)
         tmpM[as.integer(names(tmp))] <- tmp
-        res <- data.frame(chr = rep(chr,length(regions)),
+        res <- data.frame(chr = rep(chr, length(regions)),
                           start = start(regions),
                           end = end(regions),
                           strand = as.character(strand(regions)),
@@ -598,7 +650,7 @@ quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions
                           stringsAsFactors = FALSE)
     } else {
         ## filter out C's that do not fall into 'regions'
-        resL <- lapply(resL, "[", unique(queryHits(ov)))
+        resL <- lapply(resL, "[", unique(S4Vectors::queryHits(ov)))
         
         res <- data.frame(chr = resL$chr,
                           start = resL$position,
@@ -620,30 +672,42 @@ quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions
 #  - mode (defines which and how C's are quantified)
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+6*nSamples vectors: chr, start, end, strand of C, counts of TR, TU, TA (total) and MR, MU, MA (methylated) reads
+#' @keywords internal
+#' @importFrom GenomicRanges GRanges findOverlaps overlapsAny
+#' @importFrom IRanges IRanges
+#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Rsamtools scanFaIndex scanFa
+#' @importFrom BSgenome getSeq
+#' @importFrom S4Vectors queryHits
+#' @importFrom BiocGenerics start end strand
 quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
     function(bamfiles, regions, collapseByRegion, mode = c("CpGcomb", "CpG", "allC"),
              referenceFormat, reference, snpFile, keepZero, mapqmin, mapqmax) {
         ## verify parameters
-        if (length(chr <- as.character(unique(seqnames(regions)))) != 1)
+        if (length(chr <- as.character(unique(GenomeInfoDb::seqnames(regions)))) != 1)
             stop("all regions need to be on the same chromosome for 'quantifyMethylationBamfilesRegionsSingleChromosome'")
         mode <- c("CpGcomb" = 0L, "CpG" = 1L, "allC" = 2L)[match.arg(mode)]
         Cwidth <- ifelse(mode == 0, 2L, 1L)
         
         ## collapse regions
-        regionsStart <- as.integer(min(start(regions)))
-        regionsEnd   <- as.integer(max(end(regions)))
-        regionsGr    <- GRanges(chr, IRanges(start = regionsStart, end = regionsEnd))
+        regionsStart <- as.integer(min(BiocGenerics::start(regions)))
+        regionsEnd   <- as.integer(max(BiocGenerics::end(regions)))
+        regionsGr    <- GenomicRanges::GRanges(
+            chr, IRanges::IRanges(start = regionsStart, end = regionsEnd)
+        )
         
         ## get sequence string from...
         #message("loading reference sequence (", chr, ")...", appendLF=FALSE)
         if (referenceFormat == "file") { # genome file
-            chrLen <- as.integer(seqlengths(scanFaIndex(reference))[chr])
-            seqstr <- as.character(scanFa(reference, regionsGr)[[1]])
+            chrLen <- as.integer(GenomeInfoDb::seqlengths(
+                Rsamtools::scanFaIndex(reference))[chr]
+            )
+            seqstr <- as.character(Rsamtools::scanFa(reference, regionsGr)[[1]])
         } else {                         # BSgenome object
             library(reference, character.only = TRUE)
             referenceObj <- get(reference) # access the BSgenome
             chrLen <- as.integer(length(referenceObj[[chr]]))
-            seqstr <- getSeq(referenceObj, regionsGr, as.character = TRUE)
+            seqstr <- BSgenome::getSeq(referenceObj, regionsGr, as.character = TRUE)
         }
         #message("done")
         
@@ -656,35 +720,49 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
         ## filter out CpGs that overlap SNPs (may not be possible to discriminate allele from methylation status)
         #message("removing C's overlapping SNPs...", appendLF=FALSE)
         snpL <- scan(snpFile, what = list(chr = "", pos = 1L, R = "", A = ""), quiet = TRUE)
-        snp <- GRanges(snpL$chr, IRanges(start = snpL$pos, width = nchar(snpL$R)))
-        ikeep <- !overlapsAny(GRanges(chr, IRanges(start = resL$position, width = Cwidth)), snp)
+        snp <- GenomicRanges::GRanges(
+            snpL$chr, IRanges::IRanges(start = snpL$pos, width = nchar(snpL$R))
+        )
+        ikeep <- !GenomicRanges::overlapsAny(
+            GenomicRanges::GRanges(
+                chr, IRanges::IRanges(start = resL$position, width = Cwidth)
+            ), snp
+        )
         resL <- lapply(resL, "[", ikeep)
         #message(sprintf("removed %d C's, done",sum(!ikeep)))
 
         ## collapse by region
         #message("processing results...", appendLF=FALSE)
-        ov <- findOverlaps(query = GRanges(chr, IRanges(start = resL$position,
-                                                        width = Cwidth)), 
-                           subject = regions)
+        ov <- GenomicRanges::findOverlaps(
+            query = GenomicRanges::GRanges(chr, IRanges::IRanges(start = resL$position,
+                                                                 width = Cwidth)), 
+            subject = regions
+        )
 
         if (collapseByRegion) {
             tmpTR <- tmpTU <- tmpTA <- tmpMR <- tmpMU <- tmpMA <- numeric(length(regions))
-            tmp <- tapply(resL$TR[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$TR[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpTR[as.integer(names(tmp))] <- tmp
-            tmp <- tapply(resL$TU[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$TU[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpTU[as.integer(names(tmp))] <- tmp
-            tmp <- tapply(resL$TA[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$TA[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpTA[as.integer(names(tmp))] <- tmp
-            tmp <- tapply(resL$MR[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$MR[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpMR[as.integer(names(tmp))] <- tmp
-            tmp <- tapply(resL$MU[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$MU[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpMU[as.integer(names(tmp))] <- tmp
-            tmp <- tapply(resL$MA[queryHits(ov)], subjectHits(ov), sum)
+            tmp <- tapply(resL$MA[S4Vectors::queryHits(ov)], 
+                          S4Vectors::subjectHits(ov), sum)
             tmpMA[as.integer(names(tmp))] <- tmp
             res <- data.frame(chr = rep(chr,length(regions)),
-                              start = start(regions),
-                              end = end(regions),
-                              strand = as.character(strand(regions)),
+                              start = BiocGenerics::start(regions),
+                              end = BiocGenerics::end(regions),
+                              strand = as.character(BiocGenerics::strand(regions)),
                               TR = tmpTR,
                               MR = tmpMR,
                               TU = tmpTU,
@@ -694,11 +772,11 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
                               stringsAsFactors = FALSE)
         } else {
             ## filter out C's that do not fall into 'regions'
-            resL <- lapply(resL, "[", unique(queryHits(ov)))
+            resL <- lapply(resL, "[", unique(S4Vectors::queryHits(ov)))
 
             res <- data.frame(chr = resL$chr,
                               start = resL$position,
-                              end = resL$position+Cwidth-1L,
+                              end = resL$position + Cwidth - 1L,
                               strand = resL$strand,
                               TR = resL$TR,
                               MR = resL$MR,
