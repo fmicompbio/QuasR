@@ -673,8 +673,8 @@ quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions
 #  - referenceFormat and reference (access to sequence at 'regions')
 # return a data.frame or GRanges object with 4+6*nSamples vectors: chr, start, end, strand of C, counts of TR, TU, TA (total) and MR, MU, MA (methylated) reads
 #' @keywords internal
-#' @importFrom GenomicRanges GRanges findOverlaps overlapsAny
-#' @importFrom IRanges IRanges
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom IRanges IRanges overlapsAny
 #' @importFrom GenomeInfoDb seqlengths seqnames
 #' @importFrom Rsamtools scanFaIndex scanFa
 #' @importFrom BSgenome getSeq
@@ -723,7 +723,7 @@ quantifyMethylationBamfilesRegionsSingleChromosomeAllele <-
         snp <- GenomicRanges::GRanges(
             snpL$chr, IRanges::IRanges(start = snpL$pos, width = nchar(snpL$R))
         )
-        ikeep <- !GenomicRanges::overlapsAny(
+        ikeep <- !IRanges::overlapsAny(
             GenomicRanges::GRanges(
                 chr, IRanges::IRanges(start = resL$position, width = Cwidth)
             ), snp

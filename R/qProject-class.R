@@ -88,7 +88,7 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 #'   the alignment mode.}
 #' }
 #' 
-#' @section Accessors
+#' @section Accessors:
 #' In the following code snippets, \code{x} is a qProject object.
 #' \describe{
 #'   \item{}{\code{length(x)}: Gets the number of input files.}
@@ -110,7 +110,7 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 #'   auxiliary names as row names), and \code{length(x)} columns.}
 #' }
 #' 
-#' @section Subsetting
+#' @section Subsetting:
 #' In the following code snippets, \code{x} is a qProject object.
 #' \describe{
 #'   \item{}{\code{x[i]}: Get \code{qProject} object instance with \code{i} 
@@ -203,12 +203,10 @@ setMethod("genome", signature(x = "qProject"), function(x) {
     return(y)
 })
 
-#' @export
 setGeneric("auxiliaries", function(x) return(NULL))
 #' @export
 setMethod("auxiliaries", signature(x = "qProject"), function(x) return(x@aux))
 
-#' @export
 setGeneric("alignments", function(x) return(NULL))
 #' @export
 setMethod("alignments", signature(x = "qProject"), function(x) {

@@ -961,8 +961,8 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
 }
 
 #' @keywords internal
-#' @importFrom Biostrings alphabetFrequency alphabetByCycle
-#' @importFrom ShortRead sread tables
+#' @importFrom Biostrings alphabetFrequency 
+#' @importFrom ShortRead sread tables alphabetByCycle
 .qa_ShortRead <- function(dirPath, lane, ..., verbose = FALSE) {
     if (missing(lane))
         stop("Parameter 'lane' is missing.")
@@ -972,7 +972,7 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
     #     bqtbl <- alphabetFrequency(quality(obj), collapse=TRUE)
     #     rqs <- .qa_qdensity(quality(obj))
     freqtbl <- ShortRead::tables(ShortRead::sread(obj))
-    abc <- Biostrings::alphabetByCycle(obj)
+    abc <- ShortRead::alphabetByCycle(obj)
     names(dimnames(abc)) <- c("base", "cycle")
     dimnames(abc)$cycle <- as.character(1:dim(abc)[2])
     ac <- ShortRead:::.qa_adapterContamination(obj, lane, ...)
@@ -1030,5 +1030,4 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
     ShortRead:::.ShortReadQQA(lst)
 }
 
-#' @export
 setMethod(qa, "ShortRead", .qa_ShortRead)
