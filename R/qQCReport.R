@@ -54,11 +54,12 @@ calcQaInformation <- function(filename, label, filetype, chunkSize) {
 
 #' @keywords internal
 #' @importFrom Rsamtools FaFile scanFaIndex getSeq
-#' @importFrom IRanges IRanges
+#' @importFrom IRanges IRanges breakInChunks
 #' @importFrom GenomicRanges GRanges GRangesList seqnames
 #' @importFrom GenomeInfoDb seqlengths
 #' @importFrom BSgenome getSeq
 #' @importFrom BiocGenerics unlist match start
+#' @importFrom methods is
 calcMmInformation <- function(filename, genome, chunkSize) {
     
     # get bamfile index statistics
@@ -69,7 +70,7 @@ calcMmInformation <- function(filename, genome, chunkSize) {
     selChr <- names(trg)[trg != 0]
     
     # get sequence length
-    if (is(genome, "BSgenome")) {
+    if (methods::is(genome, "BSgenome")) {
         # BSgenome
         ref <- genome
         seqlen <- GenomeInfoDb::seqlengths(ref)[selChr]

@@ -165,6 +165,7 @@
 #' @importFrom GenomeInfoDb Seqinfo
 #' @importFrom grDevices col2rgb colorRampPalette
 #' @importFrom rtracklayer wigToBigWig
+#' @importFrom methods is
 #' 
 #' @examples 
 #' # copy example data to current working directory
@@ -199,7 +200,7 @@ qExportWig <- function(proj,
                        pairedAsSingle = FALSE) {
     # validate parameters
     # ...proj
-    if (!is(proj, "qProject"))
+    if (!methods::is(proj, "qProject"))
         stop("'proj' must be a 'qProject' object")
     
     if (collapseBySample) {

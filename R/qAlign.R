@@ -403,8 +403,8 @@ missingFilesMessage <- function(proj, checkOnly) {
 #' @importFrom ShortRead FastqStreamer yield
 #' @importFrom Biostrings quality
 #' @importFrom Biobase testBioCConnection
-#' @importFrom methods new
-#' @importFrom utils installed.packages
+#' @importFrom methods new is
+#' @importFrom utils installed.packages read.delim
 createQProject <- function(sampleFile, genome, auxiliaryFile, aligner, 
                            maxHits, paired, splicedAlignment,
                            snpFile, bisulfite, alignmentParameter, 
@@ -493,7 +493,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
     
     # --------------------------------- PROCESS THE GENOME ANNOTATION ---------------------------------
     if (!is.null(geneAnnotation)) {
-        if (is(geneAnnotation, "character") && length(geneAnnotation) == 1 &&
+        if (methods::is(geneAnnotation, "character") && length(geneAnnotation) == 1 &&
             file.exists(geneAnnotation) &&
             tools::file_ext(geneAnnotation) %in% c("gtf", "gff", "gff3", "sqlite")) {
             if (tools::file_ext(geneAnnotation) == "sqlite") {
@@ -522,7 +522,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
     if (!file.exists(sampleFile)) {
         stop("Cannot open ", sampleFile, call. = FALSE)
     }
-    samples <- read.delim(sampleFile, header = TRUE, colClasses = "character")
+    samples <- utils::read.delim(sampleFile, header = TRUE, colClasses = "character")
     
     if (nrow(samples) == 0) {
         stop(sampleFile," is either empty or there is a header missing", call. = FALSE)
@@ -776,8 +776,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         if (!file.exists(auxiliaryFile)) {
             stop("Cannot open ", auxiliaryFile, call. = FALSE)
         }
-        auxiliaries <- read.delim(auxiliaryFile, header = TRUE,
-                                  colClasses = "character")
+        auxiliaries <- utils::read.delim(auxiliaryFile, header = TRUE,
+                                         colClasses = "character")
         
         if (nrow(auxiliaries) == 0) {
             stop(auxiliaryFile, " is either empty or there is a header missing",
@@ -1107,9 +1107,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             compatibleBamFileInd <- NULL
             if (length(bamTxtFilesToInspectExist) > 0) {
                 for (m in seq_len(length(bamTxtFilesToInspectExist))) {
-                    bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],
-                                              header = FALSE, row.names = 1,
-                                              stringsAsFactors = FALSE)
+                    bamInfoT_DF <- utils::read.delim(bamTxtFilesToInspectExist[m],
+                                                     header = FALSE, row.names = 1,
+                                                     stringsAsFactors = FALSE)
                     bamInfoT <- bamInfoT_DF[, 1]
                     names(bamInfoT) <- rownames(bamInfoT_DF)
                     bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
@@ -1174,9 +1174,9 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
                     compatibleBamFileInd <- NULL
                     if (length(bamTxtFilesToInspectExist) > 0) {
                         for (m in seq_len(length(bamTxtFilesToInspectExist))) {
-                            bamInfoT_DF <- read.delim(bamTxtFilesToInspectExist[m],
-                                                      header = FALSE, row.names = 1,
-                                                      stringsAsFactors = FALSE)
+                            bamInfoT_DF <- utils::read.delim(bamTxtFilesToInspectExist[m],
+                                                             header = FALSE, row.names = 1,
+                                                             stringsAsFactors = FALSE)
                             bamInfoT <- bamInfoT_DF[, 1]
                             names(bamInfoT) <- rownames(bamInfoT_DF)
                             bamInfoT <- bamInfoOnlyBaseName(bamInfoT)
@@ -1229,6 +1229,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
 #' @importFrom Rsamtools indexFa scanFaIndex
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom tools md5sum
+#' @importFrom utils write.table
 createReferenceSequenceIndices <- function(proj) {
     # create fasta index for the genome if it is not a BSgenome and if the .fai file is not present
     if (proj@genomeFormat == "file") {
@@ -1266,10 +1267,10 @@ createReferenceSequenceIndices <- function(proj) {
         }
         # create md5 sum file
         if (!file.exists(paste(proj@genome, "md5", sep = "."))) {
-            write.table(tools::md5sum(proj@genome), 
-                        paste(proj@genome, "md5", sep = "."),
-                        sep = "\t", quote = FALSE, col.names = FALSE,
-                        row.names = FALSE)
+            utils::write.table(tools::md5sum(proj@genome), 
+                               paste(proj@genome, "md5", sep = "."),
+                               sep = "\t", quote = FALSE, col.names = FALSE,
+                               row.names = FALSE)
         }
     }
     # create fasta index for the auxilliaries if not present already
@@ -1303,10 +1304,10 @@ createReferenceSequenceIndices <- function(proj) {
             
             if (!file.exists(paste(proj@aux$FileName[i], "md5", sep = "."))) {
                 # create md5 sum file
-                write.table(tools::md5sum(proj@aux$FileName[i]),
-                            paste(proj@aux$FileName[i], "md5", sep = "."),
-                            sep = "\t", quote = FALSE,
-                            col.names = FALSE, row.names = FALSE)
+                utils::write.table(tools::md5sum(proj@aux$FileName[i]),
+                                   paste(proj@aux$FileName[i], "md5", sep = "."),
+                                   sep = "\t", quote = FALSE,
+                                   col.names = FALSE, row.names = FALSE)
             }
         }
     }
@@ -1314,20 +1315,20 @@ createReferenceSequenceIndices <- function(proj) {
     #create md5 sum file for the snp file
     if (!is.na(proj@snpFile)) {
         if (!file.exists(paste(proj@snpFile, "md5", sep = "."))) {
-            write.table(tools::md5sum(proj@snpFile),
-                        paste(proj@snpFile, "md5", sep = "."),
-                        sep = "\t", quote = FALSE,
-                        col.names = FALSE, row.names = FALSE)
+            utils::write.table(tools::md5sum(proj@snpFile),
+                               paste(proj@snpFile, "md5", sep = "."),
+                               sep = "\t", quote = FALSE,
+                               col.names = FALSE, row.names = FALSE)
         }
     }
     
     # create md5 sum file for the geneAnnotation
     if (!is.na(proj@geneAnnotation)) {
         if (!file.exists(paste0(proj@geneAnnotation, ".md5"))) {
-            write.table(tools::md5sum(proj@geneAnnotation), 
-                        paste0(proj@geneAnnotation, ".md5"),
-                        sep = "\t", quote = FALSE, 
-                        col.names = FALSE, row.names = FALSE)
+            utils::write.table(tools::md5sum(proj@geneAnnotation), 
+                               paste0(proj@geneAnnotation, ".md5"),
+                               sep = "\t", quote = FALSE, 
+                               col.names = FALSE, row.names = FALSE)
         }
     }
 }
@@ -1337,7 +1338,7 @@ createReferenceSequenceIndices <- function(proj) {
 # sampleNr specifies the sample for which the information is compiled
 # if auxNr is not NULL, it returns information about aux bam file
 #' @keywords internal
-#' @importFrom utils packageVersion
+#' @importFrom utils packageVersion read.delim
 qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
     
     if (sampleNr > nrow(proj@reads)) {
@@ -1365,10 +1366,11 @@ qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
     alnInfo["samplesFormat"] <- proj@samplesFormat
     alnInfo["genome"] <- proj@genome
     if (proj@genomeFormat == "file") {
-        alnInfo["genome.md5"] <- as.character(read.delim(paste(proj@genome, "md5",
-                                                               sep = "."),
-                                                         header = FALSE,
-                                                         colClasses = "character")[1, 1])
+        alnInfo["genome.md5"] <- as.character(
+            utils::read.delim(paste(proj@genome, "md5",
+                                    sep = "."),
+                              header = FALSE,
+                              colClasses = "character")[1, 1])
     } else {
         alnInfo["genome.md5"] <- NA
     }
@@ -1391,24 +1393,24 @@ qProjectBamInfo <- function(proj, sampleNr, auxNr = NULL) {
     alnInfo["geneAnnotation"] <- proj@geneAnnotation
     alnInfo["geneAnnotationFormat"] <- proj@geneAnnotationFormat
     alnInfo["geneAnnotation.md5"] <- NA
-    alnInfo["QuasR.version"] <- as.character(packageVersion('QuasR'))
+    alnInfo["QuasR.version"] <- as.character(utils::packageVersion('QuasR'))
     
     if (!is.null(auxNr)) {
         alnInfo["aux"] <- proj@aux$FileName[auxNr]
         alnInfo["aux.md5"] <- as.character(
-            read.delim(paste(proj@aux$FileName[auxNr], "md5", sep = "."),
-                       header = FALSE, colClasses = "character")[1, 1])
+            utils::read.delim(paste(proj@aux$FileName[auxNr], "md5", sep = "."),
+                              header = FALSE, colClasses = "character")[1, 1])
     }
     
     if (!is.na(proj@snpFile)) {
         alnInfo["snpFile.md5"] <- as.character(
-            read.delim(paste(proj@snpFile, "md5", sep = "."),
-                       header = FALSE, colClasses = "character")[1, 1])
+            utils::read.delim(paste(proj@snpFile, "md5", sep = "."),
+                              header = FALSE, colClasses = "character")[1, 1])
     }
     if (!is.na(proj@geneAnnotation)) {
         alnInfo["geneAnnotation.md5"] <- as.character(
-            read.delim(paste0(proj@geneAnnotation, ".md5"),
-                       header = FALSE, colClasses = "character")[1, 1])
+            utils::read.delim(paste0(proj@geneAnnotation, ".md5"),
+                              header = FALSE, colClasses = "character")[1, 1])
     }
     
     return(alnInfo)

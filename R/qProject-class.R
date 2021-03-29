@@ -244,6 +244,7 @@ setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
 #setGeneric("niceprint", function(x) print(x))
 #setMethod("niceprint", "qProject", function(object) {
 #' @importFrom methods show
+#' @importFrom utils packageVersion
 #' @export
 setMethod("show", "qProject", function(object) {
     # project and global options
@@ -257,7 +258,8 @@ setMethod("show", "qProject", function(object) {
     if (length(object@aligner) == 0 || is.na(object@aligner))
         cat(" Aligner   : unknown\n")
     else
-        cat(" Aligner   : ", object@aligner, " v", as.character(packageVersion(object@aligner)),
+        cat(" Aligner   : ", object@aligner, " v", 
+            as.character(utils::packageVersion(object@aligner)),
             " (parameters: ", object@alignmentParameter, ")\n", sep = "")
     cat(" Genome    : ", truncPath(object@genome, getOption("width") - 16 - 
                                        nchar(object@genomeFormat)),

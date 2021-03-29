@@ -418,6 +418,7 @@ BSgenomeSeqToFasta <- function(bsgenome, outFile) {
 
 #' @keywords internal
 #' @importFrom S4Vectors metadata
+#' @importFrom utils packageVersion
 #' @importFrom GenomeInfoDb bsgenomeName provider releaseDate organism 
 #'   commonName
 createSeedList <- function(genome, aligner, indexPackageName) {
@@ -447,7 +448,7 @@ createSeedList <- function(genome, aligner, indexPackageName) {
         
         #aligner seeds
         ALIGNER = aligner,
-        ALIGNERVERSION = as.character(packageVersion(aligner))
+        ALIGNERVERSION = as.character(utils::packageVersion(aligner))
     )
     
     return(seed)

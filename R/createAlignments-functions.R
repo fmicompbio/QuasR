@@ -180,8 +180,9 @@ createAuxAlignments <- function(proj, clObj) {
 
 #' @keywords internal
 #' @importFrom tools file_path_sans_ext
-#' @importFrom utils installed.packages
+#' @importFrom utils installed.packages write.table
 #' @importFrom stats na.omit
+#' @importFrom Rsamtools asBam
 createGenomicAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
         
@@ -508,13 +509,16 @@ createGenomicAlignmentsController <- function(params) {
             ) 
         } else {
             # sort sam and convert to bam
-            asBam(samFile, 
-                  tools::file_path_sans_ext(proj@alignments$FileName[sampleNr])) 
+            Rsamtools::asBam(
+                samFile, 
+                tools::file_path_sans_ext(proj@alignments$FileName[sampleNr])
+            )
         }
         
         # save the info file for the bam file
-        write.table(bamInfo, paste(proj@alignments$FileName[sampleNr], "txt", sep = "."),
-                    sep = "\t", quote = FALSE, col.names = FALSE)
+        utils::write.table(bamInfo, paste(proj@alignments$FileName[sampleNr],
+                                          "txt", sep = "."),
+                           sep = "\t", quote = FALSE, col.names = FALSE)
         
         print(paste("Genomic alignments for sample ", sampleNr, " (",
                     proj@reads$SampleName[sampleNr], 
@@ -539,6 +543,7 @@ createGenomicAlignmentsController <- function(params) {
 #' @keywords internal
 #' @importFrom tools file_path_sans_ext
 #' @importFrom Rsamtools sortBam indexBam
+#' @importFrom utils write.table
 createAuxAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
         
@@ -663,9 +668,10 @@ createAuxAlignmentsController <- function(params) {
 
             # create the info file for the bam file
             bamInfo <- qProjectBamInfo(proj, sampleNr, j)
-            write.table(bamInfo,
-                        paste(proj@auxAlignments[j, sampleNr], "txt", sep = "."),
-                        sep = "\t", quote = FALSE, col.names = FALSE)
+            utils::write.table(bamInfo,
+                               paste(proj@auxAlignments[j, sampleNr], 
+                                     "txt", sep = "."),
+                               sep = "\t", quote = FALSE, col.names = FALSE)
             
             print(paste("Auxiliary alignments ", j, " for sample ", sampleNr,
                         " (", proj@reads$SampleName[sampleNr],

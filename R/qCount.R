@@ -559,19 +559,19 @@ qCount <- function(proj,
                     appendLF = FALSE)
             if (orientation == "any")
                 BiocGenerics::strand(query) <- 
-                S4Vectors::endoapply(strand(query), function(x) 
+                S4Vectors::endoapply(BiocGenerics::strand(query), function(x) 
                     S4Vectors::Rle(factor("*", levels = c("+", "-", "*")), 
                                    lengths = length(x)))
             query <- GenomicRanges::reduce(query)
             if (length(query) > 1) {
                 cumquery <- query[[1]]
                 for (i in 2:length(query)) {
-                    query[[i]] <- setdiff(query[[i]], cumquery)
+                    query[[i]] <- BiocGenerics::setdiff(query[[i]], cumquery)
                     cumquery <- c(query[[i]], cumquery)
                 }
             }
             message("done")
-            flatquery <- unlist(query, use.names = FALSE)
+            flatquery <- BiocGenerics::unlist(query, use.names = FALSE)
             querynames <- rep(if(is.null(names(query))) as.character(seq_len(length(query))) else names(query),
                               S4Vectors::elementNROWS(query))
             querylengths <- unlist(BiocGenerics::width(query), use.names = FALSE)
@@ -587,8 +587,8 @@ qCount <- function(proj,
                 tmpquery <- GenomicRanges::reduce(
                     GenomicFeatures::exonsBy(query, by = "gene")
                 )
-                flatquery <- unlist(tmpquery, use.names = FALSE)
-                querynames <- rep(names(tmpquery), elementNROWS(tmpquery))
+                flatquery <- BiocGenerics::unlist(tmpquery, use.names = FALSE)
+                querynames <- rep(names(tmpquery), S4Vectors::elementNROWS(tmpquery))
                 querylengths <- unlist(BiocGenerics::width(tmpquery), use.names = FALSE)
                 rm(tmpquery)
                 
@@ -832,7 +832,7 @@ countJunctionsOneBamfile <- function(bamfile, targets, allelic,
 #' @keywords internal
 #' @importFrom Rsamtools scanBamHeader
 #' @importFrom GenomicRanges seqnames
-#' @importFrom BiocGenerics strand start end match
+#' @importFrom BiocGenerics strand start end match as.vector
 countAlignments <- function(bamfile, regions, shift, selectReadPosition, orientation,
                             useRead, broaden, allelic, includeSpliced, includeSecondary,
                             mapqmin, mapqmax, absisizemin, absisizemax) {
@@ -843,8 +843,8 @@ countAlignments <- function(bamfile, regions, shift, selectReadPosition, orienta
         
         ## prepare region vectors
         #tid <- IRanges::as.vector(IRanges::match(seqnames(regions), seqnamesBamHeader)) - 1L
-        tid <- as.vector(BiocGenerics::match(GenomicRanges::seqnames(regions),
-                                             seqnamesBamHeader) - 1L) 
+        tid <- BiocGenerics::as.vector(BiocGenerics::match(GenomicRanges::seqnames(regions),
+                                                           seqnamesBamHeader) - 1L) 
         start <- BiocGenerics::start(regions) - 1L ## samtool library has 0-based inclusiv start
         end <- BiocGenerics::end(regions) ## samtools library has 0-based exclusive end
         

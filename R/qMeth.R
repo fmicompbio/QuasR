@@ -642,9 +642,9 @@ quantifyMethylationBamfilesRegionsSingleChromosome <- function(bamfiles, regions
         tmp <- tapply(resL$M[S4Vectors::queryHits(ov)], S4Vectors::subjectHits(ov), sum)
         tmpM[as.integer(names(tmp))] <- tmp
         res <- data.frame(chr = rep(chr, length(regions)),
-                          start = start(regions),
-                          end = end(regions),
-                          strand = as.character(strand(regions)),
+                          start = BiocGenerics::start(regions),
+                          end = BiocGenerics::end(regions),
+                          strand = as.character(BiocGenerics::strand(regions)),
                           T = tmpT,
                           M = tmpM,
                           stringsAsFactors = FALSE)

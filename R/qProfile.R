@@ -488,7 +488,7 @@ qProfile <- function(proj,
 #' @keywords internal
 #' @importFrom Rsamtools scanBamHeader
 #' @importFrom GenomeInfoDb seqnames
-#' @importFrom BiocGenerics start end strand
+#' @importFrom BiocGenerics start end strand match as.vector
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift, 
                               selectReadPosition, orientation, useRead, 
                               broaden, allelic, maxUp, maxDown, maxUpBin, 
@@ -501,7 +501,8 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
         seqnamesBamHeader <- names(Rsamtools::scanBamHeader(bamfile)[[1]]$targets)
         
         # prepare region vectors
-        tid <- as.vector(match(GenomeInfoDb::seqnames(regions), seqnamesBamHeader) - 1L) 
+        tid <- BiocGenerics::as.vector(BiocGenerics::match(GenomeInfoDb::seqnames(regions),
+                                                           seqnamesBamHeader) - 1L) 
         s <- BiocGenerics::start(regions) - 1L # Samtools library has 0-based inclusive start
         e <- BiocGenerics::end(regions) # Samtools library has 0-based exclusive end
         rp <- refpos - 1L # Samtools library has 0-based inclusive start
