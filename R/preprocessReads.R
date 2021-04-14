@@ -156,8 +156,12 @@ preprocessReads <- function(filename, outputFilename = NULL,
         stop("'outputFilename' must be of type character.")    
     if (length(filename) != length(outputFilename))
         stop("'filename' and 'outputFilename' must have equal length.")
+    if (any(f <- !file.exists(filename)))
+        stop("non-existing input file(s): ", 
+             paste(filename[f], collapse = ", "))
     if (any(f <- file.exists(outputFilename)))
-        stop("existing output files: ", paste(outputFilename[f], collapse = ", "))
+        stop("existing output file(s): ", 
+             paste(outputFilename[f], collapse = ", "))
     fileformat <- consolidateFileExtensions(filename, compressed = TRUE)
     if (any(f <- !(fileformat %in% c("fasta","fastq"))))
         stop("unsupported file format (must be one of 'fasta' or 'fastq'): ", 
