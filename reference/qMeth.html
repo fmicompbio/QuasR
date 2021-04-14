@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -115,34 +115,46 @@
     <p>Quantify methylation of cytosines from bisulfite sequencing data.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qMeth</span><span class='op'>(</span><span class='va'>proj</span>, query<span class='op'>=</span><span class='cn'>NULL</span>, reportLevel<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"C"</span>,<span class='st'>"alignment"</span><span class='op'>)</span>,
-      mode<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"CpGcomb"</span>,<span class='st'>"CpG"</span>,<span class='st'>"allC"</span>,<span class='st'>"var"</span><span class='op'>)</span>,
-      collapseBySample<span class='op'>=</span><span class='cn'>TRUE</span>, collapseByQueryRegion<span class='op'>=</span><span class='cn'>FALSE</span>,
-      asGRanges<span class='op'>=</span><span class='cn'>TRUE</span>, mask<span class='op'>=</span><span class='cn'>NULL</span>, reference<span class='op'>=</span><span class='st'>"genome"</span>,
-      keepZero<span class='op'>=</span><span class='cn'>TRUE</span>, mapqMin<span class='op'>=</span><span class='fl'>0L</span>, mapqMax<span class='op'>=</span><span class='fl'>255L</span>, clObj<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>qMeth</span><span class='op'>(</span>
+  <span class='va'>proj</span>,
+  query <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reportLevel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"C"</span>, <span class='st'>"alignment"</span><span class='op'>)</span>,
+  mode <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"CpGcomb"</span>, <span class='st'>"CpG"</span>, <span class='st'>"allC"</span>, <span class='st'>"var"</span><span class='op'>)</span>,
+  collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  collapseByQueryRegion <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  asGRanges <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  mask <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reference <span class='op'>=</span> <span class='st'>"genome"</span>,
+  keepZero <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  mapqMin <span class='op'>=</span> <span class='fl'>0L</span>,
+  mapqMax <span class='op'>=</span> <span class='fl'>255L</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>proj</th>
-      <td><p>a <code>qProject</code> object from a bisulfite sequencing experiment</p></td>
+      <td><p>A <code>qProject</code> object from a bisulfite sequencing experiment</p></td>
     </tr>
     <tr>
       <th>query</th>
-      <td><p>a <code>GRanges</code> object with the regions to be
-    quantified. If <code>NULL</code>, all available target sequences (e.g. the
-    whole genome) will be analyzed. Available target sequences are
-    extracted from the header of the first bam file.</p></td>
+      <td><p>A <code>GRanges</code> object with the regions to be
+quantified. If <code>NULL</code>, all available target sequences (e.g. the
+whole genome) will be analyzed. Available target sequences are
+extracted from the header of the first bam file.</p></td>
     </tr>
     <tr>
       <th>reportLevel</th>
-      <td><p>report results combined for C's
-    (<code>reportLevel</code>=&#8220;C&#8221;</p></td>
+      <td><p>Report results combined for C's
+(<code>reportLevel</code>=&#8220;C&#8221;), the default) or individually for single
+alignments (<code>reportLevel</code>=&#8220;alignment&#8221;). The latter imposes
+further restrictions on some arguments (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>mode</th>
-      <td><p>cytosine quantification mode, one of:</p><ul>
+      <td><p>Cytosine quantification mode, one of:</p><ul>
 <li><p><code>CpGcomb</code> : only C's in CpG context (strands combined)</p></li>
 <li><p><code>CpG</code> : only C's in CpG context (strands separate)</p></li>
 <li><p><code>allC</code> : all C's (strands separate)</p></li>
@@ -151,155 +163,153 @@
     </tr>
     <tr>
       <th>collapseBySample</th>
-      <td><p>if <code>TRUE</code>, combine (sum) counts from
-    bamfiles with the same sample name.</p></td>
+      <td><p>If <code>TRUE</code>, combine (sum) counts from
+bamfiles with the same sample name.</p></td>
     </tr>
     <tr>
       <th>collapseByQueryRegion</th>
-      <td><p>if <code>TRUE</code>, combine (sum) counts for
-    all cytosines contained in the same query region.</p></td>
+      <td><p>If <code>TRUE</code>, combine (sum) counts for
+all cytosines contained in the same query region.</p></td>
     </tr>
     <tr>
       <th>asGRanges</th>
-      <td><p>if <code>TRUE</code>, return results as a <code>GRanges</code> object;
-    if <code>FALSE</code>, the results are returned as a <code>data.frame</code>.</p></td>
+      <td><p>If <code>TRUE</code>, return results as a <code>GRanges</code> object;
+if <code>FALSE</code>, the results are returned as a <code>data.frame</code>.</p></td>
     </tr>
     <tr>
       <th>mask</th>
-      <td><p>an optional <code>GRanges</code> object with genomic regions to
-    be masked, i.e. excluded from the analysis (e.g. unmappable regions).</p></td>
+      <td><p>An optional <code>GRanges</code> object with genomic regions to
+be masked, i.e. excluded from the analysis (e.g. unmappable regions).</p></td>
     </tr>
     <tr>
       <th>reference</th>
-      <td><p>source of bam files; can be either &#8220;genome&#8221;
-    (then the alignments against the genome are used) or the name of an
-    auxiliary target sequence (then alignments against this target
-    sequence will be used). The auxiliary name must correspond to the
-    name contained in the auxiliary file refered by the
-    <code>auxiliaryFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>.</p></td>
+      <td><p>Source of bam files; can be either &#8220;genome&#8221;
+(then the alignments against the genome are used) or the name of an
+auxiliary target sequence (then alignments against this target
+sequence will be used). The auxiliary name must correspond to the
+name contained in the auxiliary file refered by the
+<code>auxiliaryFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>.</p></td>
     </tr>
     <tr>
       <th>keepZero</th>
-      <td><p>if <code>FALSE</code>, only cytosines covered by at least
-    one alignment will be returned; <code>keepZero</code> must be <code>TRUE</code>
-    if multiple samples have the same sample name and
-    <code>collapseBySample</code> is <code>TRUE</code>.</p></td>
+      <td><p>If <code>FALSE</code>, only cytosines covered by at least
+one alignment will be returned; <code>keepZero</code> must be <code>TRUE</code>
+if multiple samples have the same sample name and
+<code>collapseBySample</code> is <code>TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>mapqMin</th>
-      <td><p>minimal mapping quality of alignments to be included when
-    counting (mapping quality must be greater than or equal to
-    <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
-    will include all alignments.</p></td>
+      <td><p>Minimal mapping quality of alignments to be included when
+counting (mapping quality must be greater than or equal to
+<code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
+will include all alignments.</p></td>
     </tr>
     <tr>
       <th>mapqMax</th>
-      <td><p>maximal mapping quality of alignments to be included when
-    counting (mapping quality must be less than or equal to <code>mapqMax</code>).
-    Valid values are between 0 and 255. The default (255) will include
-    all alignments.</p></td>
+      <td><p>Maximal mapping quality of alignments to be included when
+counting (mapping quality must be less than or equal to <code>mapqMax</code>).
+Valid values are between 0 and 255. The default (255) will include
+all alignments.</p></td>
     </tr>
     <tr>
       <th>clObj</th>
-      <td><p>a cluster object to be used for parallel processing of
-    multiple files (see &#8216;Details&#8217;).</p></td>
+      <td><p>A cluster object to be used for parallel processing of
+multiple files (see &#8216;Details&#8217;).</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p><code>qMeth</code> can be used on a <code>qProject</code> object from a bisulfite
-  sequencing experiment (sequencing of bisulfite-converted DNA), such as
-  the one returned by <code><a href='qAlign.html'>qAlign</a></code> when its parameter <code>bisulfite</code> is
-  set to a different value than &#8220;no&#8221;.</p>
-<p><code>qMeth</code> quantifies DNA methylation by counting total and
-  methylated events for individual cytosines, using the alignments that
-  have been generated in converted (three-letter) sequence space for
-  example by <code><a href='qAlign.html'>qAlign</a></code>. A methylated event corresponds to a C/C
-  match in the alignment, an unmethylated event to a T/C mismatch (or G/G
-  matches and A/G mismatches on the opposite strand). For paired-end
-  samples, the part of the left fragment alignment that overlaps
-  with the right fragment alignment is ignored, preventing the
-  use of redundant information coming from the same molecule.</p>
-<p>Both directed (<code>bisulfite</code>=&#8220;dir&#8221;) and undirected
-  (<code>bisulfite</code>=&#8220;undir&#8221;) experimental protocols are supported
-  by <code><a href='qAlign.html'>qAlign</a></code> and <code>qMeth</code>.</p>
-<p>By default, results are returned per C nucleotide. If
-  <code>reportLevel</code>=&#8220;alignment&#8221;, results are reported separately
-  for individual alignments. In that case, <code>query</code> has to be a
-  <code>GRanges</code> object with exactly one region, <code>mode</code> has to be
-  either &#8220;CpG&#8221; or &#8220;allC&#8221;, the arguments
-  <code>collapseByQueryRegion</code>, <code>asGRanges</code>, <code>mask</code> and
-  <code>keepZero</code> have no effect and allele-specific projects are
-  treated in the same way as normal (non-allele specific) projects.</p>  
-<p>Using the parameter <code>mode</code>, quantification can be limited to
-  cytosines in CpG context, and counts obtained for the two cytosines on
-  opposite strands within a single CpG can be combined (summed).</p>
-<p>The quantification of methylation for all cytosines in the query region(s)
-  (<code>mode</code>=&#8220;allC&#8221;) should be done with care, especially for
-  large query regions, as the return value may require a large amount of
-  memory.</p>
-<p>If <code>mode</code> is set to &#8220;var&#8221;, <code>qMeth</code> only counts reads
-  from the strand opposite of the cytosine and reports total and
-  matching alignments. For a position identical to the reference
-  sequence, only matches (and very few sequencing errors) are
-  expected, independent on the methylation state of the cytosine. A
-  reduced fraction of alignments matching the reference are indicative
-  of sequence variations in the sequenced sample.</p>
-<p><code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
-  based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
-  take integer values between 0 and 255 and equal to
-  \(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
-  integer. A value 255 indicates that the mapping quality is not available.</p>
-<p>If an object that inherits from class <code>cluster</code> is provided to
-  the <code>clObj</code> argument, for example an object returned by
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span>,
-  the quantification task is split into multiple chunks and processed in
-  parallel using <code><a href='https://rdrr.io/r/parallel/clusterApply.html'>clusterApplyLB</a></code> from package
-  <span class="pkg">parallel</span>. Not all tasks will be efficiently parallelized: For
-  example, a single query region and a single (group of) bam files will
-  not be split into multiple chunks.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>For <code>reportLevel</code>=&#8220;C&#8221;, a <code>GRanges</code> object if
-  <code>asGRanges</code>=<code>TRUE</code>, otherwise a <code>data.frame</code>.</p>
+<code>asGRanges</code>=<code>TRUE</code>, otherwise a <code>data.frame</code>.</p>
 <p>Each row contains the coordinates of individual cytosines for
-  <code>collapseByQueryRegion</code>=<code>FALSE</code> or query regions
-  for <code>collapseByQueryRegion</code>=<code>TRUE</code>.</p>
+<code>collapseByQueryRegion</code>=<code>FALSE</code> or query regions
+for <code>collapseByQueryRegion</code>=<code>TRUE</code>.</p>
 <p>In addition to the coordinates columns (or <code>seqnames</code>,
-  <code>ranges</code> and <code>strand</code> slots for <code>GRanges</code> objects),
-  each row contains per bam file:</p>
+<code>ranges</code> and <code>strand</code> slots for <code>GRanges</code> objects),
+each row contains per bam file:</p>
 <p>Two values (total and methylated events, with suffixes _T and _M), or
-  if the <code>qProject</code> object was created including a SNP table,
-  six values (total and methylated events for Reference, Unknown and
-  Alternative genotypes, with suffixed _TR, _TU, _TA, _MR, _MU and _MA).
-  In the latter case, C's or CpG's that overlap with SNPs in the table
-  are removed.</p>
+if the <code>qProject</code> object was created including a SNP table,
+six values (total and methylated events for Reference, Unknown and
+Alternative genotypes, with suffixed _TR, _TU, _TA, _MR, _MU and _MA).
+In the latter case, C's or CpG's that overlap with SNPs in the table
+are removed.</p>
 <p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with
-  identical sample name are combined (summed) and will be represented by
-  a single set of total and methylated count columns.</p>
+identical sample name are combined (summed) and will be represented by
+a single set of total and methylated count columns.</p>
 <p>If <code>mode</code>=&#8220;var&#8221;, the _T and _M columns correspond to total
-  and matching alignments overlapping the guanine paired to the
-  cytosine.</p>
+and matching alignments overlapping the guanine paired to the cytosine.</p>
 <p>For <code>reportLevel</code>=&#8220;alignment&#8221;, a <code>list</code> with one
-  element per bam file or sample (depending on
-  <code>collapseBySample</code>). Each list element is another list with the
-  elements:</p><ul>
+element per bam file or sample (depending on <code>collapseBySample</code>). 
+Each list element is another list with the elements:</p><ul>
 <li><p><code>aid</code>: character vector with unique alignment identifiers</p></li>
 <li><p><code>Cid</code>: integer vector with genomic coordinate of C base</p></li>
 <li><p><code>strand</code>: character vector with the strand of the C base</p></li>
 <li><p><code>meth</code>: integer vector with methylation state for
-    alignment and C defined by <code>aid</code> and <code>Cid</code>. The values are
-    1 for methylated or 0 for unmethylated states.</p></li>
+  alignment and C defined by <code>aid</code> and <code>Cid</code>. The values are
+  1 for methylated or 0 for unmethylated states.</p></li>
 </ul>
 
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
+    <p><code>qMeth</code> can be used on a <code>qProject</code> object from a bisulfite
+sequencing experiment (sequencing of bisulfite-converted DNA), such as
+the one returned by <code><a href='qAlign.html'>qAlign</a></code> when its parameter
+<code>bisulfite</code> is set to a different value than &#8220;no&#8221;.</p>
+<p><code>qMeth</code> quantifies DNA methylation by counting total and
+methylated events for individual cytosines, using the alignments that
+have been generated in converted (three-letter) sequence space for
+example by <code><a href='qAlign.html'>qAlign</a></code>. A methylated event corresponds 
+to a C/C match in the alignment, an unmethylated event to a T/C mismatch
+(or G/G matches and A/G mismatches on the opposite strand). For paired-end
+samples, the part of the left fragment alignment that overlaps
+with the right fragment alignment is ignored, preventing the
+use of redundant information coming from the same molecule.</p>
+<p>Both directed (<code>bisulfite</code>=&#8220;dir&#8221;) and undirected
+(<code>bisulfite</code>=&#8220;undir&#8221;) experimental protocols are supported
+by <code><a href='qAlign.html'>qAlign</a></code> and <code>qMeth</code>.</p>
+<p>By default, results are returned per C nucleotide. If
+<code>reportLevel</code>=&#8220;alignment&#8221;, results are reported separately
+for individual alignments. In that case, <code>query</code> has to be a
+<code>GRanges</code> object with exactly one region, <code>mode</code> has to be
+either &#8220;CpG&#8221; or &#8220;allC&#8221;, the arguments
+<code>collapseByQueryRegion</code>, <code>asGRanges</code>, <code>mask</code> and
+<code>keepZero</code> have no effect and allele-specific projects are
+treated in the same way as normal (non-allele specific) projects.</p>
+<p>Using the parameter <code>mode</code>, quantification can be limited to
+cytosines in CpG context, and counts obtained for the two cytosines on
+opposite strands within a single CpG can be combined (summed).</p>
+<p>The quantification of methylation for all cytosines in the query region(s)
+(<code>mode</code>=&#8220;allC&#8221;) should be done with care, especially for
+large query regions, as the return value may require a large amount of
+memory.</p>
+<p>If <code>mode</code> is set to &#8220;var&#8221;, <code>qMeth</code> only counts reads
+from the strand opposite of the cytosine and reports total and
+matching alignments. For a position identical to the reference
+sequence, only matches (and very few sequencing errors) are
+expected, independent on the methylation state of the cytosine. A
+reduced fraction of alignments matching the reference are indicative
+of sequence variations in the sequenced sample.</p>
+<p><code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
+based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
+take integer values between 0 and 255 and equal to
+\(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
+integer. A value 255 indicates that the mapping quality is not available.</p>
+<p>If an object that inherits from class <code>cluster</code> is provided to
+the <code>clObj</code> argument, for example an object returned by
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span>,
+the quantification task is split into multiple chunks and processed in
+parallel using <code><a href='https://rdrr.io/r/parallel/clusterApply.html'>clusterApplyLB</a></code> from package
+<span class="pkg">parallel</span>. Not all tasks will be efficiently parallelized: For
+example, a single query region and a single (group of) bam files will
+not be split into multiple chunks.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qAlign.html'>qAlign</a></code>,
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
@@ -346,7 +356,8 @@
 #&gt;   [3109]     chr3 44989-44990      * |         1         1
 #&gt;   [3110]     chr3 44993-44994      * |         1         1
 #&gt;   -------
-#&gt;   seqinfo: 3 sequences from an unspecified genome</div></pre>
+#&gt;   seqinfo: 3 sequences from an unspecified genome</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -358,7 +369,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

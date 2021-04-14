@@ -40,8 +40,8 @@
 
 
 <meta property="og:title" content="QuasR wig file export — qExportWig" />
-<meta property="og:description" content="Create a fixed-step wig file from the alignments in the genomic bam
-files of the &amp;#8216;QuasR&amp;#8217; project." />
+<meta property="og:description" content="Create a fixed-step wig file from the alignments in the genomic bam files 
+of the &amp;#8216;QuasR&amp;#8217; project." />
 
 
 
@@ -73,7 +73,7 @@ files of the &amp;#8216;QuasR&amp;#8217; project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -113,20 +113,31 @@ files of the &amp;#8216;QuasR&amp;#8217; project." />
     </div>
 
     <div class="ref-description">
-    <p>Create a fixed-step wig file from the alignments in the genomic bam
-files of the &#8216;QuasR&#8217; project.</p>
+    <p>Create a fixed-step wig file from the alignments in the genomic bam files 
+of the &#8216;QuasR&#8217; project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qExportWig</span><span class='op'>(</span><span class='va'>proj</span>, file<span class='op'>=</span><span class='cn'>NULL</span>, collapseBySample<span class='op'>=</span><span class='cn'>TRUE</span>, binsize<span class='op'>=</span><span class='fl'>100L</span>,
-           shift<span class='op'>=</span><span class='fl'>0L</span>, strand<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"*"</span>,<span class='st'>"+"</span>,<span class='st'>"-"</span><span class='op'>)</span>, scaling<span class='op'>=</span><span class='cn'>TRUE</span>,
-           tracknames<span class='op'>=</span><span class='cn'>NULL</span>, log2p1<span class='op'>=</span><span class='cn'>FALSE</span>,
-           colors<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#1B9E77"</span>, <span class='st'>"#D95F02"</span>, <span class='st'>"#7570B3"</span>, <span class='st'>"#E7298A"</span>,
-                    <span class='st'>"#66A61E"</span>, <span class='st'>"#E6AB02"</span>, <span class='st'>"#A6761D"</span>, <span class='st'>"#666666"</span><span class='op'>)</span>,
-           includeSecondary<span class='op'>=</span><span class='cn'>TRUE</span>,
-           mapqMin<span class='op'>=</span><span class='fl'>0L</span>, mapqMax<span class='op'>=</span><span class='fl'>255L</span>, absIsizeMin<span class='op'>=</span><span class='cn'>NULL</span>, absIsizeMax<span class='op'>=</span><span class='cn'>NULL</span>,
-           createBigWig<span class='op'>=</span><span class='cn'>FALSE</span>,
-           useRead<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>,<span class='st'>"first"</span>,<span class='st'>"last"</span><span class='op'>)</span>,
-           pairedAsSingle<span class='op'>=</span><span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>qExportWig</span><span class='op'>(</span>
+  <span class='va'>proj</span>,
+  file <span class='op'>=</span> <span class='cn'>NULL</span>,
+  collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  binsize <span class='op'>=</span> <span class='fl'>100L</span>,
+  shift <span class='op'>=</span> <span class='fl'>0L</span>,
+  strand <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"*"</span>, <span class='st'>"+"</span>, <span class='st'>"-"</span><span class='op'>)</span>,
+  scaling <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  tracknames <span class='op'>=</span> <span class='cn'>NULL</span>,
+  log2p1 <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#1B9E77"</span>, <span class='st'>"#D95F02"</span>, <span class='st'>"#7570B3"</span>, <span class='st'>"#E7298A"</span>, <span class='st'>"#66A61E"</span>, <span class='st'>"#E6AB02"</span>,
+    <span class='st'>"#A6761D"</span>, <span class='st'>"#666666"</span><span class='op'>)</span>,
+  includeSecondary <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  mapqMin <span class='op'>=</span> <span class='fl'>0L</span>,
+  mapqMax <span class='op'>=</span> <span class='fl'>255L</span>,
+  absIsizeMin <span class='op'>=</span> <span class='cn'>NULL</span>,
+  absIsizeMax <span class='op'>=</span> <span class='cn'>NULL</span>,
+  createBigWig <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
+  pairedAsSingle <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -138,57 +149,54 @@ files of the &#8216;QuasR&#8217; project.</p>
     <tr>
       <th>file</th>
       <td><p>A character vector with the name(s) for the wig or bigWig
-    file(s) to be generated. Either <code>NULL</code> or a vector of the same
-    length as the number of bam files (for
-    <code>collapseBySample=FALSE</code>) or the number of unique sample names
-    (for <code>collapseBySample=TRUE</code>) in <code>proj</code>. If <code>NULL</code>, the
-    wig or bigWig file names are generated from the names of the genomic
-    bam files or unique sample names with an added &#8220;.wig.gz&#8221; or
-    &#8220;.bw&#8221; extension.</p></td>
+file(s) to be generated. Either <code>NULL</code> or a vector of the same
+length as the number of bam files (for <code>collapseBySample=FALSE</code>) 
+or the number of unique sample names (for <code>collapseBySample=TRUE</code>) 
+in <code>proj</code>. If <code>NULL</code>, the wig or bigWig file names are generated 
+from the names of the genomic bam files or unique sample names with an 
+added &#8220;.wig.gz&#8221; or &#8220;.bw&#8221; extension.</p></td>
     </tr>
     <tr>
       <th>collapseBySample</th>
       <td><p>If <code>TRUE</code>, genomic bam files with identical
-    sample name will be combined (summed) into a single track.</p></td>
+sample name will be combined (summed) into a single track.</p></td>
     </tr>
     <tr>
       <th>binsize</th>
-      <td><p>a numerical value defining the bin and step size for
-    the wig or bigWig file(s). <code>binsize</code> will be coerced to
-    <code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>.</p></td>
+      <td><p>A numerical value defining the bin and step size for the 
+wig or bigWig file(s). <code>binsize</code> will be coerced to <code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>.</p></td>
     </tr>
     <tr>
       <th>shift</th>
       <td><p>Either a vector or a scalar value defining the read shift (e.g.
-    half of fragment length, see &#8216;Details&#8217;). If <code>length(shift)&gt;1</code>,
-    the length must match the number of bam files in &#8216;proj&#8217;, and
-    the i-th sample will be converted to wig or bigWig using the value in
-    <code>shift[i]</code>. <code>shift</code> will be coerced to <code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>. For
-    paired-end alignments, <code>shift</code> will be ignored, and a warning
-    will be issued if it is set to a non-zero value (see &#8216;Details&#8217;).</p></td>
+half of fragment length, see &#8216;Details&#8217;). If <code>length(shift)&gt;1</code>,
+the length must match the number of bam files in &#8216;proj&#8217;, and
+the i-th sample will be converted to wig or bigWig using the value in
+<code>shift[i]</code>. <code>shift</code> will be coerced to <code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>. For
+paired-end alignments, <code>shift</code> will be ignored, and a warning
+will be issued if it is set to a non-zero value (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>strand</th>
-      <td><p>Only count alignments of <code>strand</code>. The default (&#8220;*&#8221;)
-    will count all alignments.</p></td>
+      <td><p>Only count alignments of <code>strand</code>. The default 
+(&#8220;*&#8221;) will count all alignments.</p></td>
     </tr>
     <tr>
       <th>scaling</th>
-      <td><p>If TRUE or a numerical value, the output values in the
-    wig or bigWig file(s) will be linearly scaled by the total number of
-    aligned reads per sample to improve comparability (see
-    &#8216;Details&#8217;).</p></td>
+      <td><p>If TRUE or a numerical value, the output values in the wig 
+or bigWig file(s) will be linearly scaled by the total number of aligned 
+reads per sample to improve comparability (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>tracknames</th>
-      <td><p>A character vector with the names of the
-    tracks to appear in the track header. If <code>NULL</code>, the sample
-    names in <code>proj</code> will be used.</p></td>
+      <td><p>A character vector with the names of the tracks to appear 
+in the track header. If <code>NULL</code>, the sample names in <code>proj</code> 
+will be used.</p></td>
     </tr>
     <tr>
       <th>log2p1</th>
       <td><p>If <code>TRUE</code>, the number of alignments <code>x</code> per bin will
-    be transformed using the formula <code><a href='https://rdrr.io/r/base/Log.html'>log2(x+1)</a></code>.</p></td>
+be transformed using the formula <code><a href='https://rdrr.io/r/base/Log.html'>log2(x+1)</a></code>.</p></td>
     </tr>
     <tr>
       <th>colors</th>
@@ -196,123 +204,123 @@ files of the &#8216;QuasR&#8217; project.</p>
     </tr>
     <tr>
       <th>includeSecondary</th>
-      <td><p>if <code>TRUE</code> (the default), include alignments
-    with the secondary bit (0x0100) set in the <code>FLAG</code>.</p></td>
+      <td><p>If <code>TRUE</code> (the default), include alignments 
+with the secondary bit (0x0100) set in the <code>FLAG</code>.</p></td>
     </tr>
     <tr>
       <th>mapqMin</th>
-      <td><p>minimal mapping quality of alignments to be included
-    (mapping quality must be greater than or equal to
-    <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
-    will include all alignments.</p></td>
+      <td><p>Minimal mapping quality of alignments to be included
+(mapping quality must be greater than or equal to <code>mapqMin</code>). 
+Valid values are between 0 and 255. The default (0) will include all 
+alignments.</p></td>
     </tr>
     <tr>
       <th>mapqMax</th>
-      <td><p>maximal mapping quality of alignments to be included
-    (mapping quality must be less than or equal to
-    <code>mapqMax</code>). Valid values are between 0 and 255. The default
-    (255) will include all alignments.</p></td>
+      <td><p>Maximal mapping quality of alignments to be included
+(mapping quality must be less than or equal to <code>mapqMax</code>). 
+Valid values are between 0 and 255. The default (255) will include all
+alignments.</p></td>
     </tr>
     <tr>
       <th>absIsizeMin</th>
       <td><p>For paired-end experiments, minimal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be
-    included. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any minimum insert size filtering.</p></td>
+size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid 
+values are greater than 0 or <code>NULL</code> (default), which will not 
+apply any minimum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>absIsizeMax</th>
-      <td><p>For paired-end experiments, maximal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be
-    included. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any maximum insert size filtering.</p></td>
+      <td><p>For paired-end experiments, maximal absolute insert 
+size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid 
+values are greater than 0 or <code>NULL</code> (default), which will not apply 
+any maximum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>createBigWig</th>
-      <td><p>If <code>TRUE</code>, first a temporary wig file will be
-    created and then converted to BigWig format (file extension
-    &#8220;.bw&#8221;) using the <code><a href='https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html'>wigToBigWig</a></code>
-    function from package <span class="pkg">rtracklayer</span>.</p></td>
+      <td><p>If <code>TRUE</code>, first a temporary wig file will be 
+created and then converted to BigWig format (file extension &#8220;.bw&#8221;) 
+using the <code><a href='https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html'>wigToBigWig</a></code> function from 
+package <span class="pkg">rtracklayer</span>.</p></td>
     </tr>
     <tr>
       <th>useRead</th>
-      <td><p>For paired-end experiments, selects the read mate whose
-    alignments should be counted, one of:</p><ul>
+      <td><p>For paired-end experiments, selects the read mate whose 
+alignments should be counted, one of:</p><ul>
 <li><p><code>any</code> (default): count all alignments</p></li>
 <li><p><code>first</code> : count only alignments from the first read</p></li>
 <li><p><code>last</code> : count only alignments from the last read</p></li>
 </ul><p>For single-read alignments, this argument will be ignored. For
-   paired-end alignments, setting this argument to a value different
-   from the default (<code>any</code>) will cause <code>qExportWig</code> not to
-   automatically use the mid of fragments, but to treat the selected
-   read as if it would come from a single-read experiment (see
-   &#8216;Details&#8217;).</p></td>
+paired-end alignments, setting this argument to a value different
+from the default (<code>any</code>) will cause <code>qExportWig</code> not to
+automatically use the mid of fragments, but to treat the selected
+read as if it would come from a single-read experiment (see 
+&#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>pairedAsSingle</th>
-      <td><p>If <code>TRUE</code>, treat paired-end data single
-    read data, which means that instead of calculating fragment
-    mid-points for each read pair, the 5-prime ends of the reads is
-    used. This is for example useful when analyzing paired-end DNAse-seq
-    or ATAC-seq data, in which the read starts are informative for
-    chromatin accessibility.</p></td>
+      <td><p>If <code>TRUE</code>, treat paired-end data single read 
+data, which means that instead of calculating fragment mid-points for 
+each read pair, the 5-prime ends of the reads is used. This is for example 
+useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which 
+the read starts are informative for chromatin accessibility.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p><code>qExportWig()</code> uses the genome bam files in <code>proj</code> as input
-  to create wig or bigWig files with the number of alignments (pairs)
-  per window of <code>binsize</code> nucleotides. By default
-  (<code>collapseBySample=TRUE</code>), one file per unique sample will be
-  created. If <code>collapseBySample=FALSE</code>, one file per genomic bam
-  file will be created. See <a href='http://genome.ucsc.edu/goldenPath/help/wiggle.html'>http://genome.ucsc.edu/goldenPath/help/wiggle.html</a> for the
-  definition of the wig format, and
-  <a href='http://genome.ucsc.edu/goldenPath/help/bigWig.html'>http://genome.ucsc.edu/goldenPath/help/bigWig.html</a> for the
-  definition of the bigWig format.</p>  
-<p>The genome is tiled with sequential windows of length <code>binsize</code>,
-  and alignments in the bam file are assigned to these windows: Single
-  read alignments are assigned according to their 5'-end coordinate
-  shifted by <code>shift</code> towards the 3'-end (assuming that the 5'-end
-  is the leftmost coordinate for plus-strand alignments, and the rightmost
-  coordinate for minus-strand alignments). Paired-end alignments are
-  assigned according to the base in the middle between the leftmost and
-  rightmost coordinates of the aligned pair of reads. Each pair of reads
-  is only counted once, and not properly paired alignments are
-  ignored. If <code>useRead</code> is set to select only the first or last
-  read in a paired-end experiment, the selected read will be treated as
-  reads from a single read experiment. Secondary alignments can be
-  excluded by setting <code>includeSecondary=FALSE</code>. In paired-end
-  experiments, <code>absIsizeMin</code> and <code>absIsizeMax</code> can be used to select
-  alignments based on their insert size (TLEN field in SAM Spec v1.4).</p>
-<p>For <code>scaling=TRUE</code>, the number of alignments per bin \(n\)
-  for the sample \(i\) are linearly scaled to the mean total
-  number of alignments over all samples in <code>proj</code> according to:
-  \(n_s = n /N[i] *mean(N)\) where \(n_s\) is the scaled number
-  of alignments in the bin and \(N\) is a vector with the total
-  number of alignments for each sample. Alternatively, if scaling is set
-  to a positive numerical value \(s\), this value is used instead of
-  \(\textnormal{mean}(N)\), and values are scaled according
-  to: \(n_s = n /N[i] *s\).</p>
-<p><code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
-  based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
-  take integer values between 0 and 255 and equal to
-  \(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
-  integer. A value 255 indicates that the mapping quality is not available.</p>
-<p>If <code>createBigWig=FALSE</code> and <code>file</code> ends with &#8216;.gz&#8217;,
-  the resulting wig file will be compressed using gzip and is suitable
-  for uploading as a custom track to your favorite genome browser
-  (e.g. UCSC or Ensembl).</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>(invisible) The file name of the generated wig or bigWig file(s).</p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
+    <p><code>qExportWig()</code> uses the genome bam files in <code>proj</code> as input
+to create wig or bigWig files with the number of alignments (pairs)
+per window of <code>binsize</code> nucleotides. By default
+(<code>collapseBySample=TRUE</code>), one file per unique sample will be
+created. If <code>collapseBySample=FALSE</code>, one file per genomic bam
+file will be created. See <a href='http://genome.ucsc.edu/goldenPath/help/wiggle.html'>http://genome.ucsc.edu/goldenPath/help/wiggle.html</a> 
+for the definition of the wig format, and 
+<a href='http://genome.ucsc.edu/goldenPath/help/bigWig.html'>http://genome.ucsc.edu/goldenPath/help/bigWig.html</a> for the definition 
+of the bigWig format.</p>
+<p>The genome is tiled with sequential windows of length <code>binsize</code>,
+and alignments in the bam file are assigned to these windows: Single
+read alignments are assigned according to their 5'-end coordinate
+shifted by <code>shift</code> towards the 3'-end (assuming that the 5'-end
+is the leftmost coordinate for plus-strand alignments, and the rightmost
+coordinate for minus-strand alignments). Paired-end alignments are
+assigned according to the base in the middle between the leftmost and
+rightmost coordinates of the aligned pair of reads, unless 
+<code>pairedAsSingle = TRUE</code> is used. Each pair of reads
+is only counted once, and not properly paired alignments are
+ignored. If <code>useRead</code> is set to select only the first or last
+read in a paired-end experiment, the selected read will be treated as
+reads from a single read experiment. Secondary alignments can be
+excluded by setting <code>includeSecondary=FALSE</code>. In paired-end
+experiments, <code>absIsizeMin</code> and <code>absIsizeMax</code> can be used to select
+alignments based on their insert size (TLEN field in SAM Spec v1.4).</p>
+<p>For <code>scaling=TRUE</code>, the number of alignments per bin \(n\)
+for the sample \(i\) are linearly scaled to the mean total
+number of alignments over all samples in <code>proj</code> according to:
+\(n_s = n /N[i] *mean(N)\) where \(n_s\) is the scaled number
+of alignments in the bin and \(N\) is a vector with the total
+number of alignments for each sample. Alternatively, if scaling is set
+to a positive numerical value \(s\), this value is used instead of
+\(\textnormal{mean}(N)\), and values are scaled according
+to: \(n_s = n /N[i] *s\).</p>
+<p><code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
+based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
+take integer values between 0 and 255 and equal to
+\(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
+integer. A value 255 indicates that the mapping quality is not available.</p>
+<p>If <code>createBigWig=FALSE</code> and <code>file</code> ends with &#8216;.gz&#8217;,
+the resulting wig file will be compressed using gzip and is suitable
+for uploading as a custom track to your favorite genome browser
+(e.g. UCSC or Ensembl).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qProject-class.html'>qProject</a></code>, <code><a href='qAlign.html'>qAlign</a></code>,
-  <code><a href='https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html'>wigToBigWig</a></code></p></div>
+<code><a href='https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html'>wigToBigWig</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
@@ -325,7 +333,8 @@ files of the &#8216;QuasR&#8217; project.</p>
 </div><div class='output co'>#&gt; <span class='message'>all necessary alignment files found</span></div><div class='input'>
 <span class='co'># export wiggle file</span>
 <span class='fu'>qExportWig</span><span class='op'>(</span><span class='va'>proj</span>, binsize<span class='op'>=</span><span class='fl'>100L</span>, shift<span class='op'>=</span><span class='fl'>0L</span>, scaling<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>collecting mapping statistics for scaling...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='output co'>#&gt; <span class='message'>start creating wig files...</span></div><div class='output co'>#&gt; <span class='message'>  Sample1.wig.gz (Sample1)</span></div><div class='output co'>#&gt; <span class='message'>  Sample2.wig.gz (Sample2)</span></div><div class='output co'>#&gt; <span class='message'>done</span></div></pre>
+</div><div class='output co'>#&gt; <span class='message'>collecting mapping statistics for scaling...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='output co'>#&gt; <span class='message'>start creating wig files...</span></div><div class='output co'>#&gt; <span class='message'>  Sample1.wig.gz (Sample1)</span></div><div class='output co'>#&gt; <span class='message'>  Sample2.wig.gz (Sample2)</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -337,7 +346,7 @@ files of the &#8216;QuasR&#8217; project.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

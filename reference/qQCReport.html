@@ -40,9 +40,10 @@
 
 
 <meta property="og:title" content="QuasR Quality Control Report — qQCReport" />
-<meta property="og:description" content="Generate quality control plots for a qProject object or a vector
-of fasta/fastq/bam files. The available plots vary depending on the types
-of available input (fasta, fastq, bam files or qProject object; paired-end or single-end)." />
+<meta property="og:description" content="Generate quality control plots for a qProject object or a vector of 
+fasta/fastq/bam files. The available plots vary depending on the types of 
+available input (fasta, fastq, bam files or qProject object; 
+paired-end or single-end)." />
 
 
 
@@ -74,7 +75,7 @@ of available input (fasta, fastq, bam files or qProject object; paired-end or si
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -114,127 +115,73 @@ of available input (fasta, fastq, bam files or qProject object; paired-end or si
     </div>
 
     <div class="ref-description">
-    <p>Generate quality control plots for a <code>qProject</code> object or a vector
-of fasta/fastq/bam files. The available plots vary depending on the types
-of available input (fasta, fastq, bam files or <code>qProject</code> object; paired-end or single-end).</p>
+    <p>Generate quality control plots for a <code>qProject</code> object or a vector of 
+fasta/fastq/bam files. The available plots vary depending on the types of 
+available input (fasta, fastq, bam files or <code>qProject</code> object; 
+paired-end or single-end).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qQCReport</span><span class='op'>(</span><span class='va'>input</span>, pdfFilename<span class='op'>=</span><span class='cn'>NULL</span>, chunkSize<span class='op'>=</span><span class='fl'>1e6L</span>,
-              useSampleNames<span class='op'>=</span><span class='cn'>FALSE</span>, clObj<span class='op'>=</span><span class='cn'>NULL</span>, a4layout<span class='op'>=</span><span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>qQCReport</span><span class='op'>(</span>
+  <span class='va'>input</span>,
+  pdfFilename <span class='op'>=</span> <span class='cn'>NULL</span>,
+  chunkSize <span class='op'>=</span> <span class='fl'>1000000L</span>,
+  useSampleNames <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>,
+  a4layout <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>A vector of files or a <code>qProject</code> object as
-      returned by <code>qAlign</code></p></td>
+      <td><p>A vector of files or a <code>qProject</code> object as returned by 
+<code>qAlign</code>.</p></td>
     </tr>
     <tr>
       <th>pdfFilename</th>
-      <td><p>The path and name of a pdf file to store the
-      report. If <code>NULL</code>, the quality control plots will be
-      generated in separate plotting windows on the standard graphical
-      device.</p></td>
+      <td><p>The path and name of a pdf file to store the report. 
+If <code>NULL</code>, the quality control plots will be generated in separate 
+plotting windows on the standard graphical device.</p></td>
     </tr>
     <tr>
       <th>chunkSize</th>
-      <td><p>The number of sequences, sequence pairs (for
-      paired-end data) or alignments that will be sampled from each data
-      file to collect quality statistics</p></td>
+      <td><p>The number of sequences, sequence pairs (for paired-end 
+data) or alignments that will be sampled from each data file to collect 
+quality statistics.</p></td>
     </tr>
     <tr>
       <th>useSampleNames</th>
-      <td><p>If TRUE, the plots will be labelled using the
-      sample names instead of the file names. Sample names are obtained
-      from the <code>qProject</code> object, or from <code><a href='https://rdrr.io/r/base/names.html'>names(input)</a></code> if
-      <code>input</code> is a named vector of file names. Please not that if
-      there are multiple files for the same sample, the sample names
-      will not be unique.</p></td>
+      <td><p>If TRUE, the plots will be labelled using the sample 
+names instead of the file names. Sample names are obtained from the 
+<code>qProject</code> object, or from <code><a href='https://rdrr.io/r/base/names.html'>names(input)</a></code> if <code>input</code> is a 
+named vector of file names. Please not that if there are multiple files 
+for the same sample, the sample names will not be unique.</p></td>
     </tr>
     <tr>
       <th>clObj</th>
-      <td><p>a cluster object to be used for parallel processing of
-      multiple input files.</p></td>
+      <td><p>A cluster object to be used for parallel processing of multiple 
+input files.</p></td>
     </tr>
     <tr>
       <th>a4layout</th>
-      <td><p>a logical scalar. If TRUE, the output of mapping rate and 
-      uniqueness plots will be adjusted for a4 format devices.</p></td>
+      <td><p>A logical scalar. If TRUE, the output of mapping rate and 
+uniqueness plots will be adjusted for a4 format devices.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments that will be passed to the functions
-      generating the individual quality control plots, see &#8216;Details&#8217;.</p></td>
+      <td><p>Additional arguments that will be passed to the functions 
+generating the individual quality control plots, see &#8216;Details&#8217;.</p></td>
     </tr>
     </table>
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This function generates quality control plots for all input
-  files or the sequence and alignment files contained in a
-  <code>qProject</code> object, allowing assessment of the quality of a
-  sequencing experiment. <code>qQCReport</code> uses functionality from the
-  <span class="pkg">ShortRead</span> package to collect quality data, and visualizes the
-  results similarly as the &#8216;FastQC&#8217; quality control tool from
-  Simon Andrews (see &#8216;References&#8217; below). It is recommended to
-  create PDF reports (<code>pdfFilename</code> argument), for which the
-  plot layouts have been optimised.</p>  
-<p>Some plots will only be generated if the necessary information is
-  available (e.g. base qualities in fastq sequence files).</p>
-<p>The currently available plot types are:</p><dl>
-    <dt><em>Quality score boxplot</em></dt><dd><p>shows the distribution of
-      base quality values as a box plot for each position in the input
-      sequence. The background color (green, orange or red)
-      indicates ranges of high, intermediate and low qualities.</p></dd>
-    <dt><em>Nucleotide frequency</em></dt><dd><p>plot shows the frequency of A, C,
-      G, T and N bases by position in the read.</p></dd>
-    <dt><em>Duplication level</em></dt><dd><p>plot shows for each sample the
-      fraction of reads observed at different duplication levels
-      (e.g. once, two-times, three-times, etc.). In addition, the most
-      frequent sequences are listed.</p></dd>
-    <dt><em>Mapping statistics</em></dt><dd><p>shows fractions of reads that were
-      (un)mappable to the reference genome.</p></dd>
-    <dt><em>Library complexity</em></dt><dd><p>shows fractions of unique
-      read(-pair) alignment positions, as a measure of the complexity in
-      the sequencing library. Please note that this measure is not
-      independent from the total number of reads in a library, and is best
-      compared between libraries of similar sizes.</p></dd>
-    <dt><em>Mismatch frequency</em></dt><dd><p>shows the frequency and position
-      (relative to the read sequence) of mismatches in the alignments
-      against the reference genome.</p></dd>
-    <dt><em>Mismatch types</em></dt><dd><p>shows the frequency of
-      read bases that caused mismatches in the alignments to the
-      reference genome, separately for each genome base.</p></dd>
-    <dt><em>Fragment size</em></dt><dd><p>shows the distribution of fragment sizes
-      inferred from aligned read pairs.</p></dd>
-  
-</dl>
-
-<p>One approach to assess the quality of a sample is to compare its
-  control plots to the ones from other samples and search for relative
-  differences. Special quality measures are expected for certain types
-  of experiments: A genomic re-sequencing sample with an
-  overrepresentation of T bases may be suspicious, while such a
-  nucleotide bias is normal for a directed bisulfite-sequencing sample.</p>
-<p>Additional arguments can be passed to the internal functions that
-  generate the individual quality control plots using <code>...{}</code>:</p><dl>
-    <dt><code>lmat</code>:</dt><dd><p>a matrix (e.g. <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(1:12, ncol=2)</a></code>) used
-      by an internal call to the <code>layout</code> function to specify the
-      positioning of multiple plot panels on a device page. Individual panels
-      correspond to different samples.</p></dd>
-    <dt><code>breaks</code>:</dt><dd><p>a numerical vector
-      (e.g. <code><a href='https://rdrr.io/r/base/c.html'>c(1:10)</a></code>) defining the bins used by
-      the &#8216;Duplication level&#8217; plot.</p></dd>
-  
-</dl>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The function is called for its side effect of generating quality
-  control plots. It invisibly returns a list with components that
-  contain the data used to generate each of the QC plots. Available
-  components are (depending on input data, see &#8216;Details&#8217; above):</p><ul>
+control plots. It invisibly returns a list with components that contain the 
+data used to generate each of the QC plots. Available components are 
+(depending on input data, see &#8216;Details&#8217;):</p><ul>
 <li><p><em>qualByCycle</em>: quality score boxplot</p></li>
 <li><p><em>nuclByCycle</em>: nucleotide frequency plot</p></li>
 <li><p><em>duplicated</em>: duplication level plot</p></li>
@@ -245,16 +192,76 @@ of available input (fasta, fastq, bam files or <code>qProject</code> object; pai
 <li><p><em>fragDistribution</em>: fragment size distribution plot</p></li>
 </ul>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function generates quality control plots for all input files or the 
+sequence and alignment files contained in a <code>qProject</code> object, 
+allowing assessment of the quality of a sequencing experiment. 
+<code>qQCReport</code> uses functionality from the <span class="pkg">ShortRead</span> package to 
+collect quality data, and visualizes the results similarly as the 
+&#8216;FastQC&#8217; quality control tool from Simon Andrews (see 
+&#8216;References&#8217; below). It is recommended to create PDF reports 
+(<code>pdfFilename</code> argument), for which the plot layouts have been optimised.</p>
+<p>Some plots will only be generated if the necessary information is available 
+(e.g. base qualities in fastq sequence files).</p>
+<p>The currently available plot types are:</p><dl>
+  <dt><em>Quality score boxplot</em></dt><dd><p>shows the distribution of
+        base quality values as a box plot for each position in the input
+        sequence. The background color (green, orange or red)
+        indicates ranges of high, intermediate and low qualities.</p></dd>
+  <dt><em>Nucleotide frequency</em></dt><dd><p>plot shows the frequency of A, C,
+        G, T and N bases by position in the read.</p></dd>
+  <dt><em>Duplication level</em></dt><dd><p>plot shows for each sample the
+        fraction of reads observed at different duplication levels
+        (e.g. once, two-times, three-times, etc.). In addition, the most
+        frequent sequences are listed.</p></dd>
+  <dt><em>Mapping statistics</em></dt><dd><p>shows fractions of reads that were
+        (un)mappable to the reference genome.</p></dd>
+  <dt><em>Library complexity</em></dt><dd><p>shows fractions of unique
+        read(-pair) alignment positions, as a measure of the complexity in
+        the sequencing library. Please note that this measure is not
+        independent from the total number of reads in a library, and is best
+        compared between libraries of similar sizes.</p></dd>
+  <dt><em>Mismatch frequency</em></dt><dd><p>shows the frequency and position
+        (relative to the read sequence) of mismatches in the alignments
+        against the reference genome.</p></dd>
+  <dt><em>Mismatch types</em></dt><dd><p>shows the frequency of
+        read bases that caused mismatches in the alignments to the
+        reference genome, separately for each genome base.</p></dd>
+  <dt><em>Fragment size</em></dt><dd><p>shows the distribution of fragment sizes
+        inferred from aligned read pairs.</p></dd>
+
+</dl>
+
+<p>One approach to assess the quality of a sample is to compare its
+control plots to the ones from other samples and search for relative
+differences. Special quality measures are expected for certain types
+of experiments: A genomic re-sequencing sample with an
+overrepresentation of T bases may be suspicious, while such a
+nucleotide bias is normal for a directed bisulfite-sequencing sample.</p>
+<p>Additional arguments can be passed to the internal functions that
+generate the individual quality control plots using <code>...{}</code>:</p><dl>
+  <dt><code>lmat</code>:</dt><dd><p>a matrix (e.g. <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(1:12, ncol=2)</a></code>) used
+        by an internal call to the <code>layout</code> function to specify the
+        positioning of multiple plot panels on a device page. Individual panels
+        correspond to different samples.</p></dd>
+  <dt><code>breaks</code>:</dt><dd><p>a numerical vector
+        (e.g. <code><a href='https://rdrr.io/r/base/c.html'>c(1:10)</a></code>) defining the bins used by
+        the &#8216;Duplication level&#8217; plot.</p></dd>
+
+</dl>
+
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>FastQC quality control tool at <a href='http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/'>http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/</a></p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
-
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
+    <p>FastQC quality control tool at 
+<a href='http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/'>http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/</a></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qProject-class.html'>qProject</a></code>, <code><a href='qAlign.html'>qAlign</a></code>,
-  <code>ShortRead</code> package</p></div>
+<code>ShortRead</code> package</p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
@@ -268,7 +275,8 @@ of available input (fasta, fastq, bam files or <code>qProject</code> object; pai
 </div><div class='output co'>#&gt; <span class='message'>all necessary alignment files found</span></div><div class='input'>
 <span class='co'># create quality control report</span>
 <span class='fu'>qQCReport</span><span class='op'>(</span><span class='va'>proj</span>, pdfFilename<span class='op'>=</span><span class='st'>"qc_report.pdf"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>collecting quality control data</span></div><div class='output co'>#&gt; <span class='message'>creating QC plots</span></div></pre>
+</div><div class='output co'>#&gt; <span class='message'>collecting quality control data</span></div><div class='output co'>#&gt; <span class='message'>creating QC plots</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -280,7 +288,7 @@ of available input (fasta, fastq, bam files or <code>qProject</code> object; pai
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

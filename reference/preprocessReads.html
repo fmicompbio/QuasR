@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Preprocess Short Reads — preprocessReads" />
-<meta property="og:description" content="Truncate sequences, remove parts matching to adapters and filter out low
+<meta property="og:description" content="Truncate sequences, remove parts matching to adapters and filter out low 
 quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files." />
 
 
@@ -73,7 +73,7 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -113,18 +113,29 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
     </div>
 
     <div class="ref-description">
-    <p>Truncate sequences, remove parts matching to adapters and filter out low
+    <p>Truncate sequences, remove parts matching to adapters and filter out low 
 quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>preprocessReads</span><span class='op'>(</span><span class='va'>filename</span>, outputFilename<span class='op'>=</span><span class='cn'>NULL</span>,
-             filenameMate<span class='op'>=</span><span class='cn'>NULL</span>, outputFilenameMate<span class='op'>=</span><span class='cn'>NULL</span>,
-             truncateStartBases<span class='op'>=</span><span class='cn'>NULL</span>, truncateEndBases<span class='op'>=</span><span class='cn'>NULL</span>, 
-             Lpattern<span class='op'>=</span><span class='st'>""</span>, Rpattern<span class='op'>=</span><span class='st'>""</span>,
-             max.Lmismatch<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>, max.Rmismatch<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,
-             with.Lindels<span class='op'>=</span><span class='cn'>FALSE</span>, with.Rindels<span class='op'>=</span><span class='cn'>FALSE</span>,
-             minLength<span class='op'>=</span><span class='fl'>14L</span>, nBases<span class='op'>=</span><span class='fl'>2L</span>, complexity<span class='op'>=</span><span class='cn'>NULL</span>,
-             nrec<span class='op'>=</span><span class='fl'>1000000L</span>, clObj<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>preprocessReads</span><span class='op'>(</span>
+  <span class='va'>filename</span>,
+  outputFilename <span class='op'>=</span> <span class='cn'>NULL</span>,
+  filenameMate <span class='op'>=</span> <span class='cn'>NULL</span>,
+  outputFilenameMate <span class='op'>=</span> <span class='cn'>NULL</span>,
+  truncateStartBases <span class='op'>=</span> <span class='cn'>NULL</span>,
+  truncateEndBases <span class='op'>=</span> <span class='cn'>NULL</span>,
+  Lpattern <span class='op'>=</span> <span class='st'>""</span>,
+  Rpattern <span class='op'>=</span> <span class='st'>""</span>,
+  max.Lmismatch <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6</span>, <span class='fl'>3</span>, <span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,
+  max.Rmismatch <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6</span>, <span class='fl'>3</span>, <span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,
+  with.Lindels <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  with.Rindels <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  minLength <span class='op'>=</span> <span class='fl'>14L</span>,
+  nBases <span class='op'>=</span> <span class='fl'>2L</span>,
+  complexity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  nrec <span class='op'>=</span> <span class='fl'>1000000L</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,22 +151,22 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.<
     <tr>
       <th>filenameMate</th>
       <td><p>for paired-end experiments, the name(s) of the
-      input sequence file(s) containing the second read (mate) of each pair.</p></td>
+input sequence file(s) containing the second read (mate) of each pair.</p></td>
     </tr>
     <tr>
       <th>outputFilenameMate</th>
       <td><p>for paired-end experiments, the name(s) of the
-      output sequence file(s) containing the second read (mate) of each pair.</p></td>
+output sequence file(s) containing the second read (mate) of each pair.</p></td>
     </tr>
     <tr>
       <th>truncateStartBases</th>
-      <td><p>integer(1): the number of bases to be
-      truncated (removed) from the begining of each sequence.</p></td>
+      <td><p>integer(1): the number of bases to be truncated 
+(removed) from the beginning of each sequence.</p></td>
     </tr>
     <tr>
       <th>truncateEndBases</th>
-      <td><p>integer(1): the number of bases to be
-      truncated (removed) from the end of each sequence.</p></td>
+      <td><p>integer(1): the number of bases to be truncated 
+(removed) from the end of each sequence.</p></td>
     </tr>
     <tr>
       <th>Lpattern</th>
@@ -167,25 +178,25 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.<
     </tr>
     <tr>
       <th>max.Lmismatch</th>
-      <td><p>mismatch tolerance when searching for matches
-      of <code>Lpattern</code> (see &#8216;Details&#8217;).</p></td>
+      <td><p>mismatch tolerance when searching for matches of 
+<code>Lpattern</code> (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>max.Rmismatch</th>
-      <td><p>mismatch tolerance when searching for matches
-      of <code>Rpattern</code> (see &#8216;Details&#8217;).</p></td>
+      <td><p>mismatch tolerance when searching for matches of 
+<code>Rpattern</code> (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>with.Lindels</th>
-      <td><p>if <code>TRUE</code>, indels are allowed in the
-      alignments of the suffixes of <code>Lpattern</code> with the subject,
-      at its beginning (see &#8216;Details&#8217;).</p></td>
+      <td><p>if <code>TRUE</code>, indels are allowed in the alignments of 
+the suffixes of <code>Lpattern</code> with the subject, at its beginning 
+(see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>with.Rindels</th>
-      <td><p>same as <code>with.Lindels</code> but for alignments
-      of the prefixes of <code>Rpattern</code> with the subject, at its end
-      (see &#8216;Details&#8217;).</p></td>
+      <td><p>same as <code>with.Lindels</code> but for alignments of the 
+prefixes of <code>Rpattern</code> with the subject, at its end (see 
+&#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>minLength</th>
@@ -198,22 +209,38 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.<
     <tr>
       <th>complexity</th>
       <td><p><code>NULL</code> (default) or numeric(1): If not <code>NULL</code>,
-      the minimal sequence complexity, as a fraction of the average complexity
-      in the human genome (~3.9bits). For example, <code>complexity = 0.5</code> will
-      filter out sequences that do not have at least half the complexity of the
-      human genome. See &#8216;Details&#8217; on how the complexity is calculated.</p></td>
+the minimal sequence complexity, as a fraction of the average complexity
+in the human genome (~3.9bits). For example, <code>complexity = 0.5</code> will
+filter out sequences that do not have at least half the complexity of the
+human genome. See &#8216;Details&#8217; on how the complexity is calculated.</p></td>
     </tr>
     <tr>
       <th>nrec</th>
-      <td><p>integer(1): the number of sequence records to read at a
-      time.</p></td>
+      <td><p>integer(1): the number of sequence records to read at a time.</p></td>
     </tr>
     <tr>
       <th>clObj</th>
-      <td><p>a cluster object to be used for parallel processing of
-      multiple files (see &#8216;Details&#8217;).</p></td>
+      <td><p>a cluster object to be used for parallel processing of multiple 
+files (see &#8216;Details&#8217;).</p></td>
     </tr>
     </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A matrix with summary statistics on the processed sequences, containing:</p><ul>
+<li><p>One column per input file (or pair of input files for paired-end
+                                   experiments).</p></li>
+<li><p>The number of sequences or sequence pairs in rows:</p><ul>
+<li><p><code>totalSequences</code> - the total number in the input</p></li>
+<li><p><code>matchTo5pAdaptor</code> - matching to <code>Lpattern</code></p></li>
+<li><p><code>matchTo3pAdaptor</code> - matching to <code>Rpattern</code></p></li>
+<li><p><code>tooShort</code> - shorter than <code>minLength</code></p></li>
+<li><p><code>tooManyN</code> - more than <code>nBases</code> Ns</p></li>
+<li><p><code>lowComplexity</code> - relative complexity below <code>complexity</code></p></li>
+<li><p><code>totalPassed</code> - the number of sequences/sequence pairs
+      that pass all filtering criteria and were written to the output file(s).</p></li>
+</ul></li>
+</ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -249,47 +276,26 @@ composition using the formula (Shannon entropy): $$H = -\sum_i {f_i \log_2 f_i},
 where \(f_i\) is the fraction of dinucleotide \(i\) from all
 dinucleotides in the sequence. Sequence reads that fulfill the condition
 \(H/H_r \ge c\) are retained (not filtered out), where \(H_r =
-  3.908\) is the reference complexity in bits obtained from the human
+3.908\) is the reference complexity in bits obtained from the human
 genome, and \(c\) is the value given to the argument <code>complexity</code>.</p>
 <p>If an object that inherits from class <code>cluster</code> is provided to
 the <code>clObj</code> argument, for example an object returned by
 <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span>,
 multiple files will be processed in parallel using
 <code><a href='https://rdrr.io/r/parallel/clusterApply.html'>clusterMap</a></code> from package <span class="pkg">parallel</span>.</p>
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A matrix with summary statistics on the processed
-sequences, containing:</p><ul>
-<li><p>One column per input file (or pair of input files for paired-end
-  experiments).</p></li>
-<li><p>The number of sequences or sequence pairs in rows:</p><ul>
-<li><p><code>totalSequences</code> - the total number in the input</p></li>
-<li><p><code>matchTo5pAdaptor</code> - matching to <code>Lpattern</code></p></li>
-<li><p><code>matchTo3pAdaptor</code> - matching to <code>Rpattern</code></p></li>
-<li><p><code>tooShort</code> - shorter than <code>minLength</code></p></li>
-<li><p><code>tooManyN</code> - more than <code>nBases</code> Ns</p></li>
-<li><p><code>lowComplexity</code> - relative complexity below
-    <code>complexity</code></p></li>
-<li><p><code>totalPassed</code> - the number of sequences/sequence pairs
-    that pass all filtering criteria and were written to the output
-    file(s).</p></li>
-</ul></li>
-</ul>
-
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
-
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/Biostrings/man/trimLRPatterns.html'>trimLRPatterns</a></code> from package <span class="pkg">Biostrings</span>,
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># sample files</span>
 <span class='va'>infiles</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span>,
                        <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"rna_1_1.fq.bz2"</span>,<span class='st'>"rna_1_2.fq.bz2"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>outfiles</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span>pattern<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"output_1_"</span>,<span class='st'>"output_2_"</span><span class='op'>)</span><span class='op'>)</span>,<span class='st'>".fastq"</span>,sep<span class='op'>=</span><span class='st'>""</span><span class='op'>)</span>
-
 <span class='co'># single read example</span>
 <span class='fu'>preprocessReads</span><span class='op'>(</span><span class='va'>infiles</span>, <span class='va'>outfiles</span>, nBases<span class='op'>=</span><span class='fl'>0</span>, complexity<span class='op'>=</span><span class='fl'>0.6</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_1.fq.bz2</span></div><div class='output co'>#&gt; <span class='message'>  filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_2.fq.bz2</span></div><div class='output co'>#&gt;                  rna_1_1.fq.bz2 rna_1_2.fq.bz2
@@ -300,7 +306,6 @@ sequences, containing:</p><ul>
 #&gt; tooManyN                      3              0
 #&gt; lowComplexity                 0              0
 #&gt; totalPassed                2999           3002</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='va'>outfiles</span><span class='op'>)</span>
-
 <span class='co'># paired-end example</span>
 <span class='fu'>preprocessReads</span><span class='op'>(</span>filename<span class='op'>=</span><span class='va'>infiles</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span>,
                 outputFilename<span class='op'>=</span><span class='va'>outfiles</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span>,
@@ -316,6 +321,7 @@ sequences, containing:</p><ul>
 #&gt; tooManyN                                     3
 #&gt; lowComplexity                                0
 #&gt; totalPassed                               2999</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='va'>outfiles</span><span class='op'>)</span>
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -328,7 +334,7 @@ sequences, containing:</p><ul>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

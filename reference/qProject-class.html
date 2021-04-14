@@ -41,8 +41,8 @@
 
 <meta property="og:title" content="qProject objects — qProject-class" />
 <meta property="og:description" content="The qProject class is a container for the meta-data (e.g. sample
-  names, paths and names of sequence and alignment files) associated
-  with a high-throughput sequencing experiment analyzed with QuasR." />
+names, paths and names of sequence and alignment files) associated
+with a high-throughput sequencing experiment analyzed with QuasR." />
 
 
 
@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -115,104 +115,98 @@
 
     <div class="ref-description">
     <p>The qProject class is a container for the meta-data (e.g. sample
-  names, paths and names of sequence and alignment files) associated
-  with a high-throughput sequencing experiment analyzed with <code>QuasR</code>.</p>
+names, paths and names of sequence and alignment files) associated
+with a high-throughput sequencing experiment analyzed with <code>QuasR</code>.</p>
     </div>
 
 
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The qProject class is returned by <a href='qAlign.html'>qAlign</a> and stores all
-  information on a high-throughput sequencing experiment analyzed with
-  <code>QuasR</code>. qProject objects can be conveniently passed to
-  &#8216;q&#8217;-functions (function name starting with the letter
-  &#8216;q&#8217;). The information is stored in the following slots:</p><dl>
-    <dt><code>reads</code></dt><dd><p>a 'data.frame' with sequence read files.</p></dd>
-    <dt><code>reads_md5subsum</code></dt><dd><p>a 'data.frame' with fingerprints for
-      sequence read files.</p></dd>
-    <dt><code>alignments</code></dt><dd><p>a 'data.frame' with alignment files.</p></dd>
-    <dt><code>samplesFormat</code></dt><dd><p>a 'character(1)' specifying the format
-      of input files.</p></dd>
-    <dt><code>genome</code></dt><dd><p>a 'character(1)' specifying the reference genome.</p></dd>
-    <dt><code>genomeFormat</code></dt><dd><p>a 'character(1)' specifying the format of
-      the reference genome.</p></dd>
-    <dt><code>aux</code></dt><dd><p>a 'data.frame' with auxiliary reference sequence files.</p></dd>
-    <dt><code>auxAlignments</code></dt><dd><p>a 'data.frame' with alignment files for
-      auxiliary reference sequence files.</p></dd>
-    <dt><code>aligner</code></dt><dd><p>a 'character(1)' specifying the aligner.</p></dd>
-    <dt><code>maxHits</code></dt><dd><p>a 'numeric(1)' specifying the maximum number
-      of alignments per sequence.</p></dd>
-    <dt><code>paired</code></dt><dd><p>a 'character(1)' specifying the paired-type;
-      one of "no", "fr", "rf", "ff".</p></dd>
-    <dt><code>splicedAlignment</code></dt><dd><p>a 'logical(1)'; <code>TRUE</code> when
-      performing spliced-alignments.</p></dd>
-    <dt><code>snpFile</code></dt><dd><p>a 'character(1)' with a file name containing
-      SNP information.</p></dd>
-    <dt><code>bisulfite</code></dt><dd><p>a 'character(1)' defining the bisulfite
+    <p>The qProject class is returned by <a href='qAlign.html'>qAlign</a> and stores all 
+information on a high-throughput sequencing experiment analyzed with
+<code>QuasR</code>. qProject objects can be conveniently passed to
+&#8216;q&#8217;-functions (function name starting with the letter
+&#8216;q&#8217;). The information is stored in the following slots:</p><dl>
+  <dt><code>reads</code></dt><dd><p>a 'data.frame' with sequence read files.</p></dd>
+  <dt><code>reads_md5subsum</code></dt><dd><p>a 'data.frame' with fingerprints for
+  sequence read files.</p></dd>
+  <dt><code>alignments</code></dt><dd><p>a 'data.frame' with alignment files.</p></dd>
+  <dt><code>samplesFormat</code></dt><dd><p>a 'character(1)' specifying the format
+  of input files.</p></dd>
+  <dt><code>genome</code></dt><dd><p>a 'character(1)' specifying the reference genome.</p></dd>
+  <dt><code>genomeFormat</code></dt><dd><p>a 'character(1)' specifying the format of
+  the reference genome.</p></dd>
+  <dt><code>aux</code></dt><dd><p>a 'data.frame' with auxiliary reference sequence files.</p></dd>
+  <dt><code>auxAlignments</code></dt><dd><p>a 'data.frame' with alignment files for
+  auxiliary reference sequence files.</p></dd>
+  <dt><code>aligner</code></dt><dd><p>a 'character(1)' specifying the aligner.</p></dd>
+  <dt><code>maxHits</code></dt><dd><p>a 'numeric(1)' specifying the maximum number
+  of alignments per sequence.</p></dd>
+  <dt><code>paired</code></dt><dd><p>a 'character(1)' specifying the paired-type;
+  one of "no", "fr", "rf", "ff".</p></dd>
+  <dt><code>splicedAlignment</code></dt><dd><p>a 'logical(1)'; <code>TRUE</code> when
+  performing spliced-alignments.</p></dd>
+  <dt><code>snpFile</code></dt><dd><p>a 'character(1)' with a file name containing
+  SNP information.</p></dd>
+  <dt><code>bisulfite</code></dt><dd><p>a 'character(1)' defining the bisulfite
   type; one of "no", "dir", "undir".</p></dd>
-    <dt><code>alignmentParameter</code></dt><dd><p>a 'character(1)' with aligner
-      command line parameters.</p></dd>
-    <dt><code>projectName</code></dt><dd><p>a 'character(1)' with the project name.</p></dd>
-    <dt><code>alignmentsDir</code></dt><dd><p>a 'character(1)' with the directory to
-      be used to store alignment files.</p></dd>
-    <dt><code>lib.loc</code></dt><dd><p>a 'character(1)' with the library directory to
-      use for installing of alignment index packages.</p></dd>
-    <dt><code>cacheDir</code></dt><dd><p>a 'character(1)' with a directory to use for
-      temporary files.</p></dd>
-    <dt><code>alnModeID</code></dt><dd><p>a 'character(1)' used internally to indicate
-      the alignment mode.</p></dd>
-  
+  <dt><code>alignmentParameter</code></dt><dd><p>a 'character(1)' with aligner
+  command line parameters.</p></dd>
+  <dt><code>projectName</code></dt><dd><p>a 'character(1)' with the project name.</p></dd>
+  <dt><code>alignmentsDir</code></dt><dd><p>a 'character(1)' with the directory to
+  be used to store alignment files.</p></dd>
+  <dt><code>lib.loc</code></dt><dd><p>a 'character(1)' with the library directory to
+  use for installing of alignment index packages.</p></dd>
+  <dt><code>cacheDir</code></dt><dd><p>a 'character(1)' with a directory to use for
+  temporary files.</p></dd>
+  <dt><code>alnModeID</code></dt><dd><p>a 'character(1)' used internally to indicate
+  the alignment mode.</p></dd>
+
 </dl>
 
     <h2 class="hasAnchor" id="accessors"><a class="anchor" href="#accessors"></a>Accessors</h2>
 
-    <p>In the following code snippets, <code>x</code> is a qProject object.</p>
-<p></p><dl>
-    <dt></dt><dd><p><code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code>:
-      Gets the number of input files.</p></dd>
-    %    \item{}{
-    %      \code{sampleNames(x)}, \code{samplesNames(x) &lt;- value}:
-    %      Gets or sets the sample names associated to input files.
-    %      \code{value} can be a character vector or a factor.
-    %    }
-    <dt></dt><dd><p><code>genome(x)</code>:
-      Gets the reference genome as a 'character(1)'. The type of genome
-      is stored as an attribute in
-      <code><a href='https://rdrr.io/r/base/attr.html'>attr(genome(x),"genomeFormat")</a></code>: "BSgenome" indicates that
-      <code>genome(x)</code> refers to the name of a BSgenome package, "file"
-      indicates that it contains the path and filename of a genome in
-      FASTA format.</p></dd>
-    <dt></dt><dd><p><code>auxiliaries(x)</code>:
-      Gets a <code>data.frame</code> with auxiliary target sequences, with one
-      row per auxiliary target, and columns "FileName" and "AuxName".</p></dd>
-    <dt></dt><dd><p><code>alignments(x)</code>:
-      Gets a list with two elements "genome" and
-      "aux". <code>alignments(x)$genome</code> contains a <code>data.frame</code>
-      with <code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code> rows and the columns "FileName" (containing
-      the path to bam files with genomic alignments) and
-      "SampleName". <code>alignments(x)$aux</code> contains a
-      <code>data.frame</code> with one row per auxiliary target sequence (with
-      auxiliary names as row names), and <code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code> columns.</p></dd>
-  
+    
+
+<p>In the following code snippets, <code>x</code> is a qProject object.</p><dl>
+  <dt></dt><dd><p><code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code>: Gets the number of input files.</p></dd>
+  <dt></dt><dd><p><code>genome(x)</code>: Gets the reference genome as a 'character(1)'. 
+  The type of genome is stored as an attribute in
+  <code><a href='https://rdrr.io/r/base/attr.html'>attr(genome(x),"genomeFormat")</a></code>: "BSgenome" indicates that
+  <code>genome(x)</code> refers to the name of a BSgenome package, "file"
+  indicates that it contains the path and filename of a genome in
+  FASTA format.</p></dd>
+  <dt></dt><dd><p><code>auxiliaries(x)</code>: Gets a <code>data.frame</code> with auxiliary 
+  target sequences, with one row per auxiliary target, and columns 
+  "FileName" and "AuxName".</p></dd>
+  <dt></dt><dd><p><code>alignments(x)</code>: Gets a list with two elements "genome" and
+  "aux". <code>alignments(x)$genome</code> contains a <code>data.frame</code> 
+  with <code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code> rows and the columns "FileName" (containing
+  the path to bam files with genomic alignments) and 
+  "SampleName". <code>alignments(x)$aux</code> contains a 
+  <code>data.frame</code> with one row per auxiliary target sequence (with
+  auxiliary names as row names), and <code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code> columns.</p></dd>
+
 </dl>
 
     <h2 class="hasAnchor" id="subsetting"><a class="anchor" href="#subsetting"></a>Subsetting</h2>
 
-    <p>In the following code snippets, <code>x</code> is a qProject object.</p>
-<p></p><dl>
-    <dt></dt><dd><p><code>x[i]</code>:
-      Get <code>qProject</code> object instance with <code>i</code> input files,
-      where <code>i</code> can be an NA-free logical, numeric, or character vector.</p></dd>
-  
+    
+
+<p>In the following code snippets, <code>x</code> is a qProject object.</p><dl>
+  <dt></dt><dd><p><code>x[i]</code>: Get <code>qProject</code> object instance with <code>i</code> 
+  input files, where <code>i</code> can be an NA-free logical, numeric, or 
+  character vector.</p></dd>
+
 </dl>
 
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
-
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><a href='qAlign.html'>qAlign</a></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
@@ -262,7 +256,8 @@
 #&gt; chip_2_1_3a1642e7e878.bam     95000   3609      505</div><div class='input'><span class='fu'><a href='alignmentStats.html'>alignmentStats</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='fu'>alignments</span><span class='op'>(</span><span class='va'>proj</span><span class='op'>)</span><span class='op'>$</span><span class='va'>aux</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                           seqlength mapped unmapped
 #&gt; chip_1_1_3a1677b1dddc.bam      5386    251        0
-#&gt; chip_2_1_3a163e5cd3e8.bam      5386    493        0</div></pre>
+#&gt; chip_2_1_3a163e5cd3e8.bam      5386    493        0</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -274,7 +269,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

@@ -40,7 +40,8 @@
 
 
 <meta property="og:title" content="Quantify alignments by relative position — qProfile" />
-<meta property="og:description" content="Quantify alignments from sequencing data, relative to their position in query regions." />
+<meta property="og:description" content="Quantify alignments from sequencing data, relative to their position in 
+query regions." />
 
 
 
@@ -72,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -112,233 +113,236 @@
     </div>
 
     <div class="ref-description">
-    <p>Quantify alignments from sequencing data, relative to their position in query regions.</p>
+    <p>Quantify alignments from sequencing data, relative to their position in 
+query regions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qProfile</span><span class='op'>(</span><span class='va'>proj</span>, 
-         <span class='va'>query</span>,
-         upstream<span class='op'>=</span><span class='fl'>1000</span>,
-         downstream<span class='op'>=</span><span class='va'>upstream</span>,
-         selectReadPosition<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
-         shift<span class='op'>=</span><span class='fl'>0L</span>,
-         orientation<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
-         useRead<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
-         auxiliaryName<span class='op'>=</span><span class='cn'>NULL</span>,
-         mask<span class='op'>=</span><span class='cn'>NULL</span>,
-         collapseBySample<span class='op'>=</span><span class='cn'>TRUE</span>,
-         includeSpliced<span class='op'>=</span><span class='cn'>TRUE</span>,
-         includeSecondary<span class='op'>=</span><span class='cn'>TRUE</span>,
-         mapqMin<span class='op'>=</span><span class='fl'>0L</span>,
-         mapqMax<span class='op'>=</span><span class='fl'>255L</span>,
-         absIsizeMin<span class='op'>=</span><span class='cn'>NULL</span>,
-         absIsizeMax<span class='op'>=</span><span class='cn'>NULL</span>,
-         maxInsertSize<span class='op'>=</span><span class='fl'>500L</span>,
-         binSize<span class='op'>=</span><span class='fl'>1L</span>,
-         clObj<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>qProfile</span><span class='op'>(</span>
+  <span class='va'>proj</span>,
+  <span class='va'>query</span>,
+  upstream <span class='op'>=</span> <span class='fl'>1000</span>,
+  downstream <span class='op'>=</span> <span class='va'>upstream</span>,
+  selectReadPosition <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
+  shift <span class='op'>=</span> <span class='fl'>0L</span>,
+  orientation <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
+  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
+  auxiliaryName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  mask <span class='op'>=</span> <span class='cn'>NULL</span>,
+  collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  includeSpliced <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  includeSecondary <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  mapqMin <span class='op'>=</span> <span class='fl'>0L</span>,
+  mapqMax <span class='op'>=</span> <span class='fl'>255L</span>,
+  absIsizeMin <span class='op'>=</span> <span class='cn'>NULL</span>,
+  absIsizeMax <span class='op'>=</span> <span class='cn'>NULL</span>,
+  maxInsertSize <span class='op'>=</span> <span class='fl'>500L</span>,
+  binSize <span class='op'>=</span> <span class='fl'>1L</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>proj</th>
-      <td><p>a <code><a href='qProject-class.html'>qProject</a></code> object representing a
-    sequencing experiment as returned by <code><a href='qAlign.html'>qAlign</a></code></p></td>
+      <td><p>A <code><a href='qProject-class.html'>qProject</a></code> object representing a 
+sequencing experiment as returned by <code><a href='qAlign.html'>qAlign</a></code></p></td>
     </tr>
     <tr>
       <th>query</th>
-      <td><p>an object of type <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
-    with the regions to be profiled. All regions in <code>query</code> will be
-    anchored at their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code> for
-    regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for
-    regions on strand &#8220;-&#8221;). This position will become position
-    zero in the return value.</p></td>
+      <td><p>An object of type <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
+with the regions to be profiled. All regions in <code>query</code> will be
+anchored at their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code> for
+regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for
+regions on strand &#8220;-&#8221;). This position will become position zero 
+in the return value.</p></td>
     </tr>
     <tr>
       <th>upstream</th>
-      <td><p>An &#8220;integer&#8221; vector of length one or the same
-    length as <code>query</code> indicating the number of bases upstream of the
-    anchor position to include in the profile.</p></td>
+      <td><p>An &#8220;integer&#8221; vector of length one or the same 
+length as <code>query</code> indicating the number of bases upstream of the 
+anchor position to include in the profile.</p></td>
     </tr>
     <tr>
       <th>downstream</th>
-      <td><p>An &#8220;integer&#8221; vector of length one or the same
-    length as <code>query</code> indicating the number of bases downstream of the
-    anchor position to include in the profile.</p></td>
+      <td><p>An &#8220;integer&#8221; vector of length one or the same 
+length as <code>query</code> indicating the number of bases downstream of the
+anchor position to include in the profile.</p></td>
     </tr>
     <tr>
       <th>selectReadPosition</th>
-      <td><p>defines the part of the alignment that has
-    to be contained within a query region to produce an overlap (see
-    Details), and that is used to calculate the relative position within
-    the query region. Possible values are:</p><ul>
+      <td><p>defines the part of the alignment that has to be 
+contained within a query region to produce an overlap (see Details), and 
+that is used to calculate the relative position within the query region. 
+Possible values are:</p><ul>
 <li><p><code>start</code> (default): start of the alignment</p></li>
 <li><p><code>end</code>: end of the alignment</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>shift</th>
-      <td><p>controls the shifting alignments towards their 3'-end before
-    quantification. <code>shift</code> can be one of:</p><ul>
+      <td><p>controls the shifting alignments towards their 3'-end before 
+quantification. <code>shift</code> can be one of:</p><ul>
 <li><p>an &#8220;integer&#8221; vector of the same length as the
-      number of alignment files</p></li>
+  number of alignment files</p></li>
 <li><p>a single &#8220;integer&#8221; value</p></li>
 <li><p>the character string <code>"halfInsert"</code> (only available for
-      paired-end experiments)</p></li>
+  paired-end experiments)</p></li>
 </ul><p>The default of <code>0</code> will not shift any alignments.</p></td>
     </tr>
     <tr>
       <th>orientation</th>
-      <td><p>sets the required orientation of the alignments relative to the query
-    region in order to be counted, one of:</p><ul>
+      <td><p>sets the required orientation of the alignments relative 
+to the query region in order to be counted, one of:</p><ul>
 <li><p><code>any</code> (default): count alignment on the same and opposite strand</p></li>
 <li><p><code>same</code> : count only alignment on the same strand</p></li>
 <li><p><code>opposite</code> : count only alignment on the opposite strand</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>useRead</th>
-      <td><p>For paired-end experiments, selects the read mate whose
-    alignments should be counted, one of:</p><ul>
+      <td><p>For paired-end experiments, selects the read mate whose 
+alignments should be counted, one of:</p><ul>
 <li><p><code>any</code> (default): count all alignments</p></li>
 <li><p><code>first</code> : count only alignments from the first read</p></li>
 <li><p><code>last</code> : count only alignments from the last read</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>auxiliaryName</th>
-      <td><p>which bam files to use in an experiments with
-    auxiliary alignments (see Details).</p></td>
+      <td><p>Which bam files to use in an experiments with 
+auxiliary alignments (see Details).</p></td>
     </tr>
     <tr>
       <th>mask</th>
-      <td><p>If not <code>NULL</code>, a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
-    object with reference regions to be masked, i.e. excluded from the
-    quantification, such as unmappable or highly repetitive regions (see
-    Details).</p></td>
+      <td><p>If not <code>NULL</code>, a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> 
+object with reference regions to be masked, i.e. excluded from the 
+quantification, such as unmappable or highly repetitive regions (see 
+Details).</p></td>
     </tr>
     <tr>
       <th>collapseBySample</th>
-      <td><p>if <code>TRUE</code> (the default), sum alignment
-    counts from bam files with the same sample name.</p></td>
+      <td><p>If <code>TRUE</code> (the default), sum alignment 
+counts from bam files with the same sample name.</p></td>
     </tr>
     <tr>
       <th>includeSpliced</th>
-      <td><p>if <code>TRUE</code> (the default), include spliced
-    alignments when counting. A spliced alignment is defined as an
-    alignment with a gap in the read of at least 60 bases.</p></td>
+      <td><p>If <code>TRUE</code> (the default), include spliced 
+alignments when counting. A spliced alignment is defined as an 
+alignment with a gap in the read of at least 60 bases.</p></td>
     </tr>
     <tr>
       <th>includeSecondary</th>
-      <td><p>if <code>TRUE</code> (the default), include alignments
-    with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></td>
+      <td><p>If <code>TRUE</code> (the default), include alignments 
+with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></td>
     </tr>
     <tr>
       <th>mapqMin</th>
-      <td><p>minimal mapping quality of alignments to be included when
-    counting (mapping quality must be greater than or equal to
-    <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
-    will include all alignments.</p></td>
+      <td><p>Minimal mapping quality of alignments to be included when 
+counting (mapping quality must be greater than or equal to <code>mapqMin</code>). 
+Valid values are between 0 and 255. The default (0) will include all 
+alignments.</p></td>
     </tr>
     <tr>
       <th>mapqMax</th>
-      <td><p>maximal mapping quality of alignments to be included when
-    counting (mapping quality must be less than or equal to <code>mapqMax</code>).
-    Valid values are between 0 and 255. The default (255) will include
-    all alignments.</p></td>
+      <td><p>Maximal mapping quality of alignments to be included when 
+counting (mapping quality must be less than or equal to <code>mapqMax</code>).
+Valid values are between 0 and 255. The default (255) will include all 
+alignments.</p></td>
     </tr>
     <tr>
       <th>absIsizeMin</th>
-      <td><p>For paired-end experiments, minimal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be included when
-    counting. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any minimum insert size filtering.</p></td>
+      <td><p>For paired-end experiments, minimal absolute insert 
+size (TLEN field in SAM Spec v1.4) of alignments to be included when 
+counting. Valid values are greater than 0 or <code>NULL</code> (default), 
+which will not apply any minimum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>absIsizeMax</th>
-      <td><p>For paired-end experiments, maximal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be included when
-    counting. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any maximum insert size filtering.</p></td>
+      <td><p>For paired-end experiments, maximal absolute insert 
+size (TLEN field in SAM Spec v1.4) of alignments to be included when 
+counting. Valid values are greater than 0 or <code>NULL</code> (default), 
+which will not apply any maximum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>maxInsertSize</th>
-      <td><p>Maximal fragment size of the paired-end experiment. 
-    This parameter is used if <code>shift="halfInsert"</code> and will
-    ensure that query regions are made wide enough to emcompass all
-    alignment pairs whose mid falls into the query region. The default
-    value is <code>500</code> bases.</p></td>
+      <td><p>Maximal fragment size of the paired-end experiment.
+This parameter is used if <code>shift="halfInsert"</code> and will ensure that 
+query regions are made wide enough to emcompass all alignment pairs whose 
+mid falls into the query region. The default value is <code>500</code> bases.</p></td>
     </tr>
     <tr>
       <th>binSize</th>
       <td><p>Numeric scalar giving the size of bins (must be an odd number).
-    The default value (<code>1</code>) gives back counts for single bases. Otherwise,
-    alignments are counted in adjacent, non-overlapping windows of size <code>binSize</code>
-    that tile the interval defined by <code>upstream</code> and <code>downstream</code>.</p></td>
+The default value (<code>1</code>) gives back counts for single bases. Otherwise,
+alignments are counted in adjacent, non-overlapping windows of size 
+<code>binSize</code> that tile the interval defined by <code>upstream</code> and 
+<code>downstream</code>.</p></td>
     </tr>
     <tr>
       <th>clObj</th>
-      <td><p>a cluster object to be used for parallel processing (see
-    &#8216;Details&#8217;).</p></td>
+      <td><p>A cluster object to be used for parallel processing (see 
+&#8216;Details&#8217;).</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p><code>qProfile</code> is used to count alignments in each sample from a
-  <code>qProject</code> object, relative to their position in query regions.</p>  
-<p>Most arguments are identical to the ones of <code><a href='qCount.html'>qCount</a></code>.</p>
-<p>The <code>query</code> argument is a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
-  object that defines the regions for the profile. All regions in
-  <code>query</code> will be aligned to one another at their anchor position,
-  which corresponds to their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code>
-  for regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for
-  regions on strand &#8220;-&#8221;).</p>  
-<p>This anchor position will be extended (with regard to strand) by
-  the number of bases specified by <code>upstream</code> and <code>downstream</code>.
-  In the return value, the anchor position will be at position zero.</p>
-<p>If <code>binSize</code> is greater than one, <code>upstream</code> and <code>downstream</code>
-  will be slightly increased in order to include the complete first and last
-  bins of <code>binSize</code> bases.</p>  
-<p>Regions with identical names in <code>names{query}</code> will be summed, and
-  profiles will be padded with zeros to accomodate the length of all 
-  profiles.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>list</code> of matrices with <code><a href='https://rdrr.io/r/base/length.html'>length(unique(names(query)))</a></code> rows
-  with profile names, and <code>max(upstream)+max(downstream)+1</code> columns
-  indicating relative position (for <code>binsize=1</code>).</p>  
+with profile names, and <code>max(upstream)+max(downstream)+1</code> columns
+indicating relative position (for <code>binsize=1</code>).</p>
 <p>For <code>binSize</code> values greater than 1, the number of columns corresponds to
-  the number of bins (tiles), namely <code>ceiling(max(upstream)/binSize)+ceiling(max(downstream)/binSize)</code>.
-  A middle bin of size <code>binSize</code> is always positioned centered at the anchor
-  of each region. Additional bins are positioned upstream and downstream, adjacent
-  to that middle bin, in order to include at least <code>upstream</code> and
-  <code>downstream</code> bases, respectively (potentially more in order to fill the first
-  and last bins).</p>  
+the number of bins (tiles), namely 
+<code>ceiling(max(upstream)/binSize)+ceiling(max(downstream)/binSize)</code>.
+A middle bin of size <code>binSize</code> is always positioned centered at the anchor
+of each region. Additional bins are positioned upstream and downstream, adjacent
+to that middle bin, in order to include at least <code>upstream</code> and
+<code>downstream</code> bases, respectively (potentially more in order to fill the 
+first and last bins).</p>
 <p>The relative positions are given as column names (for <code>binSize &gt; 1</code>
-  they refer to the bin mid). In that case, the bins are "right-open". For
-  example, if <code>binSize = 10</code>, the bin with the midpoint "-50" contains
-  counts for the alignments in [-55,-45).</p>
+they refer to the bin mid). In that case, the bins are "right-open". For
+example, if <code>binSize = 10</code>, the bin with the midpoint "-50" contains
+counts for the alignments in [-55,-45).</p>
 <p>The first list element is called &#8220;coverage&#8221; and contains, for each
-  profile and relative position, the number of overlapping regions
-  that contributed to the profile.</p>  
+profile and relative position, the number of overlapping regions
+that contributed to the profile.</p>
 <p>Subsequent list elements contain the alignment counts for individual
-  sequence files (<code>collapseBySample=FALSE</code>) or samples
-  (<code>collapseBySample=TRUE</code>) in <code>proj</code>.</p>
+sequence files (<code>collapseBySample=FALSE</code>) or samples 
+(<code>collapseBySample=TRUE</code>) in <code>proj</code>.</p>
 <p>For projects with allele-specific quantification, i.e. if a file with
-  single nucleotide polymorphisms was supplied to the <code>snpFile</code>
-  argument of <code><a href='qAlign.html'>qAlign</a></code>, there will be three rows
-  instead of one row with counts per unique region name, with numbers
-  of alignments for Reference, Unknown and Alternative genotypes
-  (suffixed _R, _U and _A).</p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+single nucleotide polymorphisms was supplied to the <code>snpFile</code>
+argument of <code><a href='qAlign.html'>qAlign</a></code>, there will be three rows
+instead of one row with counts per unique region name, with numbers
+of alignments for Reference, Unknown and Alternative genotypes
+(suffixed _R, _U and _A).</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
+    <p><code>qProfile</code> is used to count alignments in each sample from a 
+<code>qProject</code> object, relative to their position in query regions.</p>
+<p>Most arguments are identical to the ones of <code><a href='qCount.html'>qCount</a></code>.</p>
+<p>The <code>query</code> argument is a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
+object that defines the regions for the profile. All regions in
+<code>query</code> will be aligned to one another at their anchor position,
+which corresponds to their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code>
+for regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for 
+regions on strand &#8220;-&#8221;).</p>
+<p>This anchor position will be extended (with regard to strand) by
+the number of bases specified by <code>upstream</code> and <code>downstream</code>.
+In the return value, the anchor position will be at position zero.</p>
+<p>If <code>binSize</code> is greater than one, <code>upstream</code> and <code>downstream</code>
+will be slightly increased in order to include the complete first and last
+bins of <code>binSize</code> bases.</p>
+<p>Regions with identical names in <code>names{query}</code> will be summed, and
+profiles will be padded with zeros to accomodate the length of all profiles.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qCount.html'>qCount</a></code>,
-  <code><a href='qAlign.html'>qAlign</a></code>,
-  <code><a href='qProject-class.html'>qProject</a></code>,
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+<code><a href='qAlign.html'>qAlign</a></code>,
+<code><a href='qProject-class.html'>qProject</a></code>,
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
@@ -412,7 +416,8 @@
 #&gt; ENST00000328596     0    0    0    0    0
 #&gt; ENST00000379265     0    0    0    0    0
 #&gt; ENST00000379268     0    0    0    0    0
-#&gt; </div></pre>
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -424,7 +429,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

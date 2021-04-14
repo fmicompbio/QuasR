@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
                         <h4 class="author">Charlotte Soneson</h4>
                         <h4 class="author">Anita Lerch</h4>
             
-            <h4 class="date">11 February, 2021</h4>
+            <h4 class="date">14 April, 2021</h4>
       
       
       <div class="hidden name"><code>QuasR.Rmd</code></div>
@@ -218,9 +218,9 @@
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b683312d4dd8.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_2040ea7af9d.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj</span></code></pre></div>
@@ -239,8 +239,8 @@
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b6831551b921.bam
-##    2. chip_2_1_b68328513076.bam
+##    1. chip_1_1_204022fa73ef.bam
+##    2. chip_2_1_204068d161d9.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The <code>proj</code> object keeps track of all the information of a sequencing experiment, for example where sequence and alignment files are stored, and what aligner and reference genome was used to generate the alignments.</p>
@@ -439,6 +439,11 @@ NC_001422.1.fa  phiX174
 <p><strong>a string</strong>, referring to the name of a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> package:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BSgenome/man/available.genomes.html">available.genomes</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code>## 'getOption("repos")' replaces Bioconductor standard repositories, see
+## '?repositories' for details
+## 
+## replacement repositories:
+##     CRAN: https://cloud.r-project.org</code></pre>
 <pre><code>##   [1] "BSgenome.Alyrata.JGI.v1"                  
 ##   [2] "BSgenome.Amellifera.BeeBase.assembly4"    
 ##   [3] "BSgenome.Amellifera.NCBI.AmelHAv3.1"      
@@ -541,7 +546,7 @@ NC_001422.1.fa  phiX174
 ## [100] "BSgenome.Vvinifera.URGI.IGGP12Xv0"        
 ## [101] "BSgenome.Vvinifera.URGI.IGGP12Xv2"        
 ## [102] "BSgenome.Vvinifera.URGI.IGGP8X"</code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">genomeName</span> <span class="op">&lt;-</span> <span class="st">"BSgenome.Hsapiens.UCSC.hg19"</span></code></pre></div>
 </li>
 </ul>
@@ -549,7 +554,7 @@ NC_001422.1.fa  phiX174
 <ul>
 <li>
 <p><strong>a file name</strong>, referring to a sequence file containing one or several reference sequences (e.g. chromosomes) in <code>fasta</code> format:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span>, <span class="st">"hg19sub.fa"</span><span class="op">)</span></code></pre></div>
 </li>
 </ul>
@@ -566,7 +571,7 @@ NC_001422.1.fa  phiX174
 <a href="#preProcessing" class="anchor"></a>Sequence data pre-processing</h2>
 <p>The <code>preprocessReads</code> function can be used to prepare the input sequence files prior to alignment. The function takes one or several sequence files (or pairs of files for a paired-end experiment) in <code>fasta</code> or <code>fastq</code> format as input and produces the same number of output files with the processed reads.</p>
 <p>In the following example, we truncate the reads by removing the three bases from the 3’-end (the right side), remove the adapter sequence <code>AAAAAAAAAA</code> from the 5’-end (the left side) and filter out reads that, after truncation and adapter removal, are shorter than 14 bases or contain more than 2 <code>N</code> bases:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">td</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">infiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span>,
                        <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"rna_1_1.fq.bz2"</span>,<span class="st">"rna_2_1.fq.bz2"</span><span class="op">)</span><span class="op">)</span>
@@ -579,7 +584,7 @@ NC_001422.1.fa  phiX174
                        nBases <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <pre><code>##   filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_1.fq.bz2</code></pre>
 <pre><code>##   filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_2_1.fq.bz2</code></pre>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res</span></code></pre></div>
 <pre><code>##                  rna_1_1.fq.bz2 rna_2_1.fq.bz2
 ## totalSequences             3002           3000
@@ -589,11 +594,11 @@ NC_001422.1.fa  phiX174
 ## tooManyN                      0              0
 ## lowComplexity                 0              0
 ## totalPassed                2895           2909</code></pre>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html">unlink</a></span><span class="op">(</span><span class="va">outfiles</span><span class="op">)</span></code></pre></div>
 <p><code>preprocessReads</code> returns a matrix with a summary of the pre-processing. The matrix contains one column per (pair of) input sequence files, and contains the total number of reads (<code>totalSequences</code>), the number of reads that matched to the five prime or three prime adapters (<code>matchTo5pAdapter</code> and <code>matchTo3pAdapter</code>), the number of reads that were too short (<code>tooShort</code>), contained too many non-base characters (<code>tooManyN</code>) or were of low sequence complexity (<code>lowComplexity</code>, deactivated by default). Finally, the number of reads that passed the filtering steps is reported in the last row (<code>totalPassed</code>).</p>
 <p>In the example below we process paired-end reads, removing all pairs with one or several <code>N</code> bases. Even if only one sequence in a pair fulfills the filtering criteria, both reads in the pair are removed, thereby preserving the matching order of the sequences in the two files:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">td</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">infiles1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span>, <span class="st">"rna_1_1.fq.bz2"</span><span class="op">)</span>
 <span class="va">infiles2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span>, <span class="st">"rna_1_2.fq.bz2"</span><span class="op">)</span>
@@ -606,7 +611,7 @@ NC_001422.1.fa  phiX174
                        nBases<span class="op">=</span><span class="fl">0</span><span class="op">)</span></code></pre></div>
 <pre><code>##   filtering /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_1.fq.bz2 and
 ##     /Users/runner/work/_temp/Library/QuasR/extdata/rna_1_2.fq.bz2</code></pre>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res</span></code></pre></div>
 <pre><code>##                  rna_1_1.fq.bz2:rna_1_2.fq.bz2
 ## totalSequences                            3002
@@ -626,7 +631,7 @@ NC_001422.1.fa  phiX174
 <h2 class="hasAnchor">
 <a href="#ChIPseq" class="anchor"></a>ChIP-seq: Measuring protein-DNA binding and chromatin modifications</h2>
 <p>Here we show an exemplary single-end ChIP-seq workflow using a small number of reads from a histone 3 lysine 4 trimethyl (H3K4me3) ChIP-seq experiment. This histone modification is known to locate to genomic regions with a high density of CpG dinucleotides (so called CpG islands); about 60% of mammalian genes have such a CpG island close to their transcript start site. All necessary files are included in the <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> package, and we start the example workflow by copying those files into the current working directly, into a subfolder called <code>"extdata"</code>:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div id="align-reads-using-the-qalign-function" class="section level3">
@@ -634,7 +639,7 @@ NC_001422.1.fa  phiX174
 <a href="#align-reads-using-the-qalign-function" class="anchor"></a>Align reads using the <code>qAlign</code> function</h3>
 <p>We assume that the sequence reads have already been pre-processed as described in section @ref(preProcessing). Also, a sample file (section @ref(sampleFile)) that lists all sequence files to be analyzed has been prepared. A <code>fasta</code> file with the reference genome sequence(s) is also available (section @ref(genome)), as well as an auxiliary file for alignment of reads that failed to match the reference genome (section @ref(auxiliaryFile)).</p>
 <p>By default, newly generated <code>bam</code> files will be stored at the location of the input sequence files, which should be writable and have sufficient capacity (an alternative location can be specified using the <code>alignmentsDir</code> argument). Make also sure that you have sufficient temporary disk space for intermediate files in <code><a href="https://rdrr.io/r/base/tempfile.html">tempdir()</a></code> (see section @ref(qAlign)). We start by aligning the reads using <code>qAlign</code>:</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span>
 <span class="va">auxFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/auxiliaries.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
@@ -648,12 +653,12 @@ NC_001422.1.fa  phiX174
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:</code></pre>
 <pre><code>## nodeNames
-## Mac-1613056568279.local 
+## Mac-1618396043983.local 
 ##                       1</code></pre>
 <pre><code>## Performing auxiliary alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6833d761951.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_2040124fbbe8.txt
 ## Auxiliary alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1</span></code></pre></div>
 <pre><code>## Project: qProject
 ##  Options   : maxHits         : 1
@@ -670,24 +675,24 @@ NC_001422.1.fa  phiX174
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b6831551b921.bam
-##    2. chip_2_1_b68328513076.bam
+##    1. chip_1_1_204022fa73ef.bam
+##    2. chip_2_1_204068d161d9.bam
 ## 
 ##  Aux. alignments: 1 file, directory: same as reads
 ##    a. /Users/runner/work/QuasR/QuasR/vignettes/extdata/NC_001422.1.fa    phiX174
-##      1. chip_1_1_b6831478345d.bam
-##      2. chip_2_1_b6835fb5d02a.bam</code></pre>
+##      1. chip_1_1_204030b985bc.bam
+##      2. chip_2_1_204063fb12a1.bam</code></pre>
 <p><code>qAlign</code> will build alignment indices if they do not yet exist (by default, if the genome and auxiliary sequences are given in the form of <code>fasta</code> files, they will be stored in the same folder). The <code>qProject</code> object (<code>proj1</code>) returned by <code>qAlign</code> now contains all information about the ChIP-seq experiment: the (optional) project name, the project options, aligner package, reference genome, and at the bottom the sequence and alignment files. For each input sequence file, there will be one <code>bam</code> file with alignments against the reference genome, and one for each auxiliary target sequence with alignments of reads without genome hits. Our <code>auxFile</code> contains a single auxiliary target sequence, so we expect two <code>bam</code> files per input sequence file:</p>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern<span class="op">=</span><span class="st">".bam$"</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_b6831478345d.bam"     "chip_1_1_b6831551b921.bam"    
-## [3] "chip_2_1_b68328513076.bam"     "chip_2_1_b6835fb5d02a.bam"    
+<pre><code>## [1] "chip_1_1_204022fa73ef.bam"     "chip_1_1_204030b985bc.bam"    
+## [3] "chip_2_1_204063fb12a1.bam"     "chip_2_1_204068d161d9.bam"    
 ## [5] "phiX_paired_withSecondary.bam"</code></pre>
 <p>The <code>bam</code> file names consist of the base name of the sequence file with an added random string. The random suffix makes sure that newly generated alignment files do not overwrite existing ones, for example of the same reads aligned against an alternative reference genome. Each alignment file is accompanied by two additional files with suffixes <code>.bai</code> and <code>.txt</code>:</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern<span class="op">=</span><span class="st">"^chip_1_1_"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_b6831478345d.bam"     "chip_1_1_b6831478345d.bam.bai"
-## [3] "chip_1_1_b6831478345d.bam.txt"</code></pre>
+<pre><code>## [1] "chip_1_1_204022fa73ef.bam"     "chip_1_1_204022fa73ef.bam.bai"
+## [3] "chip_1_1_204022fa73ef.bam.txt"</code></pre>
 <p>The <code>.bai</code> file is the <code>bam</code> index used for fast access by genomic coordinate. The <code>.txt</code> file contains all the parameters used to generate the corresponding <code>bam</code> file. Before new alignments are generated, <code>qAlign</code> will look for available <code>.txt</code> files in default locations (the directory containing the input sequence file, or the value of <code>alignmentsDir</code>), and read their contents to determine if a compatible <code>bam</code> file already exists. A compatible <code>bam</code> file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible <code>bam</code> file is not found, or the <code>.txt</code> file is missing, <code>qAlign</code> will generate a new <code>bam</code> file. It is therefore recommended not to delete the <code>.txt</code> file - without it, the corresponding <code>bam</code> file will become unusable for <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em>.</p>
 </div>
 <div id="create-a-quality-control-report" class="section level3">
@@ -696,7 +701,7 @@ NC_001422.1.fa  phiX174
 <p><em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> can produce a quality control report in the form of a series of diagnostic plots with details on sequences and alignments (see QuasR scheme figure above). The plots are generated by calling the <code>qQCReport</code> function with the <code>qProject</code> object as argument. <code>qQCReport</code> uses <em><a href="https://bioconductor.org/packages/3.13/ShortRead">ShortRead</a></em> <span class="citation">(Morgan et al. 2009)</span> internally to obtain some of the quality metrics, and some of the plots are inspired by the FastQC quality control tool by Simon Andrews (<a href="http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/" class="uri">http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/</a>). The plots will be stored into a multipage PDF document defined by the <code>pdfFilename</code> argument, or else shown as individual plot windows on the current graphics device. In order to keep the running time reasonably short, some quality metrics are obtained from a random sub-sample of the sequences or alignments.</p>
 <pre><code>## collecting quality control data</code></pre>
 <pre><code>## creating QC plots</code></pre>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/qQCReport.html">qQCReport</a></span><span class="op">(</span><span class="va">proj1</span>, pdfFilename<span class="op">=</span><span class="st">"extdata/qc_report.pdf"</span><span class="op">)</span></code></pre></div>
 <pre><code>## collecting quality control data</code></pre>
 <pre><code>## creating QC plots</code></pre>
@@ -706,7 +711,7 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#alignment-statistics" class="anchor"></a>Alignment statistics</h3>
 <p>The <code>alignmentStats</code> gets the number of (un-)mapped reads for each sequence file in a <code>qProject</code> object, by reading the <code>bam</code> file indices, and returns them as a <code>data.frame</code>. The function also works for arguments of type <code>character</code> with one or several <code>bam</code> file names (for details see section @ref(alignmentStats)).</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span></code></pre></div>
 <pre><code>##                 seqlength mapped unmapped
 ## Sample1:genome      95000   2339      258
@@ -718,7 +723,7 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#export-genome-wig-file-from-alignments" class="anchor"></a>Export genome wig file from alignments</h3>
 <p>For visualization in a genome browser, alignment coverage along the genome can be exported to a (compressed) wig file using the <code>qExportWig</code> function. The created fixedStep wig file (see (<a href="http://genome.ucsc.edu/goldenPath/help/wiggle.html" class="uri">http://genome.ucsc.edu/goldenPath/help/wiggle.html</a>) for details on the wig format) will contain one track per sample in the <code>qProject</code> object. The resolution is defined using the <code>binsize</code> argument, and if <code>scaling</code> is set to <code>TRUE</code>, read counts per bin are scaled by the total number of aligned reads in each sample to improve comparability:</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/qExportWig.html">qExportWig</a></span><span class="op">(</span><span class="va">proj1</span>, binsize<span class="op">=</span><span class="fl">100L</span>, scaling<span class="op">=</span><span class="cn">TRUE</span>, collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## collecting mapping statistics for scaling...done
 ## start creating wig files...
@@ -731,7 +736,7 @@ NC_001422.1.fa  phiX174
 <a href="#count-alignments-using-qcount" class="anchor"></a>Count alignments using <code>qCount</code>
 </h3>
 <p>Alignments are quantified using <code>qCount</code>, for example using a <code>GRanges</code> object as a query. In our H3K4me3 ChIP-seq example, we expect the reads to occur around the transcript start site of genes. We can therefore construct suitable query regions using genomic intervals around the start sites of known genes. In the code below, this is achieved with help from the <em><a href="https://bioconductor.org/packages/3.13/GenomicFeatures">GenomicFeatures</a></em> package: We first create a <code>TxDb</code> object from a <code>.gtf</code> file with gene annotation. With the <code>promoters</code> function, we can then create the <code>GRanges</code> object with regions to be quantified. Finally, because most genes consist of multiple overlapping transcripts, we select the first transcript for each gene:</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicFeatures">GenomicFeatures</a></span><span class="op">)</span>
 <span class="va">annotFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub_annotation.gtf"</span>
 <span class="va">chrLen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanFa.html">scanFaIndex</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span>
@@ -745,7 +750,7 @@ NC_001422.1.fa  phiX174
 <pre><code>## Import genomic features from the file as a GRanges object ... OK
 ## Prepare the 'metadata' data frame ... OK
 ## Make the TxDb object ... OK</code></pre>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">promReg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicFeatures/man/transcripts.html">promoters</a></span><span class="op">(</span><span class="va">txdb</span>, upstream<span class="op">=</span><span class="fl">1000</span>, downstream<span class="op">=</span><span class="fl">500</span>,
                      columns<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gene_id"</span>,<span class="st">"tx_id"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">gnId</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">promReg</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span>, <span class="va">paste</span>, collapse<span class="op">=</span><span class="st">","</span><span class="op">)</span>
@@ -764,10 +769,10 @@ NC_001422.1.fa  phiX174
 ##   -------
 ##   seqinfo: 3 sequences from an unspecified genome</code></pre>
 <p>Using <code>promRegSel</code> object as query, we can now count the alignment per sample in each of the promoter windows.</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cnt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj1</span>, <span class="va">promRegSel</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting alignments...done</code></pre>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cnt</span></code></pre></div>
 <pre><code>##                 width Sample1 Sample2
 ## ENSG00000176022  1500     157     701
@@ -783,13 +788,13 @@ NC_001422.1.fa  phiX174
 ## ENSG00000238345  1500      13      25
 ## ENSG00000134075  1500       7       3</code></pre>
 <p>The counts returned by <code>qCount</code> are the raw number of alignments per sample and region, without any normalization for the query region length, or the total number of aligned reads in a sample. As expected, we can find H3K4me3 signal at promoters of a subset of the genes with CpG island promoters, which we can visualize with help of the <em><a href="https://bioconductor.org/packages/3.13/Gviz">Gviz</a></em> package:</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr1</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"Sample1.wig.gz"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning in asMethod(object): NAs introduced by coercion</code></pre>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr2</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"Sample2.wig.gz"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning in asMethod(object): NAs introduced by coercion</code></pre>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ivanek/Gviz">Gviz</a></span><span class="op">)</span>
 <span class="va">axisTrack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/GenomeAxisTrack-class.html">GenomeAxisTrack</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">dTrack1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/DataTrack-class.html">DataTrack</a></span><span class="op">(</span>range<span class="op">=</span><span class="va">gr1</span>, name<span class="op">=</span><span class="st">"Sample 1"</span>, type<span class="op">=</span><span class="st">"h"</span><span class="op">)</span>
@@ -805,7 +810,7 @@ NC_001422.1.fa  phiX174
 </h3>
 <p>Given a set of anchor positions in the genome, <code>qProfile</code> calculates the number of nearby alignments relative to the anchor position, for example to generate a average profile. The neighborhood around anchor positions can be specified by the <code>upstream</code> and <code>downstream</code> argument. Alignments that are upstream of an anchor position will have a negative relative position, and downstream alignments a positive. The anchor positions are all aligned at position zero in the return value.</p>
 <p>Anchor positions will be provided to <code>qProfile</code> using the <code>query</code> argument, which takes a <code>GRanges</code> object. The anchor positions correspond to <code><a href="https://rdrr.io/r/stats/start.html">start()</a></code> for regions on <code><a href="https://rdrr.io/r/base/Arithmetic.html">+</a></code> or <code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> strands, and to <code><a href="https://rdrr.io/r/stats/start.html">end()</a></code> for regions on the <code><a href="https://rdrr.io/r/base/Arithmetic.html">-</a></code> strand. As mentioned above, we expect H3K4me3 ChIP-seq alignments to be enriched around the transcript start site of genes. We can therefore construct a suitable <code>query</code> object from the start sites of known genes. In the code below, start sites (<code>start_codon</code>) are imported from a <code>.gtf</code> file with the help of the <em><a href="https://bioconductor.org/packages/3.13/rtracklayer">rtracklayer</a></em> package. In addition, <code>strand</code> and <code>gene_name</code> are also selected for import. Duplicated start sites, e.g. from genes with multiple transcripts, are removed. Finally, all regions are given the name <code>TSS</code>, because <code>qProfile</code> combines regions with identical names into a single profile.</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span>
 <span class="va">annotationFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub_annotation.gtf"</span>
 <span class="va">tssRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/GFFFile-class.html">import.gff</a></span><span class="op">(</span><span class="va">annotationFile</span>, format<span class="op">=</span><span class="st">"gtf"</span>,
@@ -826,15 +831,15 @@ NC_001422.1.fa  phiX174
 ##   -------
 ##   seqinfo: 3 sequences from an unspecified genome; no seqlengths</code></pre>
 <p>Alignments around the <code>tssRegions</code> coordinates are counted in a window defined by the <code>upstream</code> and <code>downstream</code> arguments, which specify the number of bases to include around each anchor position. For <code>query</code> regions on <code><a href="https://rdrr.io/r/base/Arithmetic.html">+</a></code> or <code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> strands, upstream refers to the left side of the anchor position (lower coordinates), while for regions on the <code><a href="https://rdrr.io/r/base/Arithmetic.html">-</a></code> strand, upstream refers to the right side (higher coordinates). The following example creates separate profiles for alignments on the <em>same</em> and on the <em>opposite</em> strand of the regions in <code>query</code>.</p>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">prS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qProfile.html">qProfile</a></span><span class="op">(</span><span class="va">proj1</span>, <span class="va">tssRegions</span>, upstream<span class="op">=</span><span class="fl">3000</span>, downstream<span class="op">=</span><span class="fl">3000</span>, 
                 orientation<span class="op">=</span><span class="st">"same"</span><span class="op">)</span></code></pre></div>
 <pre><code>## profiling alignments...done</code></pre>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">prO</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qProfile.html">qProfile</a></span><span class="op">(</span><span class="va">proj1</span>, <span class="va">tssRegions</span>, upstream<span class="op">=</span><span class="fl">3000</span>, downstream<span class="op">=</span><span class="fl">3000</span>, 
                 orientation<span class="op">=</span><span class="st">"opposite"</span><span class="op">)</span></code></pre></div>
 <pre><code>## profiling alignments...done</code></pre>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">prS</span>, <span class="st">"["</span>, , <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## $coverage
 ## -3000 -2999 -2998 -2997 -2996 -2995 -2994 -2993 -2992 -2991 
@@ -848,7 +853,7 @@ NC_001422.1.fa  phiX174
 ## -3000 -2999 -2998 -2997 -2996 -2995 -2994 -2993 -2992 -2991 
 ##     0     0     0     2     0     0     1     1     1     0</code></pre>
 <p>The counts returned by <code>qProfile</code> are the raw number of alignments per sample and position, without any normalization for the number of query regions or the total number of alignments in a sample per position. To obtain the average number of alignments, we divide the alignment counts by the number of <code>query</code> regions that covered a given relative position around the anchor sites. This coverage is available as the first element in the return value. The shift between <em>same</em> and <em>opposite</em> strand alignments is indicative for the average length of the sequenced ChIP fragments.</p>
-<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">prCombS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">prS</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span><span class="va">prS</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="va">prCombO</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">prO</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span><span class="va">prO</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
@@ -865,7 +870,7 @@ NC_001422.1.fa  phiX174
 <a href="#using-a-bsgenome-package-as-reference-genome" class="anchor"></a>Using a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> package as reference genome</h3>
 <p><em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> also allows using of <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> packages instead of a <code>fasta</code> file as reference genome (see section @ref(genome)). To use a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em>, the <code>genome</code> argument of <code>qAlign</code> is set to a string matching the name of a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> package, for example <code>"BSgenome.Hsapiens.UCSC.hg19"</code>. If that package is not already installed, <code>qAlign</code> will check if it is available from <a href="http://bioconductor.org/" class="uri">http://bioconductor.org/</a> and download it automatically. The corresponding alignment index will be saved as a new package, named after the original <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> package and the aligner used to build the index, for example <code>BSgenome.Hsapiens.UCSC.hg19.Rbowtie</code>.</p>
 <p>The code example below illustrates the use of a <em><a href="https://bioconductor.org/packages/3.13/BSgenome">BSgenome</a></em> reference genome for the same example data as above. Running it for the first time will take several hours in order to build the aligner index:</p>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span>
@@ -886,10 +891,10 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#spliced-alignment-of-rna-seq-reads" class="anchor"></a>Spliced alignment of RNA-seq reads</h3>
 <p>We start the example workflow by copying the example data files into the current working directly, into a subfolder called <code>"extdata"</code>, and then create spliced alignments using <code>qAlign</code>:</p>
-<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
 
@@ -902,11 +907,11 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b683169a1352.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_2040199de166.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj2</span></code></pre></div>
 <pre><code>## Project: qProject
 ##  Options   : maxHits         : 1
@@ -923,12 +928,12 @@ NC_001422.1.fa  phiX174
 ##    2. rna_2_1.fq.bz2  rna_2_2.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. rna_1_1_b6835d6a7815.bam
-##    2. rna_2_1_b68378f1da9c.bam
+##    1. rna_1_1_20404c38fcad.bam
+##    2. rna_2_1_20403154e8f3.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Aligning the reads with <code>splicedAlignment=TRUE</code> will allow to also align reads that cross exon junctions, and thus have a large deletion (the intron) relative to the reference genome.</p>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj2unspl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, genome<span class="op">=</span><span class="va">genomeFile</span>,
                      splicedAlignment<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <pre><code>## alignment files missing - need to:</code></pre>
@@ -936,16 +941,16 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6833b3f03c1.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_20406d342319.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj2</span><span class="op">)</span></code></pre></div>
 <pre><code>##                seqlength mapped unmapped
 ## Sample1:genome     95000   5961        6
 ## Sample2:genome     95000   5914        2</code></pre>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj2unspl</span><span class="op">)</span></code></pre></div>
 <pre><code>##                seqlength mapped unmapped
 ## Sample1:genome     95000   2258     3746
@@ -955,16 +960,16 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#quantification-of-gene-and-exon-expression" class="anchor"></a>Quantification of gene and exon expression</h3>
 <p>As with ChIP-seq experiments, <code>qCount</code> is used to quantify alignments. For quantification of gene or exon expression levels, <code>qCount</code> can be called with a query of type <code>TxDb</code>, such as the one we constructed in the ChIP-seq workflow above from a <code>.gtf</code> file. The argument <code>reportLevel</code> can be used to control if annotated exonic regions should be quantified independently (<code>reportLevel="exon"</code>) or non-redundantly combined per gene (<code>reportLevel="gene"</code>):</p>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">geneLevels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj2</span>, <span class="va">txdb</span>, reportLevel<span class="op">=</span><span class="st">"gene"</span><span class="op">)</span></code></pre></div>
 <pre><code>## extracting gene regions from TxDb...done
 ## counting alignments...done
 ## collapsing counts by query name...done</code></pre>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exonLevels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj2</span>, <span class="va">txdb</span>, reportLevel<span class="op">=</span><span class="st">"exon"</span><span class="op">)</span></code></pre></div>
 <pre><code>## extracting exon regions from TxDb...done
 ## counting alignments...done</code></pre>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">geneLevels</span><span class="op">)</span></code></pre></div>
 <pre><code>##                 width Sample1 Sample2
 ## ENSG00000078808  4697     710    1083
@@ -973,7 +978,7 @@ NC_001422.1.fa  phiX174
 ## ENSG00000171863  5583    2924    2224
 ## ENSG00000176022  2793      62     344
 ## ENSG00000186827  1721      37       8</code></pre>
-<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb122"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">exonLevels</span><span class="op">)</span></code></pre></div>
 <pre><code>##    width Sample1 Sample2
 ## 1   2793      62     344
@@ -987,7 +992,7 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#calculation-of-rpkm-expression-values" class="anchor"></a>Calculation of RPKM expression values</h3>
 <p>The values returned by <code>qCount</code> are the number of alignments. Sometimes it is required to normalize for the length of query regions, or the size of the libraries. For example, gene expression levels in the form of <em>RPKM</em> values (reads per kilobase of transcript and million mapped reads) can be obtained as follows:</p>
-<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">geneRPKM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">geneLevels</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">/</span><span class="va">geneLevels</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">*</span><span class="fl">1000</span><span class="op">)</span>
               <span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span><span class="op">(</span><span class="va">geneLevels</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span><span class="fl">1e6</span><span class="op">)</span>
 <span class="va">geneRPKM</span></code></pre></div>
@@ -1010,10 +1015,10 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#analysis-of-alternative-splicing-quantification-of-exon-exon-junctions" class="anchor"></a>Analysis of alternative splicing: Quantification of exon-exon junctions</h3>
 <p>Exon-exon junctions can be quantified by setting <code>reportLevel="junction"</code>. In this case, <code>qCount</code> will ignore the <code>query</code> argument and scan all alignments for any detected splices, which are returned as a <code>GRanges</code> object: The region start and end coordinates correspond to the first and last bases of the intron, and the counts are returned in the <code>mcols()</code> of the <code>GRanges</code> object. Alignments that are identically spliced but reside on opposite strands will be quantified separately. In an unstranded RNA-seq experiment, this may give rise to two separate counts for the same intron, one each for the supporting alignments on plus and minus strands.</p>
-<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exonJunctions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj2</span>, <span class="cn">NULL</span>, reportLevel<span class="op">=</span><span class="st">"junction"</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting junctions...done</code></pre>
-<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exonJunctions</span></code></pre></div>
 <pre><code>## GRanges object with 46 ranges and 2 metadata columns:
 ##        seqnames      ranges strand |   Sample1   Sample2
@@ -1032,14 +1037,14 @@ NC_001422.1.fa  phiX174
 ##   -------
 ##   seqinfo: 3 sequences from an unspecified genome; no seqlengths</code></pre>
 <p>About half of the exon-exon junctions detected in this sample dataset correspond to known introns; they tend to be the ones with higher coverage:</p>
-<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">knownIntrons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicFeatures/man/transcriptsBy.html">intronsByTranscript</a></span><span class="op">(</span><span class="va">txdb</span><span class="op">)</span><span class="op">)</span>
 <span class="va">isKnown</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/findOverlaps-methods.html">overlapsAny</a></span><span class="op">(</span><span class="va">exonJunctions</span>, <span class="va">knownIntrons</span>, type<span class="op">=</span><span class="st">"equal"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">isKnown</span><span class="op">)</span></code></pre></div>
 <pre><code>## isKnown
 ## FALSE  TRUE 
 ##    25    21</code></pre>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">exonJunctions</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
        <span class="va">isKnown</span>, <span class="va">summary</span><span class="op">)</span></code></pre></div>
 <pre><code>## $`FALSE`
@@ -1050,11 +1055,11 @@ NC_001422.1.fa  phiX174
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##     1.0     2.0    16.0    50.6    91.0   210.0</code></pre>
 <p>When quantifying exon junctions, only spliced alignments will be included in the quantification. It is also possible to only include unspliced alignments in the quantification, for example when counting exon body alignments that complement the exon junction alignments. This can be done using the <code>includeSpliced</code> argument from <code>qCount</code>:</p>
-<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exonBodyLevels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj2</span>, <span class="va">txdb</span>, reportLevel<span class="op">=</span><span class="st">"exon"</span>, includeSpliced<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <pre><code>## extracting exon regions from TxDb...done
 ## counting alignments...done</code></pre>
-<div class="sourceCode" id="cb135"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">exonLevels</span> <span class="op">-</span> <span class="va">exonBodyLevels</span><span class="op">)</span></code></pre></div>
 <pre><code>##      width      Sample1       Sample2   
 ##  Min.   :0   Min.   :  0   Min.   :  0  
@@ -1075,40 +1080,40 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#preprocessing-of-small-rna-mirna-reads" class="anchor"></a>Preprocessing of small RNA (miRNA) reads</h3>
 <p>Again, we start the example workflow by copying the example data files into the current working directly, into a subfolder called <code>"extdata"</code>.</p>
-<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>As a next step, we need to remove library adapter sequences from short RNA reads. Most sequencing experiments generate reads that are longer than the average length of a miRNA (22nt). Therefore, the read sequence will run through the miRNA into the library adapter sequence and would not match when aligned in full to the reference genome.</p>
 <p>We can remove those adapter sequences using <code>preprocessReads</code> (see section @ref(preprocessReads) for more details), which for each input sequence file will generate an output sequence file containing appropriately truncated sequences. In the example below, we get the input sequence filenames from <code>sampleFile</code>, and also prepare an updated <code>sampleFile2</code> that refers to newly generated processed sequence files:</p>
-<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># prepare sample file with processed reads filenames</span>
 <span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples_mirna.txt"</span><span class="op">)</span>
 <span class="va">sampleFile</span></code></pre></div>
 <pre><code>## [1] "extdata/samples_mirna.txt"</code></pre>
-<div class="sourceCode" id="cb143"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span><span class="op">(</span><span class="st">".txt"</span>, <span class="st">"_processed.txt"</span>, <span class="va">sampleFile</span><span class="op">)</span>
 <span class="va">sampleFile2</span></code></pre></div>
 <pre><code>## [1] "extdata/samples_mirna_processed.txt"</code></pre>
-<div class="sourceCode" id="cb145"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.delim</a></span><span class="op">(</span><span class="va">sampleFile</span>, header<span class="op">=</span><span class="cn">TRUE</span>, as.is<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">tab</span></code></pre></div>
 <pre><code>##     FileName SampleName
 ## 1 mirna_1.fa     miRNAs</code></pre>
-<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb148"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tab2</span> <span class="op">&lt;-</span> <span class="va">tab</span>
 <span class="va">tab2</span><span class="op">$</span><span class="va">FileName</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span><span class="op">(</span><span class="st">".fa"</span>, <span class="st">"_processed.fa"</span>, <span class="va">tab</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.table</a></span><span class="op">(</span><span class="va">tab2</span>, <span class="va">sampleFile2</span>, sep<span class="op">=</span><span class="st">"\t"</span>, quote<span class="op">=</span><span class="cn">FALSE</span>, row.names<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">tab2</span></code></pre></div>
 <pre><code>##               FileName SampleName
 ## 1 mirna_1_processed.fa     miRNAs</code></pre>
-<div class="sourceCode" id="cb149"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb150"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># remove adapters</span>
 <span class="va">oldwd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">dirname</a></span><span class="op">(</span><span class="va">sampleFile</span><span class="op">)</span><span class="op">)</span>
 <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/preprocessReads.html">preprocessReads</a></span><span class="op">(</span><span class="va">tab</span><span class="op">$</span><span class="va">FileName</span>,
                        <span class="va">tab2</span><span class="op">$</span><span class="va">FileName</span>,
                        Rpattern<span class="op">=</span><span class="st">"TGGAATTCTCGGGTGCCAAGG"</span><span class="op">)</span></code></pre></div>
 <pre><code>##   filtering mirna_1.fa</code></pre>
-<div class="sourceCode" id="cb151"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res</span></code></pre></div>
 <pre><code>##                  mirna_1.fa
 ## totalSequences         1000
@@ -1118,10 +1123,10 @@ NC_001422.1.fa  phiX174
 ## tooManyN                  0
 ## lowComplexity             0
 ## totalPassed            1000</code></pre>
-<div class="sourceCode" id="cb153"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/getwd.html">setwd</a></span><span class="op">(</span><span class="va">oldwd</span><span class="op">)</span></code></pre></div>
 <p>The miRNA reads in <code>mirna_1.fa</code> are by the way synthetic sequences and do not correspond to any existing miRNAs. As you can see above from the return value of <code>preprocessReads</code>, all reads matched to the 3’-adapter and were therefore truncated, reducing their length to roughly the expected 22nt:</p>
-<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># get read lengths</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings">Biostrings</a></span><span class="op">)</span>
 <span class="va">oldwd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">dirname</a></span><span class="op">(</span><span class="va">sampleFile</span><span class="op">)</span><span class="op">)</span>
@@ -1141,18 +1146,18 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#alignment-of-small-rna-mirna-reads" class="anchor"></a>Alignment of small RNA (miRNA) reads</h3>
 <p>Next, we create alignments using <code>qAlign</code>. In contrast to the general RNA-seq workflow (section @ref(RNAseq)), alignment time can be reduced by using the default unspliced alignment (<code>splicedAlignment=FALSE</code>). Importantly, we need to set <code>maxHits=50</code> or similar to also align reads that perfectly match the genome multiple times. This is required because of the miRNAs that are encoded by multiple genes. Reads from such miRNAs would not be aligned and thus their expression would be underestimated if using the default <code>maxHits=1</code>. An example of such a multiply-encoded miRNA is mmu-miR-669a-5p, which has twelve exact copies in the mm10 genome assembly according to mirBase19.</p>
-<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb156"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile2</span>, <span class="va">genomeFile</span>, maxHits<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <pre><code>## alignment files missing - need to:</code></pre>
 <pre><code>##     create 1 genomic alignment(s)</code></pre>
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6832b68f584.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_20401b030ac2.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb159"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb160"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj3</span><span class="op">)</span></code></pre></div>
 <pre><code>##               seqlength mapped unmapped
 ## miRNAs:genome     95000   1000        0</code></pre>
@@ -1162,14 +1167,14 @@ NC_001422.1.fa  phiX174
 <h3 class="hasAnchor">
 <a href="#quantification-of-small-rna-mirna-reads" class="anchor"></a>Quantification of small RNA (miRNA) reads</h3>
 <p>As with other experiment types, miRNAs are quantified using <code>qCount</code>. For this purpose, we first construct a query <code>GRanges</code> object with the genomic locations of mature miRNAs. The locations can be obtained from the <em><a href="https://bioconductor.org/packages/3.13/mirbase.db">mirbase.db</a></em> package, or directly from the species-specific gff files provided by the mirBase database (e.g. (<a href="ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3" class="uri">ftp://mirbase.org/pub/mirbase/19/genomes/mmu.gff3</a>)). For the purpose of this example, the <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> package provides a small gff file (<code>"mirbaseXX_qsr.gff3"</code>) that is formatted as the ones available from mirBase. The gff file contains both the locations of pre-miRNAs (hairpin precursors), as well as mature miRNAs. The two can be discriminated by their <code>"type"</code>:</p>
-<div class="sourceCode" id="cb161"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mirs</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"extdata/mirbaseXX_qsr.gff3"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">mirs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">$</span><span class="va">Name</span>
 <span class="va">preMirs</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">[</span> <span class="va">mirs</span><span class="op">$</span><span class="va">type</span><span class="op">==</span><span class="st">"miRNA_primary_transcript"</span> <span class="op">]</span>
 <span class="va">matureMirs</span> <span class="op">&lt;-</span> <span class="va">mirs</span><span class="op">[</span> <span class="va">mirs</span><span class="op">$</span><span class="va">type</span><span class="op">==</span><span class="st">"miRNA"</span> <span class="op">]</span></code></pre></div>
 <p>Please note that the name attribute of the <code>GRanges</code> object must be set appropriately, so that <code>qCount</code> can identify a single mature miRNA sequence that is encoded by multiple loci (see below) by their identical names. In this example, there are no multiply-encoded mature miRNAs, but in a real sample, you can detect them for example with <code><a href="https://rdrr.io/r/base/table.html">table(names(mirs))</a></code>.</p>
 <p>The <code>preMirs</code> and <code>matureMirs</code> could now be used as <code>query</code> in <code>qCount</code>. In practise however, miRNA seem to not always be processed with high accuracy. Many miRNA reads that start one or two bases earlier or later can be observed in real data, and also their length may vary for a few bases. This is the case for the synthetic miRNAs used in this example, whose lengthes and start positions have been sampled from a read data set:</p>
-<div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb163"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Rsamtools">Rsamtools</a></span><span class="op">)</span>
 <span class="va">alns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanBam.html">scanBam</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj3</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span>,
                 param<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/ScanBamParam-class.html">ScanBamParam</a></span><span class="op">(</span>what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/ScanBamParam-class.html">scanBamWhat</a></span><span class="op">(</span><span class="op">)</span>, which<span class="op">=</span><span class="va">preMirs</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
@@ -1182,23 +1187,23 @@ NC_001422.1.fa  phiX174
      col<span class="op">=</span><span class="st">"#CCAA0088"</span>, border<span class="op">=</span><span class="cn">NA</span>, xpd<span class="op">=</span><span class="cn">NA</span><span class="op">)</span></code></pre></div>
 <p><img src="QuasR_files/figure-html/miRNA_coverage-1.png" width="576"></p>
 <p>By default, <code>qCount</code> will count alignments that have their 5’-end within the query region (see <code>selectReadPosition</code> argument). The 5’-end correspond to the lower (left) coordinate for alignments on the plus strand, and to the higher (right) coordinate for alignments on the minus strand. In order not to miss miRNAs that have a couple of extra or missing bases, we therefore construct a query window around the 5’-end of each mature miRNA, by adding three bases up- and downstream:</p>
-<div class="sourceCode" id="cb163"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb164"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">matureMirsExtended</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html">resize</a></span><span class="op">(</span><span class="va">matureMirs</span>, width<span class="op">=</span><span class="fl">1L</span>, fix<span class="op">=</span><span class="st">"start"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">3L</span></code></pre></div>
 <p>The resulting extended query is then used to quantify mature miRNAs. Multiple-encoded miRNAs will be represented by multiple ranges in <code>matureMirs</code> and <code>matureMirsExtended</code>, which have identical names. <code>qCount</code> will automatically sum all alignments from any of those regions and return a single number per sample and unique miRNA name.</p>
-<div class="sourceCode" id="cb164"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb165"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># quantify mature miRNAs</span>
 <span class="va">cnt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj3</span>, <span class="va">matureMirsExtended</span>, orientation<span class="op">=</span><span class="st">"same"</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting alignments...done</code></pre>
-<div class="sourceCode" id="cb166"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb167"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cnt</span></code></pre></div>
 <pre><code>##                 width miRNAs
 ## qsr-miR-9876-5p     7     13
 ## qsr-miR-9876-3p     7    984</code></pre>
-<div class="sourceCode" id="cb168"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb169"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># quantify pre-miRNAs</span>
 <span class="va">cnt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj3</span>, <span class="va">preMirs</span>, orientation<span class="op">=</span><span class="st">"same"</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting alignments...done</code></pre>
-<div class="sourceCode" id="cb170"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb171"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cnt</span></code></pre></div>
 <pre><code>##              width miRNAs
 ## qsr-mir-9876    75   1000</code></pre>
@@ -1209,10 +1214,10 @@ NC_001422.1.fa  phiX174
 <a href="#bis-seq-measuring-dna-methylation" class="anchor"></a>Bis-seq: Measuring DNA methylation</h2>
 <p>Sequencing of bisulfite-converted genomic DNA allows detection of methylated cytosines, which in mammalian genomes typically occur in the context of CpG dinucleotides. The treatment of DNA with bisulfite induces deamination of non-methylated cytosines, converting them to uracils. Sequencing and aligning of such bisulfite-converted DNA results in C-to-T mismatches. Both alignment of converted reads, as well as the interpretation of the alignments for calculation of methylation levels require specific approaches and are supported in <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> by <code>qAlign</code> (<code>bisulfite</code> argument, section @ref(qAlign)) and <code>qMeth</code> (section @ref(qMeth)), respectively.</p>
 <p>We start the analysis by copying the example data files into the current working directly, into a subfolder called <code>"extdata"</code>. Then, bisulfite-specific alignment is selected in <code>qAlign</code> by setting <code>bisulfite</code> to <code>"dir"</code> for a directional experiment, or to <code>"undir"</code> for an undirectional Bis-seq experiment:</p>
-<div class="sourceCode" id="cb172"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb173"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb175"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_bis_single.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
 
@@ -1225,11 +1230,11 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b6837f8b1ce4.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_2040579cb528.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb181"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb182"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj4</span></code></pre></div>
 <pre><code>## Project: qProject
 ##  Options   : maxHits         : 1
@@ -1245,11 +1250,11 @@ NC_001422.1.fa  phiX174
 ##    1. bis_1_1.fa.bz2  Sample1
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. bis_1_1_b683615fe27.bam
+##    1. bis_1_1_204071398207.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The resulting alignments are not different from those of non-Bis-seq experiments, apart from the fact that they may contain many C-to-T (or A-to-G) mismatches that are not counted as mismatches when aligning the reads. The number of alignments in specific genomic regions could be quantified using <code>qCount</code> as with ChIP-seq or RNA-seq experiments. For quantification of methylation the <code>qMeth</code> function is used:</p>
-<div class="sourceCode" id="cb183"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb184"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4</span>, mode<span class="op">=</span><span class="st">"CpGcomb"</span>, collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">meth</span></code></pre></div>
 <pre><code>## GRanges object with 3110 ranges and 2 metadata columns:
@@ -1270,23 +1275,23 @@ NC_001422.1.fa  phiX174
 ##   seqinfo: 3 sequences from an unspecified genome</code></pre>
 <p>By default, <code>qMeth</code> quantifies methylation for all cytosines in CpG contexts, combining the data from plus and minus strands (<code>mode="CpGcomb"</code>). The results are returned as a <code>GRanges</code> object with coordinates of each CpG, and two metadata columns for each input sequence file in the <code>qProject</code> object. These two columns contain the total number of aligned reads that overlap a given CpG (C-to-C matches or C-to-T mismatches, suffix <code>_T</code> in the column name), and the number of read alignments that had a C-to-C match at that position (methylated events, suffix <code>_M</code>).</p>
 <p>Independent of the number of alignments, the returned object will list all CpGs in the target genome including the ones that have zero coverage, unless you set <code>keepZero=FALSE</code>:</p>
-<div class="sourceCode" id="cb185"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb186"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">chrs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-io.html">readDNAStringSet</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/matchPattern.html">vcountPattern</a></span><span class="op">(</span><span class="st">"CG"</span>,<span class="va">chrs</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 3110</code></pre>
-<div class="sourceCode" id="cb187"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb188"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 3110</code></pre>
-<div class="sourceCode" id="cb189"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb190"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4</span>, keepZero<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 2929</code></pre>
 <p>The fraction methylation can easily be obtained as the ratio between <code>_M</code> and <code>_T</code> columns:</p>
-<div class="sourceCode" id="cb191"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb192"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">percMeth</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">meth</span><span class="op">)</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">*</span><span class="fl">100</span> <span class="op">/</span><span class="fu">mcols</span><span class="op">(</span><span class="va">meth</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">percMeth</span><span class="op">)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
 ##     0.0    75.0    90.9    75.4   100.0   100.0     181</code></pre>
-<div class="sourceCode" id="cb193"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb194"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">axisTrack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/GenomeAxisTrack-class.html">GenomeAxisTrack</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">dTrack1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/DataTrack-class.html">DataTrack</a></span><span class="op">(</span>range<span class="op">=</span><span class="va">gr1</span>, name<span class="op">=</span><span class="st">"H3K4me3"</span>, type<span class="op">=</span><span class="st">"h"</span><span class="op">)</span>
 <span class="va">dTrack2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/DataTrack-class.html">DataTrack</a></span><span class="op">(</span>range<span class="op">=</span><span class="va">meth</span>, data<span class="op">=</span><span class="va">percMeth</span>,
@@ -1296,7 +1301,7 @@ NC_001422.1.fa  phiX174
            chromosome<span class="op">=</span><span class="st">"chr3"</span>, extend.left<span class="op">=</span><span class="fl">1000</span><span class="op">)</span></code></pre></div>
 <p><img src="QuasR_files/figure-html/Bis_visualize-1.png" width="768"></p>
 <p>If <code>qMeth</code> is called without a <code>query</code> argument, it will by default return methylation states for each C or CpG in the genome. Using a <code>query</code> argument it is possible to restrict the analysis to specific genomic regions, and if using in addition <code>collapseByQueryRegion=TRUE</code>, the single base methylation states will further be combined for all C’s that are contained in the same query region:</p>
-<div class="sourceCode" id="cb194"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb195"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4</span>, query<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="fu">IRanges</span><span class="op">(</span>start<span class="op">=</span><span class="fl">31633</span>,width<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,
       collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## GRanges object with 1 range and 2 metadata columns:
@@ -1305,7 +1310,7 @@ NC_001422.1.fa  phiX174
 ##   [1]     chr1 31633-31634      * |        10         2
 ##   -------
 ##   seqinfo: 3 sequences from an unspecified genome</code></pre>
-<div class="sourceCode" id="cb196"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb197"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4</span>, query<span class="op">=</span><span class="va">promRegSel</span>, collapseByQueryRegion<span class="op">=</span><span class="cn">TRUE</span>,
       collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## GRanges object with 12 ranges and 2 metadata columns:
@@ -1359,11 +1364,11 @@ chr1    4195    C   T
 </ul>
 <p>Using these alignment classifications, the <code>qCount</code> and <code>qMeth</code> functions will produce three counts instead of a single count; one for each class. The column names will be suffixed by <code>_R</code>, <code>_U</code> and <code>_A</code>.</p>
 <p>The examples below use data provided with the <em><a href="https://bioconductor.org/packages/3.13/QuasR">QuasR</a></em> package, which is first copied to the current working directory, into a subfolder called <code>"extdata"</code>:</p>
-<div class="sourceCode" id="cb198"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb199"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>The example below aligns the same reads that were also used in the ChIP-seq workflow (section @ref(ChIPseq)), but this time using a <code>snpFile</code>:</p>
-<div class="sourceCode" id="cb200"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb201"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
 <span class="va">snpFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub_snp.txt"</span>
@@ -1383,11 +1388,11 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b68324424c65.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_20406ba4c47a.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb214"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb215"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1SNP</span></code></pre></div>
 <pre><code>## Project: qProject
 ##  Options   : maxHits         : 1
@@ -1404,12 +1409,12 @@ chr1    4195    C   T
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_b6837ca58d7b.bam
-##    2. chip_2_1_b68358ebc62b.bam
+##    1. chip_1_1_2040e5f5ccc.bam 
+##    2. chip_2_1_204016c55c73.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Instead of one count per promoter region and sample, <code>qCount</code> now returns three (<code>promRegSel</code> was generated in the ChIP-seq example workflow):</p>
-<div class="sourceCode" id="cb216"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb217"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj1</span>, <span class="va">promRegSel</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting alignments...done</code></pre>
 <pre><code>##                 width Sample1 Sample2
@@ -1419,7 +1424,7 @@ chr1    4195    C   T
 ## ENSG00000078808  1500      73     558
 ## ENSG00000171863  1500      94     339
 ## ENSG00000252531  1500      59       9</code></pre>
-<div class="sourceCode" id="cb219"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb220"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qCount.html">qCount</a></span><span class="op">(</span><span class="va">proj1SNP</span>, <span class="va">promRegSel</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## counting alignments...done</code></pre>
 <pre><code>##                 width Sample1_R Sample1_U Sample1_A Sample2_R Sample2_U
@@ -1437,7 +1442,7 @@ chr1    4195    C   T
 ## ENSG00000171863         0
 ## ENSG00000252531         0</code></pre>
 <p>The example below illustrates use of a <code>snpFile</code> for Bis-seq experiments. Similarly as for <code>qCount</code>, the count types are labeled by <code>R</code>, <code>U</code> and <code>A</code>. These labels are added to the total and methylated column suffixes <code>_T</code> and <code>_M</code>, resulting in a total of six instead of two counts per feature and sample:</p>
-<div class="sourceCode" id="cb222"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb223"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_bis_single.txt"</span>
 <span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span>
 <span class="va">proj4SNP</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>,
@@ -1452,11 +1457,11 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...OK
 ## Available cores:
-## Mac-1613056568279.local: 1
+## Mac-1618396043983.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_b68376baa790.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_20406c661e15.txt
 ## Genomic alignments have been created successfully</code></pre>
-<div class="sourceCode" id="cb231"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb232"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4SNP</span>, mode<span class="op">=</span><span class="st">"CpGcomb"</span>, collapseBySample<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## GRanges object with 6 ranges and 6 metadata columns:
 ##       seqnames    ranges strand | Sample1_TR Sample1_MR Sample1_TU Sample1_MU
@@ -1553,18 +1558,18 @@ chr1    4195    C   T
 <a href="#alignmentStats" class="anchor"></a><code>alignmentStats</code>
 </h2>
 <p><code>alignmentStats</code> is comparable to the <code>idxstats</code> function from Samtools; it returns the size of the target sequence, as well as the number of mapped and unmapped reads that are contained in an indexed <code>bam</code> file. The function works for arguments of type <code>qProject</code>, as well as on a string with one or several <code>bam</code> file names. There is however a small difference in the two that is illustrated in the following example, which uses the <code>qProject</code> object from the ChIP-seq workflow:</p>
-<div class="sourceCode" id="cb233"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb234"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># using bam files</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_b6831551b921.bam     95000   2339      258
-## chip_2_1_b68328513076.bam     95000   3609      505</code></pre>
-<div class="sourceCode" id="cb235"><pre class="downlit sourceCode r">
+## chip_1_1_204022fa73ef.bam     95000   2339      258
+## chip_2_1_204068d161d9.bam     95000   3609      505</code></pre>
+<div class="sourceCode" id="cb236"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">aux</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_b6831478345d.bam      5386    251        0
-## chip_2_1_b6835fb5d02a.bam      5386    493        0</code></pre>
-<div class="sourceCode" id="cb237"><pre class="downlit sourceCode r">
+## chip_1_1_204030b985bc.bam      5386    251        0
+## chip_2_1_204063fb12a1.bam      5386    493        0</code></pre>
+<div class="sourceCode" id="cb238"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># using a qProject object</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span></code></pre></div>
 <pre><code>##                 seqlength mapped unmapped
@@ -1666,7 +1671,7 @@ chr1    4195    C   T
 <h1 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session information</h1>
 <p>The output in this vignette was produced under:</p>
-<pre><code>## R Under development (unstable) (2021-02-07 r79964)
+<pre><code>## R Under development (unstable) (2021-03-29 r80130)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.7
 ## 
@@ -1682,12 +1687,12 @@ chr1    4195    C   T
 ##  [8] datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] Gviz_1.35.4            GenomicFeatures_1.43.3 AnnotationDbi_1.53.1  
-##  [4] Biobase_2.51.0         Rsamtools_2.7.1        BSgenome_1.59.2       
-##  [7] rtracklayer_1.51.4     Biostrings_2.59.2      XVector_0.31.1        
-## [10] QuasR_1.31.1           Rbowtie_1.31.6         GenomicRanges_1.43.3  
-## [13] GenomeInfoDb_1.27.6    IRanges_2.25.6         S4Vectors_0.29.7      
-## [16] BiocGenerics_0.37.1    BiocStyle_2.19.1      
+##  [1] Gviz_1.35.5            GenomicFeatures_1.43.8 AnnotationDbi_1.53.1  
+##  [4] Biobase_2.51.0         Rsamtools_2.7.2        BSgenome_1.59.2       
+##  [7] rtracklayer_1.51.5     Biostrings_2.59.2      XVector_0.31.1        
+## [10] QuasR_1.31.2           Rbowtie_1.31.6         GenomicRanges_1.43.4  
+## [13] GenomeInfoDb_1.27.11   IRanges_2.25.7         S4Vectors_0.29.15     
+## [16] BiocGenerics_0.37.1    BiocStyle_2.19.2      
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] colorspace_2.0-0            rjson_0.2.20               
@@ -1696,56 +1701,57 @@ chr1    4195    C   T
 ##   [7] biovizBase_1.39.0           base64enc_0.1-3            
 ##   [9] fs_1.5.0                    dichromat_2.0-0            
 ##  [11] rstudioapi_0.13             bit64_4.0.5                
-##  [13] xml2_1.3.2                  splines_4.1.0              
-##  [15] cachem_1.0.3                knitr_1.31                 
-##  [17] Formula_1.2-4               cluster_2.1.0              
-##  [19] dbplyr_2.1.0                png_0.1-7                  
-##  [21] BiocManager_1.30.10         compiler_4.1.0             
-##  [23] httr_1.4.2                  backports_1.2.1            
-##  [25] lazyeval_0.2.2              assertthat_0.2.1           
-##  [27] Matrix_1.3-2                fastmap_1.1.0              
-##  [29] htmltools_0.5.1.1           prettyunits_1.1.1          
-##  [31] tools_4.1.0                 gtable_0.3.0               
-##  [33] glue_1.4.2                  GenomeInfoDbData_1.2.4     
-##  [35] dplyr_1.0.4                 rappdirs_0.3.3             
-##  [37] ShortRead_1.49.2            Rcpp_1.0.6                 
-##  [39] pkgdown_1.6.1               vctrs_0.3.6                
-##  [41] xfun_0.21                   stringr_1.4.0              
-##  [43] lifecycle_0.2.0             ensembldb_2.15.2           
-##  [45] restfulr_0.0.13             XML_3.99-0.5               
-##  [47] zlibbioc_1.37.0             scales_1.1.1               
-##  [49] VariantAnnotation_1.37.1    ProtGenerics_1.23.6        
-##  [51] ragg_0.4.1                  hms_1.0.0                  
-##  [53] MatrixGenerics_1.3.1        SummarizedExperiment_1.21.1
-##  [55] AnnotationFilter_1.15.0     RColorBrewer_1.1-2         
-##  [57] yaml_2.2.1                  curl_4.3                   
-##  [59] gridExtra_2.3               memoise_2.0.0              
-##  [61] ggplot2_3.3.3               rpart_4.1-15               
-##  [63] biomaRt_2.47.4              latticeExtra_0.6-29        
-##  [65] stringi_1.5.3               RSQLite_2.2.3              
-##  [67] highr_0.8                   BiocIO_1.1.2               
-##  [69] desc_1.2.0                  checkmate_2.0.0            
-##  [71] filelock_1.0.2              BiocParallel_1.25.4        
-##  [73] rlang_0.4.10                pkgconfig_2.0.3            
-##  [75] systemfonts_1.0.1           GenomicFiles_1.27.0        
-##  [77] matrixStats_0.58.0          bitops_1.0-6               
-##  [79] evaluate_0.14               lattice_0.20-41            
-##  [81] purrr_0.3.4                 htmlwidgets_1.5.3          
-##  [83] GenomicAlignments_1.27.2    bit_4.0.4                  
-##  [85] tidyselect_1.1.0            magrittr_2.0.1             
-##  [87] bookdown_0.21               R6_2.5.0                   
-##  [89] generics_0.1.0              Hmisc_4.4-2                
-##  [91] DelayedArray_0.17.7         DBI_1.1.1                  
-##  [93] foreign_0.8-81              pillar_1.4.7               
-##  [95] nnet_7.3-15                 survival_3.2-7             
-##  [97] KEGGREST_1.31.1             RCurl_1.98-1.2             
-##  [99] tibble_3.0.6                crayon_1.4.1               
-## [101] BiocFileCache_1.15.1        rmarkdown_2.6              
-## [103] jpeg_0.1-8.1                progress_1.2.2             
-## [105] data.table_1.13.6           blob_1.2.1                 
-## [107] digest_0.6.27               textshaping_0.3.0          
-## [109] openssl_1.4.3               munsell_0.5.0              
-## [111] askpass_1.1</code></pre>
+##  [13] fansi_0.4.2                 splines_4.1.0              
+##  [15] cachem_1.0.4                knitr_1.31                 
+##  [17] Formula_1.2-4               cluster_2.1.1              
+##  [19] dbplyr_2.1.1                png_0.1-7                  
+##  [21] SGSeq_1.25.0                BiocManager_1.30.12        
+##  [23] compiler_4.1.0              httr_1.4.2                 
+##  [25] backports_1.2.1             lazyeval_0.2.2             
+##  [27] assertthat_0.2.1            Matrix_1.3-2               
+##  [29] fastmap_1.1.0               htmltools_0.5.1.1          
+##  [31] prettyunits_1.1.1           tools_4.1.0                
+##  [33] igraph_1.2.6                gtable_0.3.0               
+##  [35] glue_1.4.2                  GenomeInfoDbData_1.2.4     
+##  [37] dplyr_1.0.5                 rappdirs_0.3.3             
+##  [39] ShortRead_1.49.2            Rcpp_1.0.6                 
+##  [41] pkgdown_1.6.1               vctrs_0.3.7                
+##  [43] xfun_0.22                   stringr_1.4.0              
+##  [45] lifecycle_1.0.0             ensembldb_2.15.2           
+##  [47] restfulr_0.0.13             XML_3.99-0.6               
+##  [49] zlibbioc_1.37.0             scales_1.1.1               
+##  [51] VariantAnnotation_1.37.1    ProtGenerics_1.23.9        
+##  [53] ragg_1.1.2                  hms_1.0.0                  
+##  [55] MatrixGenerics_1.3.1        SummarizedExperiment_1.21.3
+##  [57] AnnotationFilter_1.15.0     RColorBrewer_1.1-2         
+##  [59] yaml_2.2.1                  curl_4.3                   
+##  [61] gridExtra_2.3               memoise_2.0.0              
+##  [63] ggplot2_3.3.3               rpart_4.1-15               
+##  [65] biomaRt_2.47.7              latticeExtra_0.6-29        
+##  [67] stringi_1.5.3               RSQLite_2.2.6              
+##  [69] highr_0.8                   BiocIO_1.1.2               
+##  [71] desc_1.3.0                  checkmate_2.0.0            
+##  [73] filelock_1.0.2              BiocParallel_1.25.5        
+##  [75] rlang_0.4.10                pkgconfig_2.0.3            
+##  [77] systemfonts_1.0.1           GenomicFiles_1.27.0        
+##  [79] matrixStats_0.58.0          bitops_1.0-6               
+##  [81] evaluate_0.14               lattice_0.20-41            
+##  [83] purrr_0.3.4                 htmlwidgets_1.5.3          
+##  [85] GenomicAlignments_1.27.2    bit_4.0.4                  
+##  [87] tidyselect_1.1.0            magrittr_2.0.1             
+##  [89] bookdown_0.21               R6_2.5.0                   
+##  [91] generics_0.1.0              Hmisc_4.5-0                
+##  [93] RUnit_0.4.32                DelayedArray_0.17.10       
+##  [95] DBI_1.1.1                   pillar_1.6.0               
+##  [97] foreign_0.8-81              survival_3.2-10            
+##  [99] KEGGREST_1.31.1             RCurl_1.98-1.3             
+## [101] nnet_7.3-15                 tibble_3.1.0               
+## [103] Rhisat2_1.7.0               crayon_1.4.1               
+## [105] utf8_1.2.1                  BiocFileCache_1.99.3       
+## [107] rmarkdown_2.7               jpeg_0.1-8.1               
+## [109] progress_1.2.2              data.table_1.14.0          
+## [111] blob_1.2.1                  digest_0.6.27              
+## [113] textshaping_0.3.3           munsell_0.5.0</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -1811,7 +1817,7 @@ chr1    4195    C   T
 
 
       <footer><div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31.2</span>
       </span>
     </div>
 
@@ -115,315 +115,315 @@
     <p>Quantify alignments from sequencing data.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>qCount</span><span class='op'>(</span><span class='va'>proj</span>, 
-       <span class='va'>query</span>,
-       reportLevel<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NULL</span>, <span class='st'>"gene"</span>, <span class='st'>"exon"</span>,<span class='st'>"promoter"</span>,<span class='st'>"junction"</span><span class='op'>)</span>,
-       selectReadPosition<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
-       shift<span class='op'>=</span><span class='fl'>0L</span>,
-       orientation<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
-       useRead<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
-       auxiliaryName<span class='op'>=</span><span class='cn'>NULL</span>,
-       mask<span class='op'>=</span><span class='cn'>NULL</span>,
-       collapseBySample<span class='op'>=</span><span class='cn'>TRUE</span>,
-       includeSpliced<span class='op'>=</span><span class='cn'>TRUE</span>,
-       includeSecondary<span class='op'>=</span><span class='cn'>TRUE</span>,
-       mapqMin<span class='op'>=</span><span class='fl'>0L</span>,
-       mapqMax<span class='op'>=</span><span class='fl'>255L</span>,
-       absIsizeMin<span class='op'>=</span><span class='cn'>NULL</span>,
-       absIsizeMax<span class='op'>=</span><span class='cn'>NULL</span>,
-       maxInsertSize<span class='op'>=</span><span class='fl'>500L</span>,
-       clObj<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>qCount</span><span class='op'>(</span>
+  <span class='va'>proj</span>,
+  <span class='va'>query</span>,
+  reportLevel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NULL</span>, <span class='st'>"gene"</span>, <span class='st'>"exon"</span>, <span class='st'>"promoter"</span>, <span class='st'>"junction"</span><span class='op'>)</span>,
+  selectReadPosition <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
+  shift <span class='op'>=</span> <span class='fl'>0L</span>,
+  orientation <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
+  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
+  auxiliaryName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  mask <span class='op'>=</span> <span class='cn'>NULL</span>,
+  collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  includeSpliced <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  includeSecondary <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  mapqMin <span class='op'>=</span> <span class='fl'>0L</span>,
+  mapqMax <span class='op'>=</span> <span class='fl'>255L</span>,
+  absIsizeMin <span class='op'>=</span> <span class='cn'>NULL</span>,
+  absIsizeMax <span class='op'>=</span> <span class='cn'>NULL</span>,
+  maxInsertSize <span class='op'>=</span> <span class='fl'>500L</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>proj</th>
-      <td><p>a <code><a href='qProject-class.html'>qProject</a></code> object representing a
-    sequencing experiment as returned by <code><a href='qAlign.html'>qAlign</a></code></p></td>
+      <td><p>A <code><a href='qProject-class.html'>qProject</a></code> object representing a
+sequencing experiment as returned by <code><a href='qAlign.html'>qAlign</a></code></p></td>
     </tr>
     <tr>
       <th>query</th>
-      <td><p>an object of type <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>, 
-    <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html'>GRangesList</a></code> or 
-    <code><a href='https://rdrr.io/pkg/GenomicFeatures/man/TxDb-class.html'>TxDb</a></code> with the regions to be
-    quantified. The type of <code>query</code> will determine the mode of
-    quantification (see &#8216;Details&#8217;). For
-    <code>reportLevel="junction"</code>, <code>query</code> is ignored and can also
-    be <code>NULL</code>.</p></td>
+      <td><p>An object of type <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>, 
+<code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html'>GRangesList</a></code> or 
+<code><a href='https://rdrr.io/pkg/GenomicFeatures/man/TxDb-class.html'>TxDb</a></code> with the regions to be
+quantified. The type of <code>query</code> will determine the mode of
+quantification (see &#8216;Details&#8217;). For
+<code>reportLevel="junction"</code>, <code>query</code> is ignored and can also
+be <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>reportLevel</th>
-      <td><p>level of quantification (<code>query</code> of type
-    <code>TxDb</code> or <code>NULL</code>), one of</p><ul>
+      <td><p>Level of quantification (<code>query</code> of type
+<code>TxDb</code> or <code>NULL</code>), one of</p><ul>
 <li><p><code>gene</code> (default): one value per gene</p></li>
 <li><p><code>exon</code>: one value per exon</p></li>
 <li><p><code>promoter</code>: one value per promoter</p></li>
-<li><p><code>junction</code>: one count per detected exon-exon junction
-      (<code>query</code> will be ignored in this case)</p></li>
-</ul><p></p></td>
+<li><p><code>junction</code>: one count per detected exon-exon junction</p></li>
+</ul></td>
     </tr>
     <tr>
       <th>selectReadPosition</th>
       <td><p>defines the part of the alignment that has
-    to be contained within a query region to produce an overlap (see
-    Details). Possible values are:</p><ul>
+to be contained within a query region to produce an overlap (see
+&#8216;Details&#8217;). Possible values are:</p><ul>
 <li><p><code>start</code> (default): start of the alignment</p></li>
 <li><p><code>end</code>: end of the alignment</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>shift</th>
       <td><p>controls the shifting alignments towards their 3'-end before
-    quantification. <code>shift</code> can be one of:</p><ul>
+quantification. <code>shift</code> can be one of:</p><ul>
 <li><p>an &#8220;integer&#8221; vector of the same length as the
-      number of alignment files</p></li>
+  number of alignment files</p></li>
 <li><p>a single &#8220;integer&#8221; value</p></li>
 <li><p>the character string <code>"halfInsert"</code> (only available for
-      paired-end experiments)</p></li>
+  paired-end experiments)</p></li>
 </ul><p>The default of <code>0</code> will not shift any alignments.</p></td>
     </tr>
     <tr>
       <th>orientation</th>
-      <td><p>sets the required orientation of the alignments relative to the query
-    region in order to be counted, one of:</p><ul>
+      <td><p>sets the required orientation of the alignments relative 
+to the query region in order to be counted, one of:</p><ul>
 <li><p><code>any</code> (default): count alignment on the same and opposite strand</p></li>
 <li><p><code>same</code> : count only alignment on the same strand</p></li>
 <li><p><code>opposite</code> : count only alignment on the opposite strand</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>useRead</th>
       <td><p>For paired-end experiments, selects the read mate whose
-    alignments should be counted, one of:</p><ul>
+alignments should be counted, one of:</p><ul>
 <li><p><code>any</code> (default): count all alignments</p></li>
 <li><p><code>first</code> : count only alignments from the first read</p></li>
 <li><p><code>last</code> : count only alignments from the last read</p></li>
-</ul><p></p></td>
+</ul></td>
     </tr>
     <tr>
       <th>auxiliaryName</th>
-      <td><p>which bam files to use in an experiments with
-    auxiliary alignments (see Details).</p></td>
+      <td><p>Which bam files to use in an experiments with 
+auxiliary alignments (see &#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>mask</th>
       <td><p>If not <code>NULL</code>, a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
-    object with reference regions to be masked, i.e. excluded from the
-    quantification, such as unmappable or highly repetitive regions (see
-    Details).</p></td>
+object with reference regions to be masked, i.e. excluded from the
+quantification, such as unmappable or highly repetitive regions (see
+&#8216;Details&#8217;).</p></td>
     </tr>
     <tr>
       <th>collapseBySample</th>
-      <td><p>if <code>TRUE</code> (the default), sum alignment
-    counts from bam files with the same sample name.</p></td>
+      <td><p>If <code>TRUE</code> (the default), sum alignment
+counts from bam files with the same sample name.</p></td>
     </tr>
     <tr>
       <th>includeSpliced</th>
-      <td><p>if <code>TRUE</code> (the default), include spliced
-    alignments when counting. A spliced alignment is defined as an
-    alignment with a gap in the read of at least 60 bases.</p></td>
+      <td><p>If <code>TRUE</code> (the default), include spliced
+alignments when counting. A spliced alignment is defined as an
+alignment with a gap in the read of at least 60 bases.</p></td>
     </tr>
     <tr>
       <th>includeSecondary</th>
-      <td><p>if <code>TRUE</code> (the default), include alignments
-    with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></td>
+      <td><p>If <code>TRUE</code> (the default), include alignments
+with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></td>
     </tr>
     <tr>
       <th>mapqMin</th>
-      <td><p>minimal mapping quality of alignments to be included when
-    counting (mapping quality must be greater than or equal to
-    <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
-    will include all alignments.</p></td>
+      <td><p>Minimal mapping quality of alignments to be included when
+counting (mapping quality must be greater than or equal to
+<code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
+will include all alignments.</p></td>
     </tr>
     <tr>
       <th>mapqMax</th>
-      <td><p>maximal mapping quality of alignments to be included when
-    counting (mapping quality must be less than or equal to <code>mapqMax</code>).
-    Valid values are between 0 and 255. The default (255) will include
-    all alignments.</p></td>
+      <td><p>Maximal mapping quality of alignments to be included when
+counting (mapping quality must be less than or equal to <code>mapqMax</code>).
+Valid values are between 0 and 255. The default (255) will include
+all alignments.</p></td>
     </tr>
     <tr>
       <th>absIsizeMin</th>
       <td><p>For paired-end experiments, minimal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be included when
-    counting. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any minimum insert size filtering.</p></td>
+size (TLEN field in SAM Spec v1.4) of alignments to be included when
+counting. Valid values are greater than 0 or <code>NULL</code> (default),
+which will not apply any minimum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>absIsizeMax</th>
       <td><p>For paired-end experiments, maximal absolute insert
-    size (TLEN field in SAM Spec v1.4) of alignments to be included when
-    counting. Valid values are greater than 0 or <code>NULL</code> (default),
-    which will not apply any maximum insert size filtering.</p></td>
+size (TLEN field in SAM Spec v1.4) of alignments to be included when
+counting. Valid values are greater than 0 or <code>NULL</code> (default),
+which will not apply any maximum insert size filtering.</p></td>
     </tr>
     <tr>
       <th>maxInsertSize</th>
       <td><p>Maximal fragment size of the paired-end experiment. 
-    This parameter is used if <code>shift="halfInsert"</code> and will
-    ensure that query regions are made wide enough to emcompass all
-    alignment pairs whose mid falls into the query region. The default
-    value is <code>500</code> bases.</p></td>
+This parameter is used if <code>shift="halfInsert"</code> and will
+ensure that query regions are made wide enough to emcompass all
+alignment pairs whose mid falls into the query region. The default
+value is <code>500</code> bases.</p></td>
     </tr>
     <tr>
       <th>clObj</th>
-      <td><p>a cluster object to be used for parallel processing (see
-    &#8216;Details&#8217;).</p></td>
+      <td><p>A cluster object to be used for parallel processing (see
+&#8216;Details&#8217;).</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code>matrix</code> with effective query regions width in the first
+column, and alignment counts in subsequent columns, or a
+<code>GRanges</code> object if <code>reportLevel="junction"</code>.</p>
+<p>The effective query region width returned as first column in the
+matrix is calculated by the number of unique, non-masked bases in the
+reference sequence that contributed to the count of this query
+name (irrespective if the bases were covered by alignments or not).
+An effective width of zero indicates that the region was fully
+masked and will have zero counts in all samples.</p>
+<p>The alignment counts in the matrix are contained from column two
+onwards. For projects with allele-specific quantification, i.e. if a
+file with single nucleotide polymorphisms was supplied to the
+<code>snpFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>, there will be
+three columns per bam file (number of alignments for Reference, 
+Unknown and Alternative genotypes, with suffixed _R, _U and
+_A). Otherwise there is a single columns per bam file.</p>
+<p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with identical 
+sample name are combined by summing their alignment counts.</p>
+<p>For <code>reportLevel="junction"</code>, the return value is a
+<code>GRanges</code> object. The start and end coordinates correspond to the
+first and last base in each detected intron. Plus- and minus-strand
+alignments are quantified separately, so that in an unstranded RNA-seq
+experiment, the same intron may be represented twice; once for each
+strand. The counts for each sample are contained in the <code>mcols</code>
+of the <code>GRanges</code> object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><code>qCount</code> is used to count alignments in each sample from a
-  <code>qProject</code> object. The features to be quantified, together with
-  the mode of quantification, are specified by the <code>query</code>
-  argument, which is one of:</p><ul>
+<code>qProject</code> object. The features to be quantified, together with
+the mode of quantification, are specified by the <code>query</code>
+argument, which is one of:</p><ul>
 <li><p><code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>: Overlapping alignments
-    are counted separately for each coordinate region. If multiple
-    regions have identical names, their counts will be summed, counting
-    each alignment only once even if it overlaps more than one of these
-    regions. Alignments may be counted more than once if they overlap
-    multiple regions that have different names.
-    This mode is for example used to quantify ChIP-seq alignments in
-    promoter regions, or gene expression levels in an RNA-seq experiment
-    (using a <code>query</code> with exon regions named by gene).</p></li>
+  are counted separately for each coordinate region. If multiple
+  regions have identical names, their counts will be summed, counting
+  each alignment only once even if it overlaps more than one of these
+  regions. Alignments may be counted more than once if they overlap
+  multiple regions that have different names.
+  This mode is for example used to quantify ChIP-seq alignments in
+  promoter regions, or gene expression levels in an RNA-seq experiment
+  (using a <code>query</code> with exon regions named by gene).</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html'>GRangesList</a></code>: Alignments are
-    counted and summed for each list element in <code>query</code> if they
-    overlap with any of the regions contained in the list element. The
-    order of the list elements defines a hierarchy for quantification:
-    Alignment will only be counted for the first element (the one with
-    the lowest index in <code>query</code>) that they overlap, but not for any
-    potential further list elements containing overlapping regions.
-    This mode can be used to hierarchically and uniquely count (assign)
-    each alignment to a one of several groups of regions (the elements
-    in <code>query</code>), for example to estimate the fractions of different
-    classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA,
-    mRNA, etc.)</p></li>
+  counted and summed for each list element in <code>query</code> if they
+  overlap with any of the regions contained in the list element. The
+  order of the list elements defines a hierarchy for quantification:
+  Alignment will only be counted for the first element (the one with
+  the lowest index in <code>query</code>) that they overlap, but not for any
+  potential further list elements containing overlapping regions.
+  This mode can be used to hierarchically and uniquely count (assign)
+  each alignment to a one of several groups of regions (the elements
+  in <code>query</code>), for example to estimate the fractions of different
+  classes of RNA in an RNA-seq experiment (rRNA, tRNA, snRNA, snoRNA,
+  mRNA, etc.)</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/GenomicFeatures/man/TxDb-class.html'>TxDb</a></code>: Used to extract
-    regions from annotation and report alignment counts depending on the
-    value of <code>reportLevel</code>. If <code>reportLevel="exon"</code>,
-    alignments overlapping each exon in <code>query</code> are counted.
-    If <code>reportLevel="gene"</code>, alignment counts for all exons of a
-    gene will be summed, counting each alignment only once even if it
-    overlaps multiple annotated exons of a gene. These are useful to
-    calculate exon or gene expression levels in RNA-seq experiments
-    based on the annotation in a <code>TxDb</code> object. If
-    <code>reportLevel="promoter"</code>, the <code>promoters</code> function from package
-    <span class="pkg">GenomicFeatures</span> is used with default arguments to extract
-    promoter regions around transcript start sites, e.g. to quantify
-    alignments inf a ChIP-seq experiment.</p></li>
+  regions from annotation and report alignment counts depending on the
+  value of <code>reportLevel</code>. If <code>reportLevel="exon"</code>,
+  alignments overlapping each exon in <code>query</code> are counted.
+  If <code>reportLevel="gene"</code>, alignment counts for all exons of a
+  gene will be summed, counting each alignment only once even if it
+  overlaps multiple annotated exons of a gene. These are useful to
+  calculate exon or gene expression levels in RNA-seq experiments
+  based on the annotation in a <code>TxDb</code> object. If
+  <code>reportLevel="promoter"</code>, the <code>promoters</code> function from package
+  <span class="pkg">GenomicFeatures</span> is used with default arguments to extract
+  promoter regions around transcript start sites, e.g. to quantify
+  alignments inf a ChIP-seq experiment.</p></li>
 <li><p>any of the above or <code>NULL</code> for
-    <code>reportLevel="junction"</code>: The <code>query</code> argument is ignored
-    if <code>reportLevel</code> is set to <code>"junction"</code>, and <code>qCount</code>
-    will count the number of alignments supporting each exon-exon
-    junction detected in any of the samples in <code>proj</code>. The
-    arguments <code>selectReadPosition</code>, <code>shift</code>,
-    <code>orientation</code>, <code>useRead</code> and <code>mask</code> will have no
-    effect in this quantification mode.</p></li>
+  <code>reportLevel="junction"</code>: The <code>query</code> argument is ignored
+  if <code>reportLevel</code> is set to <code>"junction"</code>, and <code>qCount</code>
+  will count the number of alignments supporting each exon-exon
+  junction detected in any of the samples in <code>proj</code>. The
+  arguments <code>selectReadPosition</code>, <code>shift</code>,
+  <code>orientation</code>, <code>useRead</code> and <code>mask</code> will have no
+  effect in this quantification mode.</p></li>
 </ul>
 
 <p>The additional arguments allow to fine-tune the quantification:</p>
 <p><code>selectReadPosition</code> defines the part of the alignment that has
-  to be contained within a query region for an overlap. The values
-  <code>start</code> (default) and <code>end</code> refer to the biological start
-  (5'-end) and end (3'-end) of the alignment. For example, the
-  <code>start</code> of an alignment on the plus strand is its leftmost
-  (lowest) base, and the <code>end</code> of an alignment on the minus strand
-  is also the leftmost base.</p>
+to be contained within a query region for an overlap. The values
+<code>start</code> (default) and <code>end</code> refer to the biological start
+(5'-end) and end (3'-end) of the alignment. For example, the
+<code>start</code> of an alignment on the plus strand is its leftmost
+(lowest) base, and the <code>end</code> of an alignment on the minus strand
+is also the leftmost base.</p>
 <p><code>shift</code> allows on-the-fly shifting of alignments towards their
-  3'-end prior to overlap determination and counting. This can be
-  helpful to increase resolution of ChIP-seq experiments by moving
-  alignments by half the immuno-precipitated fragment size towards the
-  middle of fragments. <code>shift</code> is either an &#8220;integer&#8221; vector
-  with one value per alignment file in <code>proj</code>, or a single
-  &#8220;integer&#8221; value, in which case all alignment files will be
-  shifted by the same value. For paired-end experiments, it can be
-  alternatively set to "halfInsert", which will estimate the true
-  fragment size from the distance between aligned read pairs and shift
-  the alignments accordingly.</p>  
+3'-end prior to overlap determination and counting. This can be
+helpful to increase resolution of ChIP-seq experiments by moving
+alignments by half the immuno-precipitated fragment size towards the
+middle of fragments. <code>shift</code> is either an &#8220;integer&#8221; vector
+with one value per alignment file in <code>proj</code>, or a single
+&#8220;integer&#8221; value, in which case all alignment files will be
+shifted by the same value. For paired-end experiments, it can be
+alternatively set to "halfInsert", which will estimate the true
+fragment size from the distance between aligned read pairs and shift
+the alignments accordingly.</p>
 <p><code>orientation</code> controls the interpretation of alignment strand
-  when counting, relative to the strand of the query region. <code>any</code>
-  will count all overlapping alignments, irrespective of the alignment
-  strand (e.g. used in an unstranded RNA-seq experiment). <code>same</code>
-  will only count the alignments on the same strand as the query region
-  (e.g. in a stranded RNA-seq experiment), and <code>opposite</code> will only
-  count the alignments on the opposite strand from the query region
-  (e.g. to quantify anti-sense transcription in a stranded RNA-seq
-  experiment).</p>  
+when counting, relative to the strand of the query region. <code>any</code>
+will count all overlapping alignments, irrespective of the alignment
+strand (e.g. used in an unstranded RNA-seq experiment). <code>same</code>
+will only count the alignments on the same strand as the query region
+(e.g. in a stranded RNA-seq experiment that generates reads from the 
+sense strand), and <code>opposite</code> will only
+count the alignments on the opposite strand from the query region
+(e.g. to quantify anti-sense transcription in a stranded RNA-seq
+experiment).</p>
 <p><code>includeSpliced</code> and <code>includeSecondary</code> can be used to
-  include or exclude spliced or secondary alignments,
-  respectively. <code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
-  based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
-  take integer values between 0 and 255 and equal to
-  \(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
-  integer. A value 255 indicates that the mapping quality is not available.</p>
+include or exclude spliced or secondary alignments,
+respectively. <code>mapqMin</code> and <code>mapqMax</code> allow to select alignments
+based on their mapping qualities. <code>mapqMin</code> and <code>mapqMax</code> can
+take integer values between 0 and 255 and equal to
+\(-10 log_{10} Pr(\textnormal{mapping position is wrong})\), rounded to the nearest
+integer. A value 255 indicates that the mapping quality is not available.</p>
 <p>In paired-end experiments, <code>useRead</code> allows to quantify either
-  all alignments (<code>useRead="any"</code>), or only the first
-  (<code>useRead="first"</code>) or last (<code>useRead="last"</code>) read from a
-  read pair or read group. Note that for <code>useRead="any"</code> (the
-  default), an alignment pair that is fully contained within a query
-  region will contribute two counts to the value of that
-  region. <code>absIsizeMin</code> and <code>absIsizeMax</code> can be used to
-  select alignments based on their insert size (TLEN field in SAM Spec
-  v1.4).</p>
+all alignments (<code>useRead="any"</code>), or only the first
+(<code>useRead="first"</code>) or last (<code>useRead="last"</code>) read from a
+read pair or read group. Note that for <code>useRead="any"</code> (the
+default), an alignment pair that is fully contained within a query
+region will contribute two counts to the value of that
+region. <code>absIsizeMin</code> and <code>absIsizeMax</code> can be used to
+select alignments based on their insert size (TLEN field in SAM Spec
+v1.4).</p>
 <p><code>auxiliaryName</code> selects the reference sequence for which
-  alignments should be quantified. <code>NULL</code> (the default) will
-  select alignments against the genome. If set to a character string
-  that matches one of the auxiliary target names (as specified in
-  the <code>auxiliaryFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>), the
-  corresponding alignments will be counted.</p>
+alignments should be quantified. <code>NULL</code> (the default) will
+select alignments against the genome. If set to a character string
+that matches one of the auxiliary target names (as specified in
+the <code>auxiliaryFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>), the
+corresponding alignments will be counted.</p>
 <p><code>mask</code> can be used to specify a
-  <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object with regions in the
-  reference sequence to be excluded from quantification. The regions
-  will be considered unstranded (<code>strand="*"</code>). Alignments that
-  overlap with a region in <code>mask</code> will not be counted. Masking may
-  reduce the effective width of query regions reported by <code>qCount</code>,
-  even down to zero for regions that are fully contained in <code>mask</code>.</p>
-<p><!-- %collapseBySample -->
-  <!-- %maxInsertSize --></p>  
+<code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object with regions in the
+reference sequence to be excluded from quantification. The regions
+will be considered unstranded (<code>strand="*"</code>). Alignments that
+overlap with a region in <code>mask</code> will not be counted. Masking may
+reduce the effective width of query regions reported by <code>qCount</code>,
+even down to zero for regions that are fully contained in <code>mask</code>.</p>
 <p>If <code>clObj</code> is set to an object that inherits from class
-  <code>cluster</code>, for example an object returned by
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span>, the
-  quantification task is split into multiple chunks and processed in
-  parallel using <code><a href='https://rdrr.io/r/parallel/clusterApply.html'>clusterMap</a></code>. Currently, not all
-  tasks will be efficiently parallelized: For example, a single query
-  region and a single (group of) bam files will not be split into
-  multiple chunks.</p>
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A <code>matrix</code> with effective query regions width in the first
-  column, and alignment counts in subsequent columns, or a
-  <code>GRanges</code> object if <code>reportLevel="junction"</code>.</p>
-<p>The effective query region width returned as first column in the
-  matrix is calculated by the number of unique, non-masked bases in the
-  reference sequence that contributed to the count of this query
-  name (irrespective if the bases were covered by alignments or not).
-  An effective width of zero indicates that the region was fully
-  masked and will have zero counts in all samples.</p>  
-<p>The alignment counts in the matrix are contained from column two
-  onwards. For projects with allele-specific quantification, i.e. if a
-  file with single nucleotide polymorphisms was supplied to the
-  <code>snpFile</code> argument of <code><a href='qAlign.html'>qAlign</a></code>, there will be
-  three columns per bam file (number of alignments for Reference,
-  Unknown and Alternative genotypes, with suffixed _R, _U and
-  _A). Otherwise there is a single columns per bam file.</p>  
-<p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with identical 
-  sample name are combined by summing their alignment counts.</p>
-<p>For <code>reportLevel="junction"</code>, the return value is a
-  <code>GRanges</code> object. The start and end coordinates correspond to the
-  first and last base in each detected intron. Plus- and minus-strand
-  alignments are quantified separately, so that in an unstranded RNA-seq
-  experiment, the same intron may be represented twice; once for each
-  strand. The counts for each sample are contained in the <code>mcols</code>
-  of the <code>GRanges</code> object.</p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
-
-    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
+<code>cluster</code>, for example an object returned by
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span>, the
+quantification task is split into multiple chunks and processed in
+parallel using <code><a href='https://rdrr.io/r/parallel/clusterApply.html'>clusterMap</a></code>. Currently, not all
+tasks will be efficiently parallelized: For example, a single query
+region and a single (group of) bam files will not be split into
+multiple chunks.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='qAlign.html'>qAlign</a></code>,
-  <code><a href='qProject-class.html'>qProject</a></code>,
-  <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+<code><a href='qProject-class.html'>qProject</a></code>,
+<code><a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a></code> from package <span class="pkg">parallel</span></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
@@ -436,18 +436,15 @@
 <span class='co'># copy example data to current working directory</span>
 <span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span><span class='op'>)</span>, <span class='st'>"."</span>, recursive<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
-
 <span class='co'># load genome sequence</span>
 <span class='va'>genomeFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub.fa"</span>
 <span class='va'>gseq</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-io.html'>readDNAStringSet</a></span><span class='op'>(</span><span class='va'>genomeFile</span><span class='op'>)</span>
 <span class='va'>chrRegions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>gseq</span><span class='op'>)</span>, <span class='fu'>IRanges</span><span class='op'>(</span>start<span class='op'>=</span><span class='fl'>1</span>,width<span class='op'>=</span><span class='fu'>width</span><span class='op'>(</span><span class='va'>gseq</span><span class='op'>)</span>,names<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>gseq</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 
-
 <span class='co'># create alignments (paired-end experiment)</span>
 <span class='va'>sampleFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/samples_rna_paired.txt"</span>
 <span class='va'>proj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='qAlign.html'>qAlign</a></span><span class='op'>(</span><span class='va'>sampleFile</span>, <span class='va'>genomeFile</span>, splicedAlignment<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'>all necessary alignment files found</span></div><div class='input'>
-
 <span class='co'># count reads using a "GRanges" query</span>
 <span class='fu'>qCount</span><span class='op'>(</span><span class='va'>proj</span>, query<span class='op'>=</span><span class='va'>chrRegions</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'>counting alignments...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='output co'>#&gt;      width Sample1 Sample2
@@ -458,7 +455,6 @@
 #&gt; chr1 40000     425     732
 #&gt; chr2 10000    1462    1112
 #&gt; chr3 45000    1114    1156</div><div class='input'>
-
 <span class='co'># hierarchical counting using a "GRangesList" query</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>rtracklayer</span><span class='op'>)</span>
 <span class='va'>annotationFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub_annotation.gtf"</span>
@@ -473,7 +469,6 @@
 #&gt; lincRNA         1104       0       0
 #&gt; protein_coding 21576    5876    5919
 #&gt; snoRNA           104       0       0</div><div class='input'>
-
 <span class='co'># gene expression levels using a "TxDb" query</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'><a href='https://bioconductor.org/packages/GenomicFeatures'>"GenomicFeatures"</a></span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'>Loading required package: AnnotationDbi</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Biobase</span></div><div class='output co'>#&gt; <span class='message'>Welcome to Bioconductor</span>
@@ -523,7 +518,8 @@
 #&gt;   [51]     chr1   4617-4778      - |         0         1
 #&gt;   [52]     chr3   2504-5589      + |         0         2
 #&gt;   -------
-#&gt;   seqinfo: 3 sequences from an unspecified genome; no seqlengths</div></pre>
+#&gt;   seqinfo: 3 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -535,7 +531,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Stadler.</p>
+  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">
