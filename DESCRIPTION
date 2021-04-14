@@ -1,25 +1,52 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.31.1
+Version: 1.31.2
 Date: 2021-02-09
-Author: Anita Lerch, Charlotte Soneson, Dimos Gaiditzis and Michael Stadler
-Maintainer: Michael Stadler <michael.stadler@fmi.ch>
-Depends: R (>= 4.0), parallel, GenomicRanges, Rbowtie
-Imports: methods, grDevices, graphics, utils, BiocGenerics,
-	S4Vectors, IRanges, BiocManager, Biobase,
-    Biostrings, BSgenome, Rsamtools,
-    GenomicFeatures, ShortRead,
-    GenomicAlignments, BiocParallel, GenomeInfoDb,
-    rtracklayer, GenomicFiles, Rhisat2, AnnotationDbi
+Authors@R: c(person("Anita", "Lerch", role = c("aut")),
+             person("Charlotte", "Soneson", role = c("aut"), 
+                    email = "charlottesoneson@gmail.com", 
+                    comment = c(ORCID = "0000-0003-3833-2169")),
+             person("Dimos", "Gaidatzis", role = c("aut")),
+             person("Michael", "Stadler", role = c("aut", "cre"), 
+                    email = "michael.stadler@fmi.ch", 
+                    comment = c(ORCID = "0000-0002-2269-4934")))
+Depends: R (>= 4.0), 
+    parallel, 
+    GenomicRanges, 
+    Rbowtie
+Imports: 
+    methods,
+    grDevices,
+    graphics,
+    utils,
+    BiocGenerics,
+    S4Vectors,
+    IRanges,
+    BiocManager,
+    Biobase,
+    Biostrings,
+    BSgenome,
+    Rsamtools,
+    GenomicFeatures,
+    ShortRead,
+    BiocParallel,
+    GenomeInfoDb,
+    rtracklayer,
+    GenomicFiles,
+    AnnotationDbi,
+    tools
 Suggests: 
     Gviz,
     BiocStyle,
+    GenomicAlignments,
+    Rhisat2,
     knitr,
     rmarkdown,
     covr,
     testthat
 LinkingTo: Rhtslib
+Encoding: UTF-8
 SystemRequirements: GNU make
 Description: This package provides a framework for the quantification
     and analysis of Short Reads. It covers a complete workflow
@@ -31,3 +58,4 @@ biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
+RoxygenNote: 7.1.1

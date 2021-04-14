@@ -8,7 +8,7 @@ context("preprocessReads")
 # ... create two temporary fasta files and return file names
 faFiles <- tempfile(fileext = rep(".fa", 2), tmpdir = "extdata")
 writeLines(c(">seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", # onlyInsert
-             ">seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", # low compexity, 2N
+             ">seq2", "AAAAANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", # low complexity, 2N
              ">seq3", "AAAATACTGTGTGACAGACCTCGGGGCCACATGCAC", # A.., LAdapter
              ">seq4", "ATACTGTGTGACAGACCTCGGGGCCACATGCACTGA", # LAdapter
              ">seq5", "TGTGACAGACCTCGGGGCCACATGCACTGACTCCTC", # Insert
@@ -17,8 +17,8 @@ writeLines(c(">seq1", "CCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGA", # onlyInsert
              ">seq8", "ATACTGGAGGTCATCTCGTATGCCGTCTTCTGCTTG", # LAdapter, shortInsert, RAdapter
              ">seq9", "TGACAGACCTCGGGGCCAC"),                 # shortLength
              faFiles[1])
-writeLines(c(">seq1", "AAAAAAAAAAAAAAAAAAA",                  # low compexity
-             ">seq2", "TCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGG", # low compexity, shortLength
+writeLines(c(">seq1", "AAAAAAAAAAAAAAAAAAA",                  # low complexity
+             ">seq2", "TCAGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGG", # low complexity, shortLength
              ">seq3", "CTCCTCAGCTGCCAGATGTGCAGTCCAAGCTGGGCC", # onlyInsert
              ">seq4", "GAGGTCATCTCGTATGCCGTCTTCTGCTTGAAAAAA", # RAdapter
              ">seq5", "AGCTGCCAGATGTGCAGTCCAAGCTGGGCCGAGGTC", # Insert
@@ -51,29 +51,36 @@ writeLines(c("@seq1", "AAAAAAAAAAAAAAAAAAA",                  "+", "3@?3/>9A8@A1
              fqFiles[2])
 
 test_that("arguments in preprocessReads are digested correctly", {
+  tmptxt <- tempfile(fileext = ".txt", tmpdir = "extdata")
+  writeLines("AAA", tmptxt)
+  tmpfagz <- tempfile(fileext = ".fa.gz", tmpdir = "extdata")
+  Biostrings::writeXStringSet(DNAStringSet(x = "AAA"), 
+                              filepath = tmpfagz, compress = TRUE)
   expect_error(preprocessReads(1L),
                ".filename. must be of type character")
   expect_error(preprocessReads(c("a","b"), "c"),
                ".filename. and .outputFilename. must have equal length")
+  expect_error(preprocessReads("in1.fa", "out1.fa"),
+               "non-existing input file.s.: in1.fa")
   expect_error(preprocessReads("a", 1L),
                ".outputFilename. must be of type character")
-  expect_error(preprocessReads("a.txt", NULL),
+  expect_error(preprocessReads(tmptxt, NULL),
                "unsupported file format")
-  expect_error(preprocessReads("a.fasta", "b.fastq"),
+  expect_error(preprocessReads(faFiles[1], "b.fastq"),
                "format of .filename. and .outputFilename. must be identical")
-  expect_error(preprocessReads("a.fa.gz", "b.fa.gz"),
+  expect_error(preprocessReads(tmpfagz, "b.fa.gz"),
                "compressed .fasta. input is not yet supported")
-  expect_error(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fa", Lpattern = "AAA"),
+  expect_error(preprocessReads(faFiles[1], "out1.fa", faFiles[2], "out2.fa", Lpattern = "AAA"),
                "Removing adapters from paired-end samples is not yet supported")
-  expect_error(preprocessReads("in1.fa", "out1.fa", 1L, "out2.fa"),
+  expect_error(preprocessReads(faFiles[1], "out1.fa", 1L, "out2.fa"),
                ".filenameMate. must be of type character")
-  expect_error(preprocessReads("in1.fa", "out1.fa", "in2.fa", 1L),
+  expect_error(preprocessReads(faFiles[1], "out1.fa", faFiles[2], 1L),
                ".outputFilenameMate. must be of type character")
-  expect_error(preprocessReads("in1.fa", "out1.fa", "in2.fa", c("o2a.fa","o2b.fa")),
+  expect_error(preprocessReads(faFiles[1], "out1.fa", faFiles[2], c("o2a.fa","o2b.fa")),
                ".filenameMate. and .outputFilenameMate. must have equal length")
-  expect_error(preprocessReads("in1.fa", "out1.fa", "in2.fa", "out2.fq"),
+  expect_error(preprocessReads(faFiles[1], "out1.fa", faFiles[2], "out2.fq"),
                "format of .filenameMate. and .outputFilenameMate. must be identical")
-  expect_error(preprocessReads("in1.fa", "out1.fa.gz", "in2.fa", "out2.fa.bz2"),
+  expect_error(preprocessReads(faFiles[1], "out1.fa.gz", faFiles[2], "out2.fa.bz2"),
                "compression format of .outputFilename. and .outputFilenameMate. must be identical")
 })
 
