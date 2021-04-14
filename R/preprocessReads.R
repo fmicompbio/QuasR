@@ -412,7 +412,6 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
 #' @importFrom ShortRead readFasta writeFastq FastqStreamer yield narrow
 #' @importFrom Biostrings trimLRPatterns
 #' @importFrom S4Vectors evalSeparately
-#' @importFrom BiocGenerics width start end
 preprocessPairedReads <- function(filename, filenameMate, outputFilename, 
                                   outputFilenameMate, fileformat, filecompr,
                                   truncateFromBase, truncateToBase, 

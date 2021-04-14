@@ -201,7 +201,7 @@
 #' 
 #' @importFrom Rsamtools scanBamHeader scanFaIndex
 #' @importFrom parallel clusterEvalQ clusterApplyLB
-#' @importFrom GenomeInfoDb seqlevels seqinfo
+#' @importFrom GenomeInfoDb seqlevels seqinfo seqnames
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 qMeth <- function(proj,
