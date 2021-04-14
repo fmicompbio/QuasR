@@ -140,7 +140,8 @@ shifted by \code{shift} towards the 3'-end (assuming that the 5'-end
 is the leftmost coordinate for plus-strand alignments, and the rightmost
 coordinate for minus-strand alignments). Paired-end alignments are
 assigned according to the base in the middle between the leftmost and
-rightmost coordinates of the aligned pair of reads. Each pair of reads
+rightmost coordinates of the aligned pair of reads, unless 
+\code{pairedAsSingle = TRUE} is used. Each pair of reads
 is only counted once, and not properly paired alignments are
 ignored. If \code{useRead} is set to select only the first or last
 read in a paired-end experiment, the selected read will be treated as

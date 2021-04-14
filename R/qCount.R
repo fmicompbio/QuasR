@@ -83,7 +83,8 @@
 #' will count all overlapping alignments, irrespective of the alignment
 #' strand (e.g. used in an unstranded RNA-seq experiment). \code{same}
 #' will only count the alignments on the same strand as the query region
-#' (e.g. in a stranded RNA-seq experiment), and \code{opposite} will only
+#' (e.g. in a stranded RNA-seq experiment that generates reads from the 
+#' sense strand), and \code{opposite} will only
 #' count the alignments on the opposite strand from the query region
 #' (e.g. to quantify anti-sense transcription in a stranded RNA-seq
 #' experiment).
