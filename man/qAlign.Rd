@@ -98,8 +98,7 @@ generated at the location of the input sequence files.}
 
 \item{lib.loc}{can be used to change the default library path of
 R. The library path is used by \code{QuasR} to store aligner index
-packages created from \code{BSgenome} reference genomes, or to
-install newly downloaded \code{BSgenome} packages.}
+packages created from \code{BSgenome} reference genomes.}
 
 \item{cacheDir}{specifies the location to store (potentially huge)
 temporary files. If set to \code{NULL} (default), the temporary

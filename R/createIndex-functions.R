@@ -42,7 +42,7 @@ buildIndexPackage <- function(genome, aligner, alnModeID, cacheDir, lib.loc) {
             # package installation was successful, clean up
             unlink(file.path(cacheDir, indexPackageName), recursive = TRUE)
         } else {
-            "Fatal error 2309420"
+            stop("Failed to install the index package '", indexPackageName, "'")
         }
     }
 }

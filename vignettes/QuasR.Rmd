@@ -322,9 +322,10 @@ by type, together with their default location and how locations can be changed.
     + `BSgenome`: If `genome` is the name of a `r Biocpkg("BSgenome")` package
       (such as `"BSgenome.Hsapiens.UCSC.hg19"`), the index will be stored as a
       new **R** package in the default library path (as reported by `.libPaths()[1]`,
-      see `?install.packages` for details). The name of this index package will be
-      the name of the original `r Biocpkg("BSgenome")` package with a suffix for
-      the index type, for example `"BSgenome.Hsapiens.UCSC.hg19.Rbowtie"`.  
+      see `?install.packages` for details), or alternatively in the library
+      specified by the `lib.loc` argument of `qAlign`. The name of this index
+      package will be the name of the original `r Biocpkg("BSgenome")` package
+      with a suffix for the index type, for example `"BSgenome.Hsapiens.UCSC.hg19.Rbowtie"`.  
     + `fasta`: If `genome` refers to a reference genome file in `fasta` format,
       the index will be stored in a subdirectory at the same location. Similarly,
       the indices for files listed in `auxiliaryFile` are store at the location
@@ -845,14 +846,16 @@ of a `fasta` file as reference genome (see section \@ref(genome)).
 To use a `r Biocpkg("BSgenome")`, the `genome` argument of `qAlign` is set to a
 string matching the name of a `r Biocpkg("BSgenome")` package, for example 
 `"BSgenome.Hsapiens.UCSC.hg19"`. If that package is not already installed, `qAlign`
-will check if it is available from http://bioconductor.org/ and download it automatically.
+will abort with an informative message describing how to install the package
+using `BiocManager::install`.
 The corresponding alignment index will be saved as a new package, named after the
 original `r Biocpkg("BSgenome")` package and the aligner used to build the index,
 for example `BSgenome.Hsapiens.UCSC.hg19.Rbowtie`.
 
 The code example below illustrates the use of a `r Biocpkg("BSgenome")` reference
 genome for the same example data as above. Running it for the first time will take
-several hours in order to build the aligner index:  
+a few hours in order to build the aligner index, but subsequent uses of the
+same reference genome will reuse the existing index and immediately start alignments:  
 ```{r ChIP_BSgenomeProject, eval=FALSE}
 file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
 
@@ -1343,8 +1346,8 @@ to the reference genome, against one or several auxiliary target sequences
 
 The reference genome can be provided either as a `fasta` sequence file or as a
 `BSgenome` package name (see section \@ref(genome)). If a `BSgenome`
-package is not found in the installed packages but available from Bioconductor,
-it will be automatically downloaded.
+package is not found in the installed packages, `qAlign` will abort with a
+description how the missing package can be installed from Bioconductor.
 
 The alignment program is set by `aligner`, and parameters by `maxHits`, `paired`,
 `splicedAlignment` and `alignmentParameter`. Currently, `aligner` can only be set

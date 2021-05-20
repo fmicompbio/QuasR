@@ -184,7 +184,7 @@ createAuxAlignments <- function(proj, clObj) {
 #' @importFrom stats na.omit
 #' @importFrom Rsamtools asBam
 createGenomicAlignmentsController <- function(params) {
-    tryCatch({ # try catch block goes through the whole function
+    tryCatch({# try catch block goes through the whole function
         
         # extract the parameters from params
         sampleNr <- params$sampleNr

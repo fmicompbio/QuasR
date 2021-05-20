@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.33.0
-Date: 2021-02-09
+Version: 1.33.1
+Date: 2021-05-20
 Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Charlotte", "Soneson", role = c("aut"), 
                     email = "charlottesoneson@gmail.com", 
@@ -11,7 +11,7 @@ Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Michael", "Stadler", role = c("aut", "cre"), 
                     email = "michael.stadler@fmi.ch", 
                     comment = c(ORCID = "0000-0002-2269-4934")))
-Depends: R (>= 4.0), 
+Depends: R (>= 4.1), 
     parallel, 
     GenomicRanges, 
     Rbowtie

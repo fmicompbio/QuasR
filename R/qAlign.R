@@ -160,8 +160,7 @@
 #'   generated at the location of the input sequence files.
 #' @param lib.loc can be used to change the default library path of
 #'   R. The library path is used by \code{QuasR} to store aligner index
-#'   packages created from \code{BSgenome} reference genomes, or to
-#'   install newly downloaded \code{BSgenome} packages.
+#'   packages created from \code{BSgenome} reference genomes.
 #' @param cacheDir specifies the location to store (potentially huge)
 #'   temporary files. If set to \code{NULL} (default), the temporary
 #'   directory of the current R session as returned by \code{tempdir()}
@@ -217,8 +216,8 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
         stop("Missing 'genome' parameter.")
     }
     
-    # create a qProject, perform various tests, install required 
-    # BSgenome and load aligner package
+    # create a qProject, perform various tests, check for installed 
+    # BSgenome and load aligner packages
     # create fasta indices (.fai) files for all the reference sequences 
     # (genome & aux) as well as all md5 sum files
     proj <- createQProject(sampleFile, genome, auxiliaryFile, aligner, 
@@ -307,7 +306,7 @@ missingFilesMessage <- function(proj, checkOnly) {
                     genomeIndexNeedsToBeCreated <- TRUE
                 }
             } else {
-                stop("Fatal error 45906")
+                stop("'genomeFormat' must be 'file' or 'BSgenome'")
             }
         } else {
             indexPathR <- paste(proj@snpFile, basename(proj@genome),
@@ -399,7 +398,6 @@ missingFilesMessage <- function(proj, checkOnly) {
 #' @keywords internal
 #' @importFrom tools file_path_as_absolute file_ext file_path_sans_ext
 #' @importFrom BSgenome available.genomes
-#' @importFrom BiocManager install
 #' @importFrom ShortRead FastqStreamer yield
 #' @importFrom Biostrings quality
 #' @importFrom Biobase testBioCConnection
@@ -447,10 +445,11 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         if (genome %in% utils::installed.packages(lib.loc = lib.loc)[, 'Package']) {
             # BSgenome is already installed, load it
             if (!require(genome, character.only = TRUE, quietly = TRUE,
-                         lib.loc = lib.loc)) {
-                stop("The BSgenome ", genome,
+                         lib.loc = c(lib.loc, .libPaths()))) {
+                stop("The BSgenome ", genome, 
                      " is installed but cannot be loaded. ", 
-                     "The version of the BSgenome might be too old",
+                     "The version of the BSgenome might be outdated ",
+                     "(verify using BiocManager::valid()).",
                      call. = FALSE)
             }
             
@@ -458,35 +457,36 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
             proj@genomeFormat <- "BSgenome"
         } else {
             message("The specified genome is not a fasta file or an installed BSgenome.")
-            message("Connecting to Bioconductor and searching for a matching genome (internet connection required)...", appendLF = FALSE)
+            message("Connecting to Bioconductor to check for available genomes ",
+                    "(internet connection required)...", appendLF = FALSE)
             
             if (Biobase::testBioCConnection()) {
                 # Connection to Bioconductor OK
                 message("OK")
                 if (genome %in% BSgenome::available.genomes()) {
-                    # The genome is available in Bioconductor, install it
-                    message("Downloading genome... ", genome, " from Bioconductor")
-                    BiocManager::install(genome, update = FALSE, lib = lib.loc)
-                    
-                    # BSgenome has been installed, load it
-                    if (!require(genome, character.only = TRUE, quietly = TRUE, 
-                                 lib.loc = lib.loc)) {
-                        stop("Fatal error 23445")
-                    }
-                    
-                    proj@genome <- genome
-                    proj@genomeFormat <- "BSgenome"
+                    # The genome is available in Bioconductor,
+                    # request installation
+                    message(genome, " is available from Bioconductor.")
+                    stop("Please install ", genome, " using:\n",
+                         "   BiocManager::install(\"", genome, "\")\n",
+                         "before calling qAlign.", call. = FALSE)
+
                 } else {
                     # The genome is not available in Bioconductor
                     stop(genome,
-                         " is not available in Bioconductor. ", 
-                         "Type available.genomes() for a complete list",
+                         " is not available from Bioconductor. ", 
+                         "Use BSgenome::available.genomes() for a complete list.",
                          call. = FALSE)
                 }
             } else {
                 # No connection to Bioconductor
-                message("FAILED")
-                stop("Could not find the specified genome: ", genome, call. = FALSE)
+                stop("Could not check if ", genome,
+                     " is available from Bioconductor.\n",
+                     "Use BSgenome::available.genomes() for a complete list,\n",
+                     "and install ", genome, " using:\n",
+                     "   BiocManager::install(\"", genome, "\")\n",
+                     "before calling qAlign.", call. = FALSE)
+                
             }
         }
     }
@@ -976,8 +976,8 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
         
         if (!requireNamespace(pkgname, quietly = TRUE)) {
             stop("The ", pkgname, " package is required for alignments, but not ",
-                 "installed. Install it using ", 
-                 paste0("BiocManager::install(\"", pkgname, "\")"), call. = FALSE)
+                 "installed.\nInstall it using BiocManager::install(\"", pkgname, "\")",
+                 call. = FALSE)
         }
         # these test are not needed while Rbowtie is in "Depends"
         #if(!(pkgname %in% installed.packages()[,"Package"])){stop(pkgname, " package is required for the alignments but not installed on this system",call.=FALSE)}
