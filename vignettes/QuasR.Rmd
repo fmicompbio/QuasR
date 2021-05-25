@@ -26,7 +26,7 @@ vignette: >
 <!--
 ```{r options, results='hide', echo=FALSE}
 #options(width=65)
-options('useFancyQuotes' = FALSE, continue=" ", digits=3)
+options('useFancyQuotes' = FALSE, continue = " ", digits = 3)
 ```
 -->
 
@@ -193,7 +193,7 @@ to jump right into an analysis. The example uses data that is provided with the
 `r Biocpkg("QuasR")` package, which is first copied to the current working directory,
 into a subfolder called `"extdata"`:
 ```{r SampleSession1, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 ```
 
 The sequence files to be analyzed are listed in `sampleFile` (see section
@@ -233,11 +233,11 @@ the `GRanges`-object with the name `promReg`:
 library(rtracklayer)
 library(GenomicFeatures)
 annotFile <- "extdata/hg19sub_annotation.gtf"
-txStart <- import.gff(annotFile, format="gtf", feature.type="start_codon")
-promReg <- promoters(txStart, upstream=500, downstream=500)
+txStart <- import.gff(annotFile, format = "gtf", feature.type = "start_codon")
+promReg <- promoters(txStart, upstream = 500, downstream = 500)
 names(promReg) <- mcols(promReg)$transcript_name
 
-promCounts <- qCount(proj, query=promReg)
+promCounts <- qCount(proj, query = promReg)
 promCounts
 ```
  
@@ -353,8 +353,9 @@ Here are examples of such sample files for a single read experiment:
 
 <pre>
 ```{r sampleFileSingle, echo=FALSE, results="asis"}
-cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_chip_single.txt")),
-          collapse="\n"))
+cat(paste(readLines(system.file(package = "QuasR",
+                                "extdata", "samples_chip_single.txt")),
+          collapse = "\n"))
 ```
 </pre>
 <!--
@@ -368,8 +369,9 @@ and for a paired-end experiment:
 
 <pre>
 ```{r sampleFilePaired, echo=FALSE, results="asis"}
-cat(paste(readLines(system.file(package="QuasR", "extdata", "samples_rna_paired.txt")),
-      collapse="\n"))
+cat(paste(readLines(system.file(package = "QuasR",
+                                "extdata", "samples_rna_paired.txt")),
+      collapse = "\n"))
 ```
 </pre>
 <!--
@@ -490,8 +492,9 @@ An example auxiliary file looks like this:
 
 <pre>
 ```{r auxFile, echo=FALSE, results="asis"}
-cat(paste(readLines(system.file(package="QuasR", "extdata", "auxiliaries.txt")),
-          collapse="\n"))
+cat(paste(readLines(system.file(package = "QuasR",
+                                "extdata", "auxiliaries.txt")),
+          collapse = "\n"))
 ```
 </pre>
 <!--
@@ -501,7 +504,7 @@ cat(paste(readLines(system.file(package="QuasR", "extdata", "auxiliaries.txt")),
 
 and is available from your `r Biocpkg("QuasR")` installation at
 ```{r auxiliaryFile, eval=TRUE}
-auxFile <- system.file(package="QuasR", "extdata", "auxiliaries.txt")
+auxFile <- system.file(package = "QuasR", "extdata", "auxiliaries.txt")
 ```
 
 ## Select the reference genome{#genome}
@@ -565,7 +568,7 @@ the 3'-end (the right side), remove the adapter sequence `AAAAAAAAAA` from the
 removal, are shorter than 14 bases or contain more than 2 `N` bases:
 ```{r preprocessReadsSingle,eval=TRUE}
 td <- tempdir()
-infiles <- system.file(package="QuasR", "extdata",
+infiles <- system.file(package = "QuasR", "extdata",
                        c("rna_1_1.fq.bz2","rna_2_1.fq.bz2"))
 outfiles <- file.path(td, basename(infiles))
 res <- preprocessReads(filename = infiles,
@@ -593,15 +596,15 @@ criteria, both reads in the pair are removed, thereby preserving the matching
 order of the sequences in the two files:  
 ```{r preprocessReadsPaired,eval=TRUE}
 td <- tempdir()
-infiles1 <- system.file(package="QuasR", "extdata", "rna_1_1.fq.bz2")
-infiles2 <- system.file(package="QuasR", "extdata", "rna_1_2.fq.bz2")
+infiles1 <- system.file(package = "QuasR", "extdata", "rna_1_1.fq.bz2")
+infiles2 <- system.file(package = "QuasR", "extdata", "rna_1_2.fq.bz2")
 outfiles1 <- file.path(td, basename(infiles1))
 outfiles2 <- file.path(td, basename(infiles2))
-res <- preprocessReads(filename=infiles1,
-                       filenameMate=infiles2,
-                       outputFilename=outfiles1,
-                       outputFilenameMate=outfiles2,
-                       nBases=0)
+res <- preprocessReads(filename = infiles1,
+                       filenameMate = infiles2,
+                       outputFilename = outfiles1,
+                       outputFilenameMate = outfiles2,
+                       nBases = 0)
 res
 ```
 
@@ -620,7 +623,7 @@ such a CpG island close to their transcript start site. All necessary files are
 included in the `r Biocpkg("QuasR")` package, and we start the example workflow
 by copying those files into the current working directly, into a subfolder called `"extdata"`:
 ```{r ChIP_copyExtdata, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 ```
 
 
@@ -642,7 +645,7 @@ sampleFile <- "extdata/samples_chip_single.txt"
 auxFile <- "extdata/auxiliaries.txt"
 genomeFile <- "extdata/hg19sub.fa"
 
-proj1 <- qAlign(sampleFile, genome=genomeFile, auxiliaryFile=auxFile)
+proj1 <- qAlign(sampleFile, genome = genomeFile, auxiliaryFile = auxFile)
 proj1
 ```
 
@@ -656,7 +659,7 @@ alignments against the reference genome, and one for each auxiliary target seque
 with alignments of reads without genome hits. Our `auxFile` contains a single auxiliary
 target sequence, so we expect two `bam` files per input sequence file:
 ```{r ChIP_bamfiles1, eval=TRUE}
-list.files("extdata", pattern=".bam$")
+list.files("extdata", pattern = ".bam$")
 ```
 The `bam` file names consist of the base name of the sequence file with an added
 random string. The random suffix makes sure that newly generated alignment files
@@ -664,7 +667,7 @@ do not overwrite existing ones, for example of the same reads aligned against an
 alternative reference genome. Each alignment file is accompanied by two additional
 files with suffixes `.bai` and `.txt`:
 ```{r ChIP_bamfiles2, eval=TRUE}
-list.files("extdata", pattern="^chip_1_1_")[1:3]
+list.files("extdata", pattern = "^chip_1_1_")[1:3]
 ```
 The `.bai` file is the `bam` index used for fast access by genomic coordinate. 
 The `.txt` file contains all the parameters used to generate the corresponding `bam`
@@ -690,10 +693,10 @@ argument, or else shown as individual plot windows on the current graphics devic
 In order to keep the running time reasonably short, some quality metrics are obtained
 from a random sub-sample of the sequences or alignments.
 ```{r ChIP_qcplot1, eval=TRUE, echo=FALSE}
-qcdat1 <- qQCReport(proj1, pdfFilename="extdata/qc_report.pdf")
+qcdat1 <- qQCReport(proj1, pdfFilename = "extdata/qc_report.pdf")
 ```
 ```{r ChIP_qcplots2, eval=TRUE}
-qQCReport(proj1, pdfFilename="extdata/qc_report.pdf")
+qQCReport(proj1, pdfFilename = "extdata/qc_report.pdf")
 ```
 
 Currently available plots are described in section \@ref(qQCReport) and following.
@@ -718,7 +721,7 @@ object. The resolution is defined using the `binsize` argument, and if `scaling`
 is set to `TRUE`, read counts per bin are scaled by the total number of aligned 
 reads in each sample to improve comparability: 
 ```{r ChIP_qExportWig, eval=TRUE}
-qExportWig(proj1, binsize=100L, scaling=TRUE, collapseBySample=TRUE)
+qExportWig(proj1, binsize = 100L, scaling = TRUE, collapseBySample = TRUE)
 ```
 
 
@@ -736,19 +739,21 @@ the first transcript for each gene:
 library(GenomicFeatures)
 annotFile <- "extdata/hg19sub_annotation.gtf"
 chrLen <- scanFaIndex(genomeFile)
-chrominfo <- data.frame(chrom=as.character(seqnames(chrLen)),
-                        length=width(chrLen),
-                        is_circular=rep(FALSE, length(chrLen)))
-txdb <- makeTxDbFromGFF(file=annotFile, format="gtf",
-                        chrominfo=chrominfo,
-                        dataSource="Ensembl",
-                        organism="Homo sapiens")
-promReg <- promoters(txdb, upstream=1000, downstream=500,
-                     columns=c("gene_id","tx_id"))
-gnId <- sapply(mcols(promReg)$gene_id, paste, collapse=",")
+chrominfo <- data.frame(chrom = as.character(seqnames(chrLen)),
+                        length = width(chrLen),
+                        is_circular = rep(FALSE, length(chrLen)))
+txdb <- makeTxDbFromGFF(file = annotFile, format = "gtf",
+                        chrominfo = chrominfo,
+                        dataSource = "Ensembl",
+                        organism = "Homo sapiens")
+promReg <- promoters(txdb, upstream = 1000, downstream = 500,
+                     columns = c("gene_id","tx_id"))
+gnId <- vapply(mcols(promReg)$gene_id,
+               FUN = paste, FUN.VALUE = "",
+               collapse = ",")
 promRegSel <- promReg[ match(unique(gnId), gnId) ]
 names(promRegSel) <- unique(gnId)
-head(promRegSel)
+promRegSel
 ```
 
 Using `promRegSel` object as query, we can now count the alignment per sample in
@@ -769,11 +774,11 @@ gr2 <- import("Sample2.wig.gz")
 
 library(Gviz)
 axisTrack <- GenomeAxisTrack()
-dTrack1 <- DataTrack(range=gr1, name="Sample 1", type="h")
-dTrack2 <- DataTrack(range=gr2, name="Sample 2", type="h")
-txTrack <- GeneRegionTrack(txdb, name="Transcripts", showId=TRUE)
+dTrack1 <- DataTrack(range = gr1, name = "Sample 1", type = "h")
+dTrack2 <- DataTrack(range = gr2, name = "Sample 2", type = "h")
+txTrack <- GeneRegionTrack(txdb, name = "Transcripts", showId = TRUE)
 plotTracks(list(axisTrack, dTrack1, dTrack2, txTrack),
-           chromosome="chr3", extend.left=1000)
+           chromosome = "chr3", extend.left = 1000)
 ```
 
 
@@ -798,9 +803,9 @@ genes with multiple transcripts, are removed. Finally, all regions are given the
 ```{r ChIP_rtracklayer, eval=TRUE}
 library(rtracklayer)
 annotationFile <- "extdata/hg19sub_annotation.gtf"
-tssRegions <- import.gff(annotationFile, format="gtf",
-                         feature.type="start_codon",
-                         colnames="gene_name")
+tssRegions <- import.gff(annotationFile, format = "gtf",
+                         feature.type = "start_codon",
+                         colnames = "gene_name")
 tssRegions <- tssRegions[!duplicated(tssRegions)]
 names(tssRegions) <- rep("TSS", length(tssRegions))
 head(tssRegions)
@@ -814,10 +819,10 @@ while for regions on the `-` strand, upstream refers to the right side (higher c
 The following example creates separate profiles for alignments on the *same* and
 on the *opposite* strand of the regions in `query`.
 ```{r ChIP_qProfile, eval=TRUE}
-prS <- qProfile(proj1, tssRegions, upstream=3000, downstream=3000, 
-                orientation="same")
-prO <- qProfile(proj1, tssRegions, upstream=3000, downstream=3000, 
-                orientation="opposite")
+prS <- qProfile(proj1, tssRegions, upstream = 3000, downstream = 3000, 
+                orientation = "same")
+prO <- qProfile(proj1, tssRegions, upstream = 3000, downstream = 3000, 
+                orientation = "opposite")
 lapply(prS, "[", , 1:10)
 ```
 
@@ -829,15 +834,17 @@ relative position around the anchor sites. This coverage is available as the fir
 element in the return value. The shift between *same* and *opposite* strand alignments
 is indicative for the average length of the sequenced ChIP fragments.
 ```{r ChIP_visualizeProfile, eval=TRUE, fig.width=8, fig.height=4.5}
-prCombS <- do.call("+", prS[-1]) /prS[[1]]
-prCombO <- do.call("+", prO[-1]) /prO[[1]]
+prCombS <- do.call("+", prS[-1]) / prS[[1]]
+prCombO <- do.call("+", prO[-1]) / prO[[1]]
 
 plot(as.numeric(colnames(prCombS)), filter(prCombS[1,], rep(1/100,100)), 
-     type='l', xlab="Position relative to TSS", ylab="Mean no. of alignments")
+     type = 'l', xlab = "Position relative to TSS",
+     ylab = "Mean no. of alignments")
 lines(as.numeric(colnames(prCombO)), filter(prCombO[1,], rep(1/100,100)), 
-      type='l', col="red")
-legend(title="strand", legend=c("same as query","opposite of query"), 
-       x="topleft", col=c("black","red"), lwd=1.5, bty="n", title.adj=0.1)
+      type = 'l', col = "red")
+legend(title = "strand", legend = c("same as query","opposite of query"), 
+       x = "topleft", col = c("black","red"),
+       lwd = 1.5, bty = "n", title.adj = 0.1)
 ```
 
 ### Using a `r Biocpkg("BSgenome")` package as reference genome
@@ -890,12 +897,13 @@ We start the example workflow by copying the example data files into the current
 working directly, into a subfolder called `"extdata"`, and then create spliced
 alignments using `qAlign`:
 ```{r RNA_qAlign, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 
 sampleFile <- "extdata/samples_rna_paired.txt"
 genomeFile <- "extdata/hg19sub.fa"
 
-proj2 <- qAlign(sampleFile, genome=genomeFile, splicedAlignment=TRUE, aligner="Rhisat2")
+proj2 <- qAlign(sampleFile, genome = genomeFile,
+                splicedAlignment = TRUE, aligner = "Rhisat2")
 proj2
 ```
 
@@ -903,8 +911,8 @@ Aligning the reads with `splicedAlignment=TRUE` will allow to also align reads
 that cross exon junctions, and thus have a large deletion (the intron) 
 relative to the reference genome. 
 ```{r RNA_alignmentStats, eval=TRUE}
-proj2unspl <- qAlign(sampleFile, genome=genomeFile,
-                     splicedAlignment=FALSE)
+proj2unspl <- qAlign(sampleFile, genome = genomeFile,
+                     splicedAlignment = FALSE)
 
 alignmentStats(proj2)
 alignmentStats(proj2unspl)
@@ -918,8 +926,8 @@ from a `.gtf` file. The argument `reportLevel` can be used to control if annotat
 exonic regions should be quantified independently (`reportLevel="exon"`) or
 non-redundantly combined per gene (`reportLevel="gene"`): 
 ```{r RNA_qCount, eval=TRUE}
-geneLevels <- qCount(proj2, txdb, reportLevel="gene")
-exonLevels <- qCount(proj2, txdb, reportLevel="exon")
+geneLevels <- qCount(proj2, txdb, reportLevel = "gene")
+exonLevels <- qCount(proj2, txdb, reportLevel = "exon")
 
 head(geneLevels)
 head(exonLevels)
@@ -932,8 +940,8 @@ required to normalize for the length of query regions, or the size of the librar
 For example, gene expression levels in the form of *RPKM* values (reads per kilobase
 of transcript and million mapped reads) can be obtained as follows:
 ```{r RNA_RPMK, eval=TRUE}
-geneRPKM <- t(t(geneLevels[,-1] /geneLevels[,1] *1000)
-              /colSums(geneLevels[,-1]) *1e6)
+geneRPKM <- t(t(geneLevels[,-1] / geneLevels[,1] * 1000)
+              / colSums(geneLevels[,-1]) * 1e6)
 geneRPKM
 ```
 Please note the RPKM values in our example are higher than what you would usually
@@ -952,7 +960,7 @@ In an unstranded RNA-seq experiment, this may give rise to two separate counts
 for the same intron, one each for the supporting alignments on plus and minus 
 strands.
 ```{r RNA_junction, eval=TRUE}
-exonJunctions <- qCount(proj2, NULL, reportLevel="junction")
+exonJunctions <- qCount(proj2, NULL, reportLevel = "junction")
 exonJunctions
 ```
 
@@ -960,7 +968,7 @@ About half of the exon-exon junctions detected in this sample dataset correspond
 to known introns; they tend to be the ones with higher coverage:
 ```{r RNA_junction2, eval=TRUE}
 knownIntrons <- unlist(intronsByTranscript(txdb))
-isKnown <- overlapsAny(exonJunctions, knownIntrons, type="equal")
+isKnown <- overlapsAny(exonJunctions, knownIntrons, type = "equal")
 table(isKnown)
 
 tapply(rowSums(as.matrix(mcols(exonJunctions))),
@@ -973,12 +981,13 @@ quantification, for example when counting exon body alignments that complement t
 exon junction alignments. This can be done using the `includeSpliced` argument
 from `qCount`:
 ```{r RNA_includeSpliced, eval=TRUE}
-exonBodyLevels <- qCount(proj2, txdb, reportLevel="exon", includeSpliced=FALSE)
+exonBodyLevels <- qCount(proj2, txdb, reportLevel = "exon",
+                         includeSpliced = FALSE)
 summary(exonLevels - exonBodyLevels)
 ```
 
 ```{r RNA_qcplot1, eval=TRUE, echo=FALSE}
-qcdat2 <- qQCReport(proj2unspl, pdfFilename="qc_report.pdf")
+qcdat2 <- qQCReport(proj2unspl, pdfFilename = "qc_report.pdf")
 ```
 
 
@@ -992,7 +1001,7 @@ There are a few details that need special care, which are outlined in this secti
 Again, we start the example workflow by copying the example data files into the 
 current working directly, into a subfolder called `"extdata"`.
 ```{r miRNA_extdata, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 ```
 
 As a next step, we need to remove library adapter sequences from short RNA reads.
@@ -1014,19 +1023,19 @@ sampleFile
 sampleFile2 <- sub(".txt", "_processed.txt", sampleFile)
 sampleFile2
 
-tab <- read.delim(sampleFile, header=TRUE, as.is=TRUE)
+tab <- read.delim(sampleFile, header = TRUE, as.is = TRUE)
 tab
 
 tab2 <- tab
 tab2$FileName <- sub(".fa", "_processed.fa", tab$FileName)
-write.table(tab2, sampleFile2, sep="\t", quote=FALSE, row.names=FALSE)
+write.table(tab2, sampleFile2, sep = "\t", quote = FALSE, row.names = FALSE)
 tab2
 
 # remove adapters
 oldwd <- setwd(dirname(sampleFile))
 res <- preprocessReads(tab$FileName,
                        tab2$FileName,
-                       Rpattern="TGGAATTCTCGGGTGCCAAGG")
+                       Rpattern = "TGGAATTCTCGGGTGCCAAGG")
 res
 setwd(oldwd)
 ```
@@ -1039,16 +1048,17 @@ reducing their length to roughly the expected 22nt:
 # get read lengths
 library(Biostrings)
 oldwd <- setwd(dirname(sampleFile))
-lens <- fasta.seqlengths(tab$FileName, nrec=1e5)
-lens2 <- fasta.seqlengths(tab2$FileName, nrec=1e5)
+lens <- fasta.seqlengths(tab$FileName, nrec = 1e5)
+lens2 <- fasta.seqlengths(tab2$FileName, nrec = 1e5)
 setwd(oldwd)
 # plot length distribution
-lensTab <- rbind(raw=tabulate(lens,50),
-                 processed=tabulate(lens2,50))
+lensTab <- rbind(raw = tabulate(lens, 50),
+                 processed = tabulate(lens2, 50))
 colnames(lensTab) <- 1:50
 barplot(lensTab/rowSums(lensTab)*100,
-        xlab="Read length (nt)", ylab="Percent of reads")
-legend(x="topleft", bty="n", fill=gray.colors(2), legend=rownames(lensTab))
+        xlab = "Read length (nt)", ylab = "Percent of reads")
+legend(x = "topleft", bty = "n", fill = gray.colors(2),
+       legend = rownames(lensTab))
 ```
 
 ### Alignment of small RNA (miRNA) reads
@@ -1062,7 +1072,7 @@ would be underestimated if using the default `maxHits=1`. An example of such a
 multiply-encoded miRNA is mmu-miR-669a-5p, which has twelve exact copies in the
 mm10 genome assembly according to mirBase19.
 ```{r miRNA_qAlign, eval=TRUE}
-proj3 <- qAlign(sampleFile2, genomeFile, maxHits=50)
+proj3 <- qAlign(sampleFile2, genomeFile, maxHits = 50)
 alignmentStats(proj3)
 ```
 
@@ -1082,8 +1092,8 @@ well as mature miRNAs. The two can be discriminated by their `"type"`:
 ```{r miRNA_prepareQuery, eval=TRUE}
 mirs <- import("extdata/mirbaseXX_qsr.gff3")
 names(mirs) <- mirs$Name
-preMirs <- mirs[ mirs$type=="miRNA_primary_transcript" ]
-matureMirs <- mirs[ mirs$type=="miRNA" ]
+preMirs <- mirs[ mirs$type == "miRNA_primary_transcript" ]
+matureMirs <- mirs[ mirs$type == "miRNA" ]
 ```
 
 Please note that the name attribute of the `GRanges` object must be set appropriately,
@@ -1101,14 +1111,16 @@ have been sampled from a read data set:
 ```{r miRNA_coverage, eval=TRUE, fig.width=6, fig.height=4.5}
 library(Rsamtools)
 alns <- scanBam(alignments(proj3)$genome$FileName,
-                param=ScanBamParam(what=scanBamWhat(), which=preMirs[1]))[[1]]
-alnsIR <- IRanges(start=alns$pos - start(preMirs), width=alns$qwidth)
-mp <- barplot(as.vector(coverage(alnsIR)), names.arg=1:max(end(alnsIR)),
-              xlab="Relative position in pre-miRNA",
-              ylab="Alignment coverage")
-rect(xleft=mp[start(matureMirs)-start(preMirs)+1,1], ybottom=-par('cxy')[2],
-     xright=mp[end(matureMirs)-start(preMirs)+1,1], ytop=0,
-     col="#CCAA0088", border=NA, xpd=NA)
+                param = ScanBamParam(what = scanBamWhat(),
+                                     which = preMirs[1]))[[1]]
+alnsIR <- IRanges(start = alns$pos - start(preMirs), width = alns$qwidth)
+mp <- barplot(as.vector(coverage(alnsIR)), names.arg = seq_len(max(end(alnsIR))),
+              xlab = "Relative position in pre-miRNA",
+              ylab = "Alignment coverage")
+rect(xleft = mp[start(matureMirs) - start(preMirs) + 1,1],
+     ybottom = -par('cxy')[2],
+     xright = mp[end(matureMirs) - start(preMirs) + 1,1],
+     ytop = 0, col = "#CCAA0088", border = NA, xpd = NA)
 ```
 
 By default, `qCount` will count alignments that have their 5'-end within the query
@@ -1118,7 +1130,7 @@ coordinate for alignments on the minus strand. In order not to miss miRNAs that
 have a couple of extra or missing bases, we therefore construct a query window 
 around the 5'-end of each mature miRNA, by adding three bases up- and downstream:
 ```{r miRNA_extendQuery, eval=TRUE}
-matureMirsExtended <- resize(matureMirs, width=1L, fix="start") + 3L
+matureMirsExtended <- resize(matureMirs, width = 1L, fix = "start") + 3L
 ```
 
 The resulting extended query is then used to quantify mature miRNAs. Multiple-encoded
@@ -1127,11 +1139,11 @@ which have identical names. `qCount` will automatically sum all alignments from
 any of those regions and return a single number per sample and unique miRNA name.
 ```{r miRNA_quantify, eval=TRUE}
 # quantify mature miRNAs
-cnt <- qCount(proj3, matureMirsExtended, orientation="same")
+cnt <- qCount(proj3, matureMirsExtended, orientation = "same")
 cnt
 
 # quantify pre-miRNAs
-cnt <- qCount(proj3, preMirs, orientation="same")
+cnt <- qCount(proj3, preMirs, orientation = "same")
 cnt
 ```
 
@@ -1152,12 +1164,12 @@ directly, into a subfolder called `"extdata"`. Then, bisulfite-specific alignmen
 is selected in `qAlign` by setting `bisulfite` to `"dir"` for a directional 
 experiment, or to `"undir"` for an undirectional Bis-seq experiment:
 ```{r Bis_qAlign, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 
 sampleFile <- "extdata/samples_bis_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
 
-proj4 <- qAlign(sampleFile, genomeFile, bisulfite="dir")
+proj4 <- qAlign(sampleFile, genomeFile, bisulfite = "dir")
 proj4
 ```
 
@@ -1168,7 +1180,7 @@ in specific genomic regions could be quantified using `qCount` as with ChIP-seq
 or RNA-seq experiments. For quantification of methylation the `qMeth` function 
 is used: 
 ```{r Bis_qMeth1, eval=TRUE}
-meth <- qMeth(proj4, mode="CpGcomb", collapseBySample=TRUE)
+meth <- qMeth(proj4, mode = "CpGcomb", collapseBySample = TRUE)
 meth
 ```
 
@@ -1187,22 +1199,22 @@ in the target genome including the ones that have zero coverage, unless you set
 chrs <- readDNAStringSet(genomeFile)
 sum(vcountPattern("CG",chrs))
 length(qMeth(proj4))
-length(qMeth(proj4, keepZero=FALSE))
+length(qMeth(proj4, keepZero = FALSE))
 ```
 
 The fraction methylation can easily be obtained as the ratio between `_M` and 
 `_T` columns:
 ```{r Bis_visualize, eval=TRUE, fig.height=4.5, fig.width=8}
-percMeth <- mcols(meth)[,2] *100 /mcols(meth)[,1]
+percMeth <- mcols(meth)[,2] * 100 / mcols(meth)[,1]
 summary(percMeth)
 
 axisTrack <- GenomeAxisTrack()
-dTrack1 <- DataTrack(range=gr1, name="H3K4me3", type="h")
-dTrack2 <- DataTrack(range=meth, data=percMeth,
-                     name="Methylation", type="p")
-txTrack <- GeneRegionTrack(txdb, name="Transcripts", showId=TRUE)
+dTrack1 <- DataTrack(range = gr1, name = "H3K4me3", type = "h")
+dTrack2 <- DataTrack(range = meth, data = percMeth,
+                     name = "Methylation", type = "p")
+txTrack <- GeneRegionTrack(txdb, name = "Transcripts", showId = TRUE)
 plotTracks(list(axisTrack, dTrack1, dTrack2, txTrack),
-           chromosome="chr3", extend.left=1000)
+           chromosome = "chr3", extend.left = 1000)
 ```
 
 If `qMeth` is called without a `query` argument, it will by default return 
@@ -1211,10 +1223,10 @@ is possible to restrict the analysis to specific genomic regions, and if using
 in addition `collapseByQueryRegion=TRUE`, the single base methylation states will
 further be combined for all C's that are contained in the same query region:
 ```{r Bis_query, eval=TRUE}
-qMeth(proj4, query=GRanges("chr1",IRanges(start=31633,width=2)),
-      collapseBySample=TRUE)
-qMeth(proj4, query=promRegSel, collapseByQueryRegion=TRUE,
-      collapseBySample=TRUE)
+qMeth(proj4, query = GRanges("chr1",IRanges(start = 31633, width = 2)),
+      collapseBySample = TRUE)
+qMeth(proj4, query = promRegSel, collapseByQueryRegion = TRUE,
+      collapseBySample = TRUE)
 ```
 
 Finally, `qMeth` allows the retrieval of methylation states for individual molecules
@@ -1238,8 +1250,9 @@ Below is an example of a SNP file, also available from `system.file(package="Qua
 
 <pre>
 ```{r snpFile, echo=FALSE, results="asis"}
-cat(paste(c(readLines(system.file(package="QuasR", "extdata", "hg19sub_snp.txt"))[1:4], "..."),
-          collapse="\n"))
+cat(paste(c(readLines(system.file(package = "QuasR",
+                                  "extdata", "hg19sub_snp.txt"))[1:4], "..."),
+          collapse = "\n"))
 ```
 </pre>
 <!--
@@ -1274,7 +1287,7 @@ names will be suffixed by `_R`, `_U` and `_A`.
 The examples below use data provided with the `r Biocpkg("QuasR")` package, which
 is first copied to the current working directory, into a subfolder called `"extdata"`:
 ```{r Alelle_Extdata, eval=TRUE}
-file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
+file.copy(system.file(package = "QuasR", "extdata"), ".", recursive = TRUE)
 ```
 
 
@@ -1284,7 +1297,7 @@ The example below aligns the same reads that were also used in the ChIP-seq work
 sampleFile <- "extdata/samples_chip_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
 snpFile <- "extdata/hg19sub_snp.txt"
-proj1SNP <- qAlign(sampleFile, genome=genomeFile, snpFile=snpFile)
+proj1SNP <- qAlign(sampleFile, genome = genomeFile, snpFile = snpFile)
 proj1SNP
 ```
 
@@ -1303,8 +1316,8 @@ a total of six instead of two counts per feature and sample:
 sampleFile <- "extdata/samples_bis_single.txt"
 genomeFile <- "extdata/hg19sub.fa"
 proj4SNP <- qAlign(sampleFile, genomeFile,
-                   snpFile=snpFile, bisulfite="dir")
-head(qMeth(proj4SNP, mode="CpGcomb", collapseBySample=TRUE))
+                   snpFile = snpFile, bisulfite = "dir")
+head(qMeth(proj4SNP, mode = "CpGcomb", collapseBySample = TRUE))
 ```
 
 
@@ -1424,51 +1437,51 @@ on an unspliced alignment of paired-end RNA seq reads):
   plot for each position in the input sequence. The background color (green, orange
   or red) indicates ranges of high, intermediate and low qualities. 
 ```{r qcplotsFig1, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotQualByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
+QuasR:::plotQualByCycle(qcdat1$raw$qa, lmat = rbind(1:2))
 ```
 
 - **Nucleotide frequency** plot shows the frequency of A, C, G, T and N bases by
   position in the read. 
 ```{r qcplotsFig2, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotNuclByCycle(qcdat1$raw$qa, lmat=rbind(1:2))
+QuasR:::plotNuclByCycle(qcdat1$raw$qa, lmat = rbind(1:2))
 ```
 
 - **Duplication level** plot shows for each sample the fraction of reads observed
   at different duplication levels (e.g. once, two-times, three-times, etc.). In
   addition, the most frequent sequences are listed. 
 ```{r qcplotsFig3, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotDuplicated(qcdat1$raw$qa, lmat=rbind(1:2))
+QuasR:::plotDuplicated(qcdat1$raw$qa, lmat = rbind(1:2))
 ```
 
 - **Mapping statistics** shows fractions of reads that were (un)mappable to the
   reference genome. 
 ```{r qcplotsFig4, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout=FALSE)
+QuasR:::plotMappings(qcdat1$raw$mapdata, a4layout = FALSE)
 ```
 
 - **Library complexity** shows fractions of unique read(-pair) alignment positions. 
   Please note that this measure is not independent from the total number of reads 
   in a library, and is best compared between libraries of similar sizes. 
 ```{r qcplotsFig5, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotUniqueness(qcdat1$raw$unique, a4layout=FALSE)
+QuasR:::plotUniqueness(qcdat1$raw$unique, a4layout = FALSE)
 ```
 
 - **Mismatch frequency** shows the frequency and position (relative to the read
   sequence) of mismatches in the alignments against the reference genome. 
 ```{r qcplotsFig6, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotErrorsByCycle(qcdat1$raw$mm, lmat=rbind(1:2))
+QuasR:::plotErrorsByCycle(qcdat1$raw$mm, lmat = rbind(1:2))
 ```
 
 - **Mismatch types** shows the frequency of read bases that caused mismatches in
   the alignments to the reference genome, separately for each genome base. 
 ```{r qcplotsFig7, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotMismatchTypes(qcdat1$raw$mm, lmat=rbind(1:2))
+QuasR:::plotMismatchTypes(qcdat1$raw$mm, lmat = rbind(1:2))
 ```
 
 - **Fragment size** shows the distribution of fragment sizes inferred from aligned
   read pairs.  
 ```{r qcplotsFig8, eval=TRUE, echo=FALSE, fig.height=4, fig.width=8}
-QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat=rbind(1:2))
+QuasR:::plotFragmentDistribution(qcdat2$raw$frag, lmat = rbind(1:2))
 ```
 
 
@@ -1671,7 +1684,7 @@ sessionInfo()
 ```
 
 ```{r cleanUp, eval=TRUE, echo=FALSE}
-unlink("extdata", recursive=TRUE, force=TRUE)
+unlink("extdata", recursive = TRUE, force = TRUE)
 ```
 
 # References

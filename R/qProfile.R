@@ -361,8 +361,9 @@ qProfile <- function(proj,
         if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
             profileChunkL <- split(seq_len(length(queryWin)), 
                                    factor(querynames, levels = unique(querynames)))
-            approxNumRegionsPerChunk <- length(queryWin) / (length(clObj)/length(bamfiles))
-            profileChunkToTask <- round(cumsum(sapply(profileChunkL, length)) /approxNumRegionsPerChunk)
+            approxNumRegionsPerChunk <- length(queryWin) / (length(clObj) / length(bamfiles))
+            profileChunkToTask <- round(cumsum(vapply(profileChunkL, length, 1))
+                                        / approxNumRegionsPerChunk)
             taskL <- lapply(split(seq_along(profileChunkL), profileChunkToTask), function(i) do.call(c, profileChunkL[i]))
         } else {
             taskL <- list(seq_len(length(queryWin))) # single task per bam file
@@ -406,7 +407,7 @@ qProfile <- function(proj,
     if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
         message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
         ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-        if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
             stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
         myapply <- function(...) parallel::clusterMap(clObj, ..., SIMPLIFY = FALSE, 
                                                       .scheduling = "dynamic")

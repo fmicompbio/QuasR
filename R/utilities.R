@@ -346,7 +346,9 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
             else
                 list(methods::as(clObjSub, "SnowParam"), 
                      BiocParallel::MulticoreParam(workers = min(coresPerNode)))
-        } else if(is.list(clObj) && all(sapply(clObj, inherits, "BiocParallelParam"))) {
+        } else if (is.list(clObj) &&
+                   all(vapply(clObj, FUN = inherits,
+                              FUN.VALUE = TRUE, "BiocParallelParam"))) {
             bppl <- clObj
         }
     }

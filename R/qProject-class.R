@@ -220,23 +220,32 @@ setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
               y <- x
               if (is.character(i)) {
                   if (all(i %in% x@reads$SampleName)) {
-                      if (any(inu <- sapply(unique(i), 
-                                            function(ii) sum(x@reads$SampleName == ii)) > 1))
-                          warning(sprintf("will only select first of multiple files with identical sample name: %s", paste(unique(i)[inu], collapse = ", ")))
+                      if (any(inu <- vapply(unique(i), 
+                                            function(ii) {
+                                                sum(x@reads$SampleName == ii)
+                                            }, 1) > 1))
+                          warning("will only select first of multiple files ",
+                                  "with identical sample name: ",
+                                  paste(unique(i)[inu], collapse = ", "))
                       i <- match(i, x@reads$SampleName)
                   } else {
                       stop("undefined samples selected")
                   }
-              } else if (is.logical(i) && length(i) != length(x@reads$SampleName)) {
-                  stop(sprintf("logical subsetting vector of length %d does not match the number of sequence files (%d)", length(i), length(x@reads$SampleName)))
-              } else if(is.numeric(i)) {
-                  if (any(!is.finite(i)) || max(i) > length(x@reads$SampleName) || min(i) < 1)
+              } else if (is.logical(i) &&
+                         length(i) != length(x@reads$SampleName)) {
+                  stop("logical subsetting vector of length ", length(i), 
+                       " does not match the number of sequence files (",
+                       length(x@reads$SampleName), ")")
+              } else if (is.numeric(i)) {
+                  if (any(!is.finite(i)) ||
+                      max(i) > length(x@reads$SampleName) ||
+                      min(i) < 1)
                       stop("undefined samples selected")
               }
               y@reads <- y@reads[i, , drop = FALSE]
               y@reads_md5subsum <- y@reads_md5subsum[i, , drop = FALSE]
               y@alignments <- y@alignments[i, , drop = FALSE]
-              if(ncol(y@auxAlignments))
+              if (ncol(y@auxAlignments))
                   y@auxAlignments <- y@auxAlignments[, i, drop = FALSE]
               return(y)
           })

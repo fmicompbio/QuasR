@@ -406,7 +406,7 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
                 " ", class(clparam[[clsel]]), " nodes...", appendLF = FALSE)
         ret <- BiocParallel::bplapply(seq.int(nworkers[clsel]), 
                                       function(i) library(QuasR), BPPARAM = clparam[[clsel]])
-        if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
             stop("'QuasR' package could not be loaded on all nodes")
         message("done")
     }

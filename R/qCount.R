@@ -417,7 +417,7 @@ qCount <- function(proj,
         if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
             message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
             ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-            if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+            if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
                 stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
             taskTargets <- rep(trCommon, nsamples)
             bamfiles <- rep(bamfiles, each = length(trCommon))
@@ -426,7 +426,7 @@ qCount <- function(proj,
                 ret <- parallel::clusterMap(clObj, ..., SIMPLIFY = FALSE, 
                                             .scheduling = "dynamic")
                 # fuse
-                if(!is.na(proj@snpFile)){ # ret is a list of list(id,R,U,A)
+                if (!is.na(proj@snpFile)){ # ret is a list of list(id,R,U,A)
                     ret <- lapply(iByBamfile, function(i) 
                         list(id = do.call(c, lapply(ret[i], "[[", "id")),
                              R = do.call(c, lapply(ret[i], "[[", "R")),
@@ -663,7 +663,7 @@ qCount <- function(proj,
         if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
             message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
             ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-            if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+            if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
                 stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
             taskIByFlatQuery <- parallel::splitIndices(
                 nx = length(flatquery),

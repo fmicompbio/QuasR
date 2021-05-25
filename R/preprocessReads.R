@@ -222,7 +222,7 @@ preprocessReads <- function(filename, outputFilename = NULL,
         myapply <- function(...) do.call(cbind, parallel::clusterMap(clObj, ...))
         # load libraries on nodes
         ret <- parallel::clusterEvalQ(clObj, library("QuasR"))
-        if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
             stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
         # avoid nested parallelization
         nthreads <- parallel::clusterEvalQ(clObj, .Call(ShortRead:::.set_omp_threads, 1L))

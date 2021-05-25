@@ -80,9 +80,7 @@ buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat,
         snpsL <- split(snps, snps[, 1]) # split SNPs accoring to chromosome (first column)
         
         # check for duplicate snp entries (not allowed)
-        if (sum(sapply(snpsL,function(x){
-            sum(duplicated(x[, 2]))
-        })) > 0) {
+        if (sum(vapply(snpsL, function(x) sum(duplicated(x[, 2])), 1)) > 0) {
             stop("There are duplicate SNP positions in snpFile.", call. = FALSE)
         }
         
@@ -93,7 +91,7 @@ buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat,
             genomeObj <- get(genome) # access the BSgenome
             allChrs <- GenomeInfoDb::seqnames(genomeObj)
         }
-        if (!all(names(snpsL) %in% allChrs)){
+        if (!all(names(snpsL) %in% allChrs)) {
             stop("The snpFile contains chromosomes that are not present in the genome",
                  call. = FALSE)
         }

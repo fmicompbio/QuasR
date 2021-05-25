@@ -300,7 +300,7 @@ qMeth <- function(proj,
     ## TODO: create several chunks per chromosome?
     taskIByQuery <- split(seq.int(length(query)), 
                           as.factor(GenomeInfoDb::seqnames(query)))
-    taskIByQuery <- taskIByQuery[sapply(taskIByQuery,length) > 0]
+    taskIByQuery <- taskIByQuery[lengths(taskIByQuery) > 0]
     nChunkQuery <- length(taskIByQuery)
     
     if (collapseBySample) {
@@ -320,7 +320,7 @@ qMeth <- function(proj,
         message("preparing to run on ", min(nChunk, length(clObj)), " nodes...", 
                 appendLF = FALSE)
         ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-        if (!all(sapply(ret, function(x) "QuasR" %in% x)))
+        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
             stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
         myapply <- function(...)
             parallel::clusterApplyLB(clObj, ...)
