@@ -1240,7 +1240,7 @@ createReferenceSequenceIndices <- function(proj) {
             # crash R if it is passed an invalid fasta file
             message(paste("Creating .fai file for:", proj@genome))
             result <- try(Biostrings::fasta.seqlengths(proj@genome))
-            if (class(result) == "try-error") {
+            if (is(result, "try-error")) {
                 stop("The fasta file ", proj@genome,
                      " is not a valid fasta file", call. = FALSE)
             }
@@ -1251,7 +1251,7 @@ createReferenceSequenceIndices <- function(proj) {
                 stop("Sequence names in the file: ", proj@genome,
                      " are not unique", call. = FALSE)
             }
-            if (class(try(Rsamtools::indexFa(proj@genome))) == "try-error") {
+            if (is(try(Rsamtools::indexFa(proj@genome)), "try-error")) {
                 stop("Cannot write into the directory where ", proj@genome,
                      " is located. Make sure you have the right permissions",
                      call. = FALSE)
@@ -1282,7 +1282,7 @@ createReferenceSequenceIndices <- function(proj) {
                 # this is necessary because indexFa() from Rsamtools would 
                 # crash R if it is passed an invalid fasta file (R version 2.14.1)
                 result <- try(Biostrings::fasta.seqlengths(proj@aux$FileName[i]))
-                if (class(result) == "try-error") {
+                if (is(result, "try-error")) {
                     stop("The fasta file ", proj@aux$FileName[i],
                          " is not a valid fasta file", call. = FALSE)
                 }
@@ -1293,8 +1293,8 @@ createReferenceSequenceIndices <- function(proj) {
                     stop("Sequence names in the file: ", proj@aux$FileName[i],
                          " are not unique", call. = FALSE)
                 }
-                if (class(try(Rsamtools::indexFa(proj@aux$FileName[i]))) ==
-                    "try-error") {
+                if (is(try(Rsamtools::indexFa(proj@aux$FileName[i])),
+                       "try-error")) {
                     stop("Cannot write into the directory where ",
                          proj@aux$FileName[i],
                          " is located. Make sure you have the right permissions",

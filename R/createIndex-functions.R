@@ -140,7 +140,7 @@ buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat,
     for (fastaOutFile in c(fastaOutFileR, fastaOutFileA)) {
         if (!file.exists(paste(fastaOutFile, "fai", sep = "."))) {
             message(paste("Creating a .fai file for the snp genome:", fastaOutFile))
-            if (class(try(Rsamtools::indexFa(fastaOutFile))) == "try-error") {
+            if (is(try(Rsamtools::indexFa(fastaOutFile)), "try-error")) {
                 stop("Cannot write into the directory where ", fastaOutFile, 
                      " is located. Make sure you have the right permissions",
                      call. = FALSE)

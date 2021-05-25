@@ -35,9 +35,9 @@ test_that("qExportWig works as expected", {
   # includeSecondary, strand, scaling
   auxGrPlus <- auxGr; strand(auxGrPlus) <- "+"
   res1 <- qExportWig(pPhiX, wigfiles[1], scaling = FALSE, strand = "+", includeSecondary = TRUE)
-  wigcnt1 <- sum(as.numeric(readLines(res1)[-(1:2)]))
+  wigcnt1 <- sum(as.numeric(readLines(res1)[-c(1, 2)]))
   res2 <- qExportWig(pPhiX, wigfiles[1], scaling = 1e6, includeSecondary = FALSE)
-  wigcnt2 <- sum(as.numeric(readLines(res2)[-(1:2)]))
+  wigcnt2 <- sum(as.numeric(readLines(res2)[-c(1, 2)]))
   cnt1 <- qCount(pPhiX, auxGrPlus, useRead = "first", orientation = "same", includeSecondary = TRUE)[1,2]
   cnt2 <- qCount(pPhiX, auxGr, useRead = "first", includeSecondary = FALSE)[1,2]
   expect_identical(wigcnt1, cnt1)
