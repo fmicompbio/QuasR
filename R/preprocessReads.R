@@ -293,12 +293,12 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
     numNs <- 90
     if (nchar(Lpattern) > 0) {
         max.Lmismatch <- max.Lmismatch[seq_len(nchar(Lpattern))]
-        max.Lmismatch <- c(max.Lmismatch, 1:numNs + max(max.Lmismatch))
+        max.Lmismatch <- c(max.Lmismatch, seq_len(numNs) + max(max.Lmismatch))
         Lpattern <- paste(c(rep("N", numNs), Lpattern), collapse = "")
     }
     if (nchar(Rpattern) > 0) {
         max.Rmismatch <- max.Rmismatch[seq_len(nchar(Rpattern))]
-        max.Rmismatch <- c(max.Rmismatch, 1:numNs + max(max.Rmismatch))
+        max.Rmismatch <- c(max.Rmismatch, seq_len(numNs) + max(max.Rmismatch))
         Rpattern <- paste(c(Rpattern, rep("N", numNs)), collapse = "")
     }
     
@@ -311,7 +311,7 @@ preprocessSingleReads <- function(filename, outputFilename, fileformat, filecomp
         mode <- 'w'
         cycle <- 1L
         while (length(chunks <- ShortRead::readFasta(filename, nrec = nrec, 
-                                                     skip = (cycle - 1)*nrec)) != 0L) {
+                                                     skip = (cycle - 1) * nrec)) != 0L) {
             filterReport['totalSequences'] <- filterReport['totalSequences'] + 
                 length(chunks)
             

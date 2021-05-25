@@ -111,7 +111,7 @@ calcMmInformation <- function(filename, genome, chunkSize) {
         #  assuming uniform coverage, fraction of chromosome to retrieve: fraction of alignments to be samples * chromosome length
         reflen <- ceiling(chunkSize / sum(trg[selChr]) * seqlen[selChr])
         # use only chromosoms with the most mapped reads
-        #seq <- names(sort(trg[selChr], decreasing=T)[1:ceiling(length(trg[selChr]) * chunkSize / sum(trg[selChr]))])
+        #seq <- names(sort(trg[selChr], decreasing=T)[seq_len(ceiling(length(trg[selChr]) * chunkSize / sum(trg[selChr])))])
         seq <- selChr
         gr <- BiocGenerics::unlist(GenomicRanges::GRangesList(lapply(seq, function(s) {
             GenomicRanges::GRanges(
@@ -141,7 +141,8 @@ calcMmInformation <- function(filename, genome, chunkSize) {
                      refstart, mmDist, as.integer(chunkSize))
         if (len > maxLen)
             maxLen <- len
-        if (sum(mmDist[[1]][1:25]) >= chunkSize || sum(mmDist[[2]][1:25]) >= chunkSize)
+        if (sum(mmDist[[1]][seq_len(25)]) >= chunkSize ||
+            sum(mmDist[[2]][seq_len(25)]) >= chunkSize)
             break
         cntFor <- cntFor + 1
     }
@@ -150,13 +151,13 @@ calcMmInformation <- function(filename, genome, chunkSize) {
                          dim = c(5, 5, maxLen),
                          dimnames = list(ref = c("A", "C", "G", "T", "N"),
                                          read = c("A", "C", "G", "T", "N"),
-                                         pos = 1:maxLen))
+                                         pos = seq_len(maxLen)))
     mmDist[[2]] <- array(mmDist[[2]],
                          dim = c(5, 5, maxLen),
                          dimnames = list(ref = c("A", "C", "G", "T", "N"),
                                          read = c("A", "C", "G", "T", "N"),
-                                         pos = 1:maxLen))
-    names(mmDist[[3]]) <- c(1:(length(mmDist[[3]]) - 1), 
+                                         pos = seq_len(maxLen)))
+    names(mmDist[[3]]) <- c(seq_len(length(mmDist[[3]]) - 1), 
                             paste(">", length(mmDist[[3]]) - 1, sep = ""))
     names(mmDist) <- c("NucleotidMismatchRead1", "NucleotidMismatchRead2",
                        "FragmentLength", "Uniqueness")
@@ -313,11 +314,12 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
     if (inherits(input, "qProject", which = FALSE)) {
         filetype <- input@samplesFormat
         if (input@paired == "no") {
-            readFilename <- if(filetype == "bam") input@alignments$FileName else input@reads$FileName
+            readFilename <- if (filetype == "bam") input@alignments$FileName else input@reads$FileName
             if (useSampleNames) {
-                label <- sprintf("%i. %s", 1:length(readFilename), input@alignments$SampleName)
+                label <- sprintf("%i. %s", seq_along(readFilename),
+                                 input@alignments$SampleName)
             } else {
-                label <- sprintf("%i. %s", 1:length(readFilename), 
+                label <- sprintf("%i. %s", seq_along(readFilename), 
                                  basename(readFilename))
             }
             mapLabel <- label
@@ -325,30 +327,37 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
             if (filetype == "bam") {
                 readFilename <- rep(input@alignments$FileName, each = 2)
                 if (useSampleNames) {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), 
-                                                        each = 2), 
-                                     1:2, rep(input@alignments$SampleName, each = 2))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments),
+                    label <- sprintf("%i(R%i). %s",
+                                     rep(seq_len(nrow(input@alignments)),
+                                         each = 2), 
+                                     seq_len(2),
+                                     rep(input@alignments$SampleName, each = 2))
+                    mapLabel <- sprintf("%i. %s", seq_len(nrow(input@alignments)),
                                         input@alignments$SampleName)
                 } else {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@alignments), 
-                                                        each = 2), 
-                                     1:2, basename(readFilename))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@alignments), 
+                    label <- sprintf("%i(R%i). %s",
+                                     rep(seq_len(nrow(input@alignments)),
+                                         each = 2),
+                                     seq_len(2), basename(readFilename))
+                    mapLabel <- sprintf("%i. %s", seq_len(nrow(input@alignments)), 
                                         basename(input@alignments$FileName))
                 }
             } else {
                 readFilename <- as.vector(rbind(input@reads$FileName1,
                                                 input@reads$FileName2))
                 if (useSampleNames) {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads), each = 2), 
-                                     1:2, rep(input@reads$SampleName, each = 2))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads),
+                    label <- sprintf("%i(R%i). %s",
+                                     rep(seq_len(nrow(input@reads)), each = 2), 
+                                     seq_len(2),
+                                     rep(input@reads$SampleName, each = 2))
+                    mapLabel <- sprintf("%i. %s", seq_len(nrow(input@reads)),
                                         input@reads$SampleName)
                 } else {
-                    label <- sprintf("%i(R%i). %s", rep(1:nrow(input@reads), each = 2),
-                                     1:2, basename(readFilename))
-                    mapLabel <- sprintf("%i. %s", 1:nrow(input@reads), 
+                    label <- sprintf("%i(R%i). %s",
+                                     rep(seq_len(nrow(input@reads)), each = 2),
+                                     seq_len(2),
+                                     basename(readFilename))
+                    mapLabel <- sprintf("%i. %s", seq_len(nrow(input@reads)), 
                                         basename(input@reads$FileName1))
                 }
             }
@@ -365,9 +374,9 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
         if (length(filetype) > 1L)
             stop("parameter 'input' must consist of unique filetype")
         if (useSampleNames && !is.null(names(input))) {
-            label <- sprintf("%i. %s", 1:length(input), names(input))
+            label <- sprintf("%i. %s", seq_along(input), names(input))
         } else {
-            label <- sprintf("%i. %s", 1:length(input), basename(input))
+            label <- sprintf("%i. %s", seq_along(input), basename(input))
         }
         mapLabel <- label
         if (all(file.exists(input))) {
@@ -568,7 +577,8 @@ truncStringToPlotWidth <- function(s, plotwidth) {
 #' @importFrom graphics layout par box text rect plot
 #' @importFrom stats quantile
 #' @importFrom BiocGenerics which
-plotQualByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
+plotQualByCycle <- function(qcdata,
+                            lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
     data <- qcdata[['perCycle']][['quality']]
     qtiles <- by(list(data$Score, data$Count), list(data$lane, data$Cycle), function(x) {
         coef <- 1.5
@@ -588,20 +598,21 @@ plotQualByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
     }, simplify = FALSE)
     ns <- nrow(qtiles)
     
-    qtilesL <- lapply(1:ns, function(i) {
+    qtilesL <- lapply(seq_len(ns), function(i) {
         tmpconf <- do.call(cbind, lapply(qtiles[i, ], "[[", 'conf'))
         tmpxn <- ncol(tmpconf)
-        list(stats = do.call(cbind, lapply(qtiles[i, ][1:tmpxn], "[[", 'stats')),
-             n = sapply(qtiles[i, ][1:tmpxn], "[[", 'n'),
+        list(stats = do.call(cbind, lapply(qtiles[i, ][seq_len(tmpxn)],
+                                           "[[", 'stats')),
+             n = sapply(qtiles[i, ][seq_len(tmpxn)], "[[", 'n'),
              conf = tmpconf,
-             out = numeric(0), #sapply(qtiles[i,][1:tmpxn], "[[", 'out'),
-             group = numeric(0), #rep(1:ncol(qtiles), sapply(qtiles[i,], function(x) length(x$out))),
+             out = numeric(0),
+             group = numeric(0),
              names = colnames(tmpconf))
     })
     names(qtilesL) <- rownames(qtiles)
     
     graphics::layout(lmat)
-    for (i in 1:ns) {
+    for (i in seq_len(ns)) {
         xn <- length(qtilesL[[i]]$names)
         ym <- max(35, max(qtilesL[[i]]$stats))
         graphics::par(mar = c(5 - 1, 4 - 1, 4 - 4, 2 - 1) + .1, 
@@ -614,7 +625,7 @@ plotQualByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
                        ytop = 20, col = c("#e6afaf", "#e6c3c3"), border = NA)
         graphics::rect(xleft = seq.int(xn) - 0.5, ybottom = 20,
                        xright = seq.int(xn) + 0.5, 
-                       ytop = 28, col=c("#e6d7af", "#e6dcc3"), border = NA)
+                       ytop = 28, col = c("#e6d7af", "#e6dcc3"), border = NA)
         graphics::rect(xleft = seq.int(xn) - 0.5, ybottom = 28, 
                        xright = seq.int(xn) + 0.5,
                        ytop = ym + 10, col = c("#afe6af", "#c3e6c3"), border = NA)
@@ -625,13 +636,13 @@ plotQualByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
                                           outwex = 0.5, 
                                           boxfill = "#99999944"),
                               outline = FALSE, horizontal = FALSE, add = TRUE, 
-                              at = 1:xn, axes = FALSE)))
+                              at = seq_len(xn), axes = FALSE)))
         cxy <- graphics::par('cxy')
-        graphics::text(x = graphics::par('usr')[1] + cxy[1]/4, 
-                       y = graphics::par('usr')[3] + cxy[2]/4, adj = c(0, 0),
+        graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4, 
+                       y = graphics::par('usr')[3] + cxy[2] / 4, adj = c(0, 0),
                        labels = truncStringToPlotWidth(
                            rownames(qtiles)[i], 
-                           diff(graphics::par("usr")[1:2]) - cxy[1]/2))
+                           diff(graphics::par("usr")[c(1, 2)]) - cxy[1] / 2))
         graphics::box()
     }
     
@@ -640,17 +651,18 @@ plotQualByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
 
 #' @keywords internal
 #' @importFrom graphics layout par abline strwidth text matplot
-plotNuclByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
+plotNuclByCycle <- function(qcdata,
+                            lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
     if (!is.null(qcdata[['perCycle']])) {
         data <- qcdata[['perCycle']][['baseCall']]
         nfreq <- by(list(data$Base, data$Count), list(data$lane, data$Cycle), function(x) {
-            y <- x[[2]] /sum(x[[2]]) * 100
+            y <- x[[2]] / sum(x[[2]]) * 100
             names(y) <- x[[1]]
             y
         }, simplify = TRUE)
         ns <- nrow(nfreq)
         
-        nfreqL <- lapply(1:ns, function(i) {
+        nfreqL <- lapply(seq_len(ns), function(i) {
             tmp <- do.call(cbind, lapply(nfreq[i, ], 
                                          function(x) x[c('A', 'C', 'G', 'T', 'N')]))
             tmp[is.na(tmp)] <- 0
@@ -660,14 +672,14 @@ plotNuclByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
         names(nfreqL) <- rownames(nfreq)
     } else {
         nfreqL <- lapply(qcdata, function(x){
-            nfreq <- do.call(rbind, lapply(1:dim(x)[3], function(j) {
+            nfreq <- do.call(rbind, lapply(seq_len(dim(x)[3]), function(j) {
                 c(A = sum(x[, "A", j]),
                   C = sum(x[, "C", j]),
                   G = sum(x[, "G", j]),
                   T = sum(x[, "T", j]),
                   N = sum(x[, "N", j]))
             }))
-            rownames(nfreq) <- 1:dim(x)[3]
+            rownames(nfreq) <- seq_len(dim(x)[3])
             t(nfreq / rowSums(nfreq) * 100)
         })
         ns <- length(nfreqL)
@@ -677,28 +689,30 @@ plotNuclByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
     
     mycols <- c("#5050ff", "#e00000", "#00c000", "#e6e600", "darkgray")
     graphics::layout(lmat)
-    for (i in 1:ns) {
+    for (i in seq_len(ns)) {
         xn <- ncol(nfreqL[[i]])
-        ym <- max(50, ceiling(max(nfreqL[[i]], na.rm = TRUE) /5) * 5 + 5)
+        ym <- max(50, ceiling(max(nfreqL[[i]], na.rm = TRUE) / 5) * 5 + 5)
         graphics::par(mar = c(5 - 1, 4 - 1, 4 - 4, 2 - 1) + .1, 
                       mgp = c(3 - 1, 1 - 0.25, 0))
-        graphics::matplot(1:xn, t(nfreqL[[i]]), type = "o", 
+        graphics::matplot(seq_len(xn), t(nfreqL[[i]]), type = "o", 
                           xlab = "Position in read (bp)", 
                           ylab = "Nucleotide frequency (%)",
-                          xlim = c(0, xn) + 0.5, xaxs = "i", ylim = c(0, ym), lwd = 2, 
-                          lty = 1, pch = 20, cex = 0.6, col = mycols)
+                          xlim = c(0, xn) + 0.5, xaxs = "i", ylim = c(0, ym),
+                          lwd = 2, lty = 1, pch = 20, cex = 0.6, col = mycols)
         graphics::abline(h = 0, lty = 2, col = "gray")
         cxy <- graphics::par('cxy')
         graphics::text(x = graphics::par('usr')[1] + cxy[1]/4, 
                        y = graphics::par('usr')[4] - cxy[2]/4, adj = c(0, 1),
                        labels = truncStringToPlotWidth(
                            names(nfreqL)[i], 
-                           diff(graphics::par('usr')[1:2]) - 1.5*cxy[1] - 
+                           diff(graphics::par('usr')[c(1, 2)]) - 1.5 * cxy[1] - 
                                graphics::strwidth(paste(rownames(nfreqL[[i]]), 
                                                         collapse = " "))))
-        graphics::text(x = graphics::par('usr')[2] - cxy[1]/4 - (4:0)*cxy[1]*0.8, 
-                       y = graphics::par('usr')[4] - cxy[2]/4, 
-                       adj = c(1,1), col = mycols, labels = rownames(nfreqL[[i]]))
+        graphics::text(x = graphics::par('usr')[2] - cxy[1] / 4 -
+                           seq(4, 0) * cxy[1] * 0.8, 
+                       y = graphics::par('usr')[4] - cxy[2] / 4, 
+                       adj = c(1, 1), col = mycols,
+                       labels = rownames(nfreqL[[i]]))
     }
     
     invisible(nfreqL)
@@ -707,11 +721,12 @@ plotNuclByCycle <- function(qcdata, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
 #' @keywords internal
 #' @importFrom S4Vectors Rle runValue runLength
 #' @importFrom graphics layout par abline axis box strwidth strheight text plot
-plotDuplicated <- function(qcdata, breaks = c(1:10), 
+plotDuplicated <- function(qcdata,
+                           breaks = 1:10, 
                            lmat = matrix(1:6, nrow = 3, byrow = TRUE)) {
     if (breaks[length(breaks)] < Inf)
         breaks <- c(breaks, breaks[length(breaks)] + 1, Inf)
-    breakNames <- c(as.character(breaks[1:(length(breaks) - 2)]),
+    breakNames <- c(as.character(breaks[seq_len(length(breaks) - 2)]),
                     paste(">", breaks[length(breaks) - 2], sep = ""))
     data <- qcdata[['sequenceDistribution']]
     nocc <- by(list(data$nOccurrences, data$nReads), list(data$lane),
@@ -720,7 +735,7 @@ plotDuplicated <- function(qcdata, breaks = c(1:10),
     ns <- nrow(nocc)
     
     nbin <- length(breaks) - 1
-    bocc <- do.call(rbind, lapply(1:ns, function(i) {
+    bocc <- do.call(rbind, lapply(seq_len(ns), function(i) {
         bin <- findInterval(S4Vectors::runValue(nocc[[i]]), breaks)
         tmp <- tapply(S4Vectors::runLength(nocc[[i]]), bin, sum)/length(nocc[[i]]) * 100
         tmp2 <- numeric(nbin)
@@ -730,7 +745,7 @@ plotDuplicated <- function(qcdata, breaks = c(1:10),
     dimnames(bocc) <- list(sampleName = rownames(nocc), duplicationLevel = breakNames)
     
     graphics::layout(lmat)
-    for (i in 1:ns) {
+    for (i in seq_len(ns)) {
         nm <- rownames(nocc)[i]
         fs <- qcdata[['frequentSequences']]
         fs <- fs[fs$lane == nm, ]
@@ -738,12 +753,14 @@ plotDuplicated <- function(qcdata, breaks = c(1:10),
         ym <- max(50,ceiling(max(bocc[i, ]) / 5) * 5)
         graphics::par(mar = c(5 - 1, 4 - 1, 4 - 4, 2 - 1) + .1, 
                       mgp = c(3 - 1, 1 - 0.25, 0))
-        graphics::plot(1:xn, bocc[i, ], type = "o", xlab = "Sequence duplication level", 
+        graphics::plot(seq_len(xn), bocc[i, ], type = "o",
+                       xlab = "Sequence duplication level", 
                        ylab = "Percent of unique sequences",
-                       xlim = c(0, xn) + 0.5, xaxs = "i", ylim = c(0, ym), lwd = 2,
+                       xlim = c(0, xn) + 0.5, xaxs = "i",
+                       ylim = c(0, ym), lwd = 2,
                        lty = 1, pch = 20, cex = 0.6, axes = FALSE,
                        panel.first = graphics::abline(h = 0, lty = 2, col = "gray"))
-        graphics::axis(1, at = 1:xn, labels = breakNames)
+        graphics::axis(1, at = seq_len(xn), labels = breakNames)
         graphics::axis(2)
         graphics::box()
         frqseqcex <- 0.8
@@ -768,7 +785,8 @@ plotDuplicated <- function(qcdata, breaks = c(1:10),
             ytop <- graphics::par('usr')[4] - 2.0*cxy[2]
             yoff <- ytop - 1.8*cumsum(graphics::strheight(frqseqS, cex = frqseqcex, 
                                                           family = "mono"))
-            ii <- yoff + diff(yoff[1:2]) > max(bocc[i, 1:xn > floor(xleft)])
+            ii <- yoff +
+                diff(yoff[c(1, 2)]) > max(bocc[i, seq_len(xn) > floor(xleft)])
             if (any(ii)) {
                 graphics::text(x = xleft, y = ytop, adj = c(0, 0),
                                labels = paste(truncStringToPlotWidth(
@@ -791,7 +809,9 @@ plotDuplicated <- function(qcdata, breaks = c(1:10),
 
 #' @keywords internal
 #' @importFrom graphics layout par text legend barplot plot
-plotMappings <- function(mapdata, cols = c("#006D2C", "#E41A1C"), a4layout = TRUE) {
+plotMappings <- function(mapdata,
+                         cols = c("#006D2C", "#E41A1C"),
+                         a4layout = TRUE) {
     nr <- nrow(mapdata)
     
     # set page layout
@@ -834,7 +854,7 @@ plotMappings <- function(mapdata, cols = c("#006D2C", "#E41A1C"), a4layout = TRU
                        col = "white", adj = c(0, 0.5),
                        labels = sprintf("%.1f%%", mapdataChunk[, 'mapped']/rowSums(mapdataChunk)*100), 
                        xpd = NA)
-        graphics::text(x = rep(mean(graphics::par('usr')[1:2]), nrow(mapdataChunk)), 
+        graphics::text(x = rep(mean(graphics::par('usr')[c(1, 2)]), nrow(mapdataChunk)), 
                        y = mp, col = "white", adj = c(0.5, 0.5),
                        labels = sprintf("total=%.3g",mapdataChunk[, 'mapped'] + 
                                             mapdataChunk[, 'unmapped']), xpd = NA)
@@ -848,8 +868,9 @@ plotMappings <- function(mapdata, cols = c("#006D2C", "#E41A1C"), a4layout = TRU
                        y = mp, col = "black", adj = c(1, 0.5),
                        labels = truncStringToPlotWidth(
                            rownames(mapdataChunk), 
-                           ((diff(graphics::par("usr")[1:2]) + 
-                                 4*graphics::par("cxy")[1]) /3 *2) - 3*par("cxy")[1]), 
+                           ((diff(graphics::par("usr")[c(1, 2)]) + 
+                                 4 * graphics::par("cxy")[1]) / 3 * 2) -
+                               3 * par("cxy")[1]), 
                        xpd = NA)
     })
     
@@ -858,7 +879,9 @@ plotMappings <- function(mapdata, cols = c("#006D2C", "#E41A1C"), a4layout = TRU
 
 #' @keywords internal
 #' @importFrom graphics layout par text legend barplot plot
-plotUniqueness <- function(data, cols = c("#ff8c00", "#4682b4"), a4layout = TRUE) {
+plotUniqueness <- function(data,
+                           cols = c("#ff8c00", "#4682b4"),
+                           a4layout = TRUE) {
     data <- do.call(rbind, data)
     nr <- nrow(data)
     
@@ -900,27 +923,35 @@ plotUniqueness <- function(data, cols = c("#ff8c00", "#4682b4"), a4layout = TRUE
         
         # draw bar annotation
         cxy <- graphics::par('cxy')
-        graphics::text(x = rep(graphics::par('usr')[1] + cxy[1]/3, nrow(dataChunk)), 
+        graphics::text(x = rep(graphics::par('usr')[1] + cxy[1] / 3,
+                               nrow(dataChunk)), 
                        y = mp, col = "white", adj = c(0, 0.5),
-                       labels = sprintf("%.1f%%", dataChunk[, 'unique']/rowSums(dataChunk)*100), 
+                       labels = sprintf("%.1f%%",
+                                        dataChunk[, 'unique'] /
+                                            rowSums(dataChunk) * 100), 
                        xpd = NA)
-        graphics::text(x = rep(mean(graphics::par('usr')[1:2]), nrow(dataChunk)), 
+        graphics::text(x = rep(mean(graphics::par('usr')[c(1, 2)]),
+                               nrow(dataChunk)), 
                        y = mp, col = "white", 
                        adj = c(0.5, 0.5),
                        labels = sprintf("total=%.3g", dataChunk[, 'unique'] + 
                                             dataChunk[, 'non-unique']), xpd = NA)
-        graphics::text(x = rep(graphics::par('usr')[2] - cxy[1]/5, nrow(dataChunk)), 
+        graphics::text(x = rep(graphics::par('usr')[2] - cxy[1] / 5,
+                               nrow(dataChunk)), 
                        y = mp, col = "white", adj = c(1, 0.5),
-                       labels = sprintf("%.1f%%", dataChunk[, 'non-unique']/rowSums(dataChunk)*100), 
+                       labels = sprintf("%.1f%%",
+                                        dataChunk[, 'non-unique'] /
+                                            rowSums(dataChunk) * 100), 
                        xpd = NA)
         
         # draw sample names
-        graphics::text(x = graphics::par('usr')[1] - 1.0*cxy[1], 
+        graphics::text(x = graphics::par('usr')[1] - 1.0 * cxy[1], 
                        y = mp, col = "black", adj = c(1, 0.5),
                        labels = truncStringToPlotWidth(
                            rownames(dataChunk), 
-                           ((diff(graphics::par("usr")[1:2]) +
-                                 4*graphics::par("cxy")[1]) /3 *2) - 3*par("cxy")[1]),
+                           ((diff(graphics::par("usr")[c(1, 2)]) +
+                                 4*graphics::par("cxy")[1]) / 3 * 2) -
+                               3*par("cxy")[1]),
                        xpd = NA)
     })
     
@@ -929,32 +960,37 @@ plotUniqueness <- function(data, cols = c("#ff8c00", "#4682b4"), a4layout = TRUE
 
 #' @keywords internal
 #' @importFrom graphics layout par abline text plot
-plotErrorsByCycle <- function(data, lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
+plotErrorsByCycle <- function(data,
+                              lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
     
     ns <- length(data)
     graphics::layout(lmat)
     for (i in seq_len(ns)) {
         xn <- dim(data[[i]])[3]
-        cumcvg <- unlist(lapply(1:xn, function(j){ sum(data[[i]][, , j])}))
-        nErr <- cumcvg - unlist(lapply(1:xn, function(j){ sum(diag(data[[i]][, , j]))}))
+        cumcvg <- unlist(lapply(seq_len(xn),
+                                function(j){ sum(data[[i]][, , j])}))
+        nErr <- cumcvg - unlist(lapply(seq_len(xn),
+                                       function(j){ sum(diag(data[[i]][, , j]))}
+                                       ))
         frq <- nErr / cumcvg * 100
         ym <- max(5, ceiling(max(frq)), na.rm = TRUE)
-        graphics::par(mar = c(5 - 1, 4 - 1, 4 - 4, 2 - 1) +.1,
+        graphics::par(mar = c(5 - 1, 4 - 1, 4 - 4, 2 - 1) + 0.1,
                       mgp = c(3 - 1, 1 - 0.25, 0))
-        graphics::plot(1:xn, frq, type = 'l', lwd = 2, col = "#E41A1C", ylim = c(0,ym),
-                       xaxs = "i", xlim = c(0, xn) +.5, lty = 1, pch = 20, cex = 0.6,
-                       main = "", xlab = 'Position in read (bp)', 
+        graphics::plot(seq_len(xn), frq, type = 'l', lwd = 2, col = "#E41A1C",
+                       ylim = c(0,ym), xaxs = "i", xlim = c(0, xn) + 0.5,
+                       lty = 1, pch = 20, cex = 0.6, main = "",
+                       xlab = 'Position in read (bp)',
                        ylab = 'Mismatche bases (%)')
         graphics::abline(h = 0, lty = 2, col = 'gray')
-        #abline(v=c(12,25), lty=3, col='red')
+        #abline(v=c(12,25), lty = 3, col = 'red')
         cxy <- graphics::par('cxy')
-        graphics::text(x = graphics::par('usr')[1] + cxy[1]/4, 
-                       y = graphics::par('usr')[4] - cxy[2]/4, adj = c(0, 1),
+        graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4, 
+                       y = graphics::par('usr')[4] - cxy[2] / 4, adj = c(0, 1),
                        labels = truncStringToPlotWidth(
                            names(data)[i],
-                           diff(graphics::par("usr")[1:2]) - cxy[1]/2))
+                           diff(graphics::par("usr")[c(1, 2)]) - cxy[1]/2))
         if (all(is.na(data[[i]])))
-            graphics::text(x = mean(graphics::par('usr')[1:2]), 
+            graphics::text(x = mean(graphics::par('usr')[c(1, 2)]), 
                            y = mean(graphics::par('usr')[3:4]),
                            adj = c(0.5, 0.5), labels = "no data")
     }
@@ -964,38 +1000,43 @@ plotErrorsByCycle <- function(data, lmat = matrix(1:12, nrow = 6, byrow = TRUE))
 
 #' @keywords internal
 #' @importFrom graphics layout par box strwidth text barplot
-plotMismatchTypes <- function(data, lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
+plotMismatchTypes <- function(data,
+                              lmat = matrix(1:12, nrow = 6, byrow = TRUE)) {
     ns <- length(data)
     graphics::layout(lmat)
     mycols <- c("#5050ff", "#e00000", "#00c000", "#e6e600", "darkgray")
-    for (i in 1:ns) {
+    for (i in seq_len(ns)) {
         mtypes <- apply(data[[i]], 1, rowSums)
-        pmtypes <- mtypes * 100 /sum(mtypes)
+        pmtypes <- mtypes * 100 / sum(mtypes)
         diag(pmtypes) <- 0 # don't plot matches
         pmtypes <- pmtypes[, colnames(pmtypes) != "N"] # don't plot genomic N
         
         graphics::barplot(pmtypes, ylab = "% of aligned bases", 
                           xlab = "Genome", col = mycols,
-                          ylim = c(0, max(colSums(pmtypes), 0.1, na.rm = TRUE)*1.16))
+                          ylim = c(0, max(colSums(pmtypes), 0.1,
+                                          na.rm = TRUE) * 1.16))
         if (all(is.na(mtypes)))
-            graphics::text(x = mean(graphics::par('usr')[1:2]), 
-                           y = mean(graphics::par('usr')[3:4]),
+            graphics::text(x = mean(graphics::par('usr')[c(1, 2)]), 
+                           y = mean(graphics::par('usr')[c(3, 4)]),
                            adj = c(0.5, 0.5), labels = "no data")
         graphics::box()
         cxy <- graphics::par("cxy")
-        graphics::text(x = graphics::par('usr')[2] - cxy[1]/4 - (4:0)*cxy[1]*0.8,
-                       y = graphics::par('usr')[4] - cxy[2]/4,
+        graphics::text(x = graphics::par('usr')[2] - cxy[1] / 4 -
+                           seq(4, 0) * cxy[1] * 0.8,
+                       y = graphics::par('usr')[4] - cxy[2] / 4,
                        adj = c(1,1), col = mycols, labels = rownames(pmtypes))
-        graphics::text(x = graphics::par('usr')[2] - cxy[1]/4 - 5*cxy[1]*0.8, 
-                       y = graphics::par('usr')[4] - cxy[2]/4,
+        graphics::text(x = graphics::par('usr')[2] - cxy[1] / 4 -
+                           5 * cxy[1] * 0.8, 
+                       y = graphics::par('usr')[4] - cxy[2] / 4,
                        col = "black", labels = "Read:", adj = c(1, 1))
-        graphics::text(x = graphics::par('usr')[1] + cxy[1]/4,
-                       y = graphics::par('usr')[4] - cxy[2]/4, 
+        graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4,
+                       y = graphics::par('usr')[4] - cxy[2] / 4, 
                        adj = c(0, 1), col = "black",
                        labels = truncStringToPlotWidth(
                            names(data)[i], 
-                           graphics::par('usr')[2] - cxy[1]/4 - 5*cxy[1]*0.8 - 
-                               graphics::strwidth("Read:") - cxy[1]*1.0))
+                           graphics::par('usr')[2] - cxy[1] / 4 -
+                               5 * cxy[1] * 0.8 - 
+                               graphics::strwidth("Read:") - cxy[1] * 1.0))
     }
     
     invisible(data)
@@ -1028,25 +1069,27 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
                        lty = 1, pch = 20, cex = 0.6,
                        main = "", xlab = 'Fragment size (nt)', 
                        ylab = 'Density', xpd = NA)
-        graphics::rect(xleft = 1:xn - .5, ybottom = 0, xright = 1:xn + .5, ytop = dens,
+        graphics::rect(xleft = seq_len(xn) - .5, ybottom = 0,
+                       xright = seq_len(xn) + .5, ytop = dens,
                        col = "#377EB8", border = NA)
         graphics::abline(h = 0, lty = 2, col = 'gray')
         if (any(ii <- grepl("^>", names(dens))))
             graphics::axis(side = 1, at = xn, labels = names(dens)[xn])
         cxy <- graphics::par('cxy')
-        graphics::text(x = graphics::par('usr')[1] + cxy[1]/4, 
-                       y = graphics::par('usr')[4] - cxy[2]/4, adj = c(0, 1),
+        graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4, 
+                       y = graphics::par('usr')[4] - cxy[2] / 4, adj = c(0, 1),
                        labels = truncStringToPlotWidth(
                            names(data)[i], 
-                           diff(graphics::par("usr")[1:2]) - cxy[1]/2))
-        medlen <- stats::median(S4Vectors::Rle(values = 1:xn, lengths = frag[, i]))
-        graphics::text(x = graphics::par('usr')[1] + cxy[1]/4, 
-                       y = graphics::par('usr')[4] - 5*cxy[2]/4, 
+                           diff(graphics::par("usr")[c(1, 2)]) - cxy[1] / 2))
+        medlen <- stats::median(S4Vectors::Rle(values = seq_len(xn),
+                                               lengths = frag[, i]))
+        graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4, 
+                       y = graphics::par('usr')[4] - 5 * cxy[2] / 4, 
                        adj = c(0,1), col = "#377EB8", labels = sprintf("median = %1.f", medlen))
         graphics::abline(v = medlen, lty = 3, col = "black")
         if (all(is.na(data[[i]])))
-            graphics::text(x = mean(graphics::par('usr')[1:2]), 
-                           y = mean(graphics::par('usr')[3:4]),
+            graphics::text(x = mean(graphics::par('usr')[c(1, 2)]), 
+                           y = mean(graphics::par('usr')[c(3, 4)]),
                            adj = c(0.5, 0.5), labels = "no data")
     }
     
@@ -1067,7 +1110,7 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
     freqtbl <- ShortRead::tables(ShortRead::sread(obj))
     abc <- ShortRead::alphabetByCycle(obj)
     names(dimnames(abc)) <- c("base", "cycle")
-    dimnames(abc)$cycle <- as.character(1:dim(abc)[2])
+    dimnames(abc)$cycle <- as.character(seq_len(dim(abc)[2]))
     ac <- ShortRead:::.qa_adapterContamination(obj, lane, ...)
     perCycleBaseCall <- data.frame(Cycle = as.integer(colnames(abc)[col(abc)]), 
                                    Base = factor(rownames(abc)[row(abc)]), 
