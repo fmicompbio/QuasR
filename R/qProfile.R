@@ -405,13 +405,9 @@ qProfile <- function(proj,
     
     ## setup tasks for parallelization -----------------------------------------
     if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
-        message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
-        ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
-            stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+        loadQuasR(clObj)
         myapply <- function(...) parallel::clusterMap(clObj, ..., SIMPLIFY = FALSE, 
                                                       .scheduling = "dynamic")
-        message("done")
     } else {
         myapply <- function(...) mapply(..., SIMPLIFY = FALSE)
     }

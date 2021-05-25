@@ -317,17 +317,10 @@ qMeth <- function(proj,
     taskBamfiles <- rep(taskBamfiles, each = nChunkQuery)
 
     if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
-        message("preparing to run on ", min(nChunk, length(clObj)), " nodes...", 
-                appendLF = FALSE)
-        ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
-            stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
-        myapply <- function(...)
-            parallel::clusterApplyLB(clObj, ...)
-        message("done")
+        loadQuasR(clObj)
+        myapply <- function(...) parallel::clusterApplyLB(clObj, ...)
     } else {
-        myapply <- function(...)
-            lapply(...)
+        myapply <- function(...) lapply(...)
     }
     
     ## quantify methylation  ---------------------------------------------------

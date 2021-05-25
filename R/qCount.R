@@ -415,10 +415,7 @@ qCount <- function(proj,
         ### reportLevel == "junction" ------------------------------------------
         ## setup tasks for parallelization -------------------------------------
         if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
-            message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
-            ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-            if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
-                stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+            loadQuasR(clObj)
             taskTargets <- rep(trCommon, nsamples)
             bamfiles <- rep(bamfiles, each = length(trCommon))
             iByBamfile <- split(seq_along(bamfiles), bamfiles)[unique(bamfiles)]
@@ -426,18 +423,19 @@ qCount <- function(proj,
                 ret <- parallel::clusterMap(clObj, ..., SIMPLIFY = FALSE, 
                                             .scheduling = "dynamic")
                 # fuse
-                if (!is.na(proj@snpFile)){ # ret is a list of list(id,R,U,A)
+                if (!is.na(proj@snpFile)) {
+                    # ret is a list of list(id,R,U,A)
                     ret <- lapply(iByBamfile, function(i) 
                         list(id = do.call(c, lapply(ret[i], "[[", "id")),
                              R = do.call(c, lapply(ret[i], "[[", "R")),
                              U = do.call(c, lapply(ret[i], "[[", "U")),
                              A = do.call(c, lapply(ret[i], "[[", "A"))))
-                } else {                  # ret is a list of named vectors
+                } else {
+                    # ret is a list of named vectors
                     ret <- lapply(iByBamfile, function(i) do.call(c, unname(ret[i])))
                 }
                 ret
             }
-            message("done")
         } else {
             taskTargets <- rep(list(NULL), length(bamfiles))
             myapply <- function(...) {
@@ -458,21 +456,22 @@ qCount <- function(proj,
         message("done")
         
         ## make result rectangular and collapse (sum) counts by sample if necessary
-        if (!is.na(proj@snpFile)) { # ret is a list of list(id,R,U,A)
+        if (!is.na(proj@snpFile)) {
+            # ret is a list of list(id,R,U,A)
             allJunctions <- unique(Reduce(c, lapply(resL, "[[", "id")))
             res <- matrix(0, nrow = length(allJunctions), 
-                          ncol = 3*length(resL), dimnames = list(allJunctions, NULL))
+                          ncol = 3 * length(resL), dimnames = list(allJunctions, NULL))
             for (i in seq_len(length(resL))) # make res a matrix with 3 columns per sample
-                res[resL[[i]]$id, ((i-1)*3+1):((i-1)*3+3)] <- 
+                res[resL[[i]]$id, ((i - 1) * 3 + 1):((i - 1) * 3 + 3)] <- 
                 do.call(cbind, resL[[i]][c("R", "U", "A")])
             if (nsamples > length(unique(samples))) {
                 if (collapseBySample) {
                     message("collapsing counts by sample...", appendLF = FALSE)
                     iBySample <- split(seq_len(nsamples), samples)[unique(samples)]
                     res <- do.call(cbind, lapply(iBySample, function(i)
-                        cbind(R = rowSums(res[, (i-1)*3+1, drop = FALSE]),
-                              U = rowSums(res[, (i-1)*3+2, drop = FALSE]),
-                              A = rowSums(res[, (i-1)*3+3, drop = FALSE]))))
+                        cbind(R = rowSums(res[, (i - 1) * 3 + 1, drop = FALSE]),
+                              U = rowSums(res[, (i - 1) * 3 + 2, drop = FALSE]),
+                              A = rowSums(res[, (i - 1) * 3 + 3, drop = FALSE]))))
                     colnames(res) <- paste(rep(names(iBySample), each = 3), 
                                            c("R", "U", "A"), sep = "_")
                     message("done")
@@ -485,7 +484,8 @@ qCount <- function(proj,
                 colnames(res) <- paste(rep(samples, each = 3), c("R", "U", "A"), 
                                        sep = "_")
             }
-        } else {                  # ret is a list of named vectors
+        } else {
+            # ret is a list of named vectors
             allJunctions <- unique(Reduce(c, lapply(resL, names)))
             res <- matrix(0, nrow = length(allJunctions), ncol = length(resL),
                           dimnames = list(allJunctions, NULL))
@@ -661,10 +661,7 @@ qCount <- function(proj,
         ## setup tasks for parallelization -------------------------------------
         ## TODO: if sum(width(flatquery)) close to sum(seqlengths(genome)) -> select variant counting algorithm (sequential walk through bamfiles)
         if (!is.null(clObj) & inherits(clObj, "cluster", which = FALSE)) {
-            message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
-            ret <- parallel::clusterEvalQ(clObj, library("QuasR")) # load package on nodes
-            if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
-                stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
+            loadQuasR(clObj)
             taskIByFlatQuery <- parallel::splitIndices(
                 nx = length(flatquery),
                 ncl = ceiling(length(clObj)/nsamples*2)
@@ -697,7 +694,6 @@ qCount <- function(proj,
                 }
                 ret
             }
-            message("done")
         } else {
             taskSamples <- samples
             taskBamfiles <- bamfiles

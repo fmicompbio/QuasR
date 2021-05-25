@@ -22,11 +22,7 @@ createGenomicAlignments <- function(proj, clObj) {
     
     message("Loading QuasR on the compute nodes...", appendLF = FALSE)
     # load QuasR package on all the nodes
-    clRet <- parallel::clusterEvalQ(clObj, library("QuasR"))
-    if (!all(vapply(clRet, function(x) "QuasR" %in% x, TRUE))) {
-        stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
-    }
-    message("OK")
+    loadQuasR(clObj)
     
     nodeNames <- unlist(nodeNamesList)
     coresPerNode <- table(nodeNames)
@@ -111,11 +107,7 @@ createAuxAlignments <- function(proj, clObj) {
     
     message("Loading QuasR on the compute nodes...", appendLF = FALSE)
     # load QuasR package on all the nodes
-    clRet <- parallel::clusterEvalQ(clObj, library("QuasR"))
-    if (!all(vapply(clRet, function(x) "QuasR" %in% x, TRUE))) {
-        stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
-    }
-    message("OK")
+    loadQuasR(clObj)
     
     nodeNames <- unlist(nodeNamesList)
     coresPerNode <- table(nodeNames)
@@ -1350,10 +1342,7 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     on.exit(parallel::stopCluster(clObjS), add = TRUE)
     
     # load QuasR package on all the nodes
-    clRet <- parallel::clusterEvalQ(clObjS, library("QuasR"))
-    if (!all(vapply(clRet, function(x) "QuasR" %in% x, TRUE))) {
-        stop("'QuasR' package could not be loaded on all nodes in 'clObj'")
-    }
+    loadQuasR(clObjS)
     
     parallel::clusterApplyLB(clObjS, seq_len(length(splitSamAndBamNames)),
                              samToSortedBamCore,
