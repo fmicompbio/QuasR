@@ -23,7 +23,6 @@ Imports:
     BiocGenerics,
     S4Vectors,
     IRanges,
-    BiocManager,
     Biobase,
     Biostrings,
     BSgenome,
