@@ -22,6 +22,12 @@ test_that("displayNames correctly digests its arguments", {
   expect_error(displayNames("error"))
 })
 
+test_that("loadQuasR works as expected", {
+  cl <- parallel::makeCluster(2L)
+  expect_error(loadQuasR(cl, "does_not_exist"), "could not be loaded")
+  expect_true(expect_message(loadQuasR(cl, "stats"), "preparing to run"))
+})
+
 test_that("freeDiskSpace runs", {
   expect_warning(QuasR:::freeDiskSpace("nonexistent"))
   expect_is(QuasR:::freeDiskSpace("."), "numeric")

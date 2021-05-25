@@ -103,6 +103,26 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
 }
 
 #' @keywords internal
+#' @importFrom parallel clusterCall
+loadQuasR <- function(clObj, pkgNm = "QuasR") {
+    # load package on cluster nodes
+    message("preparing to run on ", length(clObj), " nodes...", appendLF = FALSE)
+    err <- try(ret <- parallel::clusterCall(clObj, library, package = pkgNm,
+                                            character.only = TRUE),
+               silent = FALSE)
+    
+    # check if it was loaded on all nodes
+    if (is(err, "try-error") ||
+        !all(vapply(ret, function(x) pkgNm %in% x, TRUE))) {
+        stop("'", pkgNm, "' package could not be loaded on all ",
+             "nodes in 'clObj'", call. = FALSE)
+    } else {
+        message("done")
+        return(invisible(TRUE))
+    }
+}
+
+#' @keywords internal
 #' @importFrom tools file_path_as_absolute
 freeDiskSpace <- function(path) {
     # return the number of free bytes at 'path' as reported by operating system utilities
