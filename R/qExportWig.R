@@ -146,7 +146,9 @@
 #'   each read pair, the 5-prime ends of the reads is used. This is for example 
 #'   useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which 
 #'   the read starts are informative for chromatin accessibility.
-#' 
+#' @param clObj A cluster object to be used for parallel processing of multiple 
+#'   samples.
+#'  
 #' @return (invisible) The file name of the generated wig or bigWig file(s).
 #' 
 #' @export
@@ -167,6 +169,7 @@
 #' @importFrom grDevices col2rgb colorRampPalette
 #' @importFrom rtracklayer wigToBigWig
 #' @importFrom methods is
+#' @importFrom BiocParallel bpworkers bplapply
 #' 
 #' @examples 
 #' # copy example data to current working directory
@@ -198,7 +201,8 @@ qExportWig <- function(proj,
                        absIsizeMax = NULL,
                        createBigWig = FALSE,
                        useRead = c("any", "first", "last"),
-                       pairedAsSingle = FALSE) {
+                       pairedAsSingle = FALSE, 
+                       clObj = NULL) {
     # validate parameters
     # ...proj
     if (!methods::is(proj, "qProject"))
@@ -355,7 +359,29 @@ qExportWig <- function(proj,
         tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
         si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
     }
-    lapply(seq_len(n), function(i) {
+    
+    # digest clObj
+    clparam <- getListOfBiocParallelParam(clObj)
+    nworkers <- unlist(lapply(clparam, BiocParallel::bpworkers))
+    # will use only one layer of parallelization, select best
+    clsel <- which.max(nworkers) 
+    if (!inherits(clparam[[clsel]], c("BatchJobsParam", "SerialParam"))) { 
+        # don't test loading of QuasR on current or BatchJobs cluster nodes
+        message("preparing to run on ", min(n, nworkers[clsel]),
+                " ", class(clparam[[clsel]]), " nodes...", appendLF = FALSE)
+        ret <- BiocParallel::bplapply(seq.int(nworkers[clsel]), 
+                                      function(i) library(QuasR), 
+                                      BPPARAM = clparam[[clsel]])
+        if (!all(vapply(ret, function(x) "QuasR" %in% x, TRUE)))
+            stop("'QuasR' package could not be loaded on all nodes")
+        message("done")
+    }
+    
+    # avoid nested parallelization
+    if (!inherits(clparam[[clsel]], "SerialParam"))
+        nthreads <- .Call(ShortRead:::.set_omp_threads, 1L) 
+    
+    BiocParallel::bplapply(seq_len(n), function(i) {
         message("  ",file[i]," (",tracknames[i],")")
         .Call(bamfileToWig, as.character(bamfiles[[i]]), 
               as.character(tempwigfile[i]), as.logical(paired[1]),
@@ -370,7 +396,12 @@ qExportWig <- function(proj,
             rtracklayer::wigToBigWig(tempwigfile[i], si, file[i])
             unlink(tempwigfile[i])
         }
-    })
+    }, BPPARAM = clparam[[clsel]])
+    
+    # reset to nthreads
+    if (!inherits(clparam[[clsel]], "SerialParam"))
+        .Call(ShortRead:::.set_omp_threads, nthreads)
+    
     message("done")
     
     return(invisible(file))
