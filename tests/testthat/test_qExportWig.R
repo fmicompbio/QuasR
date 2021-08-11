@@ -31,6 +31,11 @@ test_that("qExportWig works as expected", {
   wig <- lapply(wigfiles, function(wf) suppressWarnings(rtracklayer::import.wig(wf)))
   res <- qCount(pRnaPaired, wig[[1]], shift = "halfInsert", collapseBySample = FALSE)
   expect_equal(mcols(wig[[1]])$score, unname(res[,2]/2))
+  
+  # check that we get the same files with parallelization
+  wigfilespar <- tempfile(fileext = rep(".wig",2), tmpdir = "extdata")
+  expect_warning(respar <- qExportWig(pRnaPaired, wigfilespar, scaling = FALSE, shift = 1L, clObj = clObj))
+  expect_equal(unname(md5sum(wigfiles)), unname(md5sum(wigfilespar)))
 
   # includeSecondary, strand, scaling
   auxGrPlus <- auxGr; strand(auxGrPlus) <- "+"
@@ -49,4 +54,10 @@ test_that("qExportWig works as expected", {
                    bwfiles[1])
   expect_identical(qExportWig(pPhiX, bwfiles[2], scaling = FALSE, useRead = "last",  createBigWig = TRUE),
                    bwfiles[2])
+  
+  # check that we get the same files with parallelization
+  bwfilespar <- tempfile(fileext = rep(".bw",1), tmpdir = "extdata")
+  resparbw <- qExportWig(pPhiX, bwfilespar, scaling = FALSE, useRead = "first", 
+                         createBigWig = TRUE, clObj = clObj)
+  expect_equal(unname(md5sum(bwfiles[1])), unname(md5sum(bwfilespar)))
 })
