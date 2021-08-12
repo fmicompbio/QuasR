@@ -23,7 +23,8 @@ qExportWig(
   absIsizeMax = NULL,
   createBigWig = FALSE,
   useRead = c("any", "first", "last"),
-  pairedAsSingle = FALSE
+  pairedAsSingle = FALSE,
+  clObj = NULL
 )
 }
 \arguments{
@@ -114,6 +115,9 @@ data, which means that instead of calculating fragment mid-points for
 each read pair, the 5-prime ends of the reads is used. This is for example 
 useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which 
 the read starts are informative for chromatin accessibility.}
+
+\item{clObj}{A cluster object to be used for parallel processing of multiple 
+samples.}
 }
 \value{
 (invisible) The file name of the generated wig or bigWig file(s).
