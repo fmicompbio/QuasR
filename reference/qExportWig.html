@@ -73,7 +73,7 @@ of the &amp;#8216;QuasR&amp;#8217; project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.33.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.33.3</span>
       </span>
     </div>
 
@@ -136,7 +136,8 @@ of the &#8216;QuasR&#8217; project.</p>
   absIsizeMax <span class='op'>=</span> <span class='cn'>NULL</span>,
   createBigWig <span class='op'>=</span> <span class='cn'>FALSE</span>,
   useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
-  pairedAsSingle <span class='op'>=</span> <span class='cn'>FALSE</span>
+  pairedAsSingle <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  clObj <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -263,6 +264,11 @@ data, which means that instead of calculating fragment mid-points for
 each read pair, the 5-prime ends of the reads is used. This is for example 
 useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which 
 the read starts are informative for chromatin accessibility.</p></td>
+    </tr>
+    <tr>
+      <th>clObj</th>
+      <td><p>A cluster object to be used for parallel processing of multiple 
+samples.</p></td>
     </tr>
     </table>
 

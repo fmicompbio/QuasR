@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.33.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.33.3</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
                         <h4 class="author">Charlotte Soneson</h4>
                         <h4 class="author">Anita Lerch</h4>
             
-            <h4 class="date">25 May, 2021</h4>
+            <h4 class="date">30 September, 2021</h4>
       
       
       <div class="hidden name"><code>QuasR.Rmd</code></div>
@@ -218,9 +218,9 @@
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d2b135e3b.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d7277361b4c9.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj</span></code></pre></div>
@@ -239,8 +239,8 @@
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_213d48f8995.bam 
-##    2. chip_2_1_213d6b919789.bam
+##    1. chip_1_1_d72713a4334d.bam
+##    2. chip_2_1_d7271240e4e.bam 
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The <code>proj</code> object keeps track of all the information of a sequencing experiment, for example where sequence and alignment files are stored, and what aligner and reference genome was used to generate the alignments.</p>
@@ -436,7 +436,8 @@ NC_001422.1.fa  phiX174
 <p>Sequence reads are primarily aligned against the reference genome (see section @ref(redundancy) on how to choose a suitable reference assembly). If necessary, <em><a href="https://bioconductor.org/packages/3.14/QuasR">QuasR</a></em> will create an aligner index for the genome. The reference genome can be provided in one of two different formats:</p>
 <ul>
 <li>
-<p><strong>a string</strong>, referring to the name of a <em><a href="https://bioconductor.org/packages/3.14/BSgenome">BSgenome</a></em> package:</p>
+<strong>a string</strong>, referring to the name of a <em><a href="https://bioconductor.org/packages/3.14/BSgenome">BSgenome</a></em> package:</li>
+</ul>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BSgenome/man/available.genomes.html">available.genomes</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## 'getOption("repos")' replaces Bioconductor standard repositories, see
@@ -444,112 +445,114 @@ NC_001422.1.fa  phiX174
 ## 
 ## replacement repositories:
 ##     CRAN: https://cloud.r-project.org</code></pre>
-<pre><code>##   [1] "BSgenome.Alyrata.JGI.v1"                  
-##   [2] "BSgenome.Amellifera.BeeBase.assembly4"    
-##   [3] "BSgenome.Amellifera.NCBI.AmelHAv3.1"      
-##   [4] "BSgenome.Amellifera.UCSC.apiMel2"         
-##   [5] "BSgenome.Amellifera.UCSC.apiMel2.masked"  
-##   [6] "BSgenome.Aofficinalis.NCBI.V1"            
-##   [7] "BSgenome.Athaliana.TAIR.04232008"         
-##   [8] "BSgenome.Athaliana.TAIR.TAIR9"            
-##   [9] "BSgenome.Btaurus.UCSC.bosTau3"            
-##  [10] "BSgenome.Btaurus.UCSC.bosTau3.masked"     
-##  [11] "BSgenome.Btaurus.UCSC.bosTau4"            
-##  [12] "BSgenome.Btaurus.UCSC.bosTau4.masked"     
-##  [13] "BSgenome.Btaurus.UCSC.bosTau6"            
-##  [14] "BSgenome.Btaurus.UCSC.bosTau6.masked"     
-##  [15] "BSgenome.Btaurus.UCSC.bosTau8"            
-##  [16] "BSgenome.Btaurus.UCSC.bosTau9"            
-##  [17] "BSgenome.Carietinum.NCBI.v1"              
-##  [18] "BSgenome.Celegans.UCSC.ce10"              
-##  [19] "BSgenome.Celegans.UCSC.ce11"              
-##  [20] "BSgenome.Celegans.UCSC.ce2"               
-##  [21] "BSgenome.Celegans.UCSC.ce6"               
-##  [22] "BSgenome.Cfamiliaris.UCSC.canFam2"        
-##  [23] "BSgenome.Cfamiliaris.UCSC.canFam2.masked" 
-##  [24] "BSgenome.Cfamiliaris.UCSC.canFam3"        
-##  [25] "BSgenome.Cfamiliaris.UCSC.canFam3.masked" 
-##  [26] "BSgenome.Cjacchus.UCSC.calJac3"           
-##  [27] "BSgenome.Creinhardtii.JGI.v5.6"           
-##  [28] "BSgenome.Dmelanogaster.UCSC.dm2"          
-##  [29] "BSgenome.Dmelanogaster.UCSC.dm2.masked"   
-##  [30] "BSgenome.Dmelanogaster.UCSC.dm3"          
-##  [31] "BSgenome.Dmelanogaster.UCSC.dm3.masked"   
-##  [32] "BSgenome.Dmelanogaster.UCSC.dm6"          
-##  [33] "BSgenome.Drerio.UCSC.danRer10"            
-##  [34] "BSgenome.Drerio.UCSC.danRer11"            
-##  [35] "BSgenome.Drerio.UCSC.danRer5"             
-##  [36] "BSgenome.Drerio.UCSC.danRer5.masked"      
-##  [37] "BSgenome.Drerio.UCSC.danRer6"             
-##  [38] "BSgenome.Drerio.UCSC.danRer6.masked"      
-##  [39] "BSgenome.Drerio.UCSC.danRer7"             
-##  [40] "BSgenome.Drerio.UCSC.danRer7.masked"      
-##  [41] "BSgenome.Dvirilis.Ensembl.dvircaf1"       
-##  [42] "BSgenome.Ecoli.NCBI.20080805"             
-##  [43] "BSgenome.Gaculeatus.UCSC.gasAcu1"         
-##  [44] "BSgenome.Gaculeatus.UCSC.gasAcu1.masked"  
-##  [45] "BSgenome.Ggallus.UCSC.galGal3"            
-##  [46] "BSgenome.Ggallus.UCSC.galGal3.masked"     
-##  [47] "BSgenome.Ggallus.UCSC.galGal4"            
-##  [48] "BSgenome.Ggallus.UCSC.galGal4.masked"     
-##  [49] "BSgenome.Ggallus.UCSC.galGal5"            
-##  [50] "BSgenome.Ggallus.UCSC.galGal6"            
-##  [51] "BSgenome.Hsapiens.1000genomes.hs37d5"     
-##  [52] "BSgenome.Hsapiens.NCBI.GRCh38"            
-##  [53] "BSgenome.Hsapiens.UCSC.hg17"              
-##  [54] "BSgenome.Hsapiens.UCSC.hg17.masked"       
-##  [55] "BSgenome.Hsapiens.UCSC.hg18"              
-##  [56] "BSgenome.Hsapiens.UCSC.hg18.masked"       
-##  [57] "BSgenome.Hsapiens.UCSC.hg19"              
-##  [58] "BSgenome.Hsapiens.UCSC.hg19.masked"       
-##  [59] "BSgenome.Hsapiens.UCSC.hg38"              
-##  [60] "BSgenome.Hsapiens.UCSC.hg38.masked"       
-##  [61] "BSgenome.Mdomestica.UCSC.monDom5"         
-##  [62] "BSgenome.Mfascicularis.NCBI.5.0"          
-##  [63] "BSgenome.Mfuro.UCSC.musFur1"              
-##  [64] "BSgenome.Mmulatta.UCSC.rheMac10"          
-##  [65] "BSgenome.Mmulatta.UCSC.rheMac2"           
-##  [66] "BSgenome.Mmulatta.UCSC.rheMac2.masked"    
-##  [67] "BSgenome.Mmulatta.UCSC.rheMac3"           
-##  [68] "BSgenome.Mmulatta.UCSC.rheMac3.masked"    
-##  [69] "BSgenome.Mmulatta.UCSC.rheMac8"           
-##  [70] "BSgenome.Mmusculus.UCSC.mm10"             
-##  [71] "BSgenome.Mmusculus.UCSC.mm10.masked"      
-##  [72] "BSgenome.Mmusculus.UCSC.mm8"              
-##  [73] "BSgenome.Mmusculus.UCSC.mm8.masked"       
-##  [74] "BSgenome.Mmusculus.UCSC.mm9"              
-##  [75] "BSgenome.Mmusculus.UCSC.mm9.masked"       
-##  [76] "BSgenome.Osativa.MSU.MSU7"                
-##  [77] "BSgenome.Ppaniscus.UCSC.panPan1"          
-##  [78] "BSgenome.Ppaniscus.UCSC.panPan2"          
-##  [79] "BSgenome.Ptroglodytes.UCSC.panTro2"       
-##  [80] "BSgenome.Ptroglodytes.UCSC.panTro2.masked"
-##  [81] "BSgenome.Ptroglodytes.UCSC.panTro3"       
-##  [82] "BSgenome.Ptroglodytes.UCSC.panTro3.masked"
-##  [83] "BSgenome.Ptroglodytes.UCSC.panTro5"       
-##  [84] "BSgenome.Ptroglodytes.UCSC.panTro6"       
-##  [85] "BSgenome.Rnorvegicus.UCSC.rn4"            
-##  [86] "BSgenome.Rnorvegicus.UCSC.rn4.masked"     
-##  [87] "BSgenome.Rnorvegicus.UCSC.rn5"            
-##  [88] "BSgenome.Rnorvegicus.UCSC.rn5.masked"     
-##  [89] "BSgenome.Rnorvegicus.UCSC.rn6"            
-##  [90] "BSgenome.Scerevisiae.UCSC.sacCer1"        
-##  [91] "BSgenome.Scerevisiae.UCSC.sacCer2"        
-##  [92] "BSgenome.Scerevisiae.UCSC.sacCer3"        
-##  [93] "BSgenome.Sscrofa.UCSC.susScr11"           
-##  [94] "BSgenome.Sscrofa.UCSC.susScr3"            
-##  [95] "BSgenome.Sscrofa.UCSC.susScr3.masked"     
-##  [96] "BSgenome.Tgondii.ToxoDB.7.0"              
-##  [97] "BSgenome.Tguttata.UCSC.taeGut1"           
-##  [98] "BSgenome.Tguttata.UCSC.taeGut1.masked"    
-##  [99] "BSgenome.Tguttata.UCSC.taeGut2"           
-## [100] "BSgenome.Vvinifera.URGI.IGGP12Xv0"        
-## [101] "BSgenome.Vvinifera.URGI.IGGP12Xv2"        
-## [102] "BSgenome.Vvinifera.URGI.IGGP8X"</code></pre>
+<pre><code>##   [1] "BSgenome.Alyrata.JGI.v1"                   
+##   [2] "BSgenome.Amellifera.BeeBase.assembly4"     
+##   [3] "BSgenome.Amellifera.NCBI.AmelHAv3.1"       
+##   [4] "BSgenome.Amellifera.UCSC.apiMel2"          
+##   [5] "BSgenome.Amellifera.UCSC.apiMel2.masked"   
+##   [6] "BSgenome.Aofficinalis.NCBI.V1"             
+##   [7] "BSgenome.Athaliana.TAIR.04232008"          
+##   [8] "BSgenome.Athaliana.TAIR.TAIR9"             
+##   [9] "BSgenome.Btaurus.UCSC.bosTau3"             
+##  [10] "BSgenome.Btaurus.UCSC.bosTau3.masked"      
+##  [11] "BSgenome.Btaurus.UCSC.bosTau4"             
+##  [12] "BSgenome.Btaurus.UCSC.bosTau4.masked"      
+##  [13] "BSgenome.Btaurus.UCSC.bosTau6"             
+##  [14] "BSgenome.Btaurus.UCSC.bosTau6.masked"      
+##  [15] "BSgenome.Btaurus.UCSC.bosTau8"             
+##  [16] "BSgenome.Btaurus.UCSC.bosTau9"             
+##  [17] "BSgenome.Carietinum.NCBI.v1"               
+##  [18] "BSgenome.Celegans.UCSC.ce10"               
+##  [19] "BSgenome.Celegans.UCSC.ce11"               
+##  [20] "BSgenome.Celegans.UCSC.ce2"                
+##  [21] "BSgenome.Celegans.UCSC.ce6"                
+##  [22] "BSgenome.Cfamiliaris.UCSC.canFam2"         
+##  [23] "BSgenome.Cfamiliaris.UCSC.canFam2.masked"  
+##  [24] "BSgenome.Cfamiliaris.UCSC.canFam3"         
+##  [25] "BSgenome.Cfamiliaris.UCSC.canFam3.masked"  
+##  [26] "BSgenome.Cjacchus.UCSC.calJac3"            
+##  [27] "BSgenome.Creinhardtii.JGI.v5.6"            
+##  [28] "BSgenome.Dmelanogaster.UCSC.dm2"           
+##  [29] "BSgenome.Dmelanogaster.UCSC.dm2.masked"    
+##  [30] "BSgenome.Dmelanogaster.UCSC.dm3"           
+##  [31] "BSgenome.Dmelanogaster.UCSC.dm3.masked"    
+##  [32] "BSgenome.Dmelanogaster.UCSC.dm6"           
+##  [33] "BSgenome.Drerio.UCSC.danRer10"             
+##  [34] "BSgenome.Drerio.UCSC.danRer11"             
+##  [35] "BSgenome.Drerio.UCSC.danRer5"              
+##  [36] "BSgenome.Drerio.UCSC.danRer5.masked"       
+##  [37] "BSgenome.Drerio.UCSC.danRer6"              
+##  [38] "BSgenome.Drerio.UCSC.danRer6.masked"       
+##  [39] "BSgenome.Drerio.UCSC.danRer7"              
+##  [40] "BSgenome.Drerio.UCSC.danRer7.masked"       
+##  [41] "BSgenome.Dvirilis.Ensembl.dvircaf1"        
+##  [42] "BSgenome.Ecoli.NCBI.20080805"              
+##  [43] "BSgenome.Gaculeatus.UCSC.gasAcu1"          
+##  [44] "BSgenome.Gaculeatus.UCSC.gasAcu1.masked"   
+##  [45] "BSgenome.Ggallus.UCSC.galGal3"             
+##  [46] "BSgenome.Ggallus.UCSC.galGal3.masked"      
+##  [47] "BSgenome.Ggallus.UCSC.galGal4"             
+##  [48] "BSgenome.Ggallus.UCSC.galGal4.masked"      
+##  [49] "BSgenome.Ggallus.UCSC.galGal5"             
+##  [50] "BSgenome.Ggallus.UCSC.galGal6"             
+##  [51] "BSgenome.Hsapiens.1000genomes.hs37d5"      
+##  [52] "BSgenome.Hsapiens.NCBI.GRCh38"             
+##  [53] "BSgenome.Hsapiens.UCSC.hg17"               
+##  [54] "BSgenome.Hsapiens.UCSC.hg17.masked"        
+##  [55] "BSgenome.Hsapiens.UCSC.hg18"               
+##  [56] "BSgenome.Hsapiens.UCSC.hg18.masked"        
+##  [57] "BSgenome.Hsapiens.UCSC.hg19"               
+##  [58] "BSgenome.Hsapiens.UCSC.hg19.masked"        
+##  [59] "BSgenome.Hsapiens.UCSC.hg38"               
+##  [60] "BSgenome.Hsapiens.UCSC.hg38.dbSNP151.major"
+##  [61] "BSgenome.Hsapiens.UCSC.hg38.dbSNP151.minor"
+##  [62] "BSgenome.Hsapiens.UCSC.hg38.masked"        
+##  [63] "BSgenome.Mdomestica.UCSC.monDom5"          
+##  [64] "BSgenome.Mfascicularis.NCBI.5.0"           
+##  [65] "BSgenome.Mfuro.UCSC.musFur1"               
+##  [66] "BSgenome.Mmulatta.UCSC.rheMac10"           
+##  [67] "BSgenome.Mmulatta.UCSC.rheMac2"            
+##  [68] "BSgenome.Mmulatta.UCSC.rheMac2.masked"     
+##  [69] "BSgenome.Mmulatta.UCSC.rheMac3"            
+##  [70] "BSgenome.Mmulatta.UCSC.rheMac3.masked"     
+##  [71] "BSgenome.Mmulatta.UCSC.rheMac8"            
+##  [72] "BSgenome.Mmusculus.UCSC.mm10"              
+##  [73] "BSgenome.Mmusculus.UCSC.mm10.masked"       
+##  [74] "BSgenome.Mmusculus.UCSC.mm39"              
+##  [75] "BSgenome.Mmusculus.UCSC.mm8"               
+##  [76] "BSgenome.Mmusculus.UCSC.mm8.masked"        
+##  [77] "BSgenome.Mmusculus.UCSC.mm9"               
+##  [78] "BSgenome.Mmusculus.UCSC.mm9.masked"        
+##  [79] "BSgenome.Osativa.MSU.MSU7"                 
+##  [80] "BSgenome.Ppaniscus.UCSC.panPan1"           
+##  [81] "BSgenome.Ppaniscus.UCSC.panPan2"           
+##  [82] "BSgenome.Ptroglodytes.UCSC.panTro2"        
+##  [83] "BSgenome.Ptroglodytes.UCSC.panTro2.masked" 
+##  [84] "BSgenome.Ptroglodytes.UCSC.panTro3"        
+##  [85] "BSgenome.Ptroglodytes.UCSC.panTro3.masked" 
+##  [86] "BSgenome.Ptroglodytes.UCSC.panTro5"        
+##  [87] "BSgenome.Ptroglodytes.UCSC.panTro6"        
+##  [88] "BSgenome.Rnorvegicus.UCSC.rn4"             
+##  [89] "BSgenome.Rnorvegicus.UCSC.rn4.masked"      
+##  [90] "BSgenome.Rnorvegicus.UCSC.rn5"             
+##  [91] "BSgenome.Rnorvegicus.UCSC.rn5.masked"      
+##  [92] "BSgenome.Rnorvegicus.UCSC.rn6"             
+##  [93] "BSgenome.Rnorvegicus.UCSC.rn7"             
+##  [94] "BSgenome.Scerevisiae.UCSC.sacCer1"         
+##  [95] "BSgenome.Scerevisiae.UCSC.sacCer2"         
+##  [96] "BSgenome.Scerevisiae.UCSC.sacCer3"         
+##  [97] "BSgenome.Sscrofa.UCSC.susScr11"            
+##  [98] "BSgenome.Sscrofa.UCSC.susScr3"             
+##  [99] "BSgenome.Sscrofa.UCSC.susScr3.masked"      
+## [100] "BSgenome.Tgondii.ToxoDB.7.0"               
+## [101] "BSgenome.Tguttata.UCSC.taeGut1"            
+## [102] "BSgenome.Tguttata.UCSC.taeGut1.masked"     
+## [103] "BSgenome.Tguttata.UCSC.taeGut2"            
+## [104] "BSgenome.Vvinifera.URGI.IGGP12Xv0"         
+## [105] "BSgenome.Vvinifera.URGI.IGGP12Xv2"         
+## [106] "BSgenome.Vvinifera.URGI.IGGP8X"</code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">genomeName</span> <span class="op">&lt;-</span> <span class="st">"BSgenome.Hsapiens.UCSC.hg19"</span></code></pre></div>
-</li>
-</ul>
 <p>In this example, the BSgenome package <code>"BSgenome.Hsapiens.UCSC.hg19"</code> refers to an unmasked genome; alignment index and alignments will be performed on the full unmasked genome sequence (recommended). If using a masked genome (e.g. <code>"BSgenome.Hsapiens.UCSC.hg19.masked"</code>), masked regions will be replaced with <code>"N"</code> bases, and this hard-masked version of the genome will be used for creating the alignment index and further alignments. Please also see section @ref(redundancy) for potential issues with redundant sequences contained in the reference genome, e.g. in <em><a href="https://bioconductor.org/packages/3.14/BSgenome.Hsapiens.UCSC.hg19">BSgenome.Hsapiens.UCSC.hg19</a></em> or <em><a href="https://bioconductor.org/packages/3.14/BSgenome.Hsapiens.UCSC.hg38">BSgenome.Hsapiens.UCSC.hg38</a></em>.</p>
 <ul>
 <li>
@@ -653,10 +656,10 @@ NC_001422.1.fa  phiX174
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:</code></pre>
 <pre><code>## nodeNames
-## Mac-1621962403649.local 
+## Mac-1632983364057.local 
 ##                       1</code></pre>
 <pre><code>## Performing auxiliary alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d5bc60c07.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d7275c32c64e.txt
 ## Auxiliary alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1</span></code></pre></div>
@@ -675,24 +678,24 @@ NC_001422.1.fa  phiX174
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_213d48f8995.bam 
-##    2. chip_2_1_213d6b919789.bam
+##    1. chip_1_1_d72713a4334d.bam
+##    2. chip_2_1_d7271240e4e.bam 
 ## 
 ##  Aux. alignments: 1 file, directory: same as reads
 ##    a. /Users/runner/work/QuasR/QuasR/vignettes/extdata/NC_001422.1.fa    phiX174
-##      1. chip_1_1_213d273fcea3.bam
-##      2. chip_2_1_213d4e174376.bam</code></pre>
+##      1. chip_1_1_d7279795a2c.bam 
+##      2. chip_2_1_d7277e0f038f.bam</code></pre>
 <p><code>qAlign</code> will build alignment indices if they do not yet exist (by default, if the genome and auxiliary sequences are given in the form of <code>fasta</code> files, they will be stored in the same folder). The <code>qProject</code> object (<code>proj1</code>) returned by <code>qAlign</code> now contains all information about the ChIP-seq experiment: the (optional) project name, the project options, aligner package, reference genome, and at the bottom the sequence and alignment files. For each input sequence file, there will be one <code>bam</code> file with alignments against the reference genome, and one for each auxiliary target sequence with alignments of reads without genome hits. Our <code>auxFile</code> contains a single auxiliary target sequence, so we expect two <code>bam</code> files per input sequence file:</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern <span class="op">=</span> <span class="st">".bam$"</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_213d273fcea3.bam"     "chip_1_1_213d48f8995.bam"     
-## [3] "chip_2_1_213d4e174376.bam"     "chip_2_1_213d6b919789.bam"    
+<pre><code>## [1] "chip_1_1_d72713a4334d.bam"     "chip_1_1_d7279795a2c.bam"     
+## [3] "chip_2_1_d7271240e4e.bam"      "chip_2_1_d7277e0f038f.bam"    
 ## [5] "phiX_paired_withSecondary.bam"</code></pre>
 <p>The <code>bam</code> file names consist of the base name of the sequence file with an added random string. The random suffix makes sure that newly generated alignment files do not overwrite existing ones, for example of the same reads aligned against an alternative reference genome. Each alignment file is accompanied by two additional files with suffixes <code>.bai</code> and <code>.txt</code>:</p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern <span class="op">=</span> <span class="st">"^chip_1_1_"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] "chip_1_1_213d273fcea3.bam"     "chip_1_1_213d273fcea3.bam.bai"
-## [3] "chip_1_1_213d273fcea3.bam.txt"</code></pre>
+<pre><code>## [1] "chip_1_1_d72713a4334d.bam"     "chip_1_1_d72713a4334d.bam.bai"
+## [3] "chip_1_1_d72713a4334d.bam.txt"</code></pre>
 <p>The <code>.bai</code> file is the <code>bam</code> index used for fast access by genomic coordinate. The <code>.txt</code> file contains all the parameters used to generate the corresponding <code>bam</code> file. Before new alignments are generated, <code>qAlign</code> will look for available <code>.txt</code> files in default locations (the directory containing the input sequence file, or the value of <code>alignmentsDir</code>), and read their contents to determine if a compatible <code>bam</code> file already exists. A compatible <code>bam</code> file is one with the same reads and genome, aligned using the same aligner and identical alignment parameters. If a compatible <code>bam</code> file is not found, or the <code>.txt</code> file is missing, <code>qAlign</code> will generate a new <code>bam</code> file. It is therefore recommended not to delete the <code>.txt</code> file - without it, the corresponding <code>bam</code> file will become unusable for <em><a href="https://bioconductor.org/packages/3.14/QuasR">QuasR</a></em>.</p>
 </div>
 <div id="create-a-quality-control-report" class="section level3">
@@ -917,9 +920,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d1174bc25.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d72759916a93.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj2</span></code></pre></div>
@@ -938,8 +941,8 @@ NC_001422.1.fa  phiX174
 ##    2. rna_2_1.fq.bz2  rna_2_2.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. rna_1_1_213d6ec2a17.bam 
-##    2. rna_2_1_213d7abf4f8d.bam
+##    1. rna_1_1_d72759ec06d5.bam
+##    2. rna_2_1_d72716b4b812.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Aligning the reads with <code>splicedAlignment=TRUE</code> will allow to also align reads that cross exon junctions, and thus have a large deletion (the intron) relative to the reference genome.</p>
@@ -951,9 +954,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d3362a454.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d7276f53e19b.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj2</span><span class="op">)</span></code></pre></div>
@@ -1165,9 +1168,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d16914559.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d7276963f520.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb160"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj3</span><span class="op">)</span></code></pre></div>
@@ -1244,9 +1247,9 @@ NC_001422.1.fa  phiX174
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d6fe33920.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d727de73421.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb182"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj4</span></code></pre></div>
@@ -1264,7 +1267,7 @@ NC_001422.1.fa  phiX174
 ##    1. bis_1_1.fa.bz2  Sample1
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. bis_1_1_213d2ebb9d43.bam
+##    1. bis_1_1_d727460f69a8.bam
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>The resulting alignments are not different from those of non-Bis-seq experiments, apart from the fact that they may contain many C-to-T (or A-to-G) mismatches that are not counted as mismatches when aligning the reads. The number of alignments in specific genomic regions could be quantified using <code>qCount</code> as with ChIP-seq or RNA-seq experiments. For quantification of methylation the <code>qMeth</code> function is used:</p>
@@ -1402,9 +1405,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 2 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213dc7da74f.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d727596581dc.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb215"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">proj1SNP</span></code></pre></div>
@@ -1423,8 +1426,8 @@ chr1    4195    C   T
 ##    2. chip_2_1.fq.bz2  Sample2 (phred33)
 ## 
 ##  Genome alignments: directory: same as reads
-##    1. chip_1_1_213dd7339f1.bam
-##    2. chip_2_1_213d7e1041d.bam
+##    1. chip_1_1_d7271730c05e.bam
+##    2. chip_2_1_d7271a56737.bam 
 ## 
 ##  Aux. alignments: none</code></pre>
 <p>Instead of one count per promoter region and sample, <code>qCount</code> now returns three (<code>promRegSel</code> was generated in the ChIP-seq example workflow):</p>
@@ -1471,9 +1474,9 @@ chr1    4195    C   T
 <pre><code>## Testing the compute nodes...OK
 ## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done
 ## Available cores:
-## Mac-1621962403649.local: 1
+## Mac-1632983364057.local: 1
 ## Performing genomic alignments for 1 samples. See progress in the log file:
-## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_213d2bb161b8.txt
+## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_d727420e6af6.txt
 ## Genomic alignments have been created successfully</code></pre>
 <div class="sourceCode" id="cb232"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4SNP</span>, mode <span class="op">=</span> <span class="st">"CpGcomb"</span>, collapseBySample <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -1576,13 +1579,13 @@ chr1    4195    C   T
 <code class="sourceCode R"><span class="co"># using bam files</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_213d48f8995.bam      95000   2339      258
-## chip_2_1_213d6b919789.bam     95000   3609      505</code></pre>
+## chip_1_1_d72713a4334d.bam     95000   2339      258
+## chip_2_1_d7271240e4e.bam      95000   3609      505</code></pre>
 <div class="sourceCode" id="cb236"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">aux</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##                           seqlength mapped unmapped
-## chip_1_1_213d273fcea3.bam      5386    251        0
-## chip_2_1_213d4e174376.bam      5386    493        0</code></pre>
+## chip_1_1_d7279795a2c.bam       5386    251        0
+## chip_2_1_d7277e0f038f.bam      5386    493        0</code></pre>
 <div class="sourceCode" id="cb238"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># using a qProject object</span>
 <span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span></code></pre></div>
@@ -1685,12 +1688,12 @@ chr1    4195    C   T
 <h1 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session information</h1>
 <p>The output in this vignette was produced under:</p>
-<pre><code>## R version 4.1.0 (2021-05-18)
+<pre><code>## R version 4.1.1 (2021-08-10)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
 ## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
@@ -1701,71 +1704,72 @@ chr1    4195    C   T
 ##  [8] datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] Gviz_1.37.0            GenomicFeatures_1.45.0 AnnotationDbi_1.55.0  
-##  [4] Biobase_2.53.0         Rsamtools_2.9.0        BSgenome_1.61.0       
-##  [7] rtracklayer_1.53.0     Biostrings_2.61.0      XVector_0.33.0        
-## [10] QuasR_1.33.1           Rbowtie_1.33.0         GenomicRanges_1.45.0  
-## [13] GenomeInfoDb_1.29.0    IRanges_2.27.0         S4Vectors_0.31.0      
-## [16] BiocGenerics_0.39.0    BiocStyle_2.21.0      
+##  [1] Gviz_1.37.2            GenomicFeatures_1.45.2 AnnotationDbi_1.55.1  
+##  [4] Biobase_2.53.0         Rsamtools_2.9.1        BSgenome_1.61.0       
+##  [7] rtracklayer_1.53.1     Biostrings_2.61.2      XVector_0.33.0        
+## [10] QuasR_1.33.3           Rbowtie_1.33.0         GenomicRanges_1.45.0  
+## [13] GenomeInfoDb_1.29.8    IRanges_2.27.2         S4Vectors_0.31.4      
+## [16] BiocGenerics_0.39.2    BiocStyle_2.21.3      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-1            rjson_0.2.20               
+##   [1] colorspace_2.0-2            rjson_0.2.20               
 ##   [3] hwriter_1.3.2               ellipsis_0.3.2             
 ##   [5] rprojroot_2.0.2             htmlTable_2.2.1            
 ##   [7] biovizBase_1.41.0           base64enc_0.1-3            
 ##   [9] fs_1.5.0                    dichromat_2.0-0            
 ##  [11] rstudioapi_0.13             bit64_4.0.5                
-##  [13] fansi_0.5.0                 splines_4.1.0              
-##  [15] cachem_1.0.5                knitr_1.33                 
-##  [17] Formula_1.2-4               cluster_2.1.2              
-##  [19] dbplyr_2.1.1                png_0.1-7                  
-##  [21] SGSeq_1.27.0                BiocManager_1.30.15        
-##  [23] compiler_4.1.0              httr_1.4.2                 
-##  [25] backports_1.2.1             lazyeval_0.2.2             
-##  [27] assertthat_0.2.1            Matrix_1.3-3               
-##  [29] fastmap_1.1.0               htmltools_0.5.1.1          
-##  [31] prettyunits_1.1.1           tools_4.1.0                
-##  [33] igraph_1.2.6                gtable_0.3.0               
-##  [35] glue_1.4.2                  GenomeInfoDbData_1.2.6     
-##  [37] dplyr_1.0.6                 rappdirs_0.3.3             
-##  [39] ShortRead_1.51.0            Rcpp_1.0.6                 
-##  [41] pkgdown_1.6.1               vctrs_0.3.8                
-##  [43] xfun_0.23                   stringr_1.4.0              
-##  [45] lifecycle_1.0.0             ensembldb_2.17.0           
-##  [47] restfulr_0.0.13             XML_3.99-0.6               
-##  [49] zlibbioc_1.39.0             scales_1.1.1               
-##  [51] VariantAnnotation_1.39.0    ProtGenerics_1.25.0        
-##  [53] ragg_1.1.2                  hms_1.1.0                  
-##  [55] MatrixGenerics_1.5.0        SummarizedExperiment_1.23.0
-##  [57] AnnotationFilter_1.17.0     RColorBrewer_1.1-2         
-##  [59] yaml_2.2.1                  curl_4.3.1                 
-##  [61] gridExtra_2.3               memoise_2.0.0              
-##  [63] ggplot2_3.3.3               rpart_4.1-15               
-##  [65] biomaRt_2.49.0              latticeExtra_0.6-29        
-##  [67] stringi_1.6.2               RSQLite_2.2.7              
-##  [69] highr_0.9                   BiocIO_1.3.0               
-##  [71] desc_1.3.0                  checkmate_2.0.0            
-##  [73] filelock_1.0.2              BiocParallel_1.27.0        
-##  [75] rlang_0.4.11                pkgconfig_2.0.3            
-##  [77] systemfonts_1.0.2           GenomicFiles_1.29.0        
-##  [79] matrixStats_0.58.0          bitops_1.0-7               
-##  [81] evaluate_0.14               lattice_0.20-44            
-##  [83] purrr_0.3.4                 htmlwidgets_1.5.3          
-##  [85] GenomicAlignments_1.29.0    bit_4.0.4                  
-##  [87] tidyselect_1.1.1            magrittr_2.0.1             
-##  [89] bookdown_0.22               R6_2.5.0                   
-##  [91] generics_0.1.0              Hmisc_4.5-0                
-##  [93] RUnit_0.4.32                DelayedArray_0.19.0        
-##  [95] DBI_1.1.1                   pillar_1.6.1               
-##  [97] foreign_0.8-81              survival_3.2-11            
-##  [99] KEGGREST_1.33.0             RCurl_1.98-1.3             
-## [101] nnet_7.3-16                 tibble_3.1.2               
-## [103] Rhisat2_1.9.0               crayon_1.4.1               
-## [105] utf8_1.2.1                  BiocFileCache_2.1.0        
-## [107] rmarkdown_2.8               jpeg_0.1-8.1               
-## [109] progress_1.2.2              data.table_1.14.0          
-## [111] blob_1.2.1                  digest_0.6.27              
-## [113] textshaping_0.3.4           munsell_0.5.0</code></pre>
+##  [13] fansi_0.5.0                 xml2_1.3.2                 
+##  [15] splines_4.1.1               cachem_1.0.6               
+##  [17] knitr_1.36                  Formula_1.2-4              
+##  [19] cluster_2.1.2               dbplyr_2.1.1               
+##  [21] png_0.1-7                   SGSeq_1.27.0               
+##  [23] BiocManager_1.30.16         compiler_4.1.1             
+##  [25] httr_1.4.2                  backports_1.2.1            
+##  [27] lazyeval_0.2.2              assertthat_0.2.1           
+##  [29] Matrix_1.3-4                fastmap_1.1.0              
+##  [31] htmltools_0.5.2             prettyunits_1.1.1          
+##  [33] tools_4.1.1                 igraph_1.2.6               
+##  [35] gtable_0.3.0                glue_1.4.2                 
+##  [37] GenomeInfoDbData_1.2.7      dplyr_1.0.7                
+##  [39] rappdirs_0.3.3              ShortRead_1.51.0           
+##  [41] Rcpp_1.0.7                  jquerylib_0.1.4            
+##  [43] pkgdown_1.6.1               vctrs_0.3.8                
+##  [45] xfun_0.26                   stringr_1.4.0              
+##  [47] lifecycle_1.0.1             ensembldb_2.17.4           
+##  [49] restfulr_0.0.13             XML_3.99-0.8               
+##  [51] zlibbioc_1.39.0             scales_1.1.1               
+##  [53] VariantAnnotation_1.39.0    ProtGenerics_1.25.1        
+##  [55] ragg_1.1.3                  hms_1.1.1                  
+##  [57] MatrixGenerics_1.5.4        SummarizedExperiment_1.23.4
+##  [59] AnnotationFilter_1.17.1     RColorBrewer_1.1-2         
+##  [61] yaml_2.2.1                  curl_4.3.2                 
+##  [63] gridExtra_2.3               memoise_2.0.0              
+##  [65] ggplot2_3.3.5               rpart_4.1-15               
+##  [67] biomaRt_2.49.4              latticeExtra_0.6-29        
+##  [69] stringi_1.7.4               RSQLite_2.2.8              
+##  [71] highr_0.9                   BiocIO_1.3.0               
+##  [73] desc_1.4.0                  checkmate_2.0.0            
+##  [75] filelock_1.0.2              BiocParallel_1.27.10       
+##  [77] rlang_0.4.11                pkgconfig_2.0.3            
+##  [79] systemfonts_1.0.2           GenomicFiles_1.29.0        
+##  [81] matrixStats_0.61.0          bitops_1.0-7               
+##  [83] evaluate_0.14               lattice_0.20-45            
+##  [85] purrr_0.3.4                 htmlwidgets_1.5.4          
+##  [87] GenomicAlignments_1.29.0    bit_4.0.4                  
+##  [89] tidyselect_1.1.1            magrittr_2.0.1             
+##  [91] bookdown_0.24               R6_2.5.1                   
+##  [93] generics_0.1.0              Hmisc_4.5-0                
+##  [95] RUnit_0.4.32                DelayedArray_0.19.4        
+##  [97] DBI_1.1.1                   pillar_1.6.3               
+##  [99] foreign_0.8-81              nnet_7.3-16                
+## [101] survival_3.2-13             KEGGREST_1.33.0            
+## [103] RCurl_1.98-1.5              tibble_3.1.4               
+## [105] Rhisat2_1.9.0               crayon_1.4.1               
+## [107] utf8_1.2.2                  BiocFileCache_2.1.1        
+## [109] rmarkdown_2.11              jpeg_0.1-9                 
+## [111] progress_1.2.2              data.table_1.14.2          
+## [113] blob_1.2.2                  digest_0.6.28              
+## [115] textshaping_0.3.5           munsell_0.5.0</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
