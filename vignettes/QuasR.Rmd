@@ -514,7 +514,7 @@ If necessary, `r Biocpkg("QuasR")` will create an aligner index for the genome.
 The reference genome can be provided in one of two different formats:
 
 - **a string**, referring to the name of a `r Biocpkg("BSgenome")` package:
-    ```{r selectGenomeBSgenome, eval=TRUE}
+```{r selectGenomeBSgenome, eval=TRUE}
 available.genomes()
 genomeName <- "BSgenome.Hsapiens.UCSC.hg19"
 ```
