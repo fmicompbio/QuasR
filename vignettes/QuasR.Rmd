@@ -530,7 +530,7 @@ or `r Biocpkg("BSgenome.Hsapiens.UCSC.hg38")`.
 
 - **a file name**, referring to a sequence file containing one or several reference
   sequences (e.g. chromosomes) in `fasta` format:
-    ```{r selectGenomeFile, eval=FALSE}
+```{r selectGenomeFile, eval=FALSE}
 genomeFile <- system.file(package="QuasR", "extdata", "hg19sub.fa")
 ```
 
