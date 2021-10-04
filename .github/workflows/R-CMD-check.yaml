@@ -117,6 +117,12 @@ jobs:
           sessioninfo::session_info(pkgs, include_base = TRUE)
         shell: Rscript {0}
 
+      - name: List files
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          dir C:\ProgramData\chocolatey\lib\curl -Recurse
+
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
         shell: Rscript {0}
