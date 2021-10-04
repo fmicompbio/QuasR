@@ -93,6 +93,8 @@ jobs:
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         shell: pwsh
         run: |
           choco install --no-progress openssl
