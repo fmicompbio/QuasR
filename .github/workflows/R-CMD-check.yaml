@@ -111,7 +111,7 @@ jobs:
           mkdir dll
           cmake -DCRYPTO_BACKEND=WinCNG -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./dll .
           cmake --build . --target install
-          echo "LIBRARY_PATH=$env:GITHUB_WORKSPACE\libssh2\dll;${env:LIBRARY_PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "LIBRARY_PATH=$env:GITHUB_WORKSPACE\libssh2\bin;${env:LIBRARY_PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "libssh2" | Out-File -FilePath .gitignore -Encoding utf8 -Append
           echo "libssh2" | Out-File -FilePath .Rbuildignore -Encoding utf8 -Append
 
