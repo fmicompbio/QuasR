@@ -134,7 +134,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          dir "C:\Program Files\OpenSSL-Win64\" -Recurse
+          dir "$env:GITHUB_WORKSPACE\libssh2" -Recurse
 
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
