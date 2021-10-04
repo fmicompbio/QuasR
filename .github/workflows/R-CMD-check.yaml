@@ -91,10 +91,6 @@ jobs:
           brew install harfbuzz
           brew install fribidi
 
-#          Write-Host "::add-path::C:\ProgramData\chocolatey\bin"
-#          Write-Host "::set-env name=LIBRARY_PATH::C:\ProgramData\chocolatey\lib\curl\tools\curl-7.79.1-win64-mingw\lib"
-#          $env:LIBRARY_PATH += ";C:\PROGRA~1\OpenSSL-Win64\lib"
-
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         env:
@@ -105,7 +101,21 @@ jobs:
           choco install --no-progress curl
           echo "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "LIBRARY_PATH=C:\ProgramData\chocolatey\lib\curl\tools\curl-7.79.1-win64-mingw\lib;C:\PROGRA~1\OpenSSL-Win64\lib"  | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo $env:LIBRARY_PATH
 
+      - name: Install libssh2 on Windows
+        if: runner.os == 'Windows'
+        run: |
+          git clone https://github.com/libssh2/libssh2.git
+          cd libssh2
+          mkdir dll
+          cmake -DCRYPTO_BACKEND=WinCNG -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./dll --build .
+          cmake --build . --target install
+          echo "LIBRARY_PATH=$env:GITHUB_WORKSPACE\libssh2\dll;${env:LIBRARY_PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "libssh2" | Out-File -FilePath .gitignore -Encoding utf8 -Append
+          echo "libssh2" | Out-File -FilePath .Rbuildignore -Encoding utf8 -Append
+          echo $env:LIBRARY_PATH
+          
       - name: Install R package dependencies
         run: |
           local_deps <- remotes::local_package_deps(dependencies = TRUE)
