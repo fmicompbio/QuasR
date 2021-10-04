@@ -101,7 +101,7 @@ jobs:
           choco install --no-progress curl
           Write-Host "::add-path::C:\ProgramData\chocolatey\bin"
           Write-Host "::set-env name=LIBRARY_PATH::C:\ProgramData\chocolatey\lib\curl\tools\curl-7.79.1-win64-mingw\lib"
-          Write-Host "$env:LIBRARY_PATH += \";C:\PROGRA~1\OpenSSL-Win64\lib\""
+          $env:LIBRARY_PATH += ";C:\PROGRA~1\OpenSSL-Win64\lib"
 
       - name: Install R package dependencies
         run: |
