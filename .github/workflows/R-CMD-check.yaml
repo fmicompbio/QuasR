@@ -115,6 +115,15 @@ jobs:
           echo "libssh2" | Out-File -FilePath .gitignore -Encoding utf8 -Append
           echo "libssh2" | Out-File -FilePath .Rbuildignore -Encoding utf8 -Append
 
+      - name: Install librtmp on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone https://git.ffmpeg.org/rtmpdump.git
+          cd rtmpdump
+          make SYS=mingw
+          echo "LIBRARY_PATH=$env:GITHUB_WORKSPACE\rtmpdump\librtmp;${env:LIBRARY_PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Install R package dependencies
         run: |
           local_deps <- remotes::local_package_deps(dependencies = TRUE)
@@ -134,7 +143,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          dir "$env:GITHUB_WORKSPACE\libssh2" -Recurse
+          dir "$env:GITHUB_WORKSPACE\rtmpdump" -Recurse
 
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
