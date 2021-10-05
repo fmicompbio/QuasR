@@ -146,7 +146,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          dir "$env:GITHUB_WORKSPACE\rtmpdump" -Recurse
+          dir "C:\ProgramData\chocolatey\lib\RTMPDump\tools" -Recurse
 
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
