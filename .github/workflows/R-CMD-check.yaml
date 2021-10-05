@@ -118,6 +118,8 @@ jobs:
       - name: Install librtmp on Windows
         if: runner.os == 'Windows'
         shell: pwsh
+        env:
+          INCLUDE: C:\PROGRA~1\OpenSSL-Win64\include
         run: |
           git clone https://git.ffmpeg.org/rtmpdump.git
           cd rtmpdump
