@@ -351,21 +351,28 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
         bppl <- list(BiocParallel::SerialParam(), BiocParallel::SerialParam())
     } else {             # have 'clObj' argument
         if (inherits(clObj, "SOCKcluster")) {
-            # get node names
-            tryCatch({
-                nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()['nodename']))
-            }, error = function(ex) {
-                message("FAILED")
-                stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE)
-            })
-            coresPerNode <- table(nodeNames)
-            # subset cluster object (represent each node just a single time)
-            clObjSub <- clObj[!duplicated(nodeNames)]
-            bppl <- if (min(coresPerNode) == 1)
-                list(methods::as(clObj, "SnowParam"), BiocParallel::SerialParam())
-            else
-                list(methods::as(clObjSub, "SnowParam"), 
-                     BiocParallel::MulticoreParam(workers = min(coresPerNode)))
+            if (identical(.Platform$OS.type, "windows")) {
+                # MulticoreParam is not supported on windows -> keep the current clObj
+                bppl <- list(methods::as(clObj, "SnowParam"),
+                             BiocParallel::SerialParam())
+            } else {
+                # non-windows platforms:
+                # get node names
+                tryCatch({
+                    nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()['nodename']))
+                }, error = function(ex) {
+                    message("FAILED")
+                    stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE)
+                })
+                coresPerNode <- table(nodeNames)
+                # subset cluster object (represent each node just a single time)
+                clObjSub <- clObj[!duplicated(nodeNames)]
+                bppl <- if (min(coresPerNode) == 1)
+                    list(methods::as(clObj, "SnowParam"), BiocParallel::SerialParam())
+                else
+                    list(methods::as(clObjSub, "SnowParam"),
+                         BiocParallel::MulticoreParam(workers = min(coresPerNode)))
+            }
         } else if (is.list(clObj) &&
                    all(vapply(clObj, FUN = inherits,
                               FUN.VALUE = TRUE, "BiocParallelParam"))) {
