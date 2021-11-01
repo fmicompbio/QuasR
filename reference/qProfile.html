@@ -122,10 +122,10 @@ query regions.</p>
   <span class='va'>query</span>,
   upstream <span class='op'>=</span> <span class='fl'>1000</span>,
   downstream <span class='op'>=</span> <span class='va'>upstream</span>,
-  selectReadPosition <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
+  selectReadPosition <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"start"</span>, <span class='st'>"end"</span><span class='op'>)</span>,
   shift <span class='op'>=</span> <span class='fl'>0L</span>,
-  orientation <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
-  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
+  orientation <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"same"</span>, <span class='st'>"opposite"</span><span class='op'>)</span>,
+  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
   auxiliaryName <span class='op'>=</span> <span class='cn'>NULL</span>,
   mask <span class='op'>=</span> <span class='cn'>NULL</span>,
   collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
@@ -152,8 +152,8 @@ sequencing experiment as returned by <code><a href='qAlign.html'>qAlign</a></cod
       <th>query</th>
       <td><p>An object of type <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
 with the regions to be profiled. All regions in <code>query</code> will be
-anchored at their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code> for
-regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for
+anchored at their biological start position (<code>start(query)</code> for
+regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code>end(query)</code> for
 regions on strand &#8220;-&#8221;). This position will become position zero 
 in the return value.</p></td>
     </tr>
@@ -288,7 +288,7 @@ alignments are counted in adjacent, non-overlapping windows of size
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>list</code> of matrices with <code><a href='https://rdrr.io/r/base/length.html'>length(unique(names(query)))</a></code> rows
+    <p>A <code>list</code> of matrices with <code>length(unique(names(query)))</code> rows
 with profile names, and <code>max(upstream)+max(downstream)+1</code> columns
 indicating relative position (for <code>binsize=1</code>).</p>
 <p>For <code>binSize</code> values greater than 1, the number of columns corresponds to
@@ -323,8 +323,8 @@ of alignments for Reference, Unknown and Alternative genotypes
 <p>The <code>query</code> argument is a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code>
 object that defines the regions for the profile. All regions in
 <code>query</code> will be aligned to one another at their anchor position,
-which corresponds to their biological start position (<code><a href='https://rdrr.io/r/stats/start.html'>start(query)</a></code>
-for regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code><a href='https://rdrr.io/r/stats/start.html'>end(query)</a></code> for 
+which corresponds to their biological start position (<code>start(query)</code>
+for regions on strand &#8220;+&#8221; or &#8220;*&#8221;, <code>end(query)</code> for 
 regions on strand &#8220;-&#8221;).</p>
 <p>This anchor position will be extended (with regard to strand) by
 the number of bases specified by <code>upstream</code> and <code>downstream</code>.
@@ -345,79 +345,90 @@ profiles will be padded with zeros to accomodate the length of all profiles.</p>
     <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
-<span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span><span class='op'>)</span>, <span class='st'>"."</span>, recursive<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
-<span class='co'># create alignments (single-end experiment)</span>
-<span class='va'>genomeFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub.fa"</span>
-<span class='va'>sampleFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/samples_chip_single.txt"</span>
-<span class='va'>proj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='qAlign.html'>qAlign</a></span><span class='op'>(</span><span class='va'>sampleFile</span>, <span class='va'>genomeFile</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>all necessary alignment files found</span></div><div class='input'>
-<span class='co'># load transcript start site coordinates</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>rtracklayer</span><span class='op'>)</span>
-<span class='va'>annotationFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub_annotation.gtf"</span>
-<span class='va'>tssRegions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/rtracklayer/man/GFFFile-class.html'>import.gff</a></span><span class='op'>(</span><span class='va'>annotationFile</span>, format<span class='op'>=</span><span class='st'>"gtf"</span>,
-                         feature.type<span class='op'>=</span><span class='st'>"start_codon"</span><span class='op'>)</span>
-
-<span class='co'># obtain a combined TSS profile</span>
-<span class='va'>pr1</span> <span class='op'>&lt;-</span> <span class='fu'>qProfile</span><span class='op'>(</span><span class='va'>proj</span>, <span class='va'>tssRegions</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>profiling alignments...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span>, <span class='va'>dim</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; $coverage
-#&gt; [1]    1 2001
-#&gt; 
-#&gt; $Sample1
-#&gt; [1]    1 2001
-#&gt; 
-#&gt; $Sample2
-#&gt; [1]    1 2001
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span>, <span class='st'>"["</span>, , <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; $coverage
-#&gt; -1000  -999  -998  -997  -996 
-#&gt;    19    19    19    19    19 
-#&gt; 
-#&gt; $Sample1
-#&gt; -1000  -999  -998  -997  -996 
-#&gt;     0     0     1     0     0 
-#&gt; 
-#&gt; $Sample2
-#&gt; -1000  -999  -998  -997  -996 
-#&gt;     1     1     1     2     0 
-#&gt; </div><div class='input'>
-<span class='va'>prComb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/do.call.html'>do.call</a></span><span class='op'>(</span><span class='st'>"+"</span>, <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span><span class='op'>[</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>]</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='va'>x</span><span class='op'>/</span><span class='va'>pr1</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/barplot.html'>barplot</a></span><span class='op'>(</span><span class='va'>prComb</span>, xlab<span class='op'>=</span><span class='st'>"Position"</span>, ylab<span class='op'>=</span><span class='st'>"Mean no. of alignments"</span><span class='op'>)</span>
-</div><div class='img'><img src='qProfile-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># obtain TSS profiles for individual regions</span>
-<span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>tssRegions</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'>mcols</span><span class='op'>(</span><span class='va'>tssRegions</span><span class='op'>)</span><span class='op'>$</span><span class='va'>transcript_id</span>
-<span class='va'>pr2</span> <span class='op'>&lt;-</span> <span class='fu'>qProfile</span><span class='op'>(</span><span class='va'>proj</span>, <span class='va'>tssRegions</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>profiling alignments...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr2</span>, <span class='va'>dim</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; $coverage
-#&gt; [1]   19 2001
-#&gt; 
-#&gt; $Sample1
-#&gt; [1]   19 2001
-#&gt; 
-#&gt; $Sample2
-#&gt; [1]   19 2001
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr2</span>, <span class='st'>"["</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; $coverage
-#&gt;                 -1000 -999 -998 -997 -996
-#&gt; ENST00000328596     1    1    1    1    1
-#&gt; ENST00000379265     1    1    1    1    1
-#&gt; ENST00000379268     1    1    1    1    1
-#&gt; 
-#&gt; $Sample1
-#&gt;                 -1000 -999 -998 -997 -996
-#&gt; ENST00000328596     0    0    0    0    0
-#&gt; ENST00000379265     0    0    0    0    0
-#&gt; ENST00000379268     0    0    0    0    0
-#&gt; 
-#&gt; $Sample2
-#&gt;                 -1000 -999 -998 -997 -996
-#&gt; ENST00000328596     0    0    0    0    0
-#&gt; ENST00000379265     0    0    0    0    0
-#&gt; ENST00000379268     0    0    0    0    0
-#&gt; </div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># copy example data to current working directory</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span><span class='op'>)</span>, <span class='st'>"."</span>, recursive<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create alignments (single-end experiment)</span></span>
+<span class='r-in'><span class='va'>genomeFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub.fa"</span></span>
+<span class='r-in'><span class='va'>sampleFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/samples_chip_single.txt"</span></span>
+<span class='r-in'><span class='va'>proj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='qAlign.html'>qAlign</a></span><span class='op'>(</span><span class='va'>sampleFile</span>, <span class='va'>genomeFile</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> all necessary alignment files found</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># load transcript start site coordinates</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>rtracklayer</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>annotationFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub_annotation.gtf"</span></span>
+<span class='r-in'><span class='va'>tssRegions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/rtracklayer/man/GFFFile-class.html'>import.gff</a></span><span class='op'>(</span><span class='va'>annotationFile</span>, format<span class='op'>=</span><span class='st'>"gtf"</span>,</span>
+<span class='r-in'>                         feature.type<span class='op'>=</span><span class='st'>"start_codon"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># obtain a combined TSS profile</span></span>
+<span class='r-in'><span class='va'>pr1</span> <span class='op'>&lt;-</span> <span class='fu'>qProfile</span><span class='op'>(</span><span class='va'>proj</span>, <span class='va'>tssRegions</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> profiling alignments...</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> done</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span>, <span class='va'>dim</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $coverage</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]    1 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]    1 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]    1 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span>, <span class='st'>"["</span>, , <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $coverage</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> -1000  -999  -998  -997  -996 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    19    19    19    19    19 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> -1000  -999  -998  -997  -996 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     0     0     1     0     0 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> -1000  -999  -998  -997  -996 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1     1     1     2     0 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>prComb</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/do.call.html'>do.call</a></span><span class='op'>(</span><span class='st'>"+"</span>, <span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr1</span><span class='op'>[</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>]</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='va'>x</span><span class='op'>/</span><span class='va'>pr1</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/barplot.html'>barplot</a></span><span class='op'>(</span><span class='va'>prComb</span>, xlab<span class='op'>=</span><span class='st'>"Position"</span>, ylab<span class='op'>=</span><span class='st'>"Mean no. of alignments"</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='qProfile-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># obtain TSS profiles for individual regions</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>tssRegions</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>mcols</a></span><span class='op'>(</span><span class='va'>tssRegions</span><span class='op'>)</span><span class='op'>$</span><span class='va'>transcript_id</span></span>
+<span class='r-in'><span class='va'>pr2</span> <span class='op'>&lt;-</span> <span class='fu'>qProfile</span><span class='op'>(</span><span class='va'>proj</span>, <span class='va'>tssRegions</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> profiling alignments...</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> done</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr2</span>, <span class='va'>dim</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $coverage</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]   19 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]   19 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]   19 2001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/pkg/BiocGenerics/man/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>pr2</span>, <span class='st'>"["</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $coverage</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 -1000 -999 -998 -997 -996</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000328596     1    1    1    1    1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379265     1    1    1    1    1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379268     1    1    1    1    1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 -1000 -999 -998 -997 -996</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000328596     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379265     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379268     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $Sample2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 -1000 -999 -998 -997 -996</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000328596     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379265     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ENST00000379268     0    0    0    0    0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

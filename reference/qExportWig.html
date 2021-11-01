@@ -123,11 +123,11 @@ of the &#8216;QuasR&#8217; project.</p>
   collapseBySample <span class='op'>=</span> <span class='cn'>TRUE</span>,
   binsize <span class='op'>=</span> <span class='fl'>100L</span>,
   shift <span class='op'>=</span> <span class='fl'>0L</span>,
-  strand <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"*"</span>, <span class='st'>"+"</span>, <span class='st'>"-"</span><span class='op'>)</span>,
+  strand <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"*"</span>, <span class='st'>"+"</span>, <span class='st'>"-"</span><span class='op'>)</span>,
   scaling <span class='op'>=</span> <span class='cn'>TRUE</span>,
   tracknames <span class='op'>=</span> <span class='cn'>NULL</span>,
   log2p1 <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#1B9E77"</span>, <span class='st'>"#D95F02"</span>, <span class='st'>"#7570B3"</span>, <span class='st'>"#E7298A"</span>, <span class='st'>"#66A61E"</span>, <span class='st'>"#E6AB02"</span>,
+  colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"#1B9E77"</span>, <span class='st'>"#D95F02"</span>, <span class='st'>"#7570B3"</span>, <span class='st'>"#E7298A"</span>, <span class='st'>"#66A61E"</span>, <span class='st'>"#E6AB02"</span>,
     <span class='st'>"#A6761D"</span>, <span class='st'>"#666666"</span><span class='op'>)</span>,
   includeSecondary <span class='op'>=</span> <span class='cn'>TRUE</span>,
   mapqMin <span class='op'>=</span> <span class='fl'>0L</span>,
@@ -135,7 +135,7 @@ of the &#8216;QuasR&#8217; project.</p>
   absIsizeMin <span class='op'>=</span> <span class='cn'>NULL</span>,
   absIsizeMax <span class='op'>=</span> <span class='cn'>NULL</span>,
   createBigWig <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
+  useRead <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"first"</span>, <span class='st'>"last"</span><span class='op'>)</span>,
   pairedAsSingle <span class='op'>=</span> <span class='cn'>FALSE</span>,
   clObj <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
@@ -197,7 +197,7 @@ will be used.</p></td>
     <tr>
       <th>log2p1</th>
       <td><p>If <code>TRUE</code>, the number of alignments <code>x</code> per bin will
-be transformed using the formula <code><a href='https://rdrr.io/r/base/Log.html'>log2(x+1)</a></code>.</p></td>
+be transformed using the formula <code>log2(x+1)</code>.</p></td>
     </tr>
     <tr>
       <th>colors</th>
@@ -329,18 +329,26 @@ for uploading as a custom track to your favorite genome browser
     <p>Anita Lerch, Dimos Gaidatzis and Michael Stadler</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># copy example data to current working directory</span>
-<span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span><span class='op'>)</span>, <span class='st'>"."</span>, recursive<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
-<span class='co'># create alignments</span>
-<span class='va'>sampleFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/samples_chip_single.txt"</span>
-<span class='va'>genomeFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub.fa"</span>
-<span class='va'>proj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='qAlign.html'>qAlign</a></span><span class='op'>(</span><span class='va'>sampleFile</span>, <span class='va'>genomeFile</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>all necessary alignment files found</span></div><div class='input'>
-<span class='co'># export wiggle file</span>
-<span class='fu'>qExportWig</span><span class='op'>(</span><span class='va'>proj</span>, binsize<span class='op'>=</span><span class='fl'>100L</span>, shift<span class='op'>=</span><span class='fl'>0L</span>, scaling<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>collecting mapping statistics for scaling...</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='output co'>#&gt; <span class='message'>start creating wig files...</span></div><div class='output co'>#&gt; <span class='message'>  Sample1.wig.gz (Sample1)</span></div><div class='output co'>#&gt; <span class='message'>  Sample2.wig.gz (Sample2)</span></div><div class='output co'>#&gt; <span class='message'>done</span></div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># copy example data to current working directory</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span>package<span class='op'>=</span><span class='st'>"QuasR"</span>, <span class='st'>"extdata"</span><span class='op'>)</span>, <span class='st'>"."</span>, recursive<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create alignments</span></span>
+<span class='r-in'><span class='va'>sampleFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/samples_chip_single.txt"</span></span>
+<span class='r-in'><span class='va'>genomeFile</span> <span class='op'>&lt;-</span> <span class='st'>"extdata/hg19sub.fa"</span></span>
+<span class='r-in'><span class='va'>proj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='qAlign.html'>qAlign</a></span><span class='op'>(</span><span class='va'>sampleFile</span>, <span class='va'>genomeFile</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> all necessary alignment files found</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># export wiggle file</span></span>
+<span class='r-in'><span class='fu'>qExportWig</span><span class='op'>(</span><span class='va'>proj</span>, binsize<span class='op'>=</span><span class='fl'>100L</span>, shift<span class='op'>=</span><span class='fl'>0L</span>, scaling<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> collecting mapping statistics for scaling...</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> done</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> start creating wig files...</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>   Sample1.wig.gz (Sample1)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>   Sample2.wig.gz (Sample2)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> done</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
