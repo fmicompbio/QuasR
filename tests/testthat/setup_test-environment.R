@@ -5,6 +5,7 @@ file.copy(system.file("extdata", package = "QuasR"), ".", recursive = TRUE)
 rlibdir     <- tempfile(pattern = "Rlib", tmpdir = "extdata")
 dir.create(rlibdir)
 # ... add rlibdir to R_LIBS for "R CMD INSTALL" and cluster nodes to find it 
+# ... add rlibdir to R_LIBS for "R CMD INSTALL" and cluster nodes to find it 
 oldRlibs <- Sys.getenv("R_LIBS")
 Sys.setenv(R_LIBS = paste(tools::file_path_as_absolute(rlibdir), oldRlibs,
                           sep = .Platform$path.sep))

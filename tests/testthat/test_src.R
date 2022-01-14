@@ -161,9 +161,9 @@ test_that("bamfileToWig works as expected", {
   expect_length(l2, 55L)
   expect_length(l3, 42L)
   expect_length(l4, 28L)
-  expect_identical(sum(as.numeric(l1[-(1:2)])), sum(as.numeric(l2[-(1:2)])))
-  expect_equal(sum(as.numeric(l3[-(1:2)])), 113.45)
-  expect_equal(sum(as.numeric(l4[-(1:2)])), 85.73)
+  expect_identical(sum(as.numeric(l1[-c(1, 2)])), sum(as.numeric(l2[-c(1, 2)])))
+  expect_equal(sum(as.numeric(l3[-c(1, 2)])), 113.45)
+  expect_equal(sum(as.numeric(l4[-c(1, 2)])), 85.73)
 })
 
 test_that("mergeReorderSam works as expected", {
