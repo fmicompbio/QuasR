@@ -23,6 +23,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -35,18 +37,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.35.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="articles/QuasR.html">Get started</a>
 </li>
@@ -68,44 +64,44 @@
   <div class="contents col-md-9">
 
 <p><img src="articles/QuasR-logo.png" align="left" alt=""><br></p>
-<div id="quantify-and-annotate-short-reads-in-r" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#quantify-and-annotate-short-reads-in-r" class="anchor"></a>Quantify and annotate short reads in R</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="quantify-and-annotate-short-reads-in-r">Quantify and annotate short reads in R<a class="anchor" aria-label="anchor" href="#quantify-and-annotate-short-reads-in-r"></a>
+</h1></div>
 <p><br></p>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p><code>QuasR</code> aims to cover the whole analysis workflow of typical ultra-high throughput sequencing experiments, starting from the raw sequence reads, over pre-processing and alignment, up to quantification. A single <strong>R</strong> script can contain all steps of a complete analysis, making it simple to document, reproduce or share the workflow containing all relevant details.</p>
 <p>The <code>QuasR</code> package integrates the functionality of several <strong>R</strong> packages (such as <code>IRanges</code> and <code>Rsamtools</code>) and external software (e.g. <code>bowtie</code>, through the <code>Rbowtie</code> package).</p>
 <p>The package was originally created for in house use at the Friedrich Miescher Institute. Current contributors include:</p>
 <ul>
-<li><a href="https://github.com/mbstadler">Michael Stadler</a></li>
+<li><a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a></li>
 <li>Dimos Gaidatzis</li>
-<li><a href="https://github.com/csoneson">Charlotte Soneson</a></li>
+<li><a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a></li>
 <li>Anita Lerch</li>
 <li>Florian Hahne</li>
 </ul>
 </div>
-<div id="functionality" class="section level2">
-<h2 class="hasAnchor">
-<a href="#functionality" class="anchor"></a>Functionality</h2>
+<div class="section level2">
+<h2 id="functionality">Functionality<a class="anchor" aria-label="anchor" href="#functionality"></a>
+</h2>
 <p>The current <code>QuasR</code> release supports the analysis of single read and paired-end ChIP-seq (chromatin immuno-precipitation combined with sequencing), RNA-seq (gene expression profiling by sequencing of RNA) and Bis-seq (measurement of DNA methylation by sequencing of bisulfite-converted genomic DNA) experiments. Allele specific alignment and quantification is also supported in all of these experiment types. <code>QuasR</code> has been successfully used with data from Illumina, 454 Life Technologies and SOLiD sequencers, the latter by using bam files created externally <code>QuasR</code>.</p>
 </div>
-<div id="reference" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reference" class="anchor"></a>Reference</h2>
+<div class="section level2">
+<h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
+</h2>
 <p><code>QuasR</code> has been described in:</p>
 <p>“QuasR: Quantify and Annotate Short Reads in R”<br>
-Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatics</em> <strong>2015</strong>, 31(7):1130-1132.<br><a href="https://www.ncbi.nlm.nih.gov/pubmed/25417205">PubMed: 25417205</a>, <a href="https://doi.org/10.1093/bioinformatics/btu781">doi: 10.1093/bioinformatics/btu781</a></p>
+Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatics</em> <strong>2015</strong>, 31(7):1130-1132.<br><a href="https://www.ncbi.nlm.nih.gov/pubmed/25417205" class="external-link">PubMed: 25417205</a>, <a href="https://doi.org/10.1093/bioinformatics/btu781" class="external-link">doi: 10.1093/bioinformatics/btu781</a></p>
 </div>
-<div id="download-from-bioconductor" class="section level2">
-<h2 class="hasAnchor">
-<a href="#download-from-bioconductor" class="anchor"></a>Download from Bioconductor</h2>
-<p><a href="https://bioconductor.org/packages/QuasR/">QuasR download page</a></p>
+<div class="section level2">
+<h2 id="download-from-bioconductor">Download from Bioconductor<a class="anchor" aria-label="anchor" href="#download-from-bioconductor"></a>
+</h2>
+<p><a href="https://bioconductor.org/packages/QuasR/" class="external-link">QuasR download page</a></p>
 </div>
-<div id="software-status" class="section level2">
-<h2 class="hasAnchor">
-<a href="#software-status" class="anchor"></a>Software status</h2>
+<div class="section level2">
+<h2 id="software-status">Software status<a class="anchor" aria-label="anchor" href="#software-status"></a>
+</h2>
 <table class="table">
 <colgroup>
 <col width="27%">
@@ -123,20 +119,20 @@ Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatic
 <tr class="odd">
 <td align="center">Github-Actions</td>
 <td align="center">Multiple</td>
-<td align="center"><a href="https://github.com/fmicompbio/QuasR/actions"><img src="https://github.com/fmicompbio/QuasR/workflows/R-CMD-check/badge.svg" alt="R build status"></a></td>
-<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
+<td align="center"><a href="https://github.com/fmicompbio/QuasR/actions" class="external-link"><img src="https://github.com/fmicompbio/QuasR/workflows/R-CMD-check/badge.svg" alt="R build status"></a></td>
+<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR" class="external-link"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
 </tr>
 <tr class="even">
-<td align="center">Bioc (<a href="http://bioconductor.org/packages/devel/bioc/html/QuasR.html"><em>devel</em></a>)</td>
+<td align="center">Bioc (<a href="http://bioconductor.org/packages/devel/bioc/html/QuasR.html" class="external-link"><em>devel</em></a>)</td>
 <td align="center">Multiple</td>
-<td align="center"><a href="http://bioconductor.org/checkResults/devel/bioc-LATEST/QuasR"><img src="http://bioconductor.org/shields/build/devel/bioc/QuasR.svg" alt="Bioconductor-devel Build Status"></a></td>
-<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
+<td align="center"><a href="http://bioconductor.org/checkResults/devel/bioc-LATEST/QuasR" class="external-link"><img src="http://bioconductor.org/shields/build/devel/bioc/QuasR.svg" alt="Bioconductor-devel Build Status"></a></td>
+<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR" class="external-link"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
 </tr>
 <tr class="odd">
-<td align="center">Bioc (<a href="http://bioconductor.org/packages/release/bioc/html/QuasR.html"><em>release</em></a>)</td>
+<td align="center">Bioc (<a href="http://bioconductor.org/packages/release/bioc/html/QuasR.html" class="external-link"><em>release</em></a>)</td>
 <td align="center">Multiple</td>
-<td align="center"><a href="http://bioconductor.org/checkResults/release/bioc-LATEST/QuasR"><img src="http://bioconductor.org/shields/build/release/bioc/QuasR.svg" alt="Bioconductor-release Build Status"></a></td>
-<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
+<td align="center"><a href="http://bioconductor.org/checkResults/release/bioc-LATEST/QuasR" class="external-link"><img src="http://bioconductor.org/shields/build/release/bioc/QuasR.svg" alt="Bioconductor-release Build Status"></a></td>
+<td align="center"><a href="https://codecov.io/github/fmicompbio/QuasR" class="external-link"><img src="https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></td>
 </tr>
 </tbody>
 </table>
@@ -147,44 +143,51 @@ Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatic
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from BIOC at <br><a href="https://www.bioconductor.org/packages/QuasR">https://​www.bioconductor.org/​packages/​QuasR</a>
-</li>
+<li><a href="https://www.bioconductor.org/packages/QuasR" class="external-link">View on Bioconductor</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-2">GPL-2</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-2" class="external-link">GPL-2</a></li>
 </ul>
 </div>
+
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html">Citing QuasR</a></li>
+<li><a href="authors.html#citation">Citing QuasR</a></li>
 </ul>
 </div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Anita Lerch <br><small class="roles"> Author </small>  </li>
-<li>Charlotte Soneson <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3833-2169" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Charlotte Soneson <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3833-2169" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Dimos Gaidatzis <br><small class="roles"> Author </small>  </li>
-<li>Michael Stadler <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2269-4934" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Michael Stadler <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2269-4934" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
+
+
 
   </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
+  <p></p>
+<p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -192,6 +195,8 @@ Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatic
 
   
 
+
+  
 
   </body>
 </html>
