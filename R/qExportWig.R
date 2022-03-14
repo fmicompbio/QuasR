@@ -305,7 +305,7 @@ qExportWig <- function(proj,
 
     # ...mapping qualities
     if (length(mapqMin) != 1 || !is.integer(mapqMin) || 
-        any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMax) > 255L)
+        any(is.na(mapqMin)) || min(mapqMin) < 0L || max(mapqMin) > 255L)
         stop("'mapqMin' must be of type integer(1) and have a values between 0 and 255")
     mapqMin <- rep(mapqMin, n)
     if (length(mapqMax) != 1 || !is.integer(mapqMax) || 
