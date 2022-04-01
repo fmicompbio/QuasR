@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.35.0
-Date: 2021-10-05
+Version: 1.35.1
+Date: 2022-04-01
 Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Charlotte", "Soneson", role = c("aut"), 
                     email = "charlottesoneson@gmail.com", 

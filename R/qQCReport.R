@@ -1086,7 +1086,7 @@ plotFragmentDistribution <- function(data, lmat = matrix(1:12, nrow = 6, byrow =
         graphics::text(x = graphics::par('usr')[1] + cxy[1] / 4, 
                        y = graphics::par('usr')[4] - 5 * cxy[2] / 4, 
                        adj = c(0,1), col = "#377EB8", labels = sprintf("median = %1.f", medlen))
-        graphics::abline(v = medlen, lty = 3, col = "black")
+        graphics::abline(v = as.vector(medlen), lty = 3, col = "black")
         if (all(is.na(data[[i]])))
             graphics::text(x = mean(graphics::par('usr')[c(1, 2)]), 
                            y = mean(graphics::par('usr')[c(3, 4)]),
