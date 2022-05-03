@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <Rinternals.h>
-#include "sam.h"
+#include <samtools-1.7-compat.h>
 
 #define MIN_INTRON_LENGTH 60 // minimum length of an insertion for the alignment to be "spliced"
 
