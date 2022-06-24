@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.35.0
-Date: 2021-10-05
+Version: 1.37.1
+Date: 2022-05-03
 Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Charlotte", "Soneson", role = c("aut"), 
                     email = "charlottesoneson@gmail.com", 
@@ -28,7 +28,7 @@ Imports:
     Biobase,
     Biostrings,
     BSgenome,
-    Rsamtools,
+    Rsamtools (>= 2.13.1),
     GenomicFeatures,
     ShortRead,
     BiocParallel,
@@ -45,7 +45,7 @@ Suggests:
     rmarkdown,
     covr,
     testthat
-LinkingTo: Rhtslib
+LinkingTo: Rhtslib (>= 1.99.1)
 Encoding: UTF-8
 SystemRequirements: GNU make
 Description: This package provides a framework for the quantification
@@ -58,4 +58,4 @@ biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

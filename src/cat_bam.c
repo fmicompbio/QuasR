@@ -1,5 +1,4 @@
 #include "cat_bam.h"
-#include "bam.h"
 
 int bam_cat(int, char * const *, const bam_hdr_t *, const char *);
 

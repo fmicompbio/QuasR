@@ -76,7 +76,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
         }        
 
 	// get length of the query sequence
-	qlen = bam_cigar2qlen(&b->core, cigar);
+	qlen = bam_cigar2qlen(b->core.n_cigar, cigar);
 	if(fparam->len < qlen)
 	    fparam->len = qlen;
 	qlen = qlen - 1; // vector index starts with 0
