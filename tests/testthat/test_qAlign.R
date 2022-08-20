@@ -55,7 +55,7 @@ test_that("qAlign digests arguments correctly", {
   expect_error(qAlign(sRnaPaired, genomeFile, paired = "invalid"))
   expect_error(qAlign(sampleFile = "nonExisting", genomeFile))
   expect_error(qAlign(sChipSingle, genomeFile, paired = "fr"))
-  
+
   # inconsistent bam header and BSgenome reference
   # ... create bam file with inconsistent header
   pBad <- pChipSingle
@@ -130,32 +130,32 @@ test_that("qAlign correctly works for single reads (spliced, without splice site
   aln <- GenomicAlignments::readGAlignments(pRnaSingleSplicedHisat2@alignments$FileName[1], use.names = TRUE)
   expect_length(runValue(strand(aln)), 601L)
   expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(420, 1457, 1104)))))
-  expect_identical(sum(as.numeric(start(aln))), 34122868)
-  expect_identical(sum(as.numeric(end(aln))), 35028897)
+  expect_identical(sum(as.numeric(start(aln))), 34122867)
+  expect_identical(sum(as.numeric(end(aln))), 35028898)
 })
 
 test_that("qAlign correctly works for paired reads (unspliced, without splice site file, Rhisat2)", {
   aln <- GenomicAlignments::readGAlignments(pRnaPairedUnsplicedHisat2@alignments$FileName[1], use.names = TRUE)
   expect_length(runValue(strand(aln)), 868L)
-  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(766, 2055, 2089)))))
-  expect_identical(sum(as.numeric(start(aln))), 62093887)
-  expect_identical(sum(as.numeric(end(aln))), 62334263)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(766, 2055, 2090)))))
+  expect_identical(sum(as.numeric(start(aln))), 62133906)
+  expect_identical(sum(as.numeric(end(aln))), 62374333)
 })
 
 test_that("qAlign correctly works for paired reads (spliced, with splice site file from gtf, Rhisat2)", {
   aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2Gtf@alignments$FileName[1], use.names = TRUE)
   expect_length(runValue(strand(aln)), 1000L)
-  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2913, 2207)))))
-  expect_identical(sum(as.numeric(start(aln))), 68278227)
-  expect_identical(sum(as.numeric(end(aln))), 70288159)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2889, 2207)))))
+  expect_identical(sum(as.numeric(start(aln))), 68200619)
+  expect_identical(sum(as.numeric(end(aln))), 70203383)
 })
 
 test_that("qAlign correctly works for paired reads (spliced, with splice site file from TxDb, Rhisat2)", {
   aln <- GenomicAlignments::readGAlignments(pRnaPairedSplicedHisat2TxDb@alignments$FileName[1], use.names = TRUE)
   expect_length(runValue(strand(aln)), 1000L)
-  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2913, 2207)))))
-  expect_identical(sum(as.numeric(start(aln))), 68278227)
-  expect_identical(sum(as.numeric(end(aln))), 70288159)
+  expect_identical(seqnames(aln), Rle(factor(rep(paste0("chr",1:3), c(839, 2889, 2207)))))
+  expect_identical(sum(as.numeric(start(aln))), 68200619)
+  expect_identical(sum(as.numeric(end(aln))), 70203383)
 })
 
 test_that("qAlign correctly works in allelic mode", {
@@ -200,3 +200,4 @@ test_that("determineSamplesFormat correctly digests its arguments", {
     expect_error(QuasR:::determineSamplesFormat(c("file1.notSupported")))
     expect_error(QuasR:::determineSamplesFormat(c("file1.fasta", "file2.fastq")))
 })
+
