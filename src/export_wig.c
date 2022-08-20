@@ -31,37 +31,37 @@ static int _addHitToCoverage(const bam1_t *hit, void *data){
     targetCoverage *tcov = (targetCoverage*)data;
     static int32_t hitPos;
     static int32_t hitBin;
-    
+
     // skip alignment if region is not * and the strand of alignment or region is not the same
     if(strcmp(tcov->strand, "*")
        && (((hit->core.flag & BAM_FREVERSE) == 0) != (strcmp(tcov->strand, "+") == 0)))
         return 0;
-    
+
     // skip alignment if mapping quality not in specified range
     if(hit->core.qual < tcov->mapqMin || hit->core.qual > tcov->mapqMax)
         return 0;
-    
+
     // skip alignment if secondary and skipSecondary==true
     if((hit->core.flag & BAM_FSECONDARY) && tcov->skipSecondary)
 	return 0;
 
     // skip alignment if insert size not in specified range
-    if((tcov->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < tcov->absIsizeMin) ||
-       (tcov->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > tcov->absIsizeMax))
+    if((tcov->absIsizeMin != NO_ISIZE_FILTER && llabs(hit->core.isize) < tcov->absIsizeMin) ||
+       (tcov->absIsizeMax != NO_ISIZE_FILTER && llabs(hit->core.isize) > tcov->absIsizeMax))
         return 0;
 
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & tcov->readBitMask) == 0)
         return 0;
-    
+
     if(tcov->paired) {
         if ((hit->core.flag & BAM_FPROPER_PAIR) && // skip reads that are not aligned as a proper pair
             !(hit->core.flag & BAM_FREAD2)) {      // skip read2 of proper pairs
             // get (shifted) position of hit (bam positions and 'hitPos' are zero-based)
 	        if (hit->core.flag & BAM_FREVERSE) // alignment on minus strand
-	            hitPos = (int)((double)bam_calend(&(hit->core), bam1_cigar(hit)) -1 + ((double)hit->core.isize - hit->core.isize/abs(hit->core.isize)) /2);
+	            hitPos = (int)((double)bam_calend(&(hit->core), bam1_cigar(hit)) -1 + ((double)hit->core.isize - hit->core.isize/llabs(hit->core.isize)) /2);
             else                               // alignment on plus strand
-                hitPos = (int)((double)hit->core.pos + ((double)hit->core.isize - hit->core.isize/abs(hit->core.isize)) /2);
+                hitPos = (int)((double)hit->core.pos + ((double)hit->core.isize - hit->core.isize/llabs(hit->core.isize)) /2);
         } else {
 	    return 0;
 	}
@@ -172,7 +172,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
 	Rf_error("'absIsizeMin' must not be greater than 'absIsizeMax'");
     if(!Rf_isInteger(readBitMask) || Rf_length(readBitMask) != 1)
         Rf_error("'readBitMask' must be of type integer(1)");
-   
+
 
     // declare internal variables
     int t, i, n = Rf_length(_bam_in);
@@ -198,7 +198,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
     tcov.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
     tcov.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
     tcov.readBitMask = (INTEGER(readBitMask)[0] & (BAM_FREAD1 + BAM_FREAD2));
- 
+
 
     // open bam input files
     samfile_t **fin = (samfile_t**) R_Calloc(n, samfile_t*);
@@ -228,7 +228,7 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
 	if (fout == NULL)
 	    Rf_error("could not create output file: %s", wig_out);
     }
-    
+
 
     // output track header
     if(compress)
@@ -239,13 +239,13 @@ SEXP bamfile_to_wig(SEXP _bam_in, SEXP _wig_out, SEXP _paired, SEXP _binsize, SE
 
     // select bam_fetch callback function
     //bam_fetch_f fetch_func = _addHitToCoverage;
- 
+
     // loop over targets
     for(t=0; t<fin[0]->header->n_targets; t++) {
         // start new target
         tcov.cTid = t; // is always first in a sorted bam file
         start_new_target(&tcov, fin[0]->header, compress, gzfout, fout);
-        
+
         // loop over input bam files for current target --> sum coverage
         for(i=0; i<n; i++)
             bam_fetch(fin[i]->x.bam, idx[i], t, 0, tcov.cTlen, &tcov, (bam_fetch_f)_addHitToCoverage);

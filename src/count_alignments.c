@@ -1,8 +1,8 @@
 /*!
   @header
-  
+
   Counts the alignments in regions, which fulfill specific criteria.
-  
+
   @author:    Anita Lerch, Michael Stadler
   @date:      2011-08-17
   @copyright: Friedrich Miescher Institute for Biomedical Research, Switzerland
@@ -101,16 +101,16 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     // skip alignment if rinfo->includeSpliced == false and alignmend is spliced
     if(rinfo->includeSpliced == 0 && _isSpliced(hit) == 1)
         return 0;
-    
+
     // skip alignment if mapping quality not in specified range
     if(hit->core.qual < rinfo->mapqMin || hit->core.qual > rinfo->mapqMax)
         return 0;
-    
+
     // skip alignment if insert size not in specified range
-    if((rinfo->absIsizeMin != NO_ISIZE_FILTER && abs(hit->core.isize) < rinfo->absIsizeMin) ||
-       (rinfo->absIsizeMax != NO_ISIZE_FILTER && abs(hit->core.isize) > rinfo->absIsizeMax))
+    if((rinfo->absIsizeMin != NO_ISIZE_FILTER && llabs(hit->core.isize) < rinfo->absIsizeMin) ||
+       (rinfo->absIsizeMax != NO_ISIZE_FILTER && llabs(hit->core.isize) > rinfo->absIsizeMax))
         return 0;
-    
+
     // skip alignment if read1 or read2 flag is set (=paired-end) and if wrong readBitMask
     if((hit->core.flag & (BAM_FREAD1 + BAM_FREAD2)) && (hit->core.flag & rinfo->readBitMask) == 0)
         return 0;
@@ -143,11 +143,11 @@ static int _addValidHitToSums(const bam1_t *hit, void *data){
     // calculate position
     if(((hit->core.flag & BAM_FREVERSE) == 0) == (rinfo->selectReadPosition == 's')) // XOR
 	// plus-strand and startwithin OR minus-strand and endwithin
-        // --> position on the left side of the read 
+        // --> position on the left side of the read
 	pos = (int)((double)hit->core.pos + shift); // 0-based inclusive start
     else
 	// plus-strand and endwithin OR minus-strand and startwithin
-        // --> position on the right side of the read 
+        // --> position on the right side of the read
         pos = (int)((double)bam_calend(&hit->core, bam1_cigar(hit)) - 1 + shift); // 0-based exclusive end --> -1
 
     // check if in region
@@ -191,7 +191,7 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
     // check parameter overlap type
     if(!Rf_isString(selectReadPosition) || Rf_length(selectReadPosition) != 1)
         Rf_error("'selectReadPosition' must be of type character(1)");
-    if(Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0] != 's' 
+    if(Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0] != 's'
        && Rf_translateChar(STRING_ELT(selectReadPosition, 0))[0] != 'e')
         Rf_error("The value of 'selectReadPosition' not supportet.");
 
@@ -206,7 +206,7 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'broaden' must be a positive value.");
     if(!Rf_isLogical(includeSpliced) || 1 != Rf_length(includeSpliced))
         Rf_error("'includeSpliced' must be of type logical(1)");
-        
+
     // check MAPQ parameters
     if(!Rf_isInteger(mapqMin) || Rf_length(mapqMin) !=1 || INTEGER(mapqMin)[0] < 0 || INTEGER(mapqMin)[0] > 255)
         Rf_error("'mapqMin' must be of type integer(1) and have a value between 0 and 255");
@@ -214,7 +214,7 @@ int _verify_parameters(SEXP bamfile, SEXP tid,  SEXP start, SEXP end, SEXP stran
         Rf_error("'mapqMax' must be of type integer(1) and have a value between 0 and 255");
     if(INTEGER(mapqMin)[0] > INTEGER(mapqMax)[0])
 	Rf_error("'mapqMin' must not be greater than 'mapqMax'");
-        
+
     // check TLEN parameters
     if(!Rf_isInteger(absIsizeMin) || Rf_length(absIsizeMin) !=1 || (INTEGER(absIsizeMin)[0] < 0 && INTEGER(absIsizeMin)[0] != NO_ISIZE_FILTER))
         Rf_error("'absIsizeMin' must be of type integer(1) and have a value greater than zero");
@@ -251,7 +251,7 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
     // check parameters
     _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced,
 		       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
-    
+
     // open bam file
     samfile_t *fin = 0;
     fin = samopen(Rf_translateChar(STRING_ELT(bamfile, 0)), "rb", NULL);
@@ -262,7 +262,7 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
         Rf_error("BAM header missing or empty of file: '%s'", Rf_translateChar(STRING_ELT(bamfile, 0)));
     }
     // open bam index
-    bam_index_t *idx = 0; 
+    bam_index_t *idx = 0;
     idx = bam_index_load(Rf_translateChar(STRING_ELT(bamfile, 0)));
     if (idx == 0){
         samclose(fin);
@@ -281,15 +281,15 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
     rinfo.mapqMax = (uint8_t)(INTEGER(mapqMax)[0]);
     rinfo.absIsizeMin = (uint32_t)(INTEGER(absIsizeMin)[0]);
     rinfo.absIsizeMax = (uint32_t)(INTEGER(absIsizeMax)[0]);
-    
+
     // set shift for fetch to zero if smart shift
     int shift_f = abs(INTEGER(shift)[0]);
     if(INTEGER(shift)[0] == SMART_SHIFT)
         shift_f = 0;
-    
+
     // select bam_fetch callback function
     bam_fetch_f fetch_func = _addValidHitToSums;
-    
+
     // loop over query regions
     int num_regions = Rf_length(tid);
     SEXP count;
@@ -301,20 +301,20 @@ SEXP count_alignments_non_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, 
         rinfo.end = INTEGER(end)[i];
         rinfo.strand = Rf_translateChar(STRING_ELT(strand, i));
         // process alignments that overlap region
-        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i], 
+        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i],
                   INTEGER(start)[i]-shift_f-INTEGER(broaden)[0], // 0-based inclusive start
                   INTEGER(end)[i]+shift_f+INTEGER(broaden)[0],   // 0-based exclusive end
                   &rinfo, fetch_func);
 	// copy result to return values
         INTEGER(count)[i] = rinfo.sumU;
     }
-    
+
     // clean up
     samclose(fin);
     bam_index_destroy(idx);
-    
+
     UNPROTECT(1);
-    
+
     return count;
 }
 
@@ -325,7 +325,7 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     // check parameters
     _verify_parameters(bamfile, tid, start, end, strand, selectReadPosition, readBitMask, shift, broaden, includeSpliced,
 		       mapqMin, mapqMax, absIsizeMin, absIsizeMax);
-    
+
     // open bam file
     samfile_t *fin = 0;
     fin = samopen(Rf_translateChar(STRING_ELT(bamfile, 0)), "rb", NULL);
@@ -336,7 +336,7 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
         Rf_error("BAM header missing or empty of file: '%s'", Rf_translateChar(STRING_ELT(bamfile, 0)));
     }
     // open bam index
-    bam_index_t *idx = 0; 
+    bam_index_t *idx = 0;
     idx = bam_index_load(Rf_translateChar(STRING_ELT(bamfile, 0)));
     if (idx == 0){
         samclose(fin);
@@ -360,10 +360,10 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     int shift_f = abs(INTEGER(shift)[0]);
     if(INTEGER(shift)[0] == SMART_SHIFT)
         shift_f = 0;
-    
+
     // select bam_fetch callback function
     bam_fetch_f fetch_func = _addValidHitToSums;
-    
+
     // loop over query regions
     int num_regions = Rf_length(tid);
     SEXP count, attrib, countU, countR, countA;
@@ -379,7 +379,7 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
         rinfo.end = INTEGER(end)[i];
         rinfo.strand = Rf_translateChar(STRING_ELT(strand, i));
         // process alignments that overlap region
-        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i], 
+        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i],
                   INTEGER(start)[i]-shift_f-INTEGER(broaden)[0], // 0-based inclusive start
                   INTEGER(end)[i]+shift_f+INTEGER(broaden)[0],   // 0-based exclusive end
                   &rinfo, fetch_func);
@@ -400,12 +400,12 @@ SEXP count_alignments_allelic(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP
     SET_VECTOR_ELT(count, 1, countU);
     SET_VECTOR_ELT(count, 2, countA);
     setAttrib(count, R_NamesSymbol, attrib);
- 
+
     // clean up
     samclose(fin);
     bam_index_destroy(idx);
-    
+
     UNPROTECT(5);
-    
+
     return count;
 }

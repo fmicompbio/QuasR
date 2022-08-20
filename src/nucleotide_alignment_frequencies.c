@@ -62,7 +62,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
 	int32_t nm = 0; // number of mismatch
 	int qlen = 0; // length of the query sequence
 	int isize = 0; // fragment size
-    
+
 	// 4-bit encoding to index value
 	// NACNGNNNTNNNNNNN -> A=0, C=1, G=2, T=3, N=4
 	static int bit2idx[16] = { 4, 0, 1, 4, 2, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4 };
@@ -73,7 +73,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
             sprintf(pos_str, "%i_%i", (int)b->core.pos, (int)b->core.isize);
             fparam->pos_lst[ fparam->count_aln ] = pos_str;
             fparam->count_aln++;
-        }        
+        }
 
 	// get length of the query sequence
 	qlen = bam_cigar2qlen(b->core.n_cigar, cigar);
@@ -82,14 +82,14 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
 	qlen = qlen - 1; // vector index starts with 0
 
 	// get length of the fragment
-	isize = abs((int)b->core.isize);
+	isize = llabs((int)b->core.isize);
 	if((b->core.flag & BAM_FREAD1) && isize != 0){
 	    if(isize < (fparam->frag_dist_len)) // check vector overflow
 	    	fparam->frag_dist[isize - 1] += 1;
 	    else
-	    	// fragment size is bigger than vector length 
-		// use last vector element for counting 
-	    	fparam->frag_dist[fparam->frag_dist_len - 1] += 1; 
+	    	// fragment size is bigger than vector length
+		// use last vector element for counting
+	    	fparam->frag_dist[fparam->frag_dist_len - 1] += 1;
 	}
 
         // parse cigar string
