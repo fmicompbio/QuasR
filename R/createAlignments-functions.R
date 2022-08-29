@@ -2,44 +2,44 @@
 #' @importFrom parallel makeCluster stopCluster clusterEvalQ parLapply
 #' @importFrom tools file_path_sans_ext
 createGenomicAlignments <- function(proj, clObj) {
-    
+
     # check if a cluster object is provided. if not, use only one core.
     if (is.null(clObj)) {
         clObj <- parallel::makeCluster(1)
         on.exit(parallel::stopCluster(clObj))
     }
-    # retrieve information about the cluster  
+    # retrieve information about the cluster
     message("Testing the compute nodes...", appendLF = FALSE)
     tryCatch({
         nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
     }, error = function(ex) {
         message("FAILED")
-        stop("The cluster object does not work properly on this system. ", 
-             "Please consult the manual of the package 'parallel'\n", 
+        stop("The cluster object does not work properly on this system. ",
+             "Please consult the manual of the package 'parallel'\n",
              call. = FALSE)
     })
     message("OK")
-    
+
     message("Loading QuasR on the compute nodes...", appendLF = FALSE)
     # load QuasR package on all the nodes
     loadQuasR(clObj)
-    
+
     nodeNames <- unlist(nodeNamesList)
     coresPerNode <- table(nodeNames)
     message("Available cores:")
     for (i in seq_along(coresPerNode))
         message(names(coresPerNode)[i], ": ", as.character(coresPerNode[i]))
-    
-    # log file that is passed to all the nodes. each node can write into 
+
+    # log file that is passed to all the nodes. each node can write into
     # that file and serves as a monitor of their progress
     logFile <- tempfile(tmpdir = getwd(), pattern = "QuasR_log_", fileext = ".txt")
-    
-    #create the parameters necessary for the individual processes 
+
+    #create the parameters necessary for the individual processes
     # performing the genomic alignments
     paramsListGenomic = NULL
     for (i in seq_len(nrow(proj@reads))) {
         if (is.na(proj@alignments$FileName)[i]) {
-            # create a filename for the current bam file and update the 
+            # create a filename for the current bam file and update the
             # qProject. ensure uniqueness by adding a random suffix
             if (is.na(proj@alignmentsDir)) {
                 bamDir <- dirname(proj@reads[i, 1])
@@ -48,9 +48,9 @@ createGenomicAlignments <- function(proj, clObj) {
             }
             samplePrefix <- basename(tools::file_path_sans_ext(proj@reads[i, 1],
                                                                compression = TRUE))
-            proj@alignments$FileName[i] <- tempfile(tmpdir = bamDir, 
-                                                    pattern = paste(samplePrefix, 
-                                                                    "_", sep = ""), 
+            proj@alignments$FileName[i] <- tempfile(tmpdir = bamDir,
+                                                    pattern = paste(samplePrefix,
+                                                                    "_", sep = ""),
                                                     fileext = ".bam")
 
             paramsListGenomic[[length(paramsListGenomic) + 1]] <- list(
@@ -67,19 +67,19 @@ createGenomicAlignments <- function(proj, clObj) {
         message(paste("Performing genomic alignments for", length(paramsListGenomic),
                       "samples. See progress in the log file:"))
         message(logFile)
-        
-        # create a cluster object that has only one entry per machine. 
-        # multithreading (on a lower level) results 
-        # in a fully occupied node. This new clObj does not have to be stopped. 
+
+        # create a cluster object that has only one entry per machine.
+        # multithreading (on a lower level) results
+        # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-        
+
         parallel::parLapply(clObjNR, paramsListGenomic,
                             createGenomicAlignmentsController)
         message("Genomic alignments have been created successfully")
         message("")
     }
-    
+
     return(proj)
 }
 
@@ -87,38 +87,38 @@ createGenomicAlignments <- function(proj, clObj) {
 #' @importFrom parallel makeCluster stopCluster clusterEvalQ parLapply
 #' @importFrom tools file_path_sans_ext
 createAuxAlignments <- function(proj, clObj) {
-    
+
     # check if a cluster object is provided. if not, use only one core.
     if (is.null(clObj)) {
         clObj <- parallel::makeCluster(1)
         on.exit(parallel::stopCluster(clObj))
     }
-    # retrieve information about the cluster  
+    # retrieve information about the cluster
     message("Testing the compute nodes...", appendLF = FALSE)
     tryCatch({
         nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
     }, error = function(ex) {
         message("FAILED")
-        stop("The cluster object does not work properly on this system. ", 
-             "Please consult the manual of the package 'parallel'\n", 
+        stop("The cluster object does not work properly on this system. ",
+             "Please consult the manual of the package 'parallel'\n",
              call. = FALSE)
     })
     message("OK")
-    
+
     message("Loading QuasR on the compute nodes...", appendLF = FALSE)
     # load QuasR package on all the nodes
     loadQuasR(clObj)
-    
+
     nodeNames <- unlist(nodeNamesList)
     coresPerNode <- table(nodeNames)
     message("Available cores:")
     print(coresPerNode)
-    
-    # log file that is passed to all the nodes. each node can write into 
+
+    # log file that is passed to all the nodes. each node can write into
     # that file and serves as a monitor of their progress
     logFile <- tempfile(tmpdir = getwd(), pattern = "QuasR_log_", fileext = ".txt")
-    
-    # create the parameters necessary for the individual processes 
+
+    # create the parameters necessary for the individual processes
     # performing the aux alignments
     paramsListAux = NULL
     for (i in seq_len(ncol(proj@auxAlignments))) {
@@ -135,8 +135,8 @@ createAuxAlignments <- function(proj, clObj) {
                 if (is.na(proj@auxAlignments[j,i])) {
                     auxNrs <- c(auxNrs, j)
                     proj@auxAlignments[j, i] <- tempfile(
-                        tmpdir = bamDir, 
-                        pattern = paste(samplePrefix, "_", sep = ""), 
+                        tmpdir = bamDir,
+                        pattern = paste(samplePrefix, "_", sep = ""),
                         fileext = ".bam"
                     )
                 }
@@ -150,23 +150,23 @@ createAuxAlignments <- function(proj, clObj) {
             )
         }
     }
-    
+
     if (length(paramsListAux) > 0) {
         message(paste("Performing auxiliary alignments for",
                       length(paramsListAux), "samples. See progress in the log file:"))
         message(logFile)
-        
-        # create a cluster object that has only one entry per machine. 
-        # multithreading (on a lower level) results 
-        # in a fully occupied node. This new clObj does not have to be stopped. 
+
+        # create a cluster object that has only one entry per machine.
+        # multithreading (on a lower level) results
+        # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-        
+
         parallel::parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
         message("Auxiliary alignments have been created successfully")
         message("")
     }
-    
+
     return(proj)
 }
 
@@ -177,7 +177,7 @@ createAuxAlignments <- function(proj, clObj) {
 #' @importFrom Rsamtools asBam
 createGenomicAlignmentsController <- function(params) {
     tryCatch({# try catch block goes through the whole function
-        
+
         # extract the parameters from params
         sampleNr <- params$sampleNr
         proj <- params$qProject
@@ -185,23 +185,23 @@ createGenomicAlignmentsController <- function(params) {
         logFile <- params$logFile
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
-        
-        # find out how many threads are available on this node 
+
+        # find out how many threads are available on this node
         # (for running the alignments)
         thisNodesName <- Sys.info()['nodename']
         if (!(thisNodesName %in% names(coresPerNode))) {
             stop("Fatal error 2394793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
-        
-        # try to load all the required libraries on the compute node. 
+
+        # try to load all the required libraries on the compute node.
         # these are the aligner package
-        # and in the case of a BSgenome, the BSgenome itself needs to be 
+        # and in the case of a BSgenome, the BSgenome itself needs to be
         # loaded and the associated index
         if (!require(proj@aligner, character.only = TRUE, quietly = TRUE)) {
             stop("Could not load the aligner package ", proj@aligner)
         }
-        
+
         if (proj@genomeFormat == "file") {
             indexDir <- paste(proj@genome, proj@alnModeID, sep = ".")
         } else if (proj@genomeFormat == "BSgenome") {
@@ -209,24 +209,24 @@ createGenomicAlignmentsController <- function(params) {
                 stop("The genome package ", proj@genome, " is not installed")
             }
             if (is.na(proj@snpFile)) {
-                if (!(paste(proj@genome, proj@alnModeID, sep = ".") %in% 
+                if (!(paste(proj@genome, proj@alnModeID, sep = ".") %in%
                       utils::installed.packages()[, 'Package'])) {
-                    stop("The genome index package ", paste(proj@genome, 
+                    stop("The genome index package ", paste(proj@genome,
                                                             proj@alnModeID, sep = "."),
                          " is not installed")
                 }
             }
-            
-            indexDir <- system.file("alignmentIndex", package = paste(proj@genome, 
+
+            indexDir <- system.file("alignmentIndex", package = paste(proj@genome,
                                                                       proj@alnModeID,
                                                                       sep = "."))
         } else {
             stop("Fatal error 4778493")
         }
-        
+
         # create the info file for the bam file
         bamInfo <- qProjectBamInfo(proj, sampleNr)
-        
+
         # uncompress the files containing the reads (twice for paired end samples)
         if (proj@paired == "no") {
             # SINGLE END SAMPLES
@@ -234,7 +234,7 @@ createGenomicAlignmentsController <- function(params) {
             reads <- proj@reads$FileName[sampleNr]
             if (compressedFileFormat(reads) != "none") {
                 print(paste("Decompressing file on", Sys.info()['nodename'], ":", reads))
-                readsUNC <- tempfile(tmpdir = cacheDir, pattern = basename(reads), 
+                readsUNC <- tempfile(tmpdir = cacheDir, pattern = basename(reads),
                                      fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads, readsUNC, remove = FALSE)
                 proj@reads$FileName[sampleNr] <- readsUNC
@@ -251,7 +251,7 @@ createGenomicAlignmentsController <- function(params) {
                 compressFile(reads1, readsUNC1, remove = FALSE)
                 proj@reads$FileName1[sampleNr] <- readsUNC1
                 # make sure that the temp file is deleted at the end
-                on.exit(file.remove(readsUNC1)) 
+                on.exit(file.remove(readsUNC1))
             }
             # decompress the second read pair if necessary
             reads2 <- proj@reads$FileName2[sampleNr]
@@ -262,52 +262,52 @@ createGenomicAlignmentsController <- function(params) {
                 compressFile(reads2, readsUNC2, remove = FALSE)
                 proj@reads$FileName2[sampleNr] <- readsUNC2
                 # make sure that the temp file is deleted at the end
-                on.exit(file.remove(readsUNC2), add = TRUE) 
+                on.exit(file.remove(readsUNC2), add = TRUE)
             }
         }
 
-        samFile <- tempfile(tmpdir = cacheDir, 
+        samFile <- tempfile(tmpdir = cacheDir,
                             pattern = basename(proj@reads[sampleNr, 1]),
                             fileext = ".sam")
         # make sure that the temp file is deleted at the end
-        on.exit(file.remove(samFile), add = TRUE) 
-        
+        on.exit(file.remove(samFile), add = TRUE)
+
         # perform the required alignments based on the information in qProject
         if (proj@alnModeID == "Rbowtie") {
             if (!proj@splicedAlignment) {
                 if (is.na(proj@snpFile)) {
-                    align_Rbowtie(indexDir, proj@reads[sampleNr, ], 
-                                  proj@samplesFormat, proj@paired, 
-                                  proj@alignmentParameter, coresThisNode, 
+                    align_Rbowtie(indexDir, proj@reads[sampleNr, ],
+                                  proj@samplesFormat, proj@paired,
+                                  proj@alignmentParameter, coresThisNode,
                                   samFile, cacheDir)
                 } else {
                     # add numeric id to the reads, this is required for the correct
                     # operation of mergeReorderSam in allelic mode
                     proj@reads[sampleNr, ] <- addNumericToID(proj@reads[sampleNr, ],
-                                                             proj@paired, cacheDir) 
+                                                             proj@paired, cacheDir)
                     # make sure that the temp file(s) are deleted at the end
                     on.exit(file.remove(unlist(
                         proj@reads[sampleNr, stats::na.omit(match(c("FileName",
                                                                     "FileName1",
-                                                                    "FileName2"), 
+                                                                    "FileName2"),
                                                                   colnames(proj@reads)))]
-                    )), add = TRUE) 
-                    
-                    samFileR <- tempfile(tmpdir = cacheDir, 
+                    )), add = TRUE)
+
+                    samFileR <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
-                    samFileA <- tempfile(tmpdir = cacheDir, 
+                    samFileA <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
                     on.exit(file.remove(samFileR),add = TRUE)
                     on.exit(file.remove(samFileA),add = TRUE)
-                    align_Rbowtie(paste(proj@snpFile, basename(proj@genome), 
+                    align_Rbowtie(paste(proj@snpFile, basename(proj@genome),
                                         "R", "fa", proj@alnModeID, sep = "."),
                                   proj@reads[sampleNr, ], proj@samplesFormat,
-                                  proj@paired, proj@alignmentParameter, 
+                                  proj@paired, proj@alignmentParameter,
                                   coresThisNode, samFileR, cacheDir)
                     align_Rbowtie(paste(proj@snpFile, basename(proj@genome),
-                                        "A", "fa", proj@alnModeID, sep = "."), 
+                                        "A", "fa", proj@alnModeID, sep = "."),
                                   proj@reads[sampleNr, ], proj@samplesFormat,
                                   proj@paired, proj@alignmentParameter,
                                   coresThisNode, samFileA, cacheDir)
@@ -329,7 +329,7 @@ createGenomicAlignmentsController <- function(params) {
                         print(paste("Writing BSgenome to disk on",
                                     Sys.info()['nodename'], ":", fastaFilepath))
                         # flush the BSgenome to disk
-                        BSgenomeSeqToFasta(genomeObj, fastaFilepath)  
+                        BSgenomeSeqToFasta(genomeObj, fastaFilepath)
                         on.exit(unlink(fastaFilepath), add = TRUE)
                     } else {
                         fastaFilepath <- proj@genome
@@ -342,19 +342,19 @@ createGenomicAlignmentsController <- function(params) {
                     # add numeric id to the reads, this is required for the correct
                     # operation of mergeReorderSam in allelic mode
                     proj@reads[sampleNr, ] <- addNumericToID(proj@reads[sampleNr, ],
-                                                             proj@paired, cacheDir) 
+                                                             proj@paired, cacheDir)
                     # make sure that the temp file(s) are deleted at the end
                     on.exit(file.remove(unlist(
                         proj@reads[sampleNr, stats::na.omit(match(c("FileName",
                                                                     "FileName1",
-                                                                    "FileName2"), 
+                                                                    "FileName2"),
                                                                   colnames(proj@reads)))]
-                    )), add = TRUE) 
+                    )), add = TRUE)
 
-                    samFileR <- tempfile(tmpdir = cacheDir, 
+                    samFileR <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
-                    samFileA <- tempfile(tmpdir = cacheDir, 
+                    samFileA <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
                     on.exit(file.remove(samFileR), add = TRUE)
@@ -362,7 +362,7 @@ createGenomicAlignmentsController <- function(params) {
                     align_RbowtieSpliced(paste(proj@snpFile, basename(proj@genome),
                                                "R", "fa", sep = "."),
                                          paste(proj@snpFile, basename(proj@genome),
-                                               "R", "fa", proj@alnModeID, 
+                                               "R", "fa", proj@alnModeID,
                                                sep = "."),
                                          proj@reads[sampleNr, ], proj@samplesFormat,
                                          proj@paired, proj@alignmentParameter,
@@ -383,14 +383,14 @@ createGenomicAlignmentsController <- function(params) {
             if (proj@bisulfite == "dir") {
                 if (is.na(proj@snpFile)) {
                     align_RbowtieCtoT_dir(indexDir, proj@reads[sampleNr, ],
-                                          proj@samplesFormat, proj@paired, 
+                                          proj@samplesFormat, proj@paired,
                                           proj@alignmentParameter, !is.na(proj@snpFile),
                                           proj@maxHits, coresThisNode, samFile, cacheDir)
                 } else {
-                    samFileR <- tempfile(tmpdir = cacheDir, 
+                    samFileR <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
-                    samFileA <- tempfile(tmpdir = cacheDir, 
+                    samFileA <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
                     on.exit(file.remove(samFileR), add = TRUE)
@@ -416,14 +416,14 @@ createGenomicAlignmentsController <- function(params) {
                 if (is.na(proj@snpFile)) {
                     align_RbowtieCtoT_undir(indexDir, proj@reads[sampleNr, ],
                                             proj@samplesFormat, proj@paired,
-                                            proj@alignmentParameter, 
+                                            proj@alignmentParameter,
                                             !is.na(proj@snpFile),
                                             proj@maxHits, coresThisNode, samFile, cacheDir)
                 } else {
-                    samFileR <- tempfile(tmpdir = cacheDir, 
+                    samFileR <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
-                    samFileA <- tempfile(tmpdir = cacheDir, 
+                    samFileA <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
                     on.exit(file.remove(samFileR), add = TRUE)
@@ -436,7 +436,7 @@ createGenomicAlignmentsController <- function(params) {
                                             !is.na(proj@snpFile), proj@maxHits,
                                             coresThisNode, samFileR, cacheDir)
                     align_RbowtieCtoT_undir(paste(proj@snpFile, basename(proj@genome),
-                                                  "A", "fa", proj@alnModeID, sep = "."), 
+                                                  "A", "fa", proj@alnModeID, sep = "."),
                                             proj@reads[sampleNr, ], proj@samplesFormat,
                                             proj@paired, proj@alignmentParameter,
                                             !is.na(proj@snpFile), proj@maxHits,
@@ -450,23 +450,23 @@ createGenomicAlignmentsController <- function(params) {
             if (is.na(proj@snpFile)) {
                 align_Rhisat2(indexDir, proj@reads[sampleNr, ],
                               proj@samplesFormat, proj@paired, proj@alignmentParameter,
-                              coresThisNode, samFile, cacheDir, 
+                              coresThisNode, samFile, cacheDir,
                               proj@splicedAlignment, proj@maxHits)
             } else {
-                # add numeric id to the reads, this is required for the correct 
+                # add numeric id to the reads, this is required for the correct
                 # operation of mergeReorderSam in allelic mode
                 proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr, ],
-                                                        proj@paired, cacheDir) 
+                                                        proj@paired, cacheDir)
                 # make sure that the temp file(s) are deleted at the end
                 on.exit(file.remove(unlist(
                     proj@reads[sampleNr, stats::na.omit(match(c("FileName", "FileName1",
-                                                                "FileName2"), 
+                                                                "FileName2"),
                                                               colnames(proj@reads)))]
-                )), add = TRUE) 
-                samFileR <- tempfile(tmpdir = cacheDir, 
+                )), add = TRUE)
+                samFileR <- tempfile(tmpdir = cacheDir,
                                      pattern = basename(proj@reads[sampleNr, 1]),
                                      fileext = ".sam")
-                samFileA <- tempfile(tmpdir = cacheDir, 
+                samFileA <- tempfile(tmpdir = cacheDir,
                                      pattern = basename(proj@reads[sampleNr, 1]),
                                      fileext = ".sam")
                 on.exit(file.remove(samFileR), add = TRUE)
@@ -477,10 +477,10 @@ createGenomicAlignmentsController <- function(params) {
                               proj@paired, proj@alignmentParameter,
                               coresThisNode, samFileR, cacheDir,
                               proj@splicedAlignment, proj@maxHits)
-                align_Rhisat2(paste(proj@snpFile, basename(proj@genome), "A", 
+                align_Rhisat2(paste(proj@snpFile, basename(proj@genome), "A",
                                     "fa", proj@alnModeID, sep = "."),
                               proj@reads[sampleNr, ], proj@samplesFormat,
-                              proj@paired, proj@alignmentParameter, 
+                              proj@paired, proj@alignmentParameter,
                               coresThisNode, samFileA, cacheDir,
                               proj@splicedAlignment, proj@maxHits)
                 mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
@@ -491,35 +491,35 @@ createGenomicAlignmentsController <- function(params) {
             stop("Fatal error 23484303")
         }
 
-        print(paste("Converting sam file to sorted bam file on", 
+        print(paste("Converting sam file to sorted bam file on",
                     Sys.info()['nodename'], ":", samFile))
         if (coresThisNode > 3) {
             # sort sam and convert to bam parallel
             samToSortedBamParallel(
                 samFile, tools::file_path_sans_ext(proj@alignments$FileName[sampleNr]),
                 coresThisNode, cacheDir
-            ) 
+            )
         } else {
             # sort sam and convert to bam
             Rsamtools::asBam(
-                samFile, 
+                samFile,
                 tools::file_path_sans_ext(proj@alignments$FileName[sampleNr])
             )
         }
-        
+
         # save the info file for the bam file
         utils::write.table(bamInfo, paste(proj@alignments$FileName[sampleNr],
                                           "txt", sep = "."),
                            sep = "\t", quote = FALSE, col.names = FALSE)
-        
+
         print(paste("Genomic alignments for sample ", sampleNr, " (",
-                    proj@reads$SampleName[sampleNr], 
+                    proj@reads$SampleName[sampleNr],
                     ") have been successfully created on ",
                     Sys.info()['nodename'], sep = ""))
-        
-        # if one process stops due to an error, catch it, concatenate the 
+
+        # if one process stops due to an error, catch it, concatenate the
         # message with specific information about
-        # the compute node and then print it to the log file. this procedure 
+        # the compute node and then print it to the log file. this procedure
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
@@ -538,7 +538,7 @@ createGenomicAlignmentsController <- function(params) {
 #' @importFrom utils write.table
 createAuxAlignmentsController <- function(params) {
     tryCatch({ # try catch block goes through the whole function
-        
+
         # extract the parameters from params
         sampleNr <- params$sampleNr
         auxNrs <- params$auxNrs
@@ -547,28 +547,28 @@ createAuxAlignmentsController <- function(params) {
         logFile <- params$logFile
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
-        
+
         # load the aligner package on the compute node
         if (!require(proj@aligner, character.only = TRUE, quietly = TRUE)) {
             stop("Could not load the aligner package ", proj@aligner)
         }
-        
-        # find out how many threads are available on this node 
+
+        # find out how many threads are available on this node
         # (for running the alignments)
         thisNodesName <- Sys.info()['nodename']
         if (!(thisNodesName %in% names(coresPerNode))) {
             stop("Fatal error 23594793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
-        
-        # extract the unmapped reads from bam file. in the case of a bisulfite 
+
+        # extract the unmapped reads from bam file. in the case of a bisulfite
         # sample, this requires the conversion from ff (that is present in the bam file)
-        # to fr to make the rest of the execution compatible (see last parameter 
+        # to fr to make the rest of the execution compatible (see last parameter
         # of extractUnmappedReads)
         unmappedReadsInfo <- proj@reads[sampleNr, ]
         if (proj@paired == "no") {
             unmappedReadsFile <- tempfile(
-                tmpdir = cacheDir, 
+                tmpdir = cacheDir,
                 pattern = basename(proj@alignments$FileName[sampleNr]),
                 fileext = proj@samplesFormat
             )
@@ -577,15 +577,15 @@ createAuxAlignmentsController <- function(params) {
                   proj@bisulfite != "no")
             unmappedReadsInfo$FileName <- unmappedReadsFile
             # make sure that the temp file is deleted
-            on.exit(file.remove(unmappedReadsFile)) 
+            on.exit(file.remove(unmappedReadsFile))
         } else {
             unmappedReadsFile1 <- tempfile(
-                tmpdir = cacheDir, 
+                tmpdir = cacheDir,
                 pattern = basename(proj@alignments$FileName[sampleNr]),
                 fileext = proj@samplesFormat
             )
             unmappedReadsFile2 <- tempfile(
-                tmpdir = cacheDir, 
+                tmpdir = cacheDir,
                 pattern = basename(proj@alignments$FileName[sampleNr]),
                 fileext = proj@samplesFormat
             )
@@ -595,27 +595,27 @@ createAuxAlignmentsController <- function(params) {
             unmappedReadsInfo$FileName1 <- unmappedReadsFile1
             unmappedReadsInfo$FileName2 <- unmappedReadsFile2
             # make sure that the temp files are deleted
-            on.exit(file.remove(unmappedReadsFile1)) 
-            on.exit(file.remove(unmappedReadsFile2), add = TRUE) 
+            on.exit(file.remove(unmappedReadsFile1))
+            on.exit(file.remove(unmappedReadsFile2), add = TRUE)
         }
-        
+
         # for the current sample, create alignments against all the aux files
         for (j in auxNrs) {
-            samFile <- tempfile(tmpdir = cacheDir, 
+            samFile <- tempfile(tmpdir = cacheDir,
                                 pattern = basename(proj@reads[sampleNr, 1]),
                                 fileext = ".sam")
-            bamFileNoUnmapped <- tempfile(tmpdir = cacheDir, 
+            bamFileNoUnmapped <- tempfile(tmpdir = cacheDir,
                                           pattern = basename(proj@reads[sampleNr, 1]),
                                           fileext = ".bam")
-            
+
             if (proj@alnModeID == "Rbowtie") {
                 if (!proj@splicedAlignment) {
                     align_Rbowtie(paste(proj@aux$FileName[j], proj@alnModeID, sep = "."),
-                                  unmappedReadsInfo, proj@samplesFormat, 
+                                  unmappedReadsInfo, proj@samplesFormat,
                                   proj@paired, proj@alignmentParameter,
                                   coresThisNode, samFile, cacheDir)
                 } else {
-                    align_RbowtieSpliced(proj@aux$FileName[j], 
+                    align_RbowtieSpliced(proj@aux$FileName[j],
                                          paste(proj@aux$FileName[j], proj@alnModeID,
                                                sep = "."),
                                          unmappedReadsInfo, proj@samplesFormat,
@@ -628,7 +628,7 @@ createAuxAlignmentsController <- function(params) {
                                                 sep = "."),
                                           unmappedReadsInfo, proj@samplesFormat,
                                           proj@paired, proj@alignmentParameter,
-                                          FALSE, proj@maxHits, 
+                                          FALSE, proj@maxHits,
                                           coresThisNode, samFile, cacheDir)
                 } else {
                     align_RbowtieCtoT_undir(paste(proj@aux$FileName[j], proj@alnModeID,
@@ -661,10 +661,10 @@ createAuxAlignmentsController <- function(params) {
             # create the info file for the bam file
             bamInfo <- qProjectBamInfo(proj, sampleNr, j)
             utils::write.table(bamInfo,
-                               paste(proj@auxAlignments[j, sampleNr], 
+                               paste(proj@auxAlignments[j, sampleNr],
                                      "txt", sep = "."),
                                sep = "\t", quote = FALSE, col.names = FALSE)
-            
+
             print(paste("Auxiliary alignments ", j, " for sample ", sampleNr,
                         " (", proj@reads$SampleName[sampleNr],
                         ") have been successfully created on ",
@@ -672,9 +672,9 @@ createAuxAlignmentsController <- function(params) {
 
   }
 
-        # if one process stops due to an error, catch it, concatenate the 
+        # if one process stops due to an error, catch it, concatenate the
         # message with specific information about
-        # the compute node and then print it to the log file. this procedure 
+        # the compute node and then print it to the log file. this procedure
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
@@ -691,14 +691,14 @@ createAuxAlignmentsController <- function(params) {
 #' @import Rbowtie
 align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
                           alignmentParameter, threads, outFile, cacheDir) {
-    
+
     # add some variable parameters based on the input format
     if (samplesFormat == "fasta") {
         alignmentParameterAdded <- "-f"
     } else {
         alignmentParameterAdded <- paste("--phred", reads$phred, "-quals", sep = "")
     }
-    
+
     print(paste("Executing bowtie on", Sys.info()['nodename'],
                 "using", threads, "cores. Parameters:"))
     if (paired == "no") {
@@ -717,14 +717,14 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
         print(args)
         ret <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                        args, stdout = TRUE, stderr = TRUE)
-    }  
+    }
     if (!(grepl(" alignments", ret[length(ret)]))) {
         stop("bowtie failed to perform the alignments")
     }
 }
 
 #' @keywords internal
-align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired, 
+align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
                           alignmentParameter, threads, outFile, cacheDir,
                           splicedAlignment, maxHits) {
     # add some variable parameters based on the input format
@@ -733,7 +733,7 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     } else {
         alignmentParameterAdded <- paste("--phred", reads$phred, sep = "")
     }
-    print(paste("Executing hisat2 on", Sys.info()['nodename'], "using", 
+    print(paste("Executing hisat2 on", Sys.info()['nodename'], "using",
                 threads, "cores. Parameters:"))
     if (paired == "no") {
         args <- paste(shQuote(file.path(indexDir, "hisat2Index")),
@@ -755,7 +755,7 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     if (!(grepl(" reads", ret[1]))) {
         stop("hisat2 failed to perform the alignments")
     }
-    
+
     ## Filter alignments (keep only reads with at most maxHits alignments, only 1
     ## hit for multimapping reads)
     fhs <- .Call(filterHisat2, paste(outFile, "tmp", sep = "."),
@@ -770,11 +770,11 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
 align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
                                  paired, alignmentParameter, threads,
                                  outFile, cacheDir) {
-    # determine the number of chromosomes (or sequences in case of aux). this is needed to ensure that no more threads 
+    # determine the number of chromosomes (or sequences in case of aux). this is needed to ensure that no more threads
     # than chromosomes are used in the spliced alignment step of SpliceMap
     nrChr <- length(Rsamtools::scanFaIndex(genomeFilepath))
     nrChrTogether <- min(threads, nrChr)
-    
+
     # parse alignment parameters
     keyValueMatrix <- matrix(unlist(strsplit(alignmentParameter,
                                              "\\s+", perl = TRUE)),
@@ -783,18 +783,18 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
         stop(paste("The parameters for spliced-aligment are in an incorrect format:",
                    alignmentParameter))
     }
-    
+
     rownames(keyValueMatrix) <- substring(keyValueMatrix[, 1], 2)
     sm_cfg <- as.list(keyValueMatrix[, 2])
-    
+
     # convert integer strings to actual integers
     all.numbers <- grep("^[[:digit:]]*$", keyValueMatrix[, 2])
     sm_cfg[all.numbers] <- lapply(sm_cfg[all.numbers], as.integer)
-    
+
     # convert boolean to actual logicals
     all.logicals <- grep("^(TRUE|FALSE)$", keyValueMatrix[, 2])
     sm_cfg[all.logicals] <- lapply(sm_cfg[all.logicals], as.logical)
-    
+
     sm_cfg[["genome_dir"]] <- genomeFilepath
     if (paired == "no") {
         sm_cfg[["reads_list1"]] <- reads$FileName
@@ -811,13 +811,13 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
     sm_cfg[["num_threads"]] <- threads
     sm_cfg[["bowtie_base_dir"]] <- file.path(indexDir, "bowtieIndex")
     sm_cfg[["outfile"]] <- outFile
-    
+
     sm_cfgParString <- cbind(paste("-", as.character(names(sm_cfg)), sep = ""),
                              as.character(sm_cfg))
     print(paste("Executing Splicemap on", Sys.info()['nodename'],
                 "using", threads, "cores. Parameters:"))
     print(paste(paste(sm_cfgParString[, 1], sm_cfgParString[, 2]), collapse = " "))
-    
+
     Rbowtie::SpliceMap(sm_cfg)
 }
 
@@ -832,42 +832,42 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
     } else {
         alignmentParameterAdded <- paste("--phred", reads$phred, "-quals", sep = "")
     }
-    
+
     # set the format of the read identifier. this is necessary for mergeReorderSam outside of this function in allelic mode
     if (!allelic) {
         idMode <- 1
     } else {
         idMode <- 3
     }
-    
+
     print(paste("Executing bowtie (CtoT and GtoA) on", Sys.info()['nodename'],
                 "using", threads, "cores. Parameters:"))
     if (paired == "no") {
         # CtoT convert the reads. include the original sequence in the identifier.
         readsCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName), "readsCtoT_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         .Call(convertReadsIdBisRc, reads$FileName, readsCtoT, c("C", "T"), FALSE)
         # make sure that the temp file is deleted
-        on.exit(file.remove(readsCtoT), add = TRUE) 
-        
+        on.exit(file.remove(readsCtoT), add = TRUE)
+
         # create temp filenames for the aligment results
         readsCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName), "readsCtoT_genomeCtoT_", sep = "_"),
             fileext = ".sam"
         )
         readsCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName), "readsCtoT_genomeGtoA_", sep = "_"),
             fileext = ".sam"
         )
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE) 
+        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsCtoT_genomeGtoA), add = TRUE)
-        
+
         argsCtoT <- paste(shQuote(file.path(indexDir, "bowtieIndexCtoT")),
                           shQuote(readsCtoT), alignmentParameter,
                           alignmentParameterAdded, "-S", "-p", threads,
@@ -878,20 +878,20 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "--nofw", shQuote(readsCtoT_genomeGtoA))
         print(argsCtoT)
         print(argsGtoA)
-        # perform two alignments, readsCtoT agains genomeCtoT (plus strand) 
+        # perform two alignments, readsCtoT agains genomeCtoT (plus strand)
         # and readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsCtoT, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsGtoA, stdout = TRUE, stderr = TRUE)
-        
+
         if (!(grepl(" alignments", ret1[length(ret1)]))) {
             stop("bowtie (CtoT) failed to perform the alignments")
         }
         if (!(grepl(" alignments", ret2[length(ret2)]))) {
             stop("bowtie (GtoA) failed to perform the alignments")
         }
-        
+
         mrQuSize <- .Call(mergeReorderSam, c(readsCtoT_genomeCtoT,
                                              readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
@@ -900,12 +900,12 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
     } else if (paired == "fr") {
         # CtoT convert the reads. include the original sequence in the identifier.
         readsCtoT_1 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsCtoT_1_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         readsCtoT_2 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsCtoT_2_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
@@ -914,24 +914,24 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
         # make sure that the temp files are deleted
         on.exit(file.remove(readsCtoT_1), add = TRUE)
         on.exit(file.remove(readsCtoT_2), add = TRUE)
-        
+
         # create temp filenames for the aligment results
         readsCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
-            pattern = paste(basename(reads$FileName1), 
+            tmpdir = cacheDir,
+            pattern = paste(basename(reads$FileName1),
                             "readsCtoT_genomeCtoT_", sep = "."),
             fileext = ".sam"
         )
         readsCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1),
                             "readsCtoT_genomeGtoA_", sep = "."),
             fileext = ".sam"
         )
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE) 
+        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsCtoT_genomeGtoA), add = TRUE)
-        
+
         argsCtoT <- paste(shQuote(file.path(indexDir, "bowtieIndexCtoT")),
                           "-1", shQuote(readsCtoT_1),
                           "-2", shQuote(readsCtoT_2),
@@ -944,23 +944,23 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "-S", "-p", threads, "--nofw", shQuote(readsCtoT_genomeGtoA))
         print(argsCtoT)
         print(argsGtoA)
-        
+
         # perform two alignments, readsCtoT against genomeCtoT (plus strand) and
         # readsCtoT against genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsCtoT, stdout = TRUE, stderr = TRUE)
         ret2 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         argsGtoA, stdout = TRUE, stderr = TRUE)
-        
+
         if (!(grepl(" alignments", ret1[length(ret1)]))) {
             stop("bowtie (CtoT) failed to perform the alignments")
         }
         if (!(grepl(" alignments", ret2[length(ret2)]))) {
             stop("bowtie (GtoA) failed to perform the alignments")
         }
-        
-        mrQuSize <- .Call(mergeReorderSam, 
-                          c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA), 
+
+        mrQuSize <- .Call(mergeReorderSam,
+                          c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
         print(paste("mergeReorderMaxQueueSize", mrQuSize))
     }
@@ -979,7 +979,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
 #    read1       read2        genome
 # 0  C->T        rc, C->T     C->T Plus
 # 1  C->T        rc, C->T     G->A Minus
-# 2  rc, C->T    C->T *       C->T Plus   -| for 2&3, swap first and second read 
+# 2  rc, C->T    C->T *       C->T Plus   -| for 2&3, swap first and second read
 # 3  rc, C->T    C->T *       G->A Minus  -|
 #
 # * reverse complemented twice which cancels out
@@ -1002,56 +1002,56 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
     } else {
         idMode <- 3
     }
-    
+
     print(paste("Executing bowtie (CtoT and GtoA) on", Sys.info()['nodename'],
                 "using", threads, "cores. Parameters:"))
     if (paired == "no") {
 
         # CtoT convert the reads. include the original sequence in the identifier.
         readsCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName), "readsCtoT_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         readsRcCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName), "readsRcCtoT_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         .Call(convertReadsIdBisRc, reads$FileName, readsCtoT, c("C", "T"), FALSE)
         .Call(convertReadsIdBisRc, reads$FileName, readsRcCtoT, c("C", "T"), TRUE)
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT), add = TRUE) 
+        on.exit(file.remove(readsCtoT), add = TRUE)
         on.exit(file.remove(readsRcCtoT), add = TRUE)
-        
+
         # create temp filenames for the aligment results
         readsCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
-            pattern = paste(basename(reads$FileName), 
+            tmpdir = cacheDir,
+            pattern = paste(basename(reads$FileName),
                             "readsCtoT_genomeCtoT_", sep = "_"),
             fileext = ".sam"
         )
         readsCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName),
                             "readsCtoT_genomeGtoA_", sep = "_"),
             fileext = ".sam"
         )
         readsRcCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName),
                             "readsRcCtoT_genomeCtoT_", sep = "_"),
             fileext = ".sam"
         )
         readsRcCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName),
                             "readsRcCtoT_genomeGtoA_", sep = "_"),
             fileext = ".sam"
         )
-        
+
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE) 
+        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsCtoT_genomeGtoA), add = TRUE)
         on.exit(file.remove(readsRcCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsRcCtoT_genomeGtoA), add = TRUE)
@@ -1073,12 +1073,12 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                        shQuote(readsRcCtoT), alignmentParameter,
                        alignmentParameterAdded, "-S", "-p", threads,
                        "--nofw", shQuote(readsRcCtoT_genomeGtoA))
-        
+
         print(args0)
         print(args1)
         print(args2)
         print(args3)
-        
+
         # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
         # readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -1089,7 +1089,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                         args2, stdout = TRUE, stderr = TRUE)
         ret4 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         args3, stdout = TRUE, stderr = TRUE)
-        
+
         if (!(grepl(" alignments", ret1[length(ret1)]))) {
             stop("bowtie (CtoT) failed to perform the alignments")
         }
@@ -1102,80 +1102,80 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
         if (!(grepl(" alignments", ret2[length(ret2)]))) {
             stop("bowtie (RC, GtoA) failed to perform the alignments")
         }
-        
-        mrQuSize <- .Call(mergeReorderSam, 
+
+        mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
         print(paste("mergeReorderMaxQueueSize", mrQuSize))
-        
+
     } else if (paired == "fr") {
-        
+
         # CtoT convert the reads. include the original sequence in the identifier.
         readsCtoT_1 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsCtoT_1_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         readsCtoT_2 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsCtoT_2_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         readsRcCtoT_1 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsRcCtoT_1_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
         readsRcCtoT_2 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1), "readsRcCtoT_2_", sep = "_"),
             fileext = paste(".", samplesFormat, sep = "")
         )
-        
+
         .Call(convertReadsIdBisRc, reads$FileName1, readsCtoT_1, c("C", "T"), FALSE)
         .Call(convertReadsIdBisRc, reads$FileName2, readsCtoT_2, c("C", "T"), TRUE) # reverse complement the second read because its fr
         .Call(convertReadsIdBisRc, reads$FileName1, readsRcCtoT_1, c("C", "T"), TRUE)
         .Call(convertReadsIdBisRc, reads$FileName2, readsRcCtoT_2, c("C", "T"), FALSE) # don't reverse complement the second read because its like reverse complementing twice
-        
+
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT_1), add = TRUE) 
+        on.exit(file.remove(readsCtoT_1), add = TRUE)
         on.exit(file.remove(readsCtoT_2), add = TRUE)
         on.exit(file.remove(readsRcCtoT_1), add = TRUE)
         on.exit(file.remove(readsRcCtoT_2), add = TRUE)
-        
+
         # create temp filenames for the aligment results
         readsCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
-            pattern = paste(basename(reads$FileName1), 
+            tmpdir = cacheDir,
+            pattern = paste(basename(reads$FileName1),
                             "readsCtoT_genomeCtoT_", sep = "."),
             fileext = ".sam"
         )
         readsCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1),
                             "readsCtoT_genomeGtoA_", sep = "."),
             fileext = ".sam"
         )
         readsRcCtoT_genomeCtoT <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1),
                             "readsRcCtoT_genomeCtoT_", sep = "."),
             fileext = ".sam"
         )
         readsRcCtoT_genomeGtoA <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = paste(basename(reads$FileName1),
                             "readsRcCtoT_genomeGtoA_", sep = "."),
             fileext = ".sam"
         )
 
         # make sure that the temp files are deleted
-        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE) 
+        on.exit(file.remove(readsCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsCtoT_genomeGtoA), add = TRUE)
         on.exit(file.remove(readsRcCtoT_genomeCtoT), add = TRUE)
         on.exit(file.remove(readsRcCtoT_genomeGtoA), add = TRUE)
-        
+
         args0 <- paste(shQuote(file.path(indexDir, "bowtieIndexCtoT")),
                        "-1", shQuote(readsCtoT_1),
                        "-2", shQuote(readsCtoT_2),
@@ -1192,16 +1192,16 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                        "--ff", alignmentParameter, alignmentParameterAdded,
                        "-S", "-p", threads, "--norc", shQuote(readsRcCtoT_genomeCtoT))
         args3 <- paste(shQuote(file.path(indexDir, "bowtieIndexGtoA")),
-                       "-2", shQuote(readsRcCtoT_1), 
+                       "-2", shQuote(readsRcCtoT_1),
                        "-1", shQuote(readsRcCtoT_2),
                        "--ff", alignmentParameter, alignmentParameterAdded,
                        "-S", "-p", threads, "--nofw", shQuote(readsRcCtoT_genomeGtoA))
-        
+
         print(args0)
         print(args1)
         print(args2)
         print(args3)
-        
+
         # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
         # readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -1212,7 +1212,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                         args2, stdout = TRUE, stderr = TRUE)
         ret4 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                         args3, stdout = TRUE, stderr = TRUE)
-        
+
         if (!(grepl(" alignments", ret1[length(ret1)]))) {
             stop("bowtie (CtoT) failed to perform the alignments")
         }
@@ -1225,7 +1225,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
         if (!(grepl(" alignments", ret2[length(ret2)]))) {
             stop("bowtie (RC, GtoA) failed to perform the alignments")
         }
-        
+
         mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
@@ -1236,7 +1236,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
 
 
 
-# For a given sample, add an integer to the id. This is necessary for allelic analysis 
+# For a given sample, add an integer to the id. This is necessary for allelic analysis
 # when calling mergeReorderSam
 #' @keywords internal
 #' @importFrom tools file_ext
@@ -1244,20 +1244,20 @@ addNumericToID <- function(reads, paired, cacheDir) {
 
     if (paired == "no") {
         readsFileNameTmp <- tempfile(
-            tmpdir = cacheDir, 
-            pattern = basename(reads$FileName), 
+            tmpdir = cacheDir,
+            pattern = basename(reads$FileName),
             paste(".", fileext = tools::file_ext(reads$FileName), sep = "")
         )
         .Call(convertReadsIdBisRc, reads$FileName, readsFileNameTmp, NULL, FALSE)
         reads$FileName <- readsFileNameTmp
     } else {
         readsFileNameTmp1 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = basename(reads$FileName1),
             paste(".", fileext = tools::file_ext(reads$FileName1), sep = "")
         )
         readsFileNameTmp2 <- tempfile(
-            tmpdir = cacheDir, 
+            tmpdir = cacheDir,
             pattern = basename(reads$FileName2),
             paste(".", fileext = tools::file_ext(reads$FileName2), sep = "")
         )
@@ -1276,7 +1276,7 @@ addNumericToID <- function(reads, paired, cacheDir) {
 samToSortedBamCore <- function(ind, paramsL) {
     set.seed(0)
     params <- paramsL[[ind]]
-    
+
     # don't sort in the case of splitChrSam_unaligned
     if (basename(params[2]) != "splitChrSam_unaligned") {
         bamtempFile <- tempfile()
@@ -1291,9 +1291,9 @@ samToSortedBamCore <- function(ind, paramsL) {
 # convert a sam file to a sorted bam file in parallel fashion using p threads.
 # it splits the sam file into individual chromosomes, creates a cluster object with
 # p nodes and sort and converts to bam in parallel fashion. After this step, the bam
-# files are concatentated (in the order of the header of the original sam file and 
+# files are concatentated (in the order of the header of the original sam file and
 # an index in built for the final bam file
-#' @keywords internal 
+#' @keywords internal
 #' @importFrom parallel makeCluster stopCluster clusterEvalQ clusterApplyLB
 #' @importFrom Rsamtools indexBam
 samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
@@ -1301,23 +1301,23 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
     if (!file.exists(file)) {
         stop("Cannot read ", file, call. = FALSE)
     }
-    
+
     if (is.null(cacheDir))
         cacheDir <- tempdir()
-    
-    # split the input sam file into seperate files, one per chromosome in 
+
+    # split the input sam file into seperate files, one per chromosome in
     # a temporary directory
     splitDir <- tempfile(tmpdir = cacheDir, pattern = "samToBam_")
     if (!dir.create(path = splitDir, showWarnings = FALSE)) {
         stop("No permissions to create a directory in the cacheDir", call. = FALSE)
     }
     # make sure that the temp dir is deleted
-    on.exit(unlink(splitDir, recursive = TRUE)) 
-    
+    on.exit(unlink(splitDir, recursive = TRUE))
+
     # perform the split
     chrNames <- .Call(splitSamChr, file, splitDir)
-    
-    # collect the sam files that are not empty. The empty ones would cause a 
+
+    # collect the sam files that are not empty. The empty ones would cause a
     # problem during sam to bam conversion
     splitSamAndBamNames <- NULL
     for (i in seq_len(length(chrNames))) {
@@ -1328,33 +1328,33 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
                          sep = "\t", comment.char = "@", fill = TRUE,
                          nmax = 30, quiet = TRUE)
         if (length(fileHead[[1]]) > 0) {
-            splitSamAndBamNames[[length(splitSamAndBamNames) + 1]] <- 
+            splitSamAndBamNames[[length(splitSamAndBamNames) + 1]] <-
                 c(samName, bamName)
         }
         close(con)
     }
-    
+
     # sort the jobs based on the file sizes
     sortedOrder <- order(file.info(do.call(rbind, splitSamAndBamNames)[, 1])$size,
                          decreasing = TRUE)
-    
+
     clObjS <- parallel::makeCluster(p)
     on.exit(parallel::stopCluster(clObjS), add = TRUE)
-    
+
     # load QuasR package on all the nodes
     loadQuasR(clObjS)
-    
+
     parallel::clusterApplyLB(clObjS, seq_len(length(splitSamAndBamNames)),
                              samToSortedBamCore,
                              splitSamAndBamNames[sortedOrder])
-    
+
     # concatenate all the sorted bam files in the order of the original sam file header
-    .Call(catBam, paste0(do.call(rbind, splitSamAndBamNames)[, 2], ".bam"), 
+    .Call(catBam, paste0(do.call(rbind, splitSamAndBamNames)[, 2], ".bam"),
           paste0(destination, ".bam"))
-    
+
     # create index for the final bam file
     Rsamtools::indexBam(paste0(destination, ".bam"))
-    
+
     invisible(paste0(destination, ".bam"))
 }
 

@@ -1,12 +1,12 @@
 #include "cat_bam.h"
 
-int bam_cat(int, char * const *, const bam_hdr_t *, const char *);
+int bam_cat(int, char * const *, sam_hdr_t *, const char*, char *, int);
 
 SEXP cat_bam(SEXP inbam, SEXP outbam)
 {
-    bam_hdr_t *h = 0;
+    bam_hdr_t *h = NULL;
 	int ret = 0;
-	
+
 	// check parameter inbam
     if(!Rf_isString(inbam)){
         Rf_error("'inbam' must be character()");
@@ -25,7 +25,7 @@ SEXP cat_bam(SEXP inbam, SEXP outbam)
     }
     const char * fout = Rf_translateChar(STRING_ELT(outbam, 0));
 
-    ret = bam_cat(nfin, (char * const *)fin, h, fout);
+    ret = bam_cat(nfin, (char * const *)fin, h, fout, NULL, 1);
     if (ret != 0)
         Rf_error("call to bam_cat() returned a non-zero value");
 
