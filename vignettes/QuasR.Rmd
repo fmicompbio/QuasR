@@ -13,8 +13,10 @@ output:
     toc_float: true
 vignette: >
   %\VignetteIndexEntry{An introduction to QuasR}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!--

@@ -114,7 +114,7 @@ jobs:
         uses: grimbough/bioc-actions/run-BiocCheck@v1
         with:
           arguments: '--no-check-bioc-views --no-check-bioc-help'
-          error-on: 'error'
+          error-on: 'never'
 
       - name: Show testthat output
         if: always()
