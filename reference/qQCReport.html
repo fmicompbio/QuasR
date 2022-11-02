@@ -20,7 +20,7 @@ paired-end or single-end)."><!-- mathjax --><script src="https://cdnjs.cloudflar
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.39.0</span>
       </span>
     </div>
 
@@ -53,15 +53,15 @@ paired-end or single-end).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">qQCReport</span><span class="op">(</span>
-  <span class="va">input</span>,
-  pdfFilename <span class="op">=</span> <span class="cn">NULL</span>,
-  chunkSize <span class="op">=</span> <span class="fl">1000000L</span>,
-  useSampleNames <span class="op">=</span> <span class="cn">FALSE</span>,
-  clObj <span class="op">=</span> <span class="cn">NULL</span>,
-  a4layout <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qQCReport</span><span class="op">(</span></span>
+<span>  <span class="va">input</span>,</span>
+<span>  pdfFilename <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  chunkSize <span class="op">=</span> <span class="fl">1000000L</span>,</span>
+<span>  useSampleNames <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  clObj <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  a4layout <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -69,33 +69,48 @@ paired-end or single-end).</p>
     <dl><dt>input</dt>
 <dd><p>A vector of files or a <code>qProject</code> object as returned by 
 <code>qAlign</code>.</p></dd>
+
+
 <dt>pdfFilename</dt>
 <dd><p>The path and name of a pdf file to store the report. 
 If <code>NULL</code>, the quality control plots will be generated in separate 
 plotting windows on the standard graphical device.</p></dd>
+
+
 <dt>chunkSize</dt>
 <dd><p>The number of sequences, sequence pairs (for paired-end 
 data) or alignments that will be sampled from each data file to collect 
 quality statistics.</p></dd>
+
+
 <dt>useSampleNames</dt>
 <dd><p>If TRUE, the plots will be labelled using the sample 
 names instead of the file names. Sample names are obtained from the 
 <code>qProject</code> object, or from <code>names(input)</code> if <code>input</code> is a 
 named vector of file names. Please not that if there are multiple files 
 for the same sample, the sample names will not be unique.</p></dd>
+
+
 <dt>clObj</dt>
 <dd><p>A cluster object to be used for parallel processing of multiple 
 input files.</p></dd>
+
+
 <dt>a4layout</dt>
 <dd><p>A logical scalar. If TRUE, the output of mapping rate and 
 uniqueness plots will be adjusted for a4 format devices.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments that will be passed to the functions 
 generating the individual quality control plots, see ‘Details’.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The function is called for its side effect of generating quality
+    
+
+<p>The function is called for its side effect of generating quality
 control plots. It invisibly returns a list with components that contain the 
 data used to generate each of the QC plots. Available components are 
 (depending on input data, see ‘Details’):</p><ul><li><p><em>qualByCycle</em>: quality score boxplot</p></li>
@@ -198,22 +213,22 @@ generate the individual quality control plots using <code>...{}</code>:</p><dl><
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># copy example data to current working directory</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># copy example data to current working directory</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># create alignments</span></span>
-<span class="r-in"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span></span>
-<span class="r-in"><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># create alignments</span></span></span>
+<span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span></span></span>
+<span class="r-in"><span><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> all necessary alignment files found</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># create quality control report</span></span>
-<span class="r-in"><span class="fu">qQCReport</span><span class="op">(</span><span class="va">proj</span>, pdfFilename<span class="op">=</span><span class="st">"qc_report.pdf"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># create quality control report</span></span></span>
+<span class="r-in"><span><span class="fu">qQCReport</span><span class="op">(</span><span class="va">proj</span>, pdfFilename<span class="op">=</span><span class="st">"qc_report.pdf"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> collecting quality control data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> creating QC plots</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -228,7 +243,7 @@ generate the individual quality control plots using <code>...{}</code>:</p><dl><
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

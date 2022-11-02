@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.39.0</span>
       </span>
     </div>
 
@@ -47,26 +47,26 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">qCount</span><span class="op">(</span>
-  <span class="va">proj</span>,
-  <span class="va">query</span>,
-  reportLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="st">"gene"</span>, <span class="st">"exon"</span>, <span class="st">"promoter"</span>, <span class="st">"junction"</span><span class="op">)</span>,
-  selectReadPosition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"start"</span>, <span class="st">"end"</span><span class="op">)</span>,
-  shift <span class="op">=</span> <span class="fl">0L</span>,
-  orientation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"same"</span>, <span class="st">"opposite"</span><span class="op">)</span>,
-  useRead <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"first"</span>, <span class="st">"last"</span><span class="op">)</span>,
-  auxiliaryName <span class="op">=</span> <span class="cn">NULL</span>,
-  mask <span class="op">=</span> <span class="cn">NULL</span>,
-  collapseBySample <span class="op">=</span> <span class="cn">TRUE</span>,
-  includeSpliced <span class="op">=</span> <span class="cn">TRUE</span>,
-  includeSecondary <span class="op">=</span> <span class="cn">TRUE</span>,
-  mapqMin <span class="op">=</span> <span class="fl">0L</span>,
-  mapqMax <span class="op">=</span> <span class="fl">255L</span>,
-  absIsizeMin <span class="op">=</span> <span class="cn">NULL</span>,
-  absIsizeMax <span class="op">=</span> <span class="cn">NULL</span>,
-  maxInsertSize <span class="op">=</span> <span class="fl">500L</span>,
-  clObj <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qCount</span><span class="op">(</span></span>
+<span>  <span class="va">proj</span>,</span>
+<span>  <span class="va">query</span>,</span>
+<span>  reportLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="st">"gene"</span>, <span class="st">"exon"</span>, <span class="st">"promoter"</span>, <span class="st">"junction"</span><span class="op">)</span>,</span>
+<span>  selectReadPosition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"start"</span>, <span class="st">"end"</span><span class="op">)</span>,</span>
+<span>  shift <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  orientation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"same"</span>, <span class="st">"opposite"</span><span class="op">)</span>,</span>
+<span>  useRead <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"first"</span>, <span class="st">"last"</span><span class="op">)</span>,</span>
+<span>  auxiliaryName <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  collapseBySample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  includeSpliced <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  includeSecondary <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  mapqMin <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  mapqMax <span class="op">=</span> <span class="fl">255L</span>,</span>
+<span>  absIsizeMin <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  absIsizeMax <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  maxInsertSize <span class="op">=</span> <span class="fl">500L</span>,</span>
+<span>  clObj <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -74,6 +74,8 @@
     <dl><dt>proj</dt>
 <dd><p>A <code><a href="qProject-class.html">qProject</a></code> object representing a
 sequencing experiment as returned by <code><a href="qAlign.html">qAlign</a></code></p></dd>
+
+
 <dt>query</dt>
 <dd><p>An object of type <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code>, 
 <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html" class="external-link">GRangesList</a></code> or 
@@ -82,6 +84,8 @@ quantified. The type of <code>query</code> will determine the mode of
 quantification (see ‘Details’). For
 <code>reportLevel="junction"</code>, <code>query</code> is ignored and can also
 be <code>NULL</code>.</p></dd>
+
+
 <dt>reportLevel</dt>
 <dd><p>Level of quantification (<code>query</code> of type
 <code>TxDb</code> or <code>NULL</code>), one of</p><ul><li><p><code>gene</code> (default): one value per gene</p></li>
@@ -89,12 +93,16 @@ be <code>NULL</code>.</p></dd>
 <li><p><code>promoter</code>: one value per promoter</p></li>
 <li><p><code>junction</code>: one count per detected exon-exon junction</p></li>
 </ul></dd>
+
+
 <dt>selectReadPosition</dt>
 <dd><p>defines the part of the alignment that has
 to be contained within a query region to produce an overlap (see
 ‘Details’). Possible values are:</p><ul><li><p><code>start</code> (default): start of the alignment</p></li>
 <li><p><code>end</code>: end of the alignment</p></li>
 </ul></dd>
+
+
 <dt>shift</dt>
 <dd><p>controls the shifting alignments towards their 3'-end before
 quantification. <code>shift</code> can be one of:</p><ul><li><p>an “integer” vector of the same length as the
@@ -103,92 +111,132 @@ quantification. <code>shift</code> can be one of:</p><ul><li><p>an “integer”
 <li><p>the character string <code>"halfInsert"</code> (only available for
   paired-end experiments)</p></li>
 </ul><p>The default of <code>0</code> will not shift any alignments.</p></dd>
+
+
 <dt>orientation</dt>
 <dd><p>sets the required orientation of the alignments relative 
 to the query region in order to be counted, one of:</p><ul><li><p><code>any</code> (default): count alignment on the same and opposite strand</p></li>
 <li><p><code>same</code> : count only alignment on the same strand</p></li>
 <li><p><code>opposite</code> : count only alignment on the opposite strand</p></li>
 </ul></dd>
+
+
 <dt>useRead</dt>
 <dd><p>For paired-end experiments, selects the read mate whose
 alignments should be counted, one of:</p><ul><li><p><code>any</code> (default): count all alignments</p></li>
 <li><p><code>first</code> : count only alignments from the first read</p></li>
 <li><p><code>last</code> : count only alignments from the last read</p></li>
 </ul></dd>
+
+
 <dt>auxiliaryName</dt>
 <dd><p>Which bam files to use in an experiments with 
 auxiliary alignments (see ‘Details’).</p></dd>
+
+
 <dt>mask</dt>
 <dd><p>If not <code>NULL</code>, a <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code>
 object with reference regions to be masked, i.e. excluded from the
 quantification, such as unmappable or highly repetitive regions (see
 ‘Details’).</p></dd>
+
+
 <dt>collapseBySample</dt>
 <dd><p>If <code>TRUE</code> (the default), sum alignment
 counts from bam files with the same sample name.</p></dd>
+
+
 <dt>includeSpliced</dt>
 <dd><p>If <code>TRUE</code> (the default), include spliced
 alignments when counting. A spliced alignment is defined as an
 alignment with a gap in the read of at least 60 bases.</p></dd>
+
+
 <dt>includeSecondary</dt>
 <dd><p>If <code>TRUE</code> (the default), include alignments
 with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></dd>
+
+
 <dt>mapqMin</dt>
 <dd><p>Minimal mapping quality of alignments to be included when
 counting (mapping quality must be greater than or equal to
 <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
 will include all alignments.</p></dd>
+
+
 <dt>mapqMax</dt>
 <dd><p>Maximal mapping quality of alignments to be included when
 counting (mapping quality must be less than or equal to <code>mapqMax</code>).
 Valid values are between 0 and 255. The default (255) will include
 all alignments.</p></dd>
+
+
 <dt>absIsizeMin</dt>
 <dd><p>For paired-end experiments, minimal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included when
 counting. Valid values are greater than 0 or <code>NULL</code> (default),
 which will not apply any minimum insert size filtering.</p></dd>
+
+
 <dt>absIsizeMax</dt>
 <dd><p>For paired-end experiments, maximal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included when
 counting. Valid values are greater than 0 or <code>NULL</code> (default),
 which will not apply any maximum insert size filtering.</p></dd>
+
+
 <dt>maxInsertSize</dt>
 <dd><p>Maximal fragment size of the paired-end experiment. 
 This parameter is used if <code>shift="halfInsert"</code> and will
 ensure that query regions are made wide enough to emcompass all
 alignment pairs whose mid falls into the query region. The default
 value is <code>500</code> bases.</p></dd>
+
+
 <dt>clObj</dt>
 <dd><p>A cluster object to be used for parallel processing (see
 ‘Details’).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code>matrix</code> with effective query regions width in the first
+    
+
+<p>A <code>matrix</code> with effective query regions width in the first
 column, and alignment counts in subsequent columns, or a
-<code>GRanges</code> object if <code>reportLevel="junction"</code>.
-The effective query region width returned as first column in the
+<code>GRanges</code> object if <code>reportLevel="junction"</code>.</p>
+
+
+<p>The effective query region width returned as first column in the
 matrix is calculated by the number of unique, non-masked bases in the
 reference sequence that contributed to the count of this query
 name (irrespective if the bases were covered by alignments or not).
 An effective width of zero indicates that the region was fully
-masked and will have zero counts in all samples.
-The alignment counts in the matrix are contained from column two
+masked and will have zero counts in all samples.</p>
+
+
+<p>The alignment counts in the matrix are contained from column two
 onwards. For projects with allele-specific quantification, i.e. if a
 file with single nucleotide polymorphisms was supplied to the
 <code>snpFile</code> argument of <code><a href="qAlign.html">qAlign</a></code>, there will be
 three columns per bam file (number of alignments for Reference, 
 Unknown and Alternative genotypes, with suffixed _R, _U and
-_A). Otherwise there is a single columns per bam file.
-If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with identical 
-sample name are combined by summing their alignment counts.
-For <code>reportLevel="junction"</code>, the return value is a
+_A). Otherwise there is a single columns per bam file.</p>
+
+
+<p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with identical 
+sample name are combined by summing their alignment counts.</p>
+
+
+<p>For <code>reportLevel="junction"</code>, the return value is a
 <code>GRanges</code> object. The start and end coordinates correspond to the
 first and last base in each detected intron. Plus- and minus-strand
 alignments are quantified separately, so that in an unstranded RNA-seq
 experiment, the same intron may be represented twice; once for each
-strand. The counts for each sample are contained in the <code>mcols</code>of the <code>GRanges</code> object.</p>
+strand. The counts for each sample are contained in the <code>mcols</code></p>
+
+
+<p>of the <code>GRanges</code> object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -317,33 +365,33 @@ multiple chunks.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: XVector</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘Biostrings’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:base’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     strsplit</span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Rsamtools" class="external-link">Rsamtools</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># copy example data to current working directory</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Rsamtools" class="external-link">Rsamtools</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># copy example data to current working directory</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># load genome sequence</span></span>
-<span class="r-in"><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span>
-<span class="r-in"><span class="va">gseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-io.html" class="external-link">readDNAStringSet</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">chrRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span>start<span class="op">=</span><span class="fl">1</span>,width<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html" class="external-link">width</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span>,names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># create alignments (paired-end experiment)</span></span>
-<span class="r-in"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span>
-<span class="r-in"><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpyA7fDu/fileb5714eb11350/reference/extdata/hg19sub.fa</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># load genome sequence</span></span></span>
+<span class="r-in"><span><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span></span>
+<span class="r-in"><span><span class="va">gseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-io.html" class="external-link">readDNAStringSet</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">chrRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span>start<span class="op">=</span><span class="fl">1</span>,width<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html" class="external-link">width</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span>,names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gseq</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># create alignments (paired-end experiment)</span></span></span>
+<span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span></span>
+<span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpmAkoYn/fileed334b8f0f8c/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpyA7fDu/fileb5714eb11350/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpmAkoYn/fileed334b8f0f8c/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -351,52 +399,52 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1647262101956.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1667401601527.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpyA7fDu/fileb5714eb11350/reference/QuasR_log_b57143d06ab2.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpmAkoYn/fileed334b8f0f8c/reference/QuasR_log_ed336229a5ec.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># count reads using a "GRanges" query</span></span>
-<span class="r-in"><span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, query<span class="op">=</span><span class="va">chrRegions</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># count reads using a "GRanges" query</span></span></span>
+<span class="r-in"><span><span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, query<span class="op">=</span><span class="va">chrRegions</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> counting alignments...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      width Sample1 Sample2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr1 40000     850    1464</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr2 10000    2924    2224</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr3 45000    2228    2312</span>
-<span class="r-in"><span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, query<span class="op">=</span><span class="va">chrRegions</span>, useRead<span class="op">=</span><span class="st">"first"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, query<span class="op">=</span><span class="va">chrRegions</span>, useRead<span class="op">=</span><span class="st">"first"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> counting alignments...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      width Sample1 Sample2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr1 40000     425     732</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr2 10000    1462    1112</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> chr3 45000    1114    1156</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># hierarchical counting using a "GRangesList" query</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">annotationFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub_annotation.gtf"</span></span>
-<span class="r-in"><span class="va">gtfRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/GFFFile-class.html" class="external-link">import.gff</a></span><span class="op">(</span><span class="va">annotationFile</span>, format<span class="op">=</span><span class="st">"gtf"</span>, feature.type<span class="op">=</span><span class="st">"exon"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">mcols</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span><span class="op">$</span><span class="va">source</span></span>
-<span class="r-in"><span class="va">gtfRegionList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/splitAsList.html" class="external-link">split</a></span><span class="op">(</span><span class="va">gtfRegions</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegionList</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># hierarchical counting using a "GRangesList" query</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">annotationFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub_annotation.gtf"</span></span></span>
+<span class="r-in"><span><span class="va">gtfRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/GFFFile-class.html" class="external-link">import.gff</a></span><span class="op">(</span><span class="va">annotationFile</span>, format<span class="op">=</span><span class="st">"gtf"</span>, feature.type<span class="op">=</span><span class="st">"exon"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">mcols</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span><span class="op">$</span><span class="va">source</span></span></span>
+<span class="r-in"><span><span class="va">gtfRegionList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/splitAsList.html" class="external-link">split</a></span><span class="op">(</span><span class="va">gtfRegions</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegions</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gtfRegionList</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "lincRNA"        "protein_coding" "snoRNA"        </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">res3</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="va">gtfRegionList</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res3</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="va">gtfRegionList</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> hierarchically removing redundancy from 'query'...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> counting alignments...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> collapsing counts by query name...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
-<span class="r-in"><span class="va">res3</span></span>
+<span class="r-in"><span><span class="va">res3</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                width Sample1 Sample2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> lincRNA         1104       0       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> protein_coding 21576    5876    5919</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> snoRNA           104       0       0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># gene expression levels using a "TxDb" query</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.org/packages/GenomicFeatures" class="external-link">"GenomicFeatures"</a></span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># gene expression levels using a "TxDb" query</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.org/packages/GenomicFeatures" class="external-link">"GenomicFeatures"</a></span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: AnnotationDbi</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Biobase</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Welcome to Bioconductor</span>
@@ -404,30 +452,30 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     Vignettes contain introductory material; view with</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     'browseVignettes()'. To cite Bioconductor, see</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     'citation("Biobase")', and for packages 'citation("pkgname")'.</span>
-<span class="r-in"><span class="va">genomeRegion</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanFa.html" class="external-link">scanFaIndex</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">chrominfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">                        length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html" class="external-link">end</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span>,</span>
-<span class="r-in">                        is_circular<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicFeatures/man/makeTxDbFromGFF.html" class="external-link">makeTxDbFromGFF</a></span><span class="op">(</span><span class="va">annotationFile</span>, </span>
-<span class="r-in">                        format<span class="op">=</span><span class="st">"gtf"</span>, </span>
-<span class="r-in">                        chrominfo<span class="op">=</span><span class="va">chrominfo</span>,</span>
-<span class="r-in">                        dataSource<span class="op">=</span><span class="st">"Ensembl modified"</span>,</span>
-<span class="r-in">                        organism<span class="op">=</span><span class="st">"Homo sapiens"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">genomeRegion</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanFa.html" class="external-link">scanFaIndex</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">chrominfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/start.html" class="external-link">end</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        is_circular<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicFeatures/man/makeTxDbFromGFF.html" class="external-link">makeTxDbFromGFF</a></span><span class="op">(</span><span class="va">annotationFile</span>, </span></span>
+<span class="r-in"><span>                        format<span class="op">=</span><span class="st">"gtf"</span>, </span></span>
+<span class="r-in"><span>                        chrominfo<span class="op">=</span><span class="va">chrominfo</span>,</span></span>
+<span class="r-in"><span>                        dataSource<span class="op">=</span><span class="st">"Ensembl modified"</span>,</span></span>
+<span class="r-in"><span>                        organism<span class="op">=</span><span class="st">"Homo sapiens"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Import genomic features from the file as a GRanges object ... </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Prepare the 'metadata' data frame ... </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Make the TxDb object ... </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">res4</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="va">txdb</span>, reportLevel<span class="op">=</span><span class="st">"gene"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res4</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="va">txdb</span>, reportLevel<span class="op">=</span><span class="st">"gene"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> extracting gene regions from TxDb...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> counting alignments...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> collapsing counts by query name...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
-<span class="r-in"><span class="va">res4</span></span>
+<span class="r-in"><span><span class="va">res4</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 width Sample1 Sample2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000078808  4697     708    1076</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000134075   589    1201    1322</span>
@@ -441,12 +489,12 @@ multiple chunks.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000247886  1104       0       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000252531   163       6       2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000254999  1233    1839    1970</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># exon-exon junctions</span></span>
-<span class="r-in"><span class="va">res5</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="cn">NULL</span>, reportLevel<span class="op">=</span><span class="st">"junction"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># exon-exon junctions</span></span></span>
+<span class="r-in"><span><span class="va">res5</span> <span class="op">&lt;-</span> <span class="fu">qCount</span><span class="op">(</span><span class="va">proj</span>, <span class="cn">NULL</span>, reportLevel<span class="op">=</span><span class="st">"junction"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> counting junctions...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
-<span class="r-in"><span class="va">res5</span></span>
+<span class="r-in"><span><span class="va">res5</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 52 ranges and 2 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        seqnames      ranges strand |   Sample1   Sample2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;numeric&gt;</span>
@@ -463,7 +511,7 @@ multiple chunks.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [52]     chr3   2504-5589      + |         0         2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 3 sequences from an unspecified genome; no seqlengths</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -478,7 +526,7 @@ multiple chunks.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

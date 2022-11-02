@@ -18,7 +18,7 @@ of the &amp;#8216;QuasR&amp;#8217; project."><!-- mathjax --><script src="https:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.39.0</span>
       </span>
     </div>
 
@@ -49,34 +49,36 @@ of the ‘QuasR’ project.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">qExportWig</span><span class="op">(</span>
-  <span class="va">proj</span>,
-  file <span class="op">=</span> <span class="cn">NULL</span>,
-  collapseBySample <span class="op">=</span> <span class="cn">TRUE</span>,
-  binsize <span class="op">=</span> <span class="fl">100L</span>,
-  shift <span class="op">=</span> <span class="fl">0L</span>,
-  strand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"*"</span>, <span class="st">"+"</span>, <span class="st">"-"</span><span class="op">)</span>,
-  scaling <span class="op">=</span> <span class="cn">TRUE</span>,
-  tracknames <span class="op">=</span> <span class="cn">NULL</span>,
-  log2p1 <span class="op">=</span> <span class="cn">FALSE</span>,
-  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1B9E77"</span>, <span class="st">"#D95F02"</span>, <span class="st">"#7570B3"</span>, <span class="st">"#E7298A"</span>, <span class="st">"#66A61E"</span>, <span class="st">"#E6AB02"</span>,
-    <span class="st">"#A6761D"</span>, <span class="st">"#666666"</span><span class="op">)</span>,
-  includeSecondary <span class="op">=</span> <span class="cn">TRUE</span>,
-  mapqMin <span class="op">=</span> <span class="fl">0L</span>,
-  mapqMax <span class="op">=</span> <span class="fl">255L</span>,
-  absIsizeMin <span class="op">=</span> <span class="cn">NULL</span>,
-  absIsizeMax <span class="op">=</span> <span class="cn">NULL</span>,
-  createBigWig <span class="op">=</span> <span class="cn">FALSE</span>,
-  useRead <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"first"</span>, <span class="st">"last"</span><span class="op">)</span>,
-  pairedAsSingle <span class="op">=</span> <span class="cn">FALSE</span>,
-  clObj <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qExportWig</span><span class="op">(</span></span>
+<span>  <span class="va">proj</span>,</span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  collapseBySample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  binsize <span class="op">=</span> <span class="fl">100L</span>,</span>
+<span>  shift <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  strand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"*"</span>, <span class="st">"+"</span>, <span class="st">"-"</span><span class="op">)</span>,</span>
+<span>  scaling <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  tracknames <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  log2p1 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1B9E77"</span>, <span class="st">"#D95F02"</span>, <span class="st">"#7570B3"</span>, <span class="st">"#E7298A"</span>, <span class="st">"#66A61E"</span>, <span class="st">"#E6AB02"</span>,</span>
+<span>    <span class="st">"#A6761D"</span>, <span class="st">"#666666"</span><span class="op">)</span>,</span>
+<span>  includeSecondary <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  mapqMin <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  mapqMax <span class="op">=</span> <span class="fl">255L</span>,</span>
+<span>  absIsizeMin <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  absIsizeMax <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  createBigWig <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  useRead <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"first"</span>, <span class="st">"last"</span><span class="op">)</span>,</span>
+<span>  pairedAsSingle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  clObj <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>proj</dt>
 <dd><p>A <code>qProject</code> object as returned by <code>qAlign</code>.</p></dd>
+
+
 <dt>file</dt>
 <dd><p>A character vector with the name(s) for the wig or bigWig
 file(s) to be generated. Either <code>NULL</code> or a vector of the same
@@ -85,12 +87,18 @@ or the number of unique sample names (for <code>collapseBySample=TRUE</code>)
 in <code>proj</code>. If <code>NULL</code>, the wig or bigWig file names are generated 
 from the names of the genomic bam files or unique sample names with an 
 added “.wig.gz” or “.bw” extension.</p></dd>
+
+
 <dt>collapseBySample</dt>
 <dd><p>If <code>TRUE</code>, genomic bam files with identical
 sample name will be combined (summed) into a single track.</p></dd>
+
+
 <dt>binsize</dt>
 <dd><p>A numerical value defining the bin and step size for the 
 wig or bigWig file(s). <code>binsize</code> will be coerced to <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>.</p></dd>
+
+
 <dt>shift</dt>
 <dd><p>Either a vector or a scalar value defining the read shift (e.g.
 half of fragment length, see ‘Details’). If <code>length(shift)&gt;1</code>,
@@ -99,50 +107,74 @@ the i-th sample will be converted to wig or bigWig using the value in
 <code>shift[i]</code>. <code>shift</code> will be coerced to <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>. For
 paired-end alignments, <code>shift</code> will be ignored, and a warning
 will be issued if it is set to a non-zero value (see ‘Details’).</p></dd>
+
+
 <dt>strand</dt>
 <dd><p>Only count alignments of <code>strand</code>. The default 
 (“*”) will count all alignments.</p></dd>
+
+
 <dt>scaling</dt>
 <dd><p>If TRUE or a numerical value, the output values in the wig 
 or bigWig file(s) will be linearly scaled by the total number of aligned 
 reads per sample to improve comparability (see ‘Details’).</p></dd>
+
+
 <dt>tracknames</dt>
 <dd><p>A character vector with the names of the tracks to appear 
 in the track header. If <code>NULL</code>, the sample names in <code>proj</code> 
 will be used.</p></dd>
+
+
 <dt>log2p1</dt>
 <dd><p>If <code>TRUE</code>, the number of alignments <code>x</code> per bin will
 be transformed using the formula <code>log2(x+1)</code>.</p></dd>
+
+
 <dt>colors</dt>
 <dd><p>A character vector with R color names to be used for the tracks.</p></dd>
+
+
 <dt>includeSecondary</dt>
 <dd><p>If <code>TRUE</code> (the default), include alignments 
 with the secondary bit (0x0100) set in the <code>FLAG</code>.</p></dd>
+
+
 <dt>mapqMin</dt>
 <dd><p>Minimal mapping quality of alignments to be included
 (mapping quality must be greater than or equal to <code>mapqMin</code>). 
 Valid values are between 0 and 255. The default (0) will include all 
 alignments.</p></dd>
+
+
 <dt>mapqMax</dt>
 <dd><p>Maximal mapping quality of alignments to be included
 (mapping quality must be less than or equal to <code>mapqMax</code>). 
 Valid values are between 0 and 255. The default (255) will include all
 alignments.</p></dd>
+
+
 <dt>absIsizeMin</dt>
 <dd><p>For paired-end experiments, minimal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid 
 values are greater than 0 or <code>NULL</code> (default), which will not 
 apply any minimum insert size filtering.</p></dd>
+
+
 <dt>absIsizeMax</dt>
 <dd><p>For paired-end experiments, maximal absolute insert 
 size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid 
 values are greater than 0 or <code>NULL</code> (default), which will not apply 
 any maximum insert size filtering.</p></dd>
+
+
 <dt>createBigWig</dt>
 <dd><p>If <code>TRUE</code>, first a temporary wig file will be 
 created and then converted to BigWig format (file extension “.bw”) 
 using the <code><a href="https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html" class="external-link">wigToBigWig</a></code> function from 
 package <span class="pkg">rtracklayer</span>.</p></dd>
+
+
 <dt>useRead</dt>
 <dd><p>For paired-end experiments, selects the read mate whose 
 alignments should be counted, one of:</p><ul><li><p><code>any</code> (default): count all alignments</p></li>
@@ -154,19 +186,26 @@ from the default (<code>any</code>) will cause <code>qExportWig</code> not to
 automatically use the mid of fragments, but to treat the selected
 read as if it would come from a single-read experiment (see 
 ‘Details’).</p></dd>
+
+
 <dt>pairedAsSingle</dt>
 <dd><p>If <code>TRUE</code>, treat paired-end data single read 
 data, which means that instead of calculating fragment mid-points for 
 each read pair, the 5-prime ends of the reads is used. This is for example 
 useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which 
 the read starts are informative for chromatin accessibility.</p></dd>
+
+
 <dt>clObj</dt>
 <dd><p>A cluster object to be used for parallel processing of multiple 
 samples.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>(invisible) The file name of the generated wig or bigWig file(s).</p>
+    
+
+<p>(invisible) The file name of the generated wig or bigWig file(s).</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -226,14 +265,14 @@ for uploading as a custom track to your favorite genome browser
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># copy example data to current working directory</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># copy example data to current working directory</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"QuasR"</span>, <span class="st">"extdata"</span><span class="op">)</span>, <span class="st">"."</span>, recursive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># create alignments</span></span>
-<span class="r-in"><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span></span>
-<span class="r-in"><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span>
-<span class="r-in"><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># create alignments</span></span></span>
+<span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_chip_single.txt"</span></span></span>
+<span class="r-in"><span><span class="va">genomeFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/hg19sub.fa"</span></span></span>
+<span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
@@ -242,21 +281,21 @@ for uploading as a custom track to your favorite genome browser
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1647262101956.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1667401601527.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpyA7fDu/fileb5714eb11350/reference/QuasR_log_b5714e342039.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpmAkoYn/fileed334b8f0f8c/reference/QuasR_log_ed336f9ecde.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># export wiggle file</span></span>
-<span class="r-in"><span class="fu">qExportWig</span><span class="op">(</span><span class="va">proj</span>, binsize<span class="op">=</span><span class="fl">100L</span>, shift<span class="op">=</span><span class="fl">0L</span>, scaling<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># export wiggle file</span></span></span>
+<span class="r-in"><span><span class="fu">qExportWig</span><span class="op">(</span><span class="va">proj</span>, binsize<span class="op">=</span><span class="fl">100L</span>, shift<span class="op">=</span><span class="fl">0L</span>, scaling<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> collecting mapping statistics for scaling...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> start creating wig files...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Sample1.wig.gz (Sample1)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Sample2.wig.gz (Sample2)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -271,7 +310,7 @@ for uploading as a custom track to your favorite genome browser
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

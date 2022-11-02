@@ -19,7 +19,7 @@ the aligner."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.39.0</span>
       </span>
     </div>
 
@@ -51,25 +51,25 @@ the aligner.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">qAlign</span><span class="op">(</span>
-  <span class="va">sampleFile</span>,
-  <span class="va">genome</span>,
-  auxiliaryFile <span class="op">=</span> <span class="cn">NULL</span>,
-  aligner <span class="op">=</span> <span class="st">"Rbowtie"</span>,
-  maxHits <span class="op">=</span> <span class="fl">1</span>,
-  paired <span class="op">=</span> <span class="cn">NULL</span>,
-  splicedAlignment <span class="op">=</span> <span class="cn">FALSE</span>,
-  snpFile <span class="op">=</span> <span class="cn">NULL</span>,
-  bisulfite <span class="op">=</span> <span class="st">"no"</span>,
-  alignmentParameter <span class="op">=</span> <span class="cn">NULL</span>,
-  projectName <span class="op">=</span> <span class="st">"qProject"</span>,
-  alignmentsDir <span class="op">=</span> <span class="cn">NULL</span>,
-  lib.loc <span class="op">=</span> <span class="cn">NULL</span>,
-  cacheDir <span class="op">=</span> <span class="cn">NULL</span>,
-  clObj <span class="op">=</span> <span class="cn">NULL</span>,
-  checkOnly <span class="op">=</span> <span class="cn">FALSE</span>,
-  geneAnnotation <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">qAlign</span><span class="op">(</span></span>
+<span>  <span class="va">sampleFile</span>,</span>
+<span>  <span class="va">genome</span>,</span>
+<span>  auxiliaryFile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  aligner <span class="op">=</span> <span class="st">"Rbowtie"</span>,</span>
+<span>  maxHits <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  paired <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  splicedAlignment <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  snpFile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bisulfite <span class="op">=</span> <span class="st">"no"</span>,</span>
+<span>  alignmentParameter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  projectName <span class="op">=</span> <span class="st">"qProject"</span>,</span>
+<span>  alignmentsDir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lib.loc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cacheDir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  clObj <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  checkOnly <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  geneAnnotation <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -77,6 +77,8 @@ the aligner.</p>
     <dl><dt>sampleFile</dt>
 <dd><p>The name of a text file listing input sequence files
 and sample names (see ‘Details’).</p></dd>
+
+
 <dt>genome</dt>
 <dd><p>The reference genome for primary alignments, one of:</p><ul><li><p>a string referring to a “BSgenome” package
   (e.g. “"BSgenome.Hsapiens.UCSC.hg19"”), which will be
@@ -86,25 +88,35 @@ and sample names (see ‘Details’).</p></dd>
   index will be created when neccessary and stored in a default
   location (see ‘Details’).</p></li>
 </ul></dd>
+
+
 <dt>auxiliaryFile</dt>
 <dd><p>The name of a text file listing sequences to be
 used as additional targets for alignment of reads not mapping to the
 reference genome (see ‘Details’).</p></dd>
+
+
 <dt>aligner</dt>
 <dd><p>selects the aligner program to be used for aligning the
 reads. Currently, only “Rbowtie” and “Rhisat2” are supported,
 which are R wrapper packages for ‘bowtie’ / ‘SpliceMap’ and
 ‘hisat2’, respectively (see <code><a href="https://rdrr.io/pkg/Rbowtie/man/Rbowtie-package.html" class="external-link">Rbowtie-package</a></code> and
 <code><a href="https://rdrr.io/pkg/Rhisat2/man/Rhisat2-package.html" class="external-link">Rhisat2-package</a></code> packages).</p></dd>
+
+
 <dt>maxHits</dt>
 <dd><p>sets the maximal number of allowed mapping positions
 per read (default: 1). If a read produces more than <code>maxHits</code>
 alignments, no alignments will be reported for it. In case of a
 multi-mapping read, a single alignment is randomly selected.</p></dd>
+
+
 <dt>paired</dt>
 <dd><p>defines the type of paired-end library and can be set to
 one of <code>no</code> (single read experiment, default), <code>fr</code> (fw/rev),
 <code>ff</code> (fw/fw) or <code>rf</code> (rev/fw).</p></dd>
+
+
 <dt>splicedAlignment</dt>
 <dd><p>If <code>TRUE</code>, reads will be aligned using a
 spliced aligner, depending on the value of <code>aligner</code> described above:</p><ul><li><p><code>aligner="Rhisat2"</code>: This is the recommended setting
@@ -121,53 +133,76 @@ spliced aligner, depending on the value of <code>aligner</code> described above:
   shorter, and these reads will not be contained in the BAM file,
   neither as mapped or unmapped reads.</p></li>
 </ul></dd>
+
+
 <dt>snpFile</dt>
 <dd><p>The name of a text file listing single nucleotide
 polymorphisms to be used for allele-specific alignment and
 quantification (see ‘Details’).</p></dd>
+
+
 <dt>bisulfite</dt>
 <dd><p>For bisulfite-converted samples (Bis-seq), the type
 of bisulfite library (“dir” for directional libraries,
 “undir” for undirectional libraries).</p></dd>
+
+
 <dt>alignmentParameter</dt>
 <dd><p>An optional string containing command line
 parameters to be used for the aligner, to overrule the default
 alignment parameters used by <code>QuasR</code>. Please use with caution;
 some alignment parameters may break assumptions made by
 <code>QuasR</code>. Default parameters are listed in ‘Details’.</p></dd>
+
+
 <dt>projectName</dt>
 <dd><p>An optional name for the alignment project.</p></dd>
+
+
 <dt>alignmentsDir</dt>
 <dd><p>The directory to be used for storing alignments
 (bam files). If set to <code>NULL</code> (default), bam files will be
 generated at the location of the input sequence files.</p></dd>
+
+
 <dt>lib.loc</dt>
 <dd><p>can be used to change the default library path of
 R. The library path is used by <code>QuasR</code> to store aligner index
 packages created from <code>BSgenome</code> reference genomes.</p></dd>
+
+
 <dt>cacheDir</dt>
 <dd><p>specifies the location to store (potentially huge)
 temporary files. If set to <code>NULL</code> (default), the temporary
 directory of the current R session as returned by <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code>
 will be used.</p></dd>
+
+
 <dt>clObj</dt>
 <dd><p>A cluster object, created by the package <span class="pkg">parallel</span>, to 
 enable parallel processing and speed up the alignment process.</p></dd>
+
+
 <dt>checkOnly</dt>
 <dd><p>If <code>TRUE</code>, prevents the automatic creation of
 alignments or aligner indices. This allows to quickly check for missing
 alignment files without starting the potentially long process of
 their creation. In the case of missing alignments or indices, an
 exception is thrown.</p></dd>
+
+
 <dt>geneAnnotation</dt>
 <dd><p>Only used if <code>aligner</code> is <code>"Rhisat2"</code>. 
 The path to either a gtf file or a sqlite database generated by exporting 
 a <code>TxDb</code> object. This file is used to generate a splice site file 
 for <code>Rhisat2</code>, that will be used to guide the spliced alignment.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code><a href="qProject-class.html">qProject</a></code> object.</p>
+    
+
+<p>A <code><a href="qProject-class.html">qProject</a></code> object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -238,13 +273,13 @@ maxHits --best --strata</code>. This will align reads with up to
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># see qCount, qMeth and qProfile manual pages for examples</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qCount</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qMeth</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qProfile</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># see qCount, qMeth and qProfile manual pages for examples</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qCount</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qMeth</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="va">qProfile</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -259,7 +294,7 @@ maxHits --best --strata</code>. This will align reads with up to
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
