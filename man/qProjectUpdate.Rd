@@ -15,7 +15,7 @@ qProjectUpdate(proj, quiet = TRUE)
 A \code{\link[=qProject-class]{qProject}} object.
 }
 \description{
-Check if a qProject is compatible with the current class definition, and 
+Check if a qProject is compatible with the current class definition, and
 update it if necessary.
 }
 \seealso{

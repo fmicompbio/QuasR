@@ -1,33 +1,33 @@
 #' Update qProject
-#' 
-#' Check if a qProject is compatible with the current class definition, and 
+#'
+#' Check if a qProject is compatible with the current class definition, and
 #' update it if necessary.
-#' 
+#'
 #' @param proj a \code{\link[=qProject-class]{qProject}} object.
 #' @param quiet logical, whether to suppress update messages.
-#' 
+#'
 #' @return A \code{\link[=qProject-class]{qProject}} object.
-#' 
+#'
 #' @author Charlotte Soneson
-#' 
+#'
 #' @seealso \code{\link[=qProject-class]{qProject}}
-#' 
+#'
 #' @keywords utilities misc
-#' 
+#'
 #' @name qProjectUpdate
 #' @aliases qProjectUpdate
-#' 
+#'
 #' @export
-#' 
+#'
 #' @importFrom methods .hasSlot
-#' 
+#'
 qProjectUpdate <- function(proj, quiet = TRUE) {
     mod <- FALSE
     if (!(methods::.hasSlot(proj, "geneAnnotation"))) {
         proj@geneAnnotation <- NA_character_
         if (!quiet) message("Adding geneAnnotation slot")
         mod <- TRUE
-    } 
+    }
     if (!(methods::.hasSlot(proj, "geneAnnotationFormat"))) {
         proj@geneAnnotationFormat <- NA_character_
         if (!quiet) message("Adding geneAnnotationFormat slot")
@@ -41,12 +41,12 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 
 ### qProject class definition
 #' qProject objects
-#' 
+#'
 #' The qProject class is a container for the meta-data (e.g. sample
 #' names, paths and names of sequence and alignment files) associated
 #' with a high-throughput sequencing experiment analyzed with \code{QuasR}.
-#' 
-#' The qProject class is returned by \link{qAlign} and stores all 
+#'
+#' The qProject class is returned by \link{qAlign} and stores all
 #' information on a high-throughput sequencing experiment analyzed with
 #' \code{QuasR}. qProject objects can be conveniently passed to
 #' \sQuote{q}-functions (function name starting with the letter
@@ -87,70 +87,70 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 #'   \item{\code{alnModeID}}{a 'character(1)' used internally to indicate
 #'   the alignment mode.}
 #' }
-#' 
+#'
 #' @section Accessors:
 #' In the following code snippets, \code{x} is a qProject object.
 #' \describe{
-#'   \item{}{\code{length(x)}: Gets the number of input files.}
-#'   \item{}{\code{genome(x)}: Gets the reference genome as a 'character(1)'. 
+#'   \item{\code{length(x)}}{: Gets the number of input files.}
+#'   \item{\code{genome(x)}}{: Gets the reference genome as a 'character(1)'.
 #'   The type of genome is stored as an attribute in
 #'   \code{attr(genome(x),"genomeFormat")}: "BSgenome" indicates that
 #'   \code{genome(x)} refers to the name of a BSgenome package, "file"
 #'   indicates that it contains the path and filename of a genome in
 #'   FASTA format.}
-#'   \item{}{\code{auxiliaries(x)}: Gets a \code{data.frame} with auxiliary 
-#'   target sequences, with one row per auxiliary target, and columns 
+#'   \item{\code{auxiliaries(x)}}{: Gets a \code{data.frame} with auxiliary
+#'   target sequences, with one row per auxiliary target, and columns
 #'   "FileName" and "AuxName".}
-#'   \item{}{ \code{alignments(x)}: Gets a list with two elements "genome" and
-#'   "aux". \code{alignments(x)$genome} contains a \code{data.frame} 
+#'   \item{\code{alignments(x)}}{: Gets a list with two elements "genome" and
+#'   "aux". \code{alignments(x)$genome} contains a \code{data.frame}
 #'   with \code{length(x)} rows and the columns "FileName" (containing
-#'   the path to bam files with genomic alignments) and 
-#'   "SampleName". \code{alignments(x)$aux} contains a 
+#'   the path to bam files with genomic alignments) and
+#'   "SampleName". \code{alignments(x)$aux} contains a
 #'   \code{data.frame} with one row per auxiliary target sequence (with
 #'   auxiliary names as row names), and \code{length(x)} columns.}
 #' }
-#' 
+#'
 #' @section Subsetting:
 #' In the following code snippets, \code{x} is a qProject object.
 #' \describe{
-#'   \item{}{\code{x[i]}: Get \code{qProject} object instance with \code{i} 
-#'   input files, where \code{i} can be an NA-free logical, numeric, or 
+#'   \item{\code{x[i]}}{: Get \code{qProject} object instance with \code{i}
+#'   input files, where \code{i} can be an NA-free logical, numeric, or
 #'   character vector.}
 #' }
-#' 
+#'
 #' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
-#' 
-#' @aliases show,qProject-method [,qProject,ANY,missing,missing-method 
-#'   alignments,qProject-method alignments auxiliaries,qProject-method auxiliaries 
+#'
+#' @aliases show,qProject-method [,qProject,ANY,missing,missing-method
+#'   alignments,qProject-method alignments auxiliaries,qProject-method auxiliaries
 #'   genome,qProject-method length,qProject-method qProject qProject-class
 #'   class:qProject
-#'   
+#'
 #' @name qProject-class
 #' @docType class
-#' 
+#'
 #' @seealso \link{qAlign}
-#' 
+#'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' # copy example data to current working directory
 #' file.copy(system.file(package="QuasR", "extdata"), ".", recursive=TRUE)
-#' 
+#'
 #' # create alignments
 #' sampleFile <- "extdata/samples_chip_single.txt"
 #' genomeFile <- "extdata/hg19sub.fa"
 #' auxFile <- "extdata/auxiliaries.txt"
-#' 
+#'
 #' proj <- qAlign(sampleFile, genomeFile, auxiliaryFile=auxFile)
 #' proj
-#' 
+#'
 #' # alignment statistics using a qProject
 #' alignmentStats(proj)
-#' 
+#'
 #' # alignment statistics using bam files
 #' alignmentStats(alignments(proj)$genome$FileName)
 #' alignmentStats(unlist(alignments(proj)$aux))
-#' 
+#'
 setClass("qProject",
          slots = c(reads = "data.frame",
                    reads_md5subsum = "data.frame",
@@ -215,12 +215,12 @@ setMethod("alignments", signature(x = "qProject"), function(x) {
 
 #' @export
 setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
-                         drop = "missing"), 
+                         drop = "missing"),
           function(x, i) {
               y <- x
               if (is.character(i)) {
                   if (all(i %in% x@reads$SampleName)) {
-                      if (any(inu <- vapply(unique(i), 
+                      if (any(inu <- vapply(unique(i),
                                             function(ii) {
                                                 sum(x@reads$SampleName == ii)
                                             }, 1) > 1))
@@ -233,7 +233,7 @@ setMethod("[", signature(x = "qProject", i = "ANY", j = "missing",
                   }
               } else if (is.logical(i) &&
                          length(i) != length(x@reads$SampleName)) {
-                  stop("logical subsetting vector of length ", length(i), 
+                  stop("logical subsetting vector of length ", length(i),
                        " does not match the number of sequence files (",
                        length(x@reads$SampleName), ")")
               } else if (is.numeric(i)) {
@@ -267,10 +267,10 @@ setMethod("show", "qProject", function(object) {
     if (length(object@aligner) == 0 || is.na(object@aligner))
         cat(" Aligner   : unknown\n")
     else
-        cat(" Aligner   : ", object@aligner, " v", 
+        cat(" Aligner   : ", object@aligner, " v",
             as.character(utils::packageVersion(object@aligner)),
             " (parameters: ", object@alignmentParameter, ")\n", sep = "")
-    cat(" Genome    : ", truncPath(object@genome, getOption("width") - 16 - 
+    cat(" Genome    : ", truncPath(object@genome, getOption("width") - 16 -
                                        nchar(object@genomeFormat)),
         " (", object@genomeFormat, ")\n", sep = "")
     # reads
@@ -285,10 +285,10 @@ setMethod("show", "qProject", function(object) {
         cat(" Reads     : none (bam file project)\n")
     } else {
         cat(" Reads     : ", nf, if (object@paired != "no") paste(" pair", nfs,
-                                                                  " of files, ", sep = "") 
+                                                                  " of files, ", sep = "")
             else paste(" file", nfs, ", ", sep = ""),
             ns, " sample", nss, " (", object@samplesFormat, " format):\n", sep = "")
-        qual <- if(object@samplesFormat == "fastq") paste(" (phred",object@reads$phred, ")", 
+        qual <- if(object@samplesFormat == "fastq") paste(" (phred",object@reads$phred, ")",
                                                           sep = "") else ""
         fw <- max(nchar(basename(unlist(object@reads[, grep("FileName",colnames(object@reads))]))))
         sw <- max(nchar(object@reads$SampleName))
@@ -300,8 +300,8 @@ setMethod("show", "qProject", function(object) {
                         sw, object@reads$SampleName, qual), sep = "")
         } else {
             fw <- min(fw, getOption("width") - 8 - sw - max(nchar(qual)))
-            cat(sprintf(" %3d. %-*s  %-*s%s\n", seq_len(nf), fw, 
-                        truncString(basename(object@reads$FileName),fw), 
+            cat(sprintf(" %3d. %-*s  %-*s%s\n", seq_len(nf), fw,
+                        truncString(basename(object@reads$FileName),fw),
                         sw, object@reads$SampleName, qual), sep = "")
         }
     }
@@ -314,23 +314,23 @@ setMethod("show", "qProject", function(object) {
       tmpmax <- suppressWarnings(max(nchar(basename(object@alignments[, "FileName"])), na.rm = TRUE))
       if (!is.finite(tmpmax)) tmpmax <- Inf
       fw <- min(getOption("width") - 6, tmpmax)
-      cat(sprintf(" %3d. %-*s\n", seq_len(nf), fw, 
+      cat(sprintf(" %3d. %-*s\n", seq_len(nf), fw,
                   truncString(basename(object@alignments[, "FileName"]), fw)), sep = "")
       cat("\n")
-    } 
+    }
     # auxiliaries
     cat(" Aux. alignments: ", if(nrow(object@aux) == 0) "none" else paste(nrow(object@aux), " file", if (nrow(object@aux) > 1) "s" else "", ", directory: ", if (is.na(object@alignmentsDir)) "same as reads" else truncPath(object@alignmentsDir, getOption("width") - 38), sep = ""),
         "\n", sep = "")
     if (length(object@aux)>0) {
         for (i in seq.int(nrow(object@aux))) {
             fw <- getOption("width") - 8 - nchar(object@aux[i, 'AuxName'])
-            cat(sprintf(" %3s. %-*s  %-s\n", letters[i], fw, 
+            cat(sprintf(" %3s. %-*s  %-s\n", letters[i], fw,
                         truncPath(object@aux[i, 'FileName'], fw), object@aux[i, 'AuxName']))
             #fw <- min(getOption("width") -10 -sw, max(nchar(basename(unlist(object@auxAlignments[i,])))))
             #cat(sprintf("   %3d. %-*s  %-*s\n", 1:nf, fw, truncString(basename(unlist(object@auxAlignments[i,])), fw), sw, object@reads$SampleName), sep="")
-            fw <- min(getOption("width") - 8, 
+            fw <- min(getOption("width") - 8,
                       max(nchar(basename(unlist(object@auxAlignments[i, ])))))
-            cat(sprintf("   %3d. %-*s\n", seq_len(nf), fw, 
+            cat(sprintf("   %3d. %-*s\n", seq_len(nf), fw,
                         truncString(basename(unlist(object@auxAlignments[i,])), fw)), sep = "")
         }
     }

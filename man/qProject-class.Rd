@@ -20,7 +20,7 @@ names, paths and names of sequence and alignment files) associated
 with a high-throughput sequencing experiment analyzed with \code{QuasR}.
 }
 \details{
-The qProject class is returned by \link{qAlign} and stores all 
+The qProject class is returned by \link{qAlign} and stores all
 information on a high-throughput sequencing experiment analyzed with
 \code{QuasR}. qProject objects can be conveniently passed to
 \sQuote{q}-functions (function name starting with the letter
@@ -66,21 +66,21 @@ information on a high-throughput sequencing experiment analyzed with
 
 In the following code snippets, \code{x} is a qProject object.
 \describe{
-  \item{}{\code{length(x)}: Gets the number of input files.}
-  \item{}{\code{genome(x)}: Gets the reference genome as a 'character(1)'. 
+  \item{\code{length(x)}}{: Gets the number of input files.}
+  \item{\code{genome(x)}}{: Gets the reference genome as a 'character(1)'.
   The type of genome is stored as an attribute in
   \code{attr(genome(x),"genomeFormat")}: "BSgenome" indicates that
   \code{genome(x)} refers to the name of a BSgenome package, "file"
   indicates that it contains the path and filename of a genome in
   FASTA format.}
-  \item{}{\code{auxiliaries(x)}: Gets a \code{data.frame} with auxiliary 
-  target sequences, with one row per auxiliary target, and columns 
+  \item{\code{auxiliaries(x)}}{: Gets a \code{data.frame} with auxiliary
+  target sequences, with one row per auxiliary target, and columns
   "FileName" and "AuxName".}
-  \item{}{ \code{alignments(x)}: Gets a list with two elements "genome" and
-  "aux". \code{alignments(x)$genome} contains a \code{data.frame} 
+  \item{\code{alignments(x)}}{: Gets a list with two elements "genome" and
+  "aux". \code{alignments(x)$genome} contains a \code{data.frame}
   with \code{length(x)} rows and the columns "FileName" (containing
-  the path to bam files with genomic alignments) and 
-  "SampleName". \code{alignments(x)$aux} contains a 
+  the path to bam files with genomic alignments) and
+  "SampleName". \code{alignments(x)$aux} contains a
   \code{data.frame} with one row per auxiliary target sequence (with
   auxiliary names as row names), and \code{length(x)} columns.}
 }
@@ -90,8 +90,8 @@ In the following code snippets, \code{x} is a qProject object.
 
 In the following code snippets, \code{x} is a qProject object.
 \describe{
-  \item{}{\code{x[i]}: Get \code{qProject} object instance with \code{i} 
-  input files, where \code{i} can be an NA-free logical, numeric, or 
+  \item{\code{x[i]}}{: Get \code{qProject} object instance with \code{i}
+  input files, where \code{i} can be an NA-free logical, numeric, or
   character vector.}
 }
 }
