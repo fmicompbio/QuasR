@@ -7,6 +7,27 @@ displayNames <- function(proj) { # create unique names for each sequence file
     sprintf(paste("s%0", ndigits, "i_%s", sep = ""), seq_along(samples), samples)
 }
 
+#' Internal function to get seqlengths, mapped and unmapped counts for a bam file
+#' 
+#' @param bf Character scalar with the path and filename to a bam file (index
+#'     is assumed to be already existing)
+#' 
+#' @return a named numeric vector with elements 'seqlength', 'mapped' and 'unmapped'
+#' 
+#' @keywords internal
+.get_alnstats_for_bam <- function(bf) {
+    tmp <- .Call(idxstatsBam, bf)
+    im <- tmp$seqname != "*"
+    c(seqlength = sum(as.numeric(tmp$seqlength[im])),
+      # remark: also count reads with flag 'unmapped' but available alignment
+      #         coordinates as mapped (hisat2 in paired-end mode may generate
+      #         such alignments), in order to make qCount, qQCReport and
+      #         alignmentStats consisten with each other
+      mapped = sum(as.numeric(tmp$mapped[im]),
+                   as.numeric(tmp$unmapped[im])),
+      unmapped = tmp$unmapped[!im])
+}
+    
 #' Get statistics on alignments
 #' 
 #' Get statistics on alignments from bam file or \code{qProject} object.
@@ -78,13 +99,7 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
     if (any(i <- ! file.exists(bamfiles)))
         stop(sprintf("cannot access bam files: %s", paste(bamfiles[i], collapse = ", ")))
     # call idxstats_bam and collapse counts (seqlength, mapped and unmapped)
-    res <- do.call(rbind, lapply(bamfiles, function(bf) {
-        tmp <- .Call(idxstatsBam, bf)
-        im <- tmp$seqname != "*"
-        c(seqlength = sum(as.numeric(tmp$seqlength[im])),
-          mapped = sum(as.numeric(tmp$mapped[im])),
-          unmapped = tmp$unmapped[!im])
-    }))
+    res <- do.call(rbind, lapply(bamfiles, .get_alnstats_for_bam))
     # fix unmapped counts for auxiliaries
     if (inherits(x, "qProject", which = FALSE))
         res[-iGenome, 'unmapped'] <- rep(res[iGenome, 'unmapped'], 
