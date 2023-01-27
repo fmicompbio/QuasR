@@ -514,9 +514,9 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
     if (!is.null(alnFilename)) {
         # get bamfile index statistics
         mapdata <- lapply(alnFilename, function(file) {
-            colSums(as.data.frame(.Call(idxstatsBam, file)[c("mapped", "unmapped")]))
+            .get_alnstats_for_bam(file)[c("mapped", "unmapped")]
         })
-        mapdata <- do.call(rbind, mapdata)
+        mapdata <- as.data.frame(do.call(rbind, mapdata))
         rownames(mapdata) <- mapLabel
         plotdata[['raw']][['mapdata']] <- mapdata
         if (is.null(pdfFilename))
