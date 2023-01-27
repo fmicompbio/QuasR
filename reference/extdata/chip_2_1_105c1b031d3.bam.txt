@@ -1,0 +1,23 @@
+reads.FileName1	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp73ILzI/file105c124dabb43/reference/extdata/chip_2_1.fq.bz2
+reads.FileName2	NA
+reads.md5subsum1	bcd5419b4bbf5219555c0717d5e658e2
+reads.md5subsum2	NA
+samplesFormat	fastq
+genome	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp73ILzI/file105c124dabb43/reference/extdata/hg19sub.fa
+genome.md5	6cf516257ac32f9f881ef384add30864
+genomeFormat	file
+aux	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp73ILzI/file105c124dabb43/reference/extdata/NC_001422.1.fa
+aux.md5	351e5e3e83799cea5cd439ccbb2ba161
+aligner	Rbowtie
+aligner.version	1.39.0
+maxHits	1
+paired	no
+splicedAlignment	FALSE
+snpFile	NA
+snpFile.md5	NA
+bisulfite	no
+alignmentParameter	-m 1 --best --strata
+geneAnnotation	NA
+geneAnnotationFormat	NA
+geneAnnotation.md5	NA
+QuasR.version	1.39.2
