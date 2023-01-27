@@ -11,7 +11,7 @@
 is assumed to be already existing)}
 }
 \value{
-a named numeric vector with elments 'seqlength', 'mapped' and 'unmapped'
+a named numeric vector with elements 'seqlength', 'mapped' and 'unmapped'
 }
 \description{
 Internal function to get seqlengths, mapped and unmapped counts for a bam file

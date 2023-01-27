@@ -12,7 +12,7 @@ displayNames <- function(proj) { # create unique names for each sequence file
 #' @param bf Character scalar with the path and filename to a bam file (index
 #'     is assumed to be already existing)
 #' 
-#' @return a named numeric vector with elments 'seqlength', 'mapped' and 'unmapped'
+#' @return a named numeric vector with elements 'seqlength', 'mapped' and 'unmapped'
 #' 
 #' @keywords internal
 .get_alnstats_for_bam <- function(bf) {
