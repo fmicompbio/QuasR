@@ -558,7 +558,7 @@ truncStringToPlotWidth <- function(s, plotwidth) {
         l <- nchar(s)
         news <- s
         i <- sw > plotwidth
-        while (w < l && any(i)) {
+        while (any(w < l) && any(i)) {
             news <- ifelse(i, paste(substr(s, 1, ceiling((l - w)/2) + 5), 
                                     substr(s, floor((l + w)/2) + 5, l), 
                                     sep = "..."), news)
