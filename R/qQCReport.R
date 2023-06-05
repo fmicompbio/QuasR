@@ -980,7 +980,7 @@ plotErrorsByCycle <- function(data,
                        ylim = c(0,ym), xaxs = "i", xlim = c(0, xn) + 0.5,
                        lty = 1, pch = 20, cex = 0.6, main = "",
                        xlab = 'Position in read (bp)',
-                       ylab = 'Mismatche bases (%)')
+                       ylab = 'Mismatched bases (%)')
         graphics::abline(h = 0, lty = 2, col = 'gray')
         #abline(v=c(12,25), lty = 3, col = 'red')
         cxy <- graphics::par('cxy')
