@@ -16,6 +16,7 @@ test_that("qQCReport works as expected", {
                       pdfFilename = tmppdf[4])
   resqc5 <- qQCReport(pChipSingle@reads$FileName[1],
                       pdfFilename = tmppdf[5])
+  resqc6 <- qQCReport(pChipSingleLongFname, pdfFilename = tmppdf[6])
 
   expect_identical(resqc, resqc2)
   expect_is(resqc, "list")
