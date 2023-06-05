@@ -826,8 +826,10 @@ plotMappings <- function(mapdata,
         mapdataChunk <- mapdata[min(nr, i + 29 - 1):i, , drop = FALSE]
         
         if (a4layout && nr > 29 && nrow(mapdataChunk) < 29)
-            mapdataChunk <- rbind(mapdataChunk, matrix(NA, ncol = 2, 
-                                                       nrow = 29 - nrow(mapdataChunk)))
+            mapdataChunk <- rbind(mapdataChunk, 
+                                  matrix(NA, ncol = 2, 
+                                         nrow = 29 - nrow(mapdataChunk),
+                                         dimnames = list(NULL, colnames(mapdataChunk))))
         
         # draw legend
         graphics::par(mar = c(0, 1, 0, 3) + .1)
@@ -900,8 +902,10 @@ plotUniqueness <- function(data,
         dataChunk <- data[min(nr, i + 29 - 1):i, , drop = FALSE]
         
         if (a4layout && nr > 29 && nrow(dataChunk) < 29)
-            dataChunk <- rbind(dataChunk, matrix(NA, ncol = 2, 
-                                                 nrow = 29 - nrow(dataChunk)))
+            dataChunk <- rbind(dataChunk, 
+                               matrix(NA, ncol = 2, 
+                                      nrow = 29 - nrow(dataChunk),
+                                      dimnames = list(NULL, colnames(dataChunk))))
         
         # draw legend
         graphics::par(mar = c(0, 1, 0, 3) + .1)
