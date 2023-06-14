@@ -558,7 +558,7 @@ truncStringToPlotWidth <- function(s, plotwidth) {
         l <- nchar(s)
         news <- s
         i <- sw > plotwidth
-        while (w < l && any(i)) {
+        while (any(w < l) && any(i)) {
             news <- ifelse(i, paste(substr(s, 1, ceiling((l - w)/2) + 5), 
                                     substr(s, floor((l + w)/2) + 5, l), 
                                     sep = "..."), news)
@@ -826,8 +826,10 @@ plotMappings <- function(mapdata,
         mapdataChunk <- mapdata[min(nr, i + 29 - 1):i, , drop = FALSE]
         
         if (a4layout && nr > 29 && nrow(mapdataChunk) < 29)
-            mapdataChunk <- rbind(mapdataChunk, matrix(NA, ncol = 2, 
-                                                       nrow = 29 - nrow(mapdataChunk)))
+            mapdataChunk <- rbind(mapdataChunk, 
+                                  matrix(NA, ncol = 2, 
+                                         nrow = 29 - nrow(mapdataChunk),
+                                         dimnames = list(NULL, colnames(mapdataChunk))))
         
         # draw legend
         graphics::par(mar = c(0, 1, 0, 3) + .1)
@@ -900,8 +902,10 @@ plotUniqueness <- function(data,
         dataChunk <- data[min(nr, i + 29 - 1):i, , drop = FALSE]
         
         if (a4layout && nr > 29 && nrow(dataChunk) < 29)
-            dataChunk <- rbind(dataChunk, matrix(NA, ncol = 2, 
-                                                 nrow = 29 - nrow(dataChunk)))
+            dataChunk <- rbind(dataChunk, 
+                               matrix(NA, ncol = 2, 
+                                      nrow = 29 - nrow(dataChunk),
+                                      dimnames = list(NULL, colnames(dataChunk))))
         
         # draw legend
         graphics::par(mar = c(0, 1, 0, 3) + .1)
@@ -980,7 +984,7 @@ plotErrorsByCycle <- function(data,
                        ylim = c(0,ym), xaxs = "i", xlim = c(0, xn) + 0.5,
                        lty = 1, pch = 20, cex = 0.6, main = "",
                        xlab = 'Position in read (bp)',
-                       ylab = 'Mismatche bases (%)')
+                       ylab = 'Mismatched bases (%)')
         graphics::abline(h = 0, lty = 2, col = 'gray')
         #abline(v=c(12,25), lty = 3, col = 'red')
         cxy <- graphics::par('cxy')

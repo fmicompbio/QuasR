@@ -22,6 +22,20 @@ bsgPkg <- system.file("extdata", "BSgenome.HSapiens.QuasR.hg19sub_0.1.0.tar.gz",
 utils::install.packages(pkgs = bsgPkg, lib = rlibdir, repos = NULL,
                         type = "source", INSTALL_opts = "--no-test-load")
 
+# copy one of the ChIP fastq files and give it a long name, to test the 
+# truncation rules
+# also generate a corresponding sample file
+file.copy(from = file.path("extdata", "chip_1_1.fq.bz2"), 
+          to = file.path("extdata", 
+                         "chip_1_1_with_long_file_name_that_will_be_truncated.fq.bz2"))
+tmp <- read.delim(file.path("extdata", "samples_chip_single.txt"))
+tmp$FileName <- sub("chip_1_1", 
+                    "chip_1_1_with_long_file_name_that_will_be_truncated", 
+                    tmp$FileName)
+write.table(tmp, file = file.path("extdata", "samples_chip_single_longfname.txt"), 
+            row.names = FALSE, col.names = TRUE, quote = FALSE, sep = "\t")
+sChipSingleLongFname <- file.path("extdata", "samples_chip_single_longfname.txt")
+
 # create qProject instances
 # ... for hg19sub
 genomePkg     <- "BSgenome.HSapiens.QuasR.hg19sub"
@@ -42,6 +56,7 @@ sBisSingle    <- file.path("extdata", "samples_bis_single.txt")
 
 # ... ... as a BSgenome
 pChipSingle       <- qAlign(sChipSingle,  genomePkg,  clObj = clObj, lib.loc = rlibdir, cacheDir = tempdir())
+pChipSingleLongFname <- qAlign(sChipSingleLongFname,  genomePkg,  clObj = clObj, lib.loc = rlibdir, cacheDir = tempdir())
 pBis              <- qAlign(sBisSingle,   genomePkg,  bisulfite = "dir", clObj = clObj, lib.loc = rlibdir)
 
 # ... ... as a fasta genome
