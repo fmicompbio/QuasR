@@ -233,7 +233,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the reads if necessary
             reads <- proj@reads$FileName[sampleNr]
             if (compressedFileFormat(reads) != "none") {
-                print(paste("Decompressing file on", Sys.info()['nodename'], ":", reads))
+                worker_message("Decompressing SE read file on", Sys.info()['nodename'], ":", reads)
                 readsUNC <- tempfile(tmpdir = cacheDir, pattern = basename(reads),
                                      fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads, readsUNC, remove = FALSE)
@@ -245,7 +245,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the first read pair if necessary
             reads1 <- proj@reads$FileName1[sampleNr]
             if (compressedFileFormat(reads1) != "none") {
-                print(paste("Decompressing file on", Sys.info()['nodename'], ":", reads1))
+                worker_message("Decompressing PE R1 file on", Sys.info()['nodename'], ":", reads1)
                 readsUNC1 <- tempfile(tmpdir = cacheDir, pattern = basename(reads1),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads1, readsUNC1, remove = FALSE)
@@ -256,7 +256,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the second read pair if necessary
             reads2 <- proj@reads$FileName2[sampleNr]
             if (compressedFileFormat(reads2) != "none") {
-                print(paste("Decompressing file on", Sys.info()['nodename'], ":", reads2))
+                worker_message("Decompressing PE R2 file on", Sys.info()['nodename'], ":", reads2)
                 readsUNC2 <- tempfile(tmpdir = cacheDir, pattern = basename(reads2),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads2, readsUNC2, remove = FALSE)
@@ -1234,6 +1234,11 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
     }
 }
 
+
+worker_message <- function(..., sep="", appendLF=TRUE) {
+  cat(..., sep=sep)
+  if (appendLF) cat("\n")
+}
 
 
 # For a given sample, add an integer to the id. This is necessary for allelic analysis
