@@ -233,7 +233,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the reads if necessary
             reads <- proj@reads$FileName[sampleNr]
             if (compressedFileFormat(reads) != "none") {
-                worker_message("Decompressing SE read file on", Sys.info()['nodename'], ":", reads)
+                worker_message("Decompressing SE read file on [", Sys.info()['nodename'], "]:", reads)
                 readsUNC <- tempfile(tmpdir = cacheDir, pattern = basename(reads),
                                      fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads, readsUNC, remove = FALSE)
@@ -245,7 +245,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the first read pair if necessary
             reads1 <- proj@reads$FileName1[sampleNr]
             if (compressedFileFormat(reads1) != "none") {
-                worker_message("Decompressing PE R1 file on", Sys.info()['nodename'], ":", reads1)
+                worker_message("Decompressing PE R1 file on [", Sys.info()['nodename'], "]:", reads1)
                 readsUNC1 <- tempfile(tmpdir = cacheDir, pattern = basename(reads1),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads1, readsUNC1, remove = FALSE)
@@ -256,7 +256,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the second read pair if necessary
             reads2 <- proj@reads$FileName2[sampleNr]
             if (compressedFileFormat(reads2) != "none") {
-                worker_message("Decompressing PE R2 file on", Sys.info()['nodename'], ":", reads2)
+                worker_message("Decompressing PE R2 file on [", Sys.info()['nodename'], "]:", reads2)
                 readsUNC2 <- tempfile(tmpdir = cacheDir, pattern = basename(reads2),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads2, readsUNC2, remove = FALSE)
@@ -491,8 +491,9 @@ createGenomicAlignmentsController <- function(params) {
             stop("Fatal error 23484303")
         }
 
-        print(paste("Converting sam file to sorted bam file on",
-                    Sys.info()['nodename'], ":", samFile))
+        worker_message(
+          "Converting sam file to sorted bam file on [",
+          Sys.info()['nodename'], "] :", samFile)
         if (coresThisNode > 3) {
             # sort sam and convert to bam parallel
             samToSortedBamParallel(
@@ -512,10 +513,11 @@ createGenomicAlignmentsController <- function(params) {
                                           "txt", sep = "."),
                            sep = "\t", quote = FALSE, col.names = FALSE)
 
-        print(paste("Genomic alignments for sample ", sampleNr, " (",
-                    proj@reads$SampleName[sampleNr],
-                    ") have been successfully created on ",
-                    Sys.info()['nodename'], sep = ""))
+        worker_message(
+          "Genomic alignments for sample ", sampleNr, " (",
+          proj@reads$SampleName[sampleNr],
+          ") have been successfully created on [",
+          Sys.info()['nodename'], "]")
 
         # if one process stops due to an error, catch it, concatenate the
         # message with specific information about
@@ -648,8 +650,9 @@ createAuxAlignmentsController <- function(params) {
             }
 
             # remove the unmapped reads and convert to sorted bam
-            print(paste("Converting sam file to sorted bam file on",
-                        Sys.info()['nodename'], ":", samFile))
+            worker_message(
+              "Converting sam file to sorted bam file on [",
+              Sys.info()['nodename'], "] :", samFile)
             .Call(removeUnmappedFromSamAndConvertToBam, samFile, bamFileNoUnmapped)
             file.remove(samFile)
             # sort bam
@@ -665,10 +668,11 @@ createAuxAlignmentsController <- function(params) {
                                      "txt", sep = "."),
                                sep = "\t", quote = FALSE, col.names = FALSE)
 
-            print(paste("Auxiliary alignments ", j, " for sample ", sampleNr,
-                        " (", proj@reads$SampleName[sampleNr],
-                        ") have been successfully created on ",
-                        Sys.info()['nodename'], sep = ""))
+            worker_message(
+              "Auxiliary alignments ", j, " for sample ", sampleNr,
+              " (", proj@reads$SampleName[sampleNr],
+              ") have been successfully created on [",
+              Sys.info()['nodename'])
 
   }
 
@@ -699,13 +703,14 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
         alignmentParameterAdded <- paste("--phred", reads$phred, "-quals", sep = "")
     }
 
-    print(paste("Executing bowtie on", Sys.info()['nodename'],
-                "using", threads, "cores. Parameters:"))
+    worker_message(
+      "Executing bowtie on [", Sys.info()['nodename'],"] ",
+      "using ", threads, " cores. Parameters:")
     if (paired == "no") {
         args <- paste(shQuote(file.path(indexDir, "bowtieIndex")),
                       shQuote(reads$FileName), alignmentParameter,
                       alignmentParameterAdded, "-S", "-p", threads, shQuote(outFile))
-        print(args)
+        worker_message(args)
         ret <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                        args, stdout = TRUE, stderr = TRUE)
     } else {
@@ -714,7 +719,7 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
                       "-2", shQuote(reads$FileName2),
                       paste("--", paired, sep = ""), alignmentParameter,
                       alignmentParameterAdded, "-S", "-p", threads, shQuote(outFile))
-        print(args)
+        worker_message(args)
         ret <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                        args, stdout = TRUE, stderr = TRUE)
     }
@@ -733,8 +738,9 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     } else {
         alignmentParameterAdded <- paste("--phred", reads$phred, sep = "")
     }
-    print(paste("Executing hisat2 on", Sys.info()['nodename'], "using",
-                threads, "cores. Parameters:"))
+    worker_message(
+      "Executing hisat2 on [", Sys.info()['nodename'], "] ",
+      "using ", threads, " cores. Parameters:")
     if (paired == "no") {
         args <- paste(shQuote(file.path(indexDir, "hisat2Index")),
                       shQuote(reads$FileName), alignmentParameter,
@@ -749,7 +755,7 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     if (!splicedAlignment) {
         args <- paste(args, "--no-spliced-alignment")
     }
-    print(args)
+    worker_message(args)
     ret <- system2(file.path(system.file(package = "Rhisat2"), "hisat2"),
                    args, stdout = TRUE, stderr = TRUE)
     if (!(grepl(" reads", ret[1]))) {
