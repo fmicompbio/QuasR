@@ -198,7 +198,7 @@ createGenomicAlignmentsController <- function(params) {
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% Sys.info()['nodename']]
         
-        task_prefix <- paste0("(Task",sampleNr,"/",n_tasks,"): ")
+        task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
           task_prefix, "Number of threads available:", coresThisNode)
 
@@ -321,7 +321,8 @@ createGenomicAlignmentsController <- function(params) {
                                   coresThisNode, samFileA, cacheDir)
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    print(paste("mergeReorderMaxQueueSize", mrQuSize))
+                    worker_message(
+                      task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
                 }
             } else {
                 if (is.na(proj@snpFile)) {
@@ -334,8 +335,8 @@ createGenomicAlignmentsController <- function(params) {
                         }
                         genomeObj <- get(proj@genome) # access the BSgenome
                         fastaFilepath <- tempfile(tmpdir = cacheDir, fileext = ".fa")
-                        print(paste("Writing BSgenome to disk on",
-                                    Sys.info()['nodename'], ":", fastaFilepath))
+                        worker_message(
+                          task_prefix, "Writing BSgenome to disk: ", fastaFilepath)
                         # flush the BSgenome to disk
                         BSgenomeSeqToFasta(genomeObj, fastaFilepath)
                         on.exit(unlink(fastaFilepath), add = TRUE)
@@ -384,7 +385,7 @@ createGenomicAlignmentsController <- function(params) {
                                          coresThisNode, samFileA, cacheDir)
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    print(paste("mergeReorderMaxQueueSize", mrQuSize))
+                    worker_message(task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
                 }
             }
         } else if (proj@alnModeID == "RbowtieCtoT") {
@@ -418,7 +419,7 @@ createGenomicAlignmentsController <- function(params) {
                                           coresThisNode, samFileA, cacheDir)
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    print(paste("mergeReorderMaxQueueSize", mrQuSize))
+                    worker_message(task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
                 }
             } else {
                 if (is.na(proj@snpFile)) {
@@ -451,7 +452,7 @@ createGenomicAlignmentsController <- function(params) {
                                             coresThisNode, samFileA, cacheDir)
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    print(paste("mergeReorderMaxQueueSize", mrQuSize))
+                    worker_message(task_prefix,"mergeReorderMaxQueueSize", mrQuSize)
                 }
             }
         } else if (proj@alnModeID == "Rhisat2") {
@@ -493,7 +494,7 @@ createGenomicAlignmentsController <- function(params) {
                               proj@splicedAlignment, proj@maxHits)
                 mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                   samFile, as.integer(2), as.integer(proj@maxHits))
-                print(paste("mergeReorderMaxQueueSize", mrQuSize))
+                worker_message(task_prefix,"mergeReorderMaxQueueSize", mrQuSize)
             }
         } else {
             stop("Fatal error 23484303")
@@ -568,7 +569,7 @@ createAuxAlignmentsController <- function(params) {
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
         
-        task_prefix <- paste0("(Task",sampleNr,"/",n_tasks,"): ")
+        task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
           task_prefix, "Number of threads available:", coresThisNode)
 
@@ -712,13 +713,12 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
     }
 
     worker_message(
-      "Executing bowtie on [", Sys.info()['nodename'],"] ",
-      "using ", threads, " cores. Parameters:")
+      " - Executing bowtie using ", threads, " cores. Parameters:")
     if (paired == "no") {
         args <- paste(shQuote(file.path(indexDir, "bowtieIndex")),
                       shQuote(reads$FileName), alignmentParameter,
                       alignmentParameterAdded, "-S", "-p", threads, shQuote(outFile))
-        worker_message(args)
+        worker_message("   ", args)
         ret <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                        args, stdout = TRUE, stderr = TRUE)
     } else {
@@ -727,7 +727,7 @@ align_Rbowtie <- function(indexDir, reads, samplesFormat, paired,
                       "-2", shQuote(reads$FileName2),
                       paste("--", paired, sep = ""), alignmentParameter,
                       alignmentParameterAdded, "-S", "-p", threads, shQuote(outFile))
-        worker_message(args)
+        worker_message("   ", args)
         ret <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
                        args, stdout = TRUE, stderr = TRUE)
     }
@@ -747,8 +747,7 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
         alignmentParameterAdded <- paste("--phred", reads$phred, sep = "")
     }
     worker_message(
-      "Executing hisat2 on [", Sys.info()['nodename'], "] ",
-      "using ", threads, " cores. Parameters:")
+      " - Executing hisat2 using ", threads, " cores. Parameters:")
     if (paired == "no") {
         args <- paste(shQuote(file.path(indexDir, "hisat2Index")),
                       shQuote(reads$FileName), alignmentParameter,
@@ -763,7 +762,7 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     if (!splicedAlignment) {
         args <- paste(args, "--no-spliced-alignment")
     }
-    worker_message(args)
+    worker_message("   ", args)
     ret <- system2(file.path(system.file(package = "Rhisat2"), "hisat2"),
                    args, stdout = TRUE, stderr = TRUE)
     if (!(grepl(" reads", ret[1]))) {
@@ -774,8 +773,8 @@ align_Rhisat2 <- function(indexDir, reads, samplesFormat, paired,
     ## hit for multimapping reads)
     fhs <- .Call(filterHisat2, paste(outFile, "tmp", sep = "."),
                  outFile, as.integer(maxHits))
-    print(paste("Number of filtered secondary alignments:", fhs["n_secondary"]))
-    print(paste("Number of filtered overmapped alignments:", fhs["n_overmapped"]))
+    worker_message("   ", "Number of filtered secondary alignments:", fhs["n_secondary"])
+    worker_message("   ", "Number of filtered overmapped alignments:", fhs["n_overmapped"])
 }
 
 #' @keywords internal
@@ -828,9 +827,8 @@ align_RbowtieSpliced <- function(genomeFilepath, indexDir, reads, samplesFormat,
 
     sm_cfgParString <- cbind(paste("-", as.character(names(sm_cfg)), sep = ""),
                              as.character(sm_cfg))
-    print(paste("Executing Splicemap on", Sys.info()['nodename'],
-                "using", threads, "cores. Parameters:"))
-    print(paste(paste(sm_cfgParString[, 1], sm_cfgParString[, 2]), collapse = " "))
+    worker_message(" - Executing Splicemap using", threads, "cores. Parameters:")
+    worker_message("   ", paste(sm_cfgParString[, 1], sm_cfgParString[, 2]), collapse = " ")
 
     Rbowtie::SpliceMap(sm_cfg)
 }
@@ -854,8 +852,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
         idMode <- 3
     }
 
-    print(paste("Executing bowtie (CtoT and GtoA) on", Sys.info()['nodename'],
-                "using", threads, "cores. Parameters:"))
+    worker_message(" - Executing bowtie (CtoT and GtoA) using", threads, "cores. Parameters:")
     if (paired == "no") {
         # CtoT convert the reads. include the original sequence in the identifier.
         readsCtoT <- tempfile(
@@ -890,8 +887,9 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           shQuote(readsCtoT), alignmentParameter,
                           alignmentParameterAdded, "-S", "-p", threads,
                           "--nofw", shQuote(readsCtoT_genomeGtoA))
-        print(argsCtoT)
-        print(argsGtoA)
+        worker_message("   ", argsCtoT)
+        worker_message("   ", argsGtoA)
+        
         # perform two alignments, readsCtoT agains genomeCtoT (plus strand)
         # and readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -909,7 +907,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
         mrQuSize <- .Call(mergeReorderSam, c(readsCtoT_genomeCtoT,
                                              readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        print(paste("mergeReorderMaxQueueSize", mrQuSize))
+        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
 
     } else if (paired == "fr") {
         # CtoT convert the reads. include the original sequence in the identifier.
@@ -956,8 +954,8 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "-2",shQuote(readsCtoT_2),
                           "--ff", alignmentParameter, alignmentParameterAdded,
                           "-S", "-p", threads, "--nofw", shQuote(readsCtoT_genomeGtoA))
-        print(argsCtoT)
-        print(argsGtoA)
+        worker_message("   ", argsCtoT)
+        worker_message("   ", argsGtoA)
 
         # perform two alignments, readsCtoT against genomeCtoT (plus strand) and
         # readsCtoT against genomeGtoA (minus strand)
@@ -976,7 +974,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
         mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        print(paste("mergeReorderMaxQueueSize", mrQuSize))
+        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
     }
 }
 
@@ -1017,8 +1015,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
         idMode <- 3
     }
 
-    print(paste("Executing bowtie (CtoT and GtoA) on", Sys.info()['nodename'],
-                "using", threads, "cores. Parameters:"))
+    worker_message(" - Executing bowtie (CtoT and GtoA) using", threads, "cores. Parameters:")
     if (paired == "no") {
 
         # CtoT convert the reads. include the original sequence in the identifier.
@@ -1088,10 +1085,10 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                        alignmentParameterAdded, "-S", "-p", threads,
                        "--nofw", shQuote(readsRcCtoT_genomeGtoA))
 
-        print(args0)
-        print(args1)
-        print(args2)
-        print(args3)
+        worker_message("   ", args0)
+        worker_message("   ", args1)
+        worker_message("   ", args2)
+        worker_message("   ", args3)
 
         # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
         # readsCtoT agains genomeGtoA (minus strand)
@@ -1121,7 +1118,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        print(paste("mergeReorderMaxQueueSize", mrQuSize))
+        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
 
     } else if (paired == "fr") {
 
@@ -1211,10 +1208,10 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                        "--ff", alignmentParameter, alignmentParameterAdded,
                        "-S", "-p", threads, "--nofw", shQuote(readsRcCtoT_genomeGtoA))
 
-        print(args0)
-        print(args1)
-        print(args2)
-        print(args3)
+        worker_message("   ", args0)
+        worker_message("   ", args1)
+        worker_message("   ", args2)
+        worker_message("   ", args3)
 
         # perform four alignments, readsCtoT agains genomeCtoT (plus strand) and
         # readsCtoT agains genomeGtoA (minus strand)
@@ -1244,14 +1241,25 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        print(paste("mergeReorderMaxQueueSize", mrQuSize))
+        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
     }
 }
 
 
+#' Build a formatted message for outputting to log files
+#' @keywords internal
 worker_message <- function(..., sep="", appendLF=TRUE) {
-  cat("[",Sys.time(),"@",Sys.info()['nodename'],"] ",..., sep=sep)
+  
+  # all used functions are from base R
+  cat(paste0(
+    "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S", 
+               tz = "UTC", usetz = TRUE),"]", " ",
+    "(",Sys.info()['user'],"@",Sys.info()['nodename'],")", 
+    if (sep=="") {" "} else {""} ),
+    ..., sep=sep)
+  
   if (appendLF) cat("\n")
+  
 }
 
 
