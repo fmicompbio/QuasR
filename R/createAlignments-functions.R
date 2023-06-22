@@ -200,7 +200,7 @@ createGenomicAlignmentsController <- function(params) {
         
         task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
-          task_prefix, "Number of threads available:", coresThisNode)
+          task_prefix, "Number of threads available: ", coresThisNode)
 
         # try to load all the required libraries on the compute node.
         # these are the aligner package
@@ -571,7 +571,7 @@ createAuxAlignmentsController <- function(params) {
         
         task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
-          task_prefix, "Number of threads available:", coresThisNode)
+          task_prefix, "Number of threads available: ", coresThisNode)
 
         # extract the unmapped reads from bam file. in the case of a bisulfite
         # sample, this requires the conversion from ff (that is present in the bam file)
