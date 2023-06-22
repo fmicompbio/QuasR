@@ -187,16 +187,20 @@ createGenomicAlignmentsController <- function(params) {
         proj <- params$qProject
         coresPerNode <- params$coresPerNode
         logFile <- params$logFile
+        rm(params) # clean up
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
-
+        
         # find out how many threads are available on this node
         # (for running the alignments)
-        thisNodesName <- Sys.info()['nodename']
-        if (!(thisNodesName %in% names(coresPerNode))) {
+        if (!(Sys.info()['nodename'] %in% names(coresPerNode))) {
             stop("Fatal error 2394793")
         }
-        coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
+        coresThisNode <- coresPerNode[names(coresPerNode) %in% Sys.info()['nodename']]
+        
+        task_prefix <- paste0("(Task",sampleNr,"/",n_tasks,"): ")
+        worker_message(
+          task_prefix, "Number of threads available:", coresThisNode)
 
         # try to load all the required libraries on the compute node.
         # these are the aligner package
@@ -237,7 +241,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the reads if necessary
             reads <- proj@reads$FileName[sampleNr]
             if (compressedFileFormat(reads) != "none") {
-                worker_message("Decompressing SE read file on [", Sys.info()['nodename'], "]:", reads)
+                worker_message(task_prefix, "Decompressing SE read file:", reads)
                 readsUNC <- tempfile(tmpdir = cacheDir, pattern = basename(reads),
                                      fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads, readsUNC, remove = FALSE)
@@ -249,7 +253,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the first read pair if necessary
             reads1 <- proj@reads$FileName1[sampleNr]
             if (compressedFileFormat(reads1) != "none") {
-                worker_message("Decompressing PE R1 file on [", Sys.info()['nodename'], "]:", reads1)
+                worker_message(task_prefix, "Decompressing PE R1 file:", reads1)
                 readsUNC1 <- tempfile(tmpdir = cacheDir, pattern = basename(reads1),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads1, readsUNC1, remove = FALSE)
@@ -260,7 +264,7 @@ createGenomicAlignmentsController <- function(params) {
             # decompress the second read pair if necessary
             reads2 <- proj@reads$FileName2[sampleNr]
             if (compressedFileFormat(reads2) != "none") {
-                worker_message("Decompressing PE R2 file on [", Sys.info()['nodename'], "]:", reads2)
+                worker_message(task_prefix, "Decompressing PE R2 file:", reads2)
                 readsUNC2 <- tempfile(tmpdir = cacheDir, pattern = basename(reads2),
                                       fileext = paste(".", proj@samplesFormat, sep = ""))
                 compressFile(reads2, readsUNC2, remove = FALSE)
@@ -495,9 +499,8 @@ createGenomicAlignmentsController <- function(params) {
             stop("Fatal error 23484303")
         }
 
-        worker_message(
-          "Converting sam file to sorted bam file on [",
-          Sys.info()['nodename'], "] :", samFile)
+        worker_message( 
+          task_prefix, "Converting sam file to sorted bam file:", samFile)
         if (coresThisNode > 3) {
             # sort sam and convert to bam parallel
             samToSortedBamParallel(
@@ -518,10 +521,7 @@ createGenomicAlignmentsController <- function(params) {
                            sep = "\t", quote = FALSE, col.names = FALSE)
 
         worker_message(
-          "Genomic alignments for sample ", sampleNr, " (",
-          proj@reads$SampleName[sampleNr],
-          ") have been successfully created on [",
-          Sys.info()['nodename'], "]")
+          task_prefix,"Genomic alignments have been successfully created.")
 
         # if one process stops due to an error, catch it, concatenate the
         # message with specific information about
@@ -529,9 +529,9 @@ createGenomicAlignmentsController <- function(params) {
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
-        emsg <- paste("Error on", Sys.info()['nodename'],
-                      "processing sample", proj@reads[sampleNr, 1], ":", ex$message)
-        print(emsg)
+        emsg <- paste(task_prefix, "Error processing sample", 
+                      proj@reads[sampleNr, 1], ":", ex$message)
+        worker_message(emsg)
         stop(emsg)
     }, finally = {
         sink() # close the redirection of the print statements
@@ -551,6 +551,7 @@ createAuxAlignmentsController <- function(params) {
         proj <- params$qProject
         coresPerNode <- params$coresPerNode
         logFile <- params$logFile
+        rm(params)
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
 
@@ -566,6 +567,10 @@ createAuxAlignmentsController <- function(params) {
             stop("Fatal error 23594793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
+        
+        task_prefix <- paste0("(Task",sampleNr,"/",n_tasks,"): ")
+        worker_message(
+          task_prefix, "Number of threads available:", coresThisNode)
 
         # extract the unmapped reads from bam file. in the case of a bisulfite
         # sample, this requires the conversion from ff (that is present in the bam file)
@@ -655,8 +660,7 @@ createAuxAlignmentsController <- function(params) {
 
             # remove the unmapped reads and convert to sorted bam
             worker_message(
-              "Converting sam file to sorted bam file on [",
-              Sys.info()['nodename'], "] :", samFile)
+              task_prefix, "Converting sam file to sorted bam file: ", samFile)
             .Call(removeUnmappedFromSamAndConvertToBam, samFile, bamFileNoUnmapped)
             file.remove(samFile)
             # sort bam
@@ -673,10 +677,9 @@ createAuxAlignmentsController <- function(params) {
                                sep = "\t", quote = FALSE, col.names = FALSE)
 
             worker_message(
-              "Auxiliary alignments ", j, " for sample ", sampleNr,
+              task_prefix, "Auxiliary alignments ", j, " for sample ", sampleNr,
               " (", proj@reads$SampleName[sampleNr],
-              ") have been successfully created on [",
-              Sys.info()['nodename'])
+              ") have been successfully created")
 
   }
 
@@ -686,9 +689,10 @@ createAuxAlignmentsController <- function(params) {
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
-        emsg <- paste("Error on", Sys.info()['nodename'],"processing sample",
+        emsg <- paste(task_prefix, 
+                      "Error processing sample",
                       proj@reads[sampleNr, 1], ":", ex$message)
-        print(emsg)
+        worker_message(emsg)
         stop(emsg)
     }, finally = {
         sink() # close the redirection of the print statements
@@ -1246,7 +1250,7 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
 
 
 worker_message <- function(..., sep="", appendLF=TRUE) {
-  cat(..., sep=sep)
+  cat("[",Sys.time(),"@",Sys.info()['nodename'],"] ",..., sep=sep)
   if (appendLF) cat("\n")
 }
 
