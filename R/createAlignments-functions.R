@@ -1254,7 +1254,7 @@ worker_message <- function(..., sep="", appendLF=TRUE) {
   cat(paste0(
     "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S", 
                tz = "UTC", usetz = TRUE),"]", " ",
-    "(",Sys.info()['user'],"@",Sys.info()['nodename'],")", 
+    "(",Sys.info()['user'],"@","pid", Sys.getpid(), "/", Sys.info()['nodename'],")", 
     if (sep=="") {" "} else {""} ),
     ..., sep=sep)
   
