@@ -63,8 +63,9 @@ createGenomicAlignments <- function(proj, clObj) {
     }
 
     # perform all necessary genomic alignments
-    if (length(paramsListGenomic) > 0) {
-        message(paste("Performing genomic alignments for", length(paramsListGenomic),
+    n_tasks <- length(paramsListGenomic)
+    if (n_tasks > 0) {
+        message(paste("Performing genomic alignments for", n_tasks,
                       "samples. See progress in the log file:"))
         message(logFile)
 
@@ -73,7 +74,8 @@ createGenomicAlignments <- function(proj, clObj) {
         # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-
+        
+        parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
         parallel::parLapply(clObjNR, paramsListGenomic,
                             createGenomicAlignmentsController)
         message("Genomic alignments have been created successfully")
@@ -151,9 +153,10 @@ createAuxAlignments <- function(proj, clObj) {
         }
     }
 
-    if (length(paramsListAux) > 0) {
+    n_tasks <- length(paramsListAux)
+    if (n_tasks > 0) {
         message(paste("Performing auxiliary alignments for",
-                      length(paramsListAux), "samples. See progress in the log file:"))
+                      n_tasks, "samples. See progress in the log file:"))
         message(logFile)
 
         # create a cluster object that has only one entry per machine.
@@ -161,7 +164,8 @@ createAuxAlignments <- function(proj, clObj) {
         # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-
+        
+        parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
         parallel::parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
         message("Auxiliary alignments have been created successfully")
         message("")
