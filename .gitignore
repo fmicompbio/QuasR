@@ -8,3 +8,4 @@ src/*.dll
 *.Rproj
 QuasR_log*.*
 extdata/*.*
+Alex_test.R
