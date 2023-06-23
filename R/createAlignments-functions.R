@@ -1263,23 +1263,6 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
 }
 
 
-#' Build a formatted message for outputting to log files
-#' @keywords internal
-worker_message <- function(..., sep="", appendLF=TRUE) {
-
-  # all used functions are from base R
-  cat(paste0(
-    "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S",
-               tz = "UTC", usetz = TRUE),"]", " ",
-    "(",Sys.info()['user'],"@","pid", Sys.getpid(), "/", Sys.info()['nodename'],")",
-    if (sep=="") {" "} else {""} ),
-    ..., sep=sep)
-
-  if (appendLF) cat("\n")
-
-}
-
-
 # For a given sample, add an integer to the id. This is necessary for allelic analysis
 # when calling mergeReorderSam
 #' @keywords internal
