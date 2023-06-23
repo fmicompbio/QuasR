@@ -74,7 +74,7 @@ createGenomicAlignments <- function(proj, clObj) {
         # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-        
+
         parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
         parallel::parLapply(clObjNR, paramsListGenomic,
                             createGenomicAlignmentsController)
@@ -164,7 +164,7 @@ createAuxAlignments <- function(proj, clObj) {
         # in a fully occupied node. This new clObj does not have to be stopped.
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
-        
+
         parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
         parallel::parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
         message("Auxiliary alignments have been created successfully")
@@ -190,14 +190,14 @@ createGenomicAlignmentsController <- function(params) {
         rm(params) # clean up
         sink(logFile, append = TRUE) # redirect all the print output to a logfile
         cacheDir <- resolveCacheDir(proj@cacheDir) # tmp dir can change for each machine
-        
+
         # find out how many threads are available on this node
         # (for running the alignments)
         if (!(Sys.info()['nodename'] %in% names(coresPerNode))) {
             stop("Fatal error 2394793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% Sys.info()['nodename']]
-        
+
         task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
           task_prefix, "Number of threads available: ", coresThisNode)
@@ -319,10 +319,11 @@ createGenomicAlignmentsController <- function(params) {
                                   proj@reads[sampleNr, ], proj@samplesFormat,
                                   proj@paired, proj@alignmentParameter,
                                   coresThisNode, samFileA, cacheDir)
+                    worker_message(task_prefix, "merging 2 sam files")
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
                     worker_message(
-                      task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
+                      task_prefix, "maximal queue size during merging:", mrQuSize)
                 }
             } else {
                 if (is.na(proj@snpFile)) {
@@ -383,9 +384,11 @@ createGenomicAlignmentsController <- function(params) {
                                          proj@reads[sampleNr, ], proj@samplesFormat,
                                          proj@paired, proj@alignmentParameter,
                                          coresThisNode, samFileA, cacheDir)
+                    worker_message(task_prefix, "merging 2 sam files")
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    worker_message(task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
+                    worker_message(
+                        task_prefix, "maximal queue size during merging:", mrQuSize)
                 }
             }
         } else if (proj@alnModeID == "RbowtieCtoT") {
@@ -417,9 +420,11 @@ createGenomicAlignmentsController <- function(params) {
                                           proj@paired, proj@alignmentParameter,
                                           !is.na(proj@snpFile), proj@maxHits,
                                           coresThisNode, samFileA, cacheDir)
+                    worker_message(task_prefix, "merging 2 sam files")
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    worker_message(task_prefix, "mergeReorderMaxQueueSize", mrQuSize)
+                    worker_message(
+                        task_prefix, "maximal queue size during merging:", mrQuSize)
                 }
             } else {
                 if (is.na(proj@snpFile)) {
@@ -450,9 +455,11 @@ createGenomicAlignmentsController <- function(params) {
                                             proj@paired, proj@alignmentParameter,
                                             !is.na(proj@snpFile), proj@maxHits,
                                             coresThisNode, samFileA, cacheDir)
+                    worker_message(task_prefix, "merging 2 sam files")
                     mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                       samFile, as.integer(2), as.integer(proj@maxHits))
-                    worker_message(task_prefix,"mergeReorderMaxQueueSize", mrQuSize)
+                    worker_message(
+                        task_prefix, "maximal queue size during merging:", mrQuSize)
                 }
             }
         } else if (proj@alnModeID == "Rhisat2") {
@@ -492,15 +499,17 @@ createGenomicAlignmentsController <- function(params) {
                               proj@paired, proj@alignmentParameter,
                               coresThisNode, samFileA, cacheDir,
                               proj@splicedAlignment, proj@maxHits)
+                worker_message(task_prefix, "merging 2 sam files")
                 mrQuSize <- .Call(mergeReorderSam, c(samFileR, samFileA),
                                   samFile, as.integer(2), as.integer(proj@maxHits))
-                worker_message(task_prefix,"mergeReorderMaxQueueSize", mrQuSize)
+                worker_message(
+                    task_prefix, "maximal queue size during merging:", mrQuSize)
             }
         } else {
             stop("Fatal error 23484303")
         }
 
-        worker_message( 
+        worker_message(
           task_prefix, "Converting sam file to sorted bam file:", samFile)
         if (coresThisNode > 3) {
             # sort sam and convert to bam parallel
@@ -530,7 +539,7 @@ createGenomicAlignmentsController <- function(params) {
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
-        emsg <- paste(task_prefix, "Error processing sample", 
+        emsg <- paste(task_prefix, "Error processing sample",
                       proj@reads[sampleNr, 1], ":", ex$message)
         worker_message(emsg)
         stop(emsg)
@@ -568,7 +577,7 @@ createAuxAlignmentsController <- function(params) {
             stop("Fatal error 23594793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
-        
+
         task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
         worker_message(
           task_prefix, "Number of threads available: ", coresThisNode)
@@ -690,7 +699,7 @@ createAuxAlignmentsController <- function(params) {
         # provides the information about which
         # sample was processed and on which machine when the error occured.
     }, error = function(ex) {
-        emsg <- paste(task_prefix, 
+        emsg <- paste(task_prefix,
                       "Error processing sample",
                       proj@reads[sampleNr, 1], ":", ex$message)
         worker_message(emsg)
@@ -889,7 +898,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "--nofw", shQuote(readsCtoT_genomeGtoA))
         worker_message("   ", argsCtoT)
         worker_message("   ", argsGtoA)
-        
+
         # perform two alignments, readsCtoT agains genomeCtoT (plus strand)
         # and readsCtoT agains genomeGtoA (minus strand)
         ret1 <- system2(file.path(system.file(package = "Rbowtie"), "bowtie"),
@@ -904,10 +913,12 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
             stop("bowtie (GtoA) failed to perform the alignments")
         }
 
+        worker_message("   ", "merging 2 sam files")
         mrQuSize <- .Call(mergeReorderSam, c(readsCtoT_genomeCtoT,
                                              readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
+        worker_message(
+            "   ", "maximal queue size during merging:", mrQuSize)
 
     } else if (paired == "fr") {
         # CtoT convert the reads. include the original sequence in the identifier.
@@ -971,10 +982,12 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
             stop("bowtie (GtoA) failed to perform the alignments")
         }
 
+        worker_message("   ", "merging 2 sam files")
         mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
+        worker_message(
+            "   ", "maximal queue size during merging:", mrQuSize)
     }
 }
 
@@ -1114,11 +1127,13 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
             stop("bowtie (RC, GtoA) failed to perform the alignments")
         }
 
+        worker_message("   ", "merging 4 sam files")
         mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
+        worker_message(
+            "   ", "maximal queue size during merging:", mrQuSize)
 
     } else if (paired == "fr") {
 
@@ -1237,11 +1252,13 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
             stop("bowtie (RC, GtoA) failed to perform the alignments")
         }
 
+        worker_message("   ", "merging 4 sam files")
         mrQuSize <- .Call(mergeReorderSam,
                           c(readsCtoT_genomeCtoT, readsCtoT_genomeGtoA,
                             readsRcCtoT_genomeCtoT, readsRcCtoT_genomeGtoA),
                           outFile, as.integer(idMode), as.integer(maxHits))
-        worker_message("   ", "mergeReorderMaxQueueSize", mrQuSize)
+        worker_message(
+            "   ", "maximal queue size during merging:", mrQuSize)
     }
 }
 
@@ -1249,17 +1266,17 @@ align_RbowtieCtoT_undir <- function(indexDir, reads, samplesFormat, paired,
 #' Build a formatted message for outputting to log files
 #' @keywords internal
 worker_message <- function(..., sep="", appendLF=TRUE) {
-  
+
   # all used functions are from base R
   cat(paste0(
-    "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S", 
+    "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S",
                tz = "UTC", usetz = TRUE),"]", " ",
-    "(",Sys.info()['user'],"@","pid", Sys.getpid(), "/", Sys.info()['nodename'],")", 
+    "(",Sys.info()['user'],"@","pid", Sys.getpid(), "/", Sys.info()['nodename'],")",
     if (sep=="") {" "} else {""} ),
     ..., sep=sep)
-  
+
   if (appendLF) cat("\n")
-  
+
 }
 
 
