@@ -84,7 +84,7 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
         aln <- alignments(x)
         bamfiles <- c(aln$genome$FileName, unlist(aln$aux, use.names = FALSE))
         iGenome <- seq_along(aln$genome$SampleName)
-        names(bamfiles) <- if(collapseBySample)
+        names(bamfiles) <- if (collapseBySample)
             c(sprintf("%s:genome", aln$genome$SampleName),
               sprintf("%s:%s", rep(colnames(aln$aux), each = nrow(aln$aux)),
                       rownames(aln$aux)))
@@ -102,17 +102,17 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
     res <- do.call(rbind, lapply(bamfiles, .get_alnstats_for_bam))
     # fix unmapped counts for auxiliaries
     if (inherits(x, "qProject", which = FALSE))
-        res[-iGenome, 'unmapped'] <- rep(res[iGenome, 'unmapped'],
+        res[-iGenome, "unmapped"] <- rep(res[iGenome, "unmapped"],
                                          each = nrow(aln$aux)) -
-        res[-iGenome, 'mapped']
+        res[-iGenome, "mapped"]
     # collapse by sample
     if (collapseBySample) {
-        res.old <- res
+        res_old <- res
         tmp <- stats::aggregate(res, list(factor(rownames(res),
                                                  levels = unique(rownames(res)))), sum)
         res <- as.matrix(tmp[, -1])
         rownames(res) <- as.character(tmp[, 1])
-        res[, 'seqlength'] <- res.old[rownames(res), 'seqlength']
+        res[, "seqlength"] <- res_old[rownames(res), "seqlength"]
     }
     return(res)
 }
@@ -166,10 +166,10 @@ freeDiskSpace <- function(path) {
 }
 
 #' @keywords internal
-truncPath <- function(path, w = getOption('width')) {
+truncPath <- function(path, w = getOption("width")) {
     # always print full basename, but shorten path if longer than w
     truncpath <- lapply(path, function(p) {
-        if(nchar(p[1]) > w)
+        if (nchar(p[1]) > w)
             file.path(paste(substr(p, 1, w - nchar(basename(p)) - 4),
                             "...", sep = ""), basename(p))
         else
@@ -179,11 +179,12 @@ truncPath <- function(path, w = getOption('width')) {
 }
 
 #' @keywords internal
-truncString <- function(s, w = getOption('width')) {
+truncString <- function(s, w = getOption("width")) {
     # truncate 's' in the middle
     truncs <- lapply(s, function(ss) {
         if (!is.na(ss[1]) && (l <- nchar(ss[1])) > w)
-            paste(substr(ss, 1, floor(w/2) - 2), substr(ss, floor(l - w/2) + 2, l),
+            paste(substr(ss, 1, floor(w / 2) - 2),
+                  substr(ss, floor(l - w / 2) + 2, l),
                   sep = "...")
         else
             ss
@@ -194,12 +195,13 @@ truncString <- function(s, w = getOption('width')) {
 #' @keywords internal
 consolidateFileExtensions <- function(filename, compressed = FALSE) {
     # convert various sequence file extension to one representative
-    if (compressed)
+    if (compressed) {
         fileExtension <- tolower(tools::file_ext(sub("[.](gz|bz2|xz)$", "", filename)))
-    else
+    } else {
         fileExtension <- tolower(tools::file_ext(filename))
-    fileExtension[ fileExtension %in% c("fa", "fna", "fasta") ] <- "fasta"
-    fileExtension[ fileExtension %in% c("fq", "fastq") ] <- "fastq"
+    }
+    fileExtension[fileExtension %in% c("fa", "fna", "fasta")] <- "fasta"
+    fileExtension[fileExtension %in% c("fq", "fastq")] <- "fastq"
     return(fileExtension)
 }
 
@@ -374,7 +376,7 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
                 # non-windows platforms:
                 # get node names
                 tryCatch({
-                    nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()['nodename']))
+                    nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()["nodename"]))
                 }, error = function(ex) {
                     message("FAILED")
                     stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE)
@@ -403,16 +405,21 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
 
 #' Build a formatted message for outputting to log files
 #' @keywords internal
-worker_message <- function(..., sep="", appendLF=TRUE) {
+worker_message <- function(..., sep = "", appendLF = TRUE) {
 
     # all used functions are from base R
-    cat(paste0(
-        "[",format(Sys.time(), format = "%Y-%m-%d %H:%M:%S",
-                   tz = "UTC", usetz = TRUE),"]", " ",
-        "(",Sys.info()['user'],"@","pid", Sys.getpid(), "/", Sys.info()['nodename'],")",
-        if (sep=="") {" "} else {""} ),
-        ..., sep=sep)
+    if (identical(sep, "")) {
+        spacer <- " "
+    } else {
+        spacer <- ""
+    }
+    cat(paste0("[", format(Sys.time(), format = "%Y-%m-%d %H:%M:%S",
+                           tz = "UTC", usetz = TRUE), "] ",
+               "(", Sys.info()["user"], "@pid", Sys.getpid(), "/",
+               Sys.info()["nodename"], ")", spacer),
+        ..., sep = sep)
 
-    if (appendLF) cat("\n")
-
+    if (appendLF) {
+        cat("\n")
+    }
 }
