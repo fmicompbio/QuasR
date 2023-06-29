@@ -43,7 +43,27 @@ test_that("getListOfBiocParallelParam works as expected", {
   expect_is(bpp, "list")
   expect_length(bpp, 2L)
   expect_is(bpp[[1]], "BiocParallelParam")
-  
+
   bpp2 <- QuasR:::getListOfBiocParallelParam(clObj)
   expect_error(QuasR:::getListOfBiocParallelParam(bpp2[2:1]))
+})
+
+test_that("worker_message works as expected", {
+    inf <- Sys.info()
+    pid <- Sys.getpid()
+
+    expect_output(worker_message(),
+                  regexp = paste0(inf[['user']],'@pid',pid,'/',inf[['nodename']]))
+    expect_output(worker_message("test1", "test2"),
+                  regexp = "test1test2$")
+    expect_output(worker_message("hello world", sep = ":"),
+                  regexp = ":hello world$")
+    expect_output({
+        worker_message("test1", appendLF = FALSE)
+        worker_message("test2")
+    }, regexp = 'test1[^\n].+test2$')
+    expect_output({
+        worker_message("test1", appendLF = TRUE)
+        worker_message("test2")
+    }, regexp = 'test1\n.+test2$')
 })

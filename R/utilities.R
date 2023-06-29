@@ -8,12 +8,12 @@ displayNames <- function(proj) { # create unique names for each sequence file
 }
 
 #' Internal function to get seqlengths, mapped and unmapped counts for a bam file
-#' 
+#'
 #' @param bf Character scalar with the path and filename to a bam file (index
 #'     is assumed to be already existing)
-#' 
+#'
 #' @return a named numeric vector with elements 'seqlength', 'mapped' and 'unmapped'
-#' 
+#'
 #' @keywords internal
 .get_alnstats_for_bam <- function(bf) {
     tmp <- .Call(idxstatsBam, bf)
@@ -27,54 +27,54 @@ displayNames <- function(proj) { # create unique names for each sequence file
                    as.numeric(tmp$unmapped[im])),
       unmapped = tmp$unmapped[!im])
 }
-    
+
 #' Get statistics on alignments
-#' 
+#'
 #' Get statistics on alignments from bam file or \code{qProject} object.
-#' 
-#' Internally, \code{alignmentStats} queries the bam index files similar 
-#' to 'idxstats' from samtools. Please note that this does not discriminate 
-#' for example between primary and secondary alignments. If you need more 
-#' statistics, see for example \code{\link[Rsamtools]{quickBamFlagSummary}} 
+#'
+#' Internally, \code{alignmentStats} queries the bam index files similar
+#' to 'idxstats' from samtools. Please note that this does not discriminate
+#' for example between primary and secondary alignments. If you need more
+#' statistics, see for example \code{\link[Rsamtools]{quickBamFlagSummary}}
 #' from package \pkg{Rsamtools}.
-#' 
-#' If \code{x} is a \code{qProject} object, the auxiliary bam files will not 
-#' contain any unmapped reads, and the corresponding unmapped counts are 
-#' calculated by subtracting auxiliary mapped counts from the total reads. 
-#' The latter correspond to the unmapped counts from the corresponding genome 
+#'
+#' If \code{x} is a \code{qProject} object, the auxiliary bam files will not
+#' contain any unmapped reads, and the corresponding unmapped counts are
+#' calculated by subtracting auxiliary mapped counts from the total reads.
+#' The latter correspond to the unmapped counts from the corresponding genome
 #' bam files.
-#' 
+#'
 #' @param x the source of alignment bam files, one of:
 #' \itemize{
 #'   \item a \code{character} vector with bam files
 #'   \item a \code{qProject} object
 #' }
-#' @param collapseBySample If \code{TRUE} and \code{x} is a \code{qProject} 
+#' @param collapseBySample If \code{TRUE} and \code{x} is a \code{qProject}
 #'   object, sum counts for bam files with identical sample names.
-#' 
-#' @return A \code{matrix} with one row per bam file and three columns 
+#'
+#' @return A \code{matrix} with one row per bam file and three columns
 #' ("seqlength", "mapped" and "unmapped").
-#' 
+#'
 #' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
-#' 
+#'
 #' @export
-#' 
-#' @seealso 
+#'
+#' @seealso
 #' \code{\link[=qProject-class]{qProject}},
 #' \code{\link[Rsamtools]{quickBamFlagSummary}} from package \pkg{Rsamtools}
-#' 
+#'
 #' @name alignmentStats
 #' @aliases alignmentStats
 #' @keywords utilities misc
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{
 #' # see qProject manual page for an example
 #' example(qProject)
 #' }
-#' 
+#'
 #' @importFrom stats aggregate
-#' 
+#'
 alignmentStats <- function(x, collapseBySample = TRUE) {
     # check argument and extract named vector of 'bamfiles'
     if (is.character(x)) {
@@ -84,7 +84,7 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
         aln <- alignments(x)
         bamfiles <- c(aln$genome$FileName, unlist(aln$aux, use.names = FALSE))
         iGenome <- seq_along(aln$genome$SampleName)
-        names(bamfiles) <- if(collapseBySample)
+        names(bamfiles) <- if (collapseBySample)
             c(sprintf("%s:genome", aln$genome$SampleName),
               sprintf("%s:%s", rep(colnames(aln$aux), each = nrow(aln$aux)),
                       rownames(aln$aux)))
@@ -102,17 +102,17 @@ alignmentStats <- function(x, collapseBySample = TRUE) {
     res <- do.call(rbind, lapply(bamfiles, .get_alnstats_for_bam))
     # fix unmapped counts for auxiliaries
     if (inherits(x, "qProject", which = FALSE))
-        res[-iGenome, 'unmapped'] <- rep(res[iGenome, 'unmapped'], 
-                                         each = nrow(aln$aux)) - 
-        res[-iGenome, 'mapped']
+        res[-iGenome, "unmapped"] <- rep(res[iGenome, "unmapped"],
+                                         each = nrow(aln$aux)) -
+        res[-iGenome, "mapped"]
     # collapse by sample
     if (collapseBySample) {
-        res.old <- res
+        res_old <- res
         tmp <- stats::aggregate(res, list(factor(rownames(res),
                                                  levels = unique(rownames(res)))), sum)
         res <- as.matrix(tmp[, -1])
         rownames(res) <- as.character(tmp[, 1])
-        res[, 'seqlength'] <- res.old[rownames(res), 'seqlength']
+        res[, "seqlength"] <- res_old[rownames(res), "seqlength"]
     }
     return(res)
 }
@@ -125,7 +125,7 @@ loadQuasR <- function(clObj, pkgNm = "QuasR") {
     err <- try(ret <- parallel::clusterCall(clObj, library, package = pkgNm,
                                             character.only = TRUE),
                silent = FALSE)
-    
+
     # check if it was loaded on all nodes
     if (is(err, "try-error") ||
         !all(vapply(ret, function(x) pkgNm %in% x, TRUE))) {
@@ -149,7 +149,7 @@ freeDiskSpace <- function(path) {
             if (.Platform$OS.type == "unix") {
                 ret <- system2("df", shQuote(path), stdout = TRUE, stderr = TRUE)
                 if (grepl("^.*[0-9]+ +[0-9]+ +[0-9]+.*$", perl = TRUE, ret[length(ret)]))
-                    res <- as.numeric(sub("^.*[0-9]+ +[0-9]+ +([0-9]+) .*$", "\\1", 
+                    res <- as.numeric(sub("^.*[0-9]+ +[0-9]+ +([0-9]+) .*$", "\\1",
                                           perl = TRUE, ret[length(ret)])) * 1024
             } else if (.Platform$OS.type == "windows") {
                 ret <- shell(paste("dir", shQuote(path)), intern = TRUE,
@@ -166,10 +166,10 @@ freeDiskSpace <- function(path) {
 }
 
 #' @keywords internal
-truncPath <- function(path, w = getOption('width')) {
+truncPath <- function(path, w = getOption("width")) {
     # always print full basename, but shorten path if longer than w
     truncpath <- lapply(path, function(p) {
-        if(nchar(p[1]) > w)
+        if (nchar(p[1]) > w)
             file.path(paste(substr(p, 1, w - nchar(basename(p)) - 4),
                             "...", sep = ""), basename(p))
         else
@@ -179,11 +179,12 @@ truncPath <- function(path, w = getOption('width')) {
 }
 
 #' @keywords internal
-truncString <- function(s, w = getOption('width')) {
+truncString <- function(s, w = getOption("width")) {
     # truncate 's' in the middle
     truncs <- lapply(s, function(ss) {
         if (!is.na(ss[1]) && (l <- nchar(ss[1])) > w)
-            paste(substr(ss, 1, floor(w/2) - 2), substr(ss, floor(l - w/2) + 2, l),
+            paste(substr(ss, 1, floor(w / 2) - 2),
+                  substr(ss, floor(l - w / 2) + 2, l),
                   sep = "...")
         else
             ss
@@ -194,12 +195,13 @@ truncString <- function(s, w = getOption('width')) {
 #' @keywords internal
 consolidateFileExtensions <- function(filename, compressed = FALSE) {
     # convert various sequence file extension to one representative
-    if (compressed)
+    if (compressed) {
         fileExtension <- tolower(tools::file_ext(sub("[.](gz|bz2|xz)$", "", filename)))
-    else
+    } else {
         fileExtension <- tolower(tools::file_ext(filename))
-    fileExtension[ fileExtension %in% c("fa", "fna", "fasta") ] <- "fasta"
-    fileExtension[ fileExtension %in% c("fq", "fastq") ] <- "fastq"
+    }
+    fileExtension[fileExtension %in% c("fa", "fna", "fasta")] <- "fasta"
+    fileExtension[fileExtension %in% c("fq", "fastq")] <- "fastq"
     return(fileExtension)
 }
 
@@ -215,9 +217,9 @@ compressedFileFormat <- function(filename) {
 compressFile <- function(filename, destname, level = 6,
                          overwrite = FALSE, remove = TRUE, BFR.SIZE = 1e+07) {
     # gzip/gunzip a file - based on R.utils::gzip.default and R.utils::tar
-    if (filename == destname) 
+    if (filename == destname)
         stop(sprintf("'filename' and 'destname' are identical: %s", filename))
-    if (!overwrite && file.exists(destname)) 
+    if (!overwrite && file.exists(destname))
         stop(sprintf("'destname' already exists: %s", destname))
     #inn <- file(filename, "rb")
     inn <- switch(compressedFileFormat(filename),
@@ -242,7 +244,7 @@ compressFile <- function(filename, destname, level = 6,
     repeat {
         bfr <- readBin(inn, what = raw(0), size = 1, n = BFR.SIZE)
         n <- length(bfr)
-        if (n == 0) 
+        if (n == 0)
             break
         nbytes <- nbytes + n
         writeBin(bfr, con = out, size = 1)
@@ -262,7 +264,7 @@ compressFile <- function(filename, destname, level = 6,
 #         if (requireNamespace("rtracklayer", quietly=TRUE)) {
 #             gr <- rtracklayer::import.gff(con, version=version,
 #                                           colnames=c("strand", "type", "source", "gene_id", "transcript_id", "exon_number"))
-# 
+#
 #             if(is.null(split) || !(split %in% colnames(mcols(gr))))
 #                 return(gr)
 #             else
@@ -296,7 +298,7 @@ compressFile <- function(filename, destname, level = 6,
 #             repeat {
 #                 bfr <- readBin(inn, what = raw(0), size = 1, n = BFR.SIZE)
 #                 n <- length(bfr)
-#                 if (n == 0) 
+#                 if (n == 0)
 #                     break
 #                 nbytes <- nbytes + n
 #                 writeBin(bfr, con = out, size = 1)
@@ -313,13 +315,13 @@ md5subsum <- function(filenames) {
     # use RNG kind for sample() from R version 3.5 and earlier
     # (non-uniform, see https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=17494,
     #  but QuasR on R-3.6 would otherwise re-create all bam files created by QuasR on R-3.5 or earlier)
-    suppressWarnings(rng.orig <- RNGkind(kind = "Mersenne-Twister", 
-                                         normal.kind = "Inversion", 
+    suppressWarnings(rng.orig <- RNGkind(kind = "Mersenne-Twister",
+                                         normal.kind = "Inversion",
                                          sample.kind = "Rounding"))
-    on.exit(suppressWarnings(RNGkind(kind = rng.orig[1], 
-                                     normal.kind = rng.orig[2], 
+    on.exit(suppressWarnings(RNGkind(kind = rng.orig[1],
+                                     normal.kind = rng.orig[2],
                                      sample.kind = rng.orig[3])))
-        
+
     # calculate md5sum() on a reproducible random subset of the file's content
     unlist(lapply(filenames, function(fname) {
         funit <- 1e6
@@ -336,7 +338,7 @@ md5subsum <- function(filenames) {
             for (pos in c(0, funit * sort(sample.int(n = fs, size = 20, replace = TRUE)))) {
                 seek(inn, where = pos)
                 bfr <- readBin(inn, what = raw(0), size = 1, n = 10000)
-                if (length(bfr) == 0) 
+                if (length(bfr) == 0)
                     break
                 writeBin(bfr, con = out, size = 1)
             }
@@ -345,7 +347,7 @@ md5subsum <- function(filenames) {
             res <- tools::md5sum(outname)
             unlink(outname)
             return(res)
-            
+
         } else {
             warning(sprintf("could not stat file '%s'; returning 'NA' as md5subsum", fname))
             return(NA)
@@ -374,7 +376,7 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
                 # non-windows platforms:
                 # get node names
                 tryCatch({
-                    nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()['nodename']))
+                    nodeNames <- unlist(parallel::clusterEvalQ(clObj, Sys.info()["nodename"]))
                 }, error = function(ex) {
                     message("FAILED")
                     stop("The cluster object does not work properly on this system. Please consult the manual of the package 'parallel'\n", call. = FALSE)
@@ -399,4 +401,25 @@ getListOfBiocParallelParam <- function(clObj = NULL) {
     if (!inherits(bppl[[2]], c("MulticoreParam", "SerialParam")))
         stop('Error configuring the parallel backend. The second registered backend (registered()[[2]] or clObj[[2]]) has to be of class "MulticoreParam" or "SerialParam"')
     return(bppl[seq_len(2)])
+}
+
+#' Build a formatted message for outputting to log files
+#' @keywords internal
+worker_message <- function(..., sep = "", appendLF = TRUE) {
+
+    # all used functions are from base R
+    if (identical(sep, "")) {
+        spacer <- " "
+    } else {
+        spacer <- ""
+    }
+    cat(paste0("[", format(Sys.time(), format = "%Y-%m-%d %H:%M:%S",
+                           tz = "UTC", usetz = TRUE), "] ",
+               "(", Sys.info()["user"], "@pid", Sys.getpid(), "/",
+               Sys.info()["nodename"], ")", spacer),
+        ..., sep = sep)
+
+    if (appendLF) {
+        cat("\n")
+    }
 }
