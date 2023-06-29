@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.2</span>
       </span>
     </div>
 
@@ -59,7 +59,7 @@
 
 
 <dt>collapseBySample</dt>
-<dd><p>If <code>TRUE</code> and <code>x</code> is a <code>qProject</code> 
+<dd><p>If <code>TRUE</code> and <code>x</code> is a <code>qProject</code>
 object, sum counts for bam files with identical sample names.</p></dd>
 
 </dl></div>
@@ -67,20 +67,20 @@ object, sum counts for bam files with identical sample names.</p></dd>
     <h2>Value</h2>
     
 
-<p>A <code>matrix</code> with one row per bam file and three columns 
+<p>A <code>matrix</code> with one row per bam file and three columns
 ("seqlength", "mapped" and "unmapped").</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>Internally, <code>alignmentStats</code> queries the bam index files similar 
-to 'idxstats' from samtools. Please note that this does not discriminate 
-for example between primary and secondary alignments. If you need more 
-statistics, see for example <code><a href="https://rdrr.io/pkg/Rsamtools/man/quickBamFlagSummary.html" class="external-link">quickBamFlagSummary</a></code> 
+    <p>Internally, <code>alignmentStats</code> queries the bam index files similar
+to 'idxstats' from samtools. Please note that this does not discriminate
+for example between primary and secondary alignments. If you need more
+statistics, see for example <code><a href="https://rdrr.io/pkg/Rsamtools/man/quickBamFlagSummary.html" class="external-link">quickBamFlagSummary</a></code>
 from package <span class="pkg">Rsamtools</span>.</p>
-<p>If <code>x</code> is a <code>qProject</code> object, the auxiliary bam files will not 
-contain any unmapped reads, and the corresponding unmapped counts are 
-calculated by subtracting auxiliary mapped counts from the total reads. 
-The latter correspond to the unmapped counts from the corresponding genome 
+<p>If <code>x</code> is a <code>qProject</code> object, the auxiliary bam files will not
+contain any unmapped reads, and the corresponding unmapped counts are
+calculated by subtracting auxiliary mapped counts from the total reads.
+The latter correspond to the unmapped counts from the corresponding genome
 bam files.</p>
     </div>
     <div id="see-also">
@@ -110,7 +110,7 @@ bam files.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Anita Lerch, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
+  <p></p><p>Developed by Anita Lerch, Adam Alexander Thil SMITH, Charlotte Soneson, Dimos Gaidatzis, Michael Stadler.</p>
 </div>
 
 <div class="pkgdown">

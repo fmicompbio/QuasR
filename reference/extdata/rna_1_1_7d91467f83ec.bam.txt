@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpUN1z3C/file10e89e9845fa/reference/extdata/rna_1_1.fq.bz2
-reads.FileName2	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpUN1z3C/file10e89e9845fa/reference/extdata/rna_1_2.fq.bz2
+reads.FileName1	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpuUw7QE/file7d91c507f93/reference/extdata/rna_1_1.fq.bz2
+reads.FileName2	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpuUw7QE/file7d91c507f93/reference/extdata/rna_1_2.fq.bz2
 reads.md5subsum1	89282741f79188e8b8bfb517f606c035
 reads.md5subsum2	3e8e7c72190005912b740b573a9ad3f9
 samplesFormat	fastq
-genome	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpUN1z3C/file10e89e9845fa/reference/extdata/hg19sub.fa
+genome	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpuUw7QE/file7d91c507f93/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
@@ -20,4 +20,4 @@ alignmentParameter	-max_intron 400000 -min_intron 20000 -max_multi_hit 10 -selec
 geneAnnotation	NA
 geneAnnotationFormat	NA
 geneAnnotation.md5	NA
-QuasR.version	1.41.1
+QuasR.version	1.41.2
