@@ -11,7 +11,7 @@ createGenomicAlignments <- function(proj, clObj) {
     # retrieve information about the cluster
     message("Testing the compute nodes...", appendLF = FALSE)
     tryCatch({
-        nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
+        nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()["nodename"])
     }, error = function(ex) {
         message("FAILED")
         stop("The cluster object does not work properly on this system. ",
@@ -36,7 +36,7 @@ createGenomicAlignments <- function(proj, clObj) {
 
     #create the parameters necessary for the individual processes
     # performing the genomic alignments
-    paramsListGenomic = NULL
+    paramsListGenomic <- NULL
     for (i in seq_len(nrow(proj@reads))) {
         if (is.na(proj@alignments$FileName)[i]) {
             # create a filename for the current bam file and update the
@@ -75,7 +75,7 @@ createGenomicAlignments <- function(proj, clObj) {
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
 
-        parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
+        parallel::clusterExport(clObjNR, "n_tasks", envir = environment())
         parallel::parLapply(clObjNR, paramsListGenomic,
                             createGenomicAlignmentsController)
         message("Genomic alignments have been created successfully")
@@ -98,7 +98,7 @@ createAuxAlignments <- function(proj, clObj) {
     # retrieve information about the cluster
     message("Testing the compute nodes...", appendLF = FALSE)
     tryCatch({
-        nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()['nodename'])
+        nodeNamesList <- parallel::clusterEvalQ(clObj, Sys.info()["nodename"])
     }, error = function(ex) {
         message("FAILED")
         stop("The cluster object does not work properly on this system. ",
@@ -122,7 +122,7 @@ createAuxAlignments <- function(proj, clObj) {
 
     # create the parameters necessary for the individual processes
     # performing the aux alignments
-    paramsListAux = NULL
+    paramsListAux <- NULL
     for (i in seq_len(ncol(proj@auxAlignments))) {
         if (any(is.na(proj@auxAlignments[, i]))) {
             if (is.na(proj@alignmentsDir)) {
@@ -134,7 +134,7 @@ createAuxAlignments <- function(proj, clObj) {
                                                                compression = TRUE))
             auxNrs <- NULL # the aux files to map in the children
             for (j in seq_len(nrow(proj@auxAlignments))) {
-                if (is.na(proj@auxAlignments[j,i])) {
+                if (is.na(proj@auxAlignments[j, i])) {
                     auxNrs <- c(auxNrs, j)
                     proj@auxAlignments[j, i] <- tempfile(
                         tmpdir = bamDir,
@@ -165,7 +165,7 @@ createAuxAlignments <- function(proj, clObj) {
         # it closes once the original one closes
         clObjNR <- clObj[!duplicated(nodeNames)]
 
-        parallel::clusterExport(clObjNR, "n_tasks", envir=environment())
+        parallel::clusterExport(clObjNR, "n_tasks", envir = environment())
         parallel::parLapply(clObjNR, paramsListAux, createAuxAlignmentsController)
         message("Auxiliary alignments have been created successfully")
         message("")
@@ -193,12 +193,13 @@ createGenomicAlignmentsController <- function(params) {
 
         # find out how many threads are available on this node
         # (for running the alignments)
-        if (!(Sys.info()['nodename'] %in% names(coresPerNode))) {
+        if (!(Sys.info()["nodename"] %in% names(coresPerNode))) {
             stop("Fatal error 2394793")
         }
-        coresThisNode <- coresPerNode[names(coresPerNode) %in% Sys.info()['nodename']]
+        coresThisNode <- coresPerNode[names(coresPerNode) %in% Sys.info()["nodename"]]
 
-        task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
+        n_tasks <- get0("n_tasks", ifnotfound = 1)
+        task_prefix <- paste0("(Task ", sampleNr, "/", n_tasks, "): ")
         worker_message(
           task_prefix, "Number of threads available: ", coresThisNode)
 
@@ -213,12 +214,12 @@ createGenomicAlignmentsController <- function(params) {
         if (proj@genomeFormat == "file") {
             indexDir <- paste(proj@genome, proj@alnModeID, sep = ".")
         } else if (proj@genomeFormat == "BSgenome") {
-            if (!(proj@genome %in% utils::installed.packages()[, 'Package'])) {
+            if (!(proj@genome %in% utils::installed.packages()[, "Package"])) {
                 stop("The genome package ", proj@genome, " is not installed")
             }
             if (is.na(proj@snpFile)) {
                 if (!(paste(proj@genome, proj@alnModeID, sep = ".") %in%
-                      utils::installed.packages()[, 'Package'])) {
+                      utils::installed.packages()[, "Package"])) {
                     stop("The genome index package ", paste(proj@genome,
                                                             proj@alnModeID, sep = "."),
                          " is not installed")
@@ -307,8 +308,8 @@ createGenomicAlignmentsController <- function(params) {
                     samFileA <- tempfile(tmpdir = cacheDir,
                                          pattern = basename(proj@reads[sampleNr, 1]),
                                          fileext = ".sam")
-                    on.exit(file.remove(samFileR),add = TRUE)
-                    on.exit(file.remove(samFileA),add = TRUE)
+                    on.exit(file.remove(samFileR), add = TRUE)
+                    on.exit(file.remove(samFileA), add = TRUE)
                     align_Rbowtie(paste(proj@snpFile, basename(proj@genome),
                                         "R", "fa", proj@alnModeID, sep = "."),
                                   proj@reads[sampleNr, ], proj@samplesFormat,
@@ -471,8 +472,8 @@ createGenomicAlignmentsController <- function(params) {
             } else {
                 # add numeric id to the reads, this is required for the correct
                 # operation of mergeReorderSam in allelic mode
-                proj@reads[sampleNr,] <- addNumericToID(proj@reads[sampleNr, ],
-                                                        proj@paired, cacheDir)
+                proj@reads[sampleNr, ] <- addNumericToID(proj@reads[sampleNr, ],
+                                                         proj@paired, cacheDir)
                 # make sure that the temp file(s) are deleted at the end
                 on.exit(file.remove(unlist(
                     proj@reads[sampleNr, stats::na.omit(match(c("FileName", "FileName1",
@@ -531,7 +532,7 @@ createGenomicAlignmentsController <- function(params) {
                            sep = "\t", quote = FALSE, col.names = FALSE)
 
         worker_message(
-          task_prefix,"Genomic alignments have been successfully created.")
+          task_prefix, "Genomic alignments have been successfully created.")
 
         # if one process stops due to an error, catch it, concatenate the
         # message with specific information about
@@ -572,13 +573,14 @@ createAuxAlignmentsController <- function(params) {
 
         # find out how many threads are available on this node
         # (for running the alignments)
-        thisNodesName <- Sys.info()['nodename']
+        thisNodesName <- Sys.info()["nodename"]
         if (!(thisNodesName %in% names(coresPerNode))) {
             stop("Fatal error 23594793")
         }
         coresThisNode <- coresPerNode[names(coresPerNode) %in% thisNodesName]
 
-        task_prefix <- paste0("(Task ",sampleNr,"/",n_tasks,"): ")
+        n_tasks <- get0("n_tasks", ifnotfound = 1)
+        task_prefix <- paste0("(Task ", sampleNr, "/", n_tasks, "): ")
         worker_message(
           task_prefix, "Number of threads available: ", coresThisNode)
 
@@ -962,7 +964,7 @@ align_RbowtieCtoT_dir <- function(indexDir, reads, samplesFormat, paired,
                           "-S", "-p", threads, "--norc", shQuote(readsCtoT_genomeCtoT))
         argsGtoA <- paste(shQuote(file.path(indexDir, "bowtieIndexGtoA")),
                           "-1", shQuote(readsCtoT_1),
-                          "-2",shQuote(readsCtoT_2),
+                          "-2", shQuote(readsCtoT_2),
                           "--ff", alignmentParameter, alignmentParameterAdded,
                           "-S", "-p", threads, "--nofw", shQuote(readsCtoT_genomeGtoA))
         worker_message("   ", argsCtoT)
@@ -1351,7 +1353,7 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
         samName <- file.path(splitDir, paste(chrNames[i], "sam", sep = "."))
         bamName <- file.path(splitDir, chrNames[i])
         con <- file(samName, "r")
-        fileHead <- scan(con, as.list(rep('character', 20)),
+        fileHead <- scan(con, as.list(rep("character", 20)),
                          sep = "\t", comment.char = "@", fill = TRUE,
                          nmax = 30, quiet = TRUE)
         if (length(fileHead[[1]]) > 0) {
@@ -1384,4 +1386,3 @@ samToSortedBamParallel <- function(file, destination, p, cacheDir = NULL) {
 
     invisible(paste0(destination, ".bam"))
 }
-
