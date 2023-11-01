@@ -1,15 +1,15 @@
-reads.FileName1	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpuUw7QE/file7d91c507f93/reference/extdata/bis_1_1.fa.bz2
+reads.FileName1	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/bis_1_1.fa.bz2
 reads.FileName2	NA
 reads.md5subsum1	fb9bd7b28edc59b41757833c68ae94ff
 reads.md5subsum2	NA
 samplesFormat	fasta
-genome	/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpuUw7QE/file7d91c507f93/reference/extdata/hg19sub.fa
+genome	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
 aux.md5	NA
 aligner	Rbowtie
-aligner.version	1.41.0
+aligner.version	1.43.0
 maxHits	1
 paired	no
 splicedAlignment	FALSE
@@ -20,4 +20,4 @@ alignmentParameter	-k 2 --best --strata -v 2
 geneAnnotation	NA
 geneAnnotationFormat	NA
 geneAnnotation.md5	NA
-QuasR.version	1.41.2
+QuasR.version	1.43.1
