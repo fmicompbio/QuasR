@@ -352,7 +352,7 @@ int SAMFile::get_alignments_bisulfite(int id, int bisQueue, vector<idLine> &mapp
 		if(!currenttop.line2.empty())
 		    _replace_sequence(currenttop.line2, false);
 		if(addId) {
-		    sprintf(idbuffer, "%i", id);
+		    snprintf(idbuffer, 64, "%i", id);
 		    if(! currenttop.line2.empty())
 			unmapped[id] = ((string)idbuffer + '_' + currenttop.line + '\n' + idbuffer + '_' + currenttop.line2);
 		    else
@@ -492,7 +492,7 @@ void _fix_FLAGs_and_sequences(idLine &currenttop) {
 
     _replace_sequence(currenttop.line, revcomp);
 
-    sprintf(tagbuffer, "\tXQ:i:%i", currenttop.bisQueue);
+    snprintf(tagbuffer, 64, "\tXQ:i:%i", currenttop.bisQueue);
     currenttop.line += tagbuffer;
 
     if(! currenttop.line2.empty()) { 
@@ -592,7 +592,7 @@ int _make_unmapped_alignment(int id, idLine &mapped_alignment, map<int, string> 
 	flag = BAM_FUNMAP + (flag & ~(BAM_FPROPER_PAIR + BAM_FUNMAP + BAM_FMUNMAP + BAM_FREVERSE + BAM_FMREVERSE));
     else
 	flag = BAM_FUNMAP + BAM_FMUNMAP + (flag & ~(BAM_FPROPER_PAIR + BAM_FUNMAP + BAM_FMUNMAP + BAM_FREVERSE + BAM_FMREVERSE));
-    sprintf(int_buffer, "%i", flag);
+    snprintf(int_buffer, 64, "%i", flag);
     // replace sequence
     if(replaceSeq){
 	// bisulfite mode: no reverse necessary (taking seq from qname)
@@ -619,7 +619,7 @@ int _make_unmapped_alignment(int id, idLine &mapped_alignment, map<int, string> 
 	// modify flag
 	reverse = flag & BAM_FREVERSE;
 	flag = BAM_FUNMAP + BAM_FMUNMAP + (flag & ~(BAM_FPROPER_PAIR + BAM_FUNMAP + BAM_FMUNMAP + BAM_FREVERSE + BAM_FMREVERSE));
-	sprintf(int_buffer, "%i", flag);
+	snprintf(int_buffer, 64, "%i", flag);
 	// replace sequence
 	if(replaceSeq){
 	    // bisulfite mode: no reverse necessary (taking seq from qname)
@@ -648,7 +648,7 @@ int _make_unmapped_alignment(int id, idLine &mapped_alignment, map<int, string> 
     }
 
     if(addId) {
-	sprintf(int_buffer, "%i", id);
+	snprintf(int_buffer, 64, "%i", id);
 	if(! mapped_alignment.line2.empty())
 	    unmapped[id] = ((string)int_buffer + '_' + line + '\n' + int_buffer + '_' + line2);
 	else

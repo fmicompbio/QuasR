@@ -69,8 +69,8 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
 
         // save position and isize in string --> uniqueness
         if(((b->core.flag & BAM_FREAD2) == 0) && (fparam->count_aln < fparam->chunk_size)){
-            char * pos_str = (char *)R_Calloc(15, char);
-            sprintf(pos_str, "%i_%i", (int)b->core.pos, (int)b->core.isize);
+            char * pos_str = (char *)R_Calloc(64, char);
+            snprintf(pos_str, 64, "%i_%i", (int)b->core.pos, (int)b->core.isize);
             fparam->pos_lst[ fparam->count_aln ] = pos_str;
             fparam->count_aln++;
         }

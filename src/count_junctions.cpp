@@ -97,7 +97,7 @@ static int _addJunction(const bam1_t *hit, void *data){
 
 	} else if (op == BAM_CREF_SKIP) { // N skipped region spliced alignment
 	    // read skips reference region -> store junction and increase reference coordinate
-	    sprintf(strbuffer, "%s:%i:%i:%c", jinfo->tname, x+1, x+l, hit->core.flag & BAM_FREVERSE ? '-' : '+');
+	    snprintf(strbuffer, 1024, "%s:%i:%i:%c", jinfo->tname, x+1, x+l, hit->core.flag & BAM_FREVERSE ? '-' : '+');
 	    //ss << jinfo->tname << ":" << (x+1) << ":" << (x+l) << ":" << (hit->core.flag & BAM_FREVERSE ? "-" : "+");
 	    //jid = ss.str();
 	    string jid(strbuffer);
