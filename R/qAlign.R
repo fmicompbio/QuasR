@@ -992,7 +992,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
     if (proj@splicedAlignment & (proj@bisulfite != "no")) {
         stop("The spliced alignment mode is not supported for bisulfite samples")
     }
-    if (proj@aligner == "Rbowtie" && proj@splicedAlignment && 
+    if (!is.na(proj@aligner) && proj@aligner == "Rbowtie" && proj@splicedAlignment && 
         !(proj@paired %in% c("no", "fr"))) {
         stop("The spliced alignment mode with Rbowtie only supports the pair orientation 'fr'")
     }
