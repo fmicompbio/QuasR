@@ -14,7 +14,7 @@ Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Michael", "Stadler", role = c("aut", "cre"), 
                     email = "michael.stadler@fmi.ch", 
                     comment = c(ORCID = "0000-0002-2269-4934")))
-Depends: R (>= 4.4), 
+Depends: R (>= 4.3), 
     parallel, 
     GenomicRanges, 
     Rbowtie
