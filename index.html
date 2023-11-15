@@ -16,7 +16,10 @@
     and analysis of Short Reads. It covers a complete workflow
     starting from raw sequence reads, over creation of alignments
     and quality control plots, to the quantification of genomic
-    regions of interest.">
+    regions of interest. Read alignments are either generated through
+    Rbowtie (data from DNA/ChIP/ATAC/Bis-seq experiments) or
+    Rhisat2 (data from RNA-seq experiments that require spliced alignments),
+    or can be provided in the form of bam files.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -37,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.43.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.43.2</span>
       </span>
     </div>
 
@@ -50,7 +53,14 @@
   <a href="reference/index.html">Reference</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -146,6 +156,8 @@ Gaidatzis, D. and Lerch, A. and Hahne, F. and Stadler, M.B.<br><em>Bioinformatic
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.bioconductor.org/packages/QuasR" class="external-link">View on Bioconductor</a></li>
+<li><a href="https://github.com/fmicompbio/QuasR/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/fmicompbio/QuasR/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 

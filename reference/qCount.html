@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.43.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.43.2</span>
       </span>
     </div>
 
@@ -28,7 +28,13 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -38,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Quantify alignments</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/HEAD/R/qCount.R" class="external-link"><code>R/qCount.R</code></a></small>
     <div class="hidden name"><code>qCount.Rd</code></div>
     </div>
 
@@ -387,11 +393,11 @@ multiple chunks.</p>
 <span class="r-in"><span><span class="co"># create alignments (paired-end experiment)</span></span></span>
 <span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span></span>
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/RtmpNiC1CG/filecb4fb6a0421/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/RtmpNiC1CG/filecb4fb6a0421/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -399,9 +405,9 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1698842773251.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1700045457614.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/QuasR_log_f81e11815a7b.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/RtmpNiC1CG/filecb4fb6a0421/reference/QuasR_log_cb4f5382548b.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>

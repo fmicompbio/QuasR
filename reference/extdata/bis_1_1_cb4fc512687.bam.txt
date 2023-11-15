@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/bis_1_1.fa.bz2
+reads.FileName1	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/RtmpNiC1CG/filecb4fb6a0421/reference/extdata/bis_1_1.fa.bz2
 reads.FileName2	NA
 reads.md5subsum1	fb9bd7b28edc59b41757833c68ae94ff
 reads.md5subsum2	NA
 samplesFormat	fasta
-genome	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/Rtmp2jSos7/filef81e252f125e/reference/extdata/hg19sub.fa
+genome	/private/var/folders/3s/vfzpb5r51gs6y328rmlgzm7c0000gn/T/RtmpNiC1CG/filecb4fb6a0421/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
@@ -20,4 +20,4 @@ alignmentParameter	-k 2 --best --strata -v 2
 geneAnnotation	NA
 geneAnnotationFormat	NA
 geneAnnotation.md5	NA
-QuasR.version	1.43.1
+QuasR.version	1.43.2
