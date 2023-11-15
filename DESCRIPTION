@@ -59,6 +59,7 @@ Description: This package provides a framework for the quantification
     Rbowtie (data from DNA/ChIP/ATAC/Bis-seq experiments) or
     Rhisat2 (data from RNA-seq experiments that require spliced alignments),
     or can be provided in the form of bam files.
+URL: https://bioconductor.org/packages/QuasR
 License: GPL-2
 biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
