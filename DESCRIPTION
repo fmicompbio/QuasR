@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.43.1
-Date: 2023-06-23
+Version: 1.43.2
+Date: 2023-11-01
 Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Adam Alexander Thil", "SMITH", role = c("aut"), 
                     email = "alex.smith@fmi.ch", 
@@ -14,7 +14,7 @@ Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Michael", "Stadler", role = c("aut", "cre"), 
                     email = "michael.stadler@fmi.ch", 
                     comment = c(ORCID = "0000-0002-2269-4934")))
-Depends: R (>= 4.3), 
+Depends: R (>= 4.4), 
     parallel, 
     GenomicRanges, 
     Rbowtie
@@ -55,10 +55,15 @@ Description: This package provides a framework for the quantification
     and analysis of Short Reads. It covers a complete workflow
     starting from raw sequence reads, over creation of alignments
     and quality control plots, to the quantification of genomic
-    regions of interest.
+    regions of interest. Read alignments are either generated through
+    Rbowtie (data from DNA/ChIP/ATAC/Bis-seq experiments) or
+    Rhisat2 (data from RNA-seq experiments that require spliced alignments),
+    or can be provided in the form of bam files.
+URL: https://bioconductor.org/packages/QuasR
 License: GPL-2
 biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
+BugReports: https://github.com/fmicompbio/QuasR/issues
