@@ -1525,7 +1525,7 @@ multi-track wig file, or if they are exported as individual wig files. Alignment
 of single read experiments can be shifted towards there 3'-end using `shift`; 
 paired-end alignments are automatically shifted by half the insert size. The
 resolution of the created wig file is defines by the `binsize` argument, and 
-if `scaling=TRUE`, multiple alignment files in the `qProject` object are scaled by their total number of reads.
+if `scaling=TRUE`, multiple alignment files in the `qProject` object are scaled by their total number of aligned reads per sample.
 
 
 ## `qCount` {#qCount}
