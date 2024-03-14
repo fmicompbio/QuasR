@@ -15,8 +15,6 @@
 #' @seealso \code{\link{qAlign}}, \code{\link{qCount}}, \code{\link{qProfile}}, 
 #'   \code{\link{qMeth}}, \code{\link{qQCReport}}
 #' 
-#' @docType package
-#' 
 #' @useDynLib QuasR, .registration=TRUE
 #' 
 #' @examples 
@@ -26,4 +24,5 @@
 #' example(qMeth)
 #' example(qProfile)
 #' }
-NULL
+#' @keywords internal 
+"_PACKAGE"

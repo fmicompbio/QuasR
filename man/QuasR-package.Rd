@@ -27,4 +27,5 @@ example(qProfile)
 \author{
 Anita Lerch, Charlotte Soneson, Dimos Gaidatzis and Michael Stadler
 }
+\keyword{internal}
 \keyword{package}
