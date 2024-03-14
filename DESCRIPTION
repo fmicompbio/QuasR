@@ -33,6 +33,7 @@ Imports:
     BSgenome,
     Rsamtools (>= 2.13.1),
     GenomicFeatures,
+    txdbmaker,
     ShortRead,
     BiocParallel,
     GenomeInfoDb,

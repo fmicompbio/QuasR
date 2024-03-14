@@ -246,7 +246,7 @@ buildIndex_Rhisat2 <- function(seqFile,indexPath) {
 
 # generate splice site file
 #' @keywords internal
-#' @importFrom GenomicFeatures makeTxDbFromGFF
+#' @importFrom txdbmaker makeTxDbFromGFF
 #' @importFrom AnnotationDbi loadDb
 #' @importFrom tools md5sum
 #' @importFrom utils read.delim write.table
@@ -281,7 +281,7 @@ buildSpliceSiteFile <- function(geneAnnotation, geneAnnotationFormat) {
             txdb <- AnnotationDbi::loadDb(geneAnnotation)
         } else if (geneAnnotationFormat == "gtf") {
             txdb <- suppressWarnings(
-                GenomicFeatures::makeTxDbFromGFF(geneAnnotation, format = "auto")
+                txdbmaker::makeTxDbFromGFF(geneAnnotation, format = "auto")
             )
         } else {
             stop("Fatal error 81956293")

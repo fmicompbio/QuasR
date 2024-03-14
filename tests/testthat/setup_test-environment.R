@@ -45,7 +45,7 @@ auxGenomeFile <- file.path("extdata", "NC_001422.1.fa")
 auxFile       <- file.path("extdata", "auxiliaries.txt")
 gtfFile       <- file.path("extdata", "hg19sub_annotation.gtf")
 txdbFile      <- file.path("extdata", "hg19sub_annotation.sqlite")
-txdb <- GenomicFeatures::makeTxDbFromGFF(gtfFile, format = "gtf")
+txdb <- txdbmaker::makeTxDbFromGFF(gtfFile, format = "gtf")
 AnnotationDbi::saveDb(txdb, file = txdbFile)
 
 sChipSingle   <- file.path("extdata", "samples_chip_single.txt")

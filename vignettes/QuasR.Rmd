@@ -94,6 +94,7 @@ suppressPackageStartupMessages({
     library(Rsamtools)
     library(rtracklayer)
     library(GenomicFeatures)
+    library(txdbmaker)
     library(Gviz)
 })
 ```
@@ -732,13 +733,14 @@ Alignments are quantified using `qCount`, for example using a `GRanges` object a
 a query. In our H3K4me3 ChIP-seq example, we expect the reads to occur around the
 transcript start site of genes. We can therefore construct suitable query regions
 using genomic intervals around the start sites of known genes. In the code below,
-this is achieved with help from the `r Biocpkg("GenomicFeatures")` package: We first
+this is achieved with help from the `r Biocpkg("txdbmaker")` package to first
 create a `TxDb` object from a `.gtf` file with gene annotation. With the `promoters`
-function, we can then create the `GRanges` object with regions to be quantified.
-Finally, because most genes consist of multiple overlapping transcripts, we select
-the first transcript for each gene:  
+function from the `r Biocpkg("GenomicFeatures")` package, we can then create the
+`GRanges` object with regions to be quantified. Finally, because most genes
+consist of multiple overlapping transcripts, we select the first transcript for
+each gene:  
 ```{r ChIP_GenomicFeatures, eval=TRUE}
-library(GenomicFeatures)
+library(txdbmaker)
 annotFile <- "extdata/hg19sub_annotation.gtf"
 chrLen <- scanFaIndex(genomeFile)
 chrominfo <- data.frame(chrom = as.character(seqnames(chrLen)),

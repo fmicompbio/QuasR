@@ -321,7 +321,7 @@ res3 <- qCount(proj, gtfRegionList)
 res3
 
 # gene expression levels using a "TxDb" query
-library("GenomicFeatures")
+library("txdbmaker")
 genomeRegion <- scanFaIndex(genomeFile)
 chrominfo <- data.frame(chrom=as.character(seqnames(genomeRegion)),
                         length=end(genomeRegion),

@@ -137,9 +137,9 @@ createGtfGr <- function() {
 }
 
 createTxDb <- function() {
-  requireNamespace("GenomicFeatures")
+  requireNamespace("txdbmaker")
   gtfGr <- createGtfGr()
-  txdb <- GenomicFeatures::makeTxDbFromGRanges(gtfGr)
+  txdb <- txdbmaker::makeTxDbFromGRanges(gtfGr)
   return(txdb)
 }
 
