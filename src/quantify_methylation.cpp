@@ -1074,7 +1074,7 @@ SEXP quantify_methylation_singleAlignments(SEXP infiles, SEXP regionChr, SEXP re
     // allocate result objects
     R_xlen_t resLength = (R_xlen_t)data.aid.size();
     if(resLength != (R_xlen_t)data.Cid.size() || resLength != (R_xlen_t)data.meth.size())
-	Rf_error("result structures are incompatible (%d/%d/%d); fatal error in quantify_methylation_singleAlignments\n",
+	Rf_error("result structures are incompatible (%ld/%lu/%lu); fatal error in quantify_methylation_singleAlignments\n",
 		 resLength, data.Cid.size(), data.meth.size());
     SEXP resAid, resCid, resStrand, resMeth, res, resNames, strandPlus, strandMinus;
     PROTECT(strandPlus = Rf_mkChar("+"));
