@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.1</span>
       </span>
     </div>
 
@@ -91,11 +91,20 @@ further restrictions on some arguments (see ‘Details’).</p></dd>
 
 
 <dt>mode</dt>
-<dd><p>Cytosine quantification mode, one of:</p><ul><li><p><code>CpGcomb</code> : only C's in CpG context (strands combined)</p></li>
-<li><p><code>CpG</code> : only C's in CpG context (strands separate)</p></li>
-<li><p><code>allC</code> : all C's (strands separate)</p></li>
-<li><p><code>var</code> : variant detection (all C's, strands separate)</p></li>
-</ul><p><code>CpGcomb</code> is the default.</p></dd>
+<dd><p>Cytosine quantification mode, one of:</p><dl><dt><code>CpGcomb</code></dt>
+<dd><p>: only C's in CpG context (strands combined)</p></dd>
+
+  <dt><code>CpG</code></dt>
+<dd><p>: only C's in CpG context (strands separate)</p></dd>
+
+  <dt><code>allC</code></dt>
+<dd><p>: all C's (strands separate)</p></dd>
+
+  <dt><code>var</code></dt>
+<dd><p>: variant detection (all C's, strands separate)</p></dd>
+
+
+</dl><p><code>CpGcomb</code> is the default.</p></dd>
 
 
 <dt>collapseBySample</dt>
@@ -189,14 +198,23 @@ and matching alignments overlapping the guanine paired to the cytosine.</p>
 
 
 <p>For <code>reportLevel</code>=“alignment”, a <code>list</code> with one
-element per bam file or sample (depending on <code>collapseBySample</code>). 
-Each list element is another list with the elements:</p><ul><li><p><code>aid</code>: character vector with unique alignment identifiers</p></li>
-<li><p><code>Cid</code>: integer vector with genomic coordinate of C base</p></li>
-<li><p><code>strand</code>: character vector with the strand of the C base</p></li>
-<li><p><code>meth</code>: integer vector with methylation state for
+element per bam file or sample (depending on <code>collapseBySample</code>).
+Each list element is another list with the elements:</p><dl><dt><code>aid</code></dt>
+<dd><p>: character vector with unique alignment identifiers</p></dd>
+
+  <dt><code>Cid</code></dt>
+<dd><p>: integer vector with genomic coordinate of C base</p></dd>
+
+  <dt><code>strand</code></dt>
+<dd><p>: character vector with the strand of the C base</p></dd>
+
+  <dt><code>meth</code></dt>
+<dd><p>: integer vector with methylation state for
   alignment and C defined by <code>aid</code> and <code>Cid</code>. The values are
-  1 for methylated or 0 for unmethylated states.</p></li>
-</ul></div>
+  1 for methylated or 0 for unmethylated states.</p></dd>
+
+
+</dl></div>
     <div id="details">
     <h2>Details</h2>
     <p><code>qMeth</code> can be used on a <code>qProject</code> object from a bisulfite
@@ -206,7 +224,7 @@ the one returned by <code><a href="qAlign.html">qAlign</a></code> when its param
 <p><code>qMeth</code> quantifies DNA methylation by counting total and
 methylated events for individual cytosines, using the alignments that
 have been generated in converted (three-letter) sequence space for
-example by <code><a href="qAlign.html">qAlign</a></code>. A methylated event corresponds 
+example by <code><a href="qAlign.html">qAlign</a></code>. A methylated event corresponds
 to a C/C match in the alignment, an unmethylated event to a T/C mismatch
 (or G/G matches and A/G mismatches on the opposite strand). For paired-end
 samples, the part of the left fragment alignment that overlaps
@@ -274,7 +292,7 @@ not be split into multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 1 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an RbowtieCtoT index for /private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/Rtmp4fIXzF/file4fc31f8b221d/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an RbowtieCtoT index for /private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/RtmptwrXSR/file4ed827798f25/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -282,9 +300,9 @@ not be split into multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1715599394308.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1715600314833.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 1 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/Rtmp4fIXzF/file4fc31f8b221d/reference/QuasR_log_4fc33ed530bf.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/RtmptwrXSR/file4ed827798f25/reference/QuasR_log_4ed85dce4712.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">proj</span></span></span>
@@ -302,7 +320,7 @@ not be split into multiple chunks.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1.fa.bz2  Sample1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Genome alignments: directory: same as reads</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1_4fc31e736bd3.bam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1_4ed8119c1edb.bam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Aux. alignments: none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
