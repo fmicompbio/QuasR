@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/RtmptwrXSR/file4ed827798f25/reference/extdata/bis_1_1.fa.bz2
+reads.FileName1	/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/bis_1_1.fa.bz2
 reads.FileName2	NA
 reads.md5subsum1	fb9bd7b28edc59b41757833c68ae94ff
 reads.md5subsum2	NA
 samplesFormat	fasta
-genome	/private/var/folders/3m/p59k4qdj0f17st0gn2cmj3640000gn/T/RtmptwrXSR/file4ed827798f25/reference/extdata/hg19sub.fa
+genome	/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA

@@ -1,0 +1,12 @@
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 1/2): Number of threads available: 1
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 1/2): Decompressing SE read file:/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/chip_1_1.fq.bz2
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local)  - Executing bowtie using 1 cores. Parameters:
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local)    '/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa.Rbowtie/bowtieIndex' '/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_1_1.fq.bz24d9e7fafcc91.fastq' -m 1 --best --strata --phred33-quals -S -p 1 '/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_1_1.fq.bz24d9e7fafcc91.fastq4d9e6e9f8514.sam'
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 1/2): Converting sam file to sorted bam file:/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_1_1.fq.bz24d9e7fafcc91.fastq4d9e6e9f8514.sam
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 1/2): Genomic alignments have been successfully created.
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 2/2): Number of threads available: 1
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 2/2): Decompressing SE read file:/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/chip_2_1.fq.bz2
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local)  - Executing bowtie using 1 cores. Parameters:
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local)    '/private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa.Rbowtie/bowtieIndex' '/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_2_1.fq.bz24d9e5597e619.fastq' -m 1 --best --strata --phred33-quals -S -p 1 '/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_2_1.fq.bz24d9e5597e619.fastq4d9e67839f35.sam'
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 2/2): Converting sam file to sorted bam file:/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T//RtmppeeDP0/chip_2_1.fq.bz24d9e5597e619.fastq4d9e67839f35.sam
+[2024-05-18 14:29:42 UTC] (runner@pid19870/Mac-1716039977668.local) (Task 2/2): Genomic alignments have been successfully created.
