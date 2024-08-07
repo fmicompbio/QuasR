@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.2</span>
       </span>
     </div>
 
@@ -31,20 +31,20 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Quantify alignments</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/HEAD/R/qCount.R" class="external-link"><code>R/qCount.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/devel/R/qCount.R" class="external-link"><code>R/qCount.R</code></a></small>
     <div class="hidden name"><code>qCount.Rd</code></div>
     </div>
 
@@ -77,12 +77,14 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>proj</dt>
+
+
+<dl><dt id="arg-proj">proj<a class="anchor" aria-label="anchor" href="#arg-proj"></a></dt>
 <dd><p>A <code><a href="qProject-class.html">qProject</a></code> object representing a
 sequencing experiment as returned by <code><a href="qAlign.html">qAlign</a></code></p></dd>
 
 
-<dt>query</dt>
+<dt id="arg-query">query<a class="anchor" aria-label="anchor" href="#arg-query"></a></dt>
 <dd><p>An object of type <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code>,
 <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html" class="external-link">GRangesList</a></code> or
 <code><a href="https://rdrr.io/pkg/GenomicFeatures/man/TxDb-class.html" class="external-link">TxDb</a></code> with the regions to be
@@ -92,7 +94,7 @@ quantification (see ‘Details’). For
 be <code>NULL</code>.</p></dd>
 
 
-<dt>reportLevel</dt>
+<dt id="arg-reportlevel">reportLevel<a class="anchor" aria-label="anchor" href="#arg-reportlevel"></a></dt>
 <dd><p>Level of quantification (<code>query</code> of type
 <code>TxDb</code> or <code>NULL</code>), one of</p><dl><dt><code>gene</code> (default)</dt>
 <dd><p>: one value per gene</p></dd>
@@ -111,7 +113,7 @@ be <code>NULL</code>.</p></dd>
 </dl></dd>
 
 
-<dt>selectReadPosition</dt>
+<dt id="arg-selectreadposition">selectReadPosition<a class="anchor" aria-label="anchor" href="#arg-selectreadposition"></a></dt>
 <dd><p>defines the part of the alignment that has
 to be contained within a query region to produce an overlap (see
 ‘Details’). Possible values are:</p><dl><dt><code>start</code> (default)</dt>
@@ -124,7 +126,7 @@ to be contained within a query region to produce an overlap (see
 </dl></dd>
 
 
-<dt>shift</dt>
+<dt id="arg-shift">shift<a class="anchor" aria-label="anchor" href="#arg-shift"></a></dt>
 <dd><p>controls the shifting alignments towards their 3'-end before
 quantification. <code>shift</code> can be one of:</p><ul><li><p>an “integer” vector of the same length as the
   number of alignment files</p></li>
@@ -134,7 +136,7 @@ quantification. <code>shift</code> can be one of:</p><ul><li><p>an “integer”
 </ul><p>The default of <code>0</code> will not shift any alignments.</p></dd>
 
 
-<dt>orientation</dt>
+<dt id="arg-orientation">orientation<a class="anchor" aria-label="anchor" href="#arg-orientation"></a></dt>
 <dd><p>sets the required orientation of the alignments relative
 to the query region in order to be counted, one of:</p><dl><dt><code>any</code> (default)</dt>
 <dd><p>: count alignment on the same and opposite strand</p></dd>
@@ -149,7 +151,7 @@ to the query region in order to be counted, one of:</p><dl><dt><code>any</code> 
 </dl></dd>
 
 
-<dt>useRead</dt>
+<dt id="arg-useread">useRead<a class="anchor" aria-label="anchor" href="#arg-useread"></a></dt>
 <dd><p>For paired-end experiments, selects the read mate whose
 alignments should be counted, one of:</p><dl><dt><code>any</code> (default)</dt>
 <dd><p>: count all alignments</p></dd>
@@ -164,63 +166,63 @@ alignments should be counted, one of:</p><dl><dt><code>any</code> (default)</dt>
 </dl></dd>
 
 
-<dt>auxiliaryName</dt>
+<dt id="arg-auxiliaryname">auxiliaryName<a class="anchor" aria-label="anchor" href="#arg-auxiliaryname"></a></dt>
 <dd><p>Which bam files to use in an experiments with
 auxiliary alignments (see ‘Details’).</p></dd>
 
 
-<dt>mask</dt>
+<dt id="arg-mask">mask<a class="anchor" aria-label="anchor" href="#arg-mask"></a></dt>
 <dd><p>If not <code>NULL</code>, a <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code>
 object with reference regions to be masked, i.e. excluded from the
 quantification, such as unmappable or highly repetitive regions (see
 ‘Details’).</p></dd>
 
 
-<dt>collapseBySample</dt>
+<dt id="arg-collapsebysample">collapseBySample<a class="anchor" aria-label="anchor" href="#arg-collapsebysample"></a></dt>
 <dd><p>If <code>TRUE</code> (the default), sum alignment
 counts from bam files with the same sample name.</p></dd>
 
 
-<dt>includeSpliced</dt>
+<dt id="arg-includespliced">includeSpliced<a class="anchor" aria-label="anchor" href="#arg-includespliced"></a></dt>
 <dd><p>If <code>TRUE</code> (the default), include spliced
 alignments when counting. A spliced alignment is defined as an
 alignment with a gap in the read of at least 60 bases.</p></dd>
 
 
-<dt>includeSecondary</dt>
+<dt id="arg-includesecondary">includeSecondary<a class="anchor" aria-label="anchor" href="#arg-includesecondary"></a></dt>
 <dd><p>If <code>TRUE</code> (the default), include alignments
 with the secondary bit (0x0100) set in the <code>FLAG</code> when counting.</p></dd>
 
 
-<dt>mapqMin</dt>
+<dt id="arg-mapqmin">mapqMin<a class="anchor" aria-label="anchor" href="#arg-mapqmin"></a></dt>
 <dd><p>Minimal mapping quality of alignments to be included when
 counting (mapping quality must be greater than or equal to
 <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
 will include all alignments.</p></dd>
 
 
-<dt>mapqMax</dt>
+<dt id="arg-mapqmax">mapqMax<a class="anchor" aria-label="anchor" href="#arg-mapqmax"></a></dt>
 <dd><p>Maximal mapping quality of alignments to be included when
 counting (mapping quality must be less than or equal to <code>mapqMax</code>).
 Valid values are between 0 and 255. The default (255) will include
 all alignments.</p></dd>
 
 
-<dt>absIsizeMin</dt>
+<dt id="arg-absisizemin">absIsizeMin<a class="anchor" aria-label="anchor" href="#arg-absisizemin"></a></dt>
 <dd><p>For paired-end experiments, minimal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included when
 counting. Valid values are greater than 0 or <code>NULL</code> (default),
 which will not apply any minimum insert size filtering.</p></dd>
 
 
-<dt>absIsizeMax</dt>
+<dt id="arg-absisizemax">absIsizeMax<a class="anchor" aria-label="anchor" href="#arg-absisizemax"></a></dt>
 <dd><p>For paired-end experiments, maximal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included when
 counting. Valid values are greater than 0 or <code>NULL</code> (default),
 which will not apply any maximum insert size filtering.</p></dd>
 
 
-<dt>maxInsertSize</dt>
+<dt id="arg-maxinsertsize">maxInsertSize<a class="anchor" aria-label="anchor" href="#arg-maxinsertsize"></a></dt>
 <dd><p>Maximal fragment size of the paired-end experiment.
 This parameter is used if <code>shift="halfInsert"</code> and will
 ensure that query regions are made wide enough to emcompass all
@@ -228,28 +230,22 @@ alignment pairs whose mid falls into the query region. The default
 value is <code>500</code> bases.</p></dd>
 
 
-<dt>clObj</dt>
+<dt id="arg-clobj">clObj<a class="anchor" aria-label="anchor" href="#arg-clobj"></a></dt>
 <dd><p>A cluster object to be used for parallel processing (see
 ‘Details’).</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A <code>matrix</code> with effective query regions width in the first
+    <p>A <code>matrix</code> with effective query regions width in the first
 column, and alignment counts in subsequent columns, or a
 <code>GRanges</code> object if <code>reportLevel="junction"</code>.</p>
-
-
 <p>The effective query region width returned as first column in the
 matrix is calculated by the number of unique, non-masked bases in the
 reference sequence that contributed to the count of this query
 name (irrespective if the bases were covered by alignments or not).
 An effective width of zero indicates that the region was fully
 masked and will have zero counts in all samples.</p>
-
-
 <p>The alignment counts in the matrix are contained from column two
 onwards. For projects with allele-specific quantification, i.e. if a
 file with single nucleotide polymorphisms was supplied to the
@@ -257,21 +253,15 @@ file with single nucleotide polymorphisms was supplied to the
 three columns per bam file (number of alignments for Reference,
 Unknown and Alternative genotypes, with suffixed _R, _U and
 _A). Otherwise there is a single columns per bam file.</p>
-
-
 <p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with identical
 sample name are combined by summing their alignment counts.</p>
-
-
 <p>For <code>reportLevel="junction"</code>, the return value is a
 <code>GRanges</code> object. The start and end coordinates correspond to the
 first and last base in each detected intron. Plus- and minus-strand
 alignments are quantified separately, so that in an unstranded RNA-seq
 experiment, the same intron may be represented twice; once for each
-strand. The counts for each sample are contained in the <code>mcols</code></p>
-
-
-<p>of the <code>GRanges</code> object.</p>
+strand. The counts for each sample are contained in the <code>mcols</code>
+of the <code>GRanges</code> object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -431,11 +421,11 @@ multiple chunks.</p>
 <span class="r-in"><span><span class="co"># create alignments (paired-end experiment)</span></span></span>
 <span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span></span>
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -443,9 +433,9 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1716039977668.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1723011710682.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/QuasR_log_4c662cdeb57d.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/QuasR_log_2e751f5e66c6.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -583,15 +573,15 @@ multiple chunks.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

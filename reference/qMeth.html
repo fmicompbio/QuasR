@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.2</span>
       </span>
     </div>
 
@@ -31,20 +31,20 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Quantify DNA methylation</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/HEAD/R/qMeth.R" class="external-link"><code>R/qMeth.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/devel/R/qMeth.R" class="external-link"><code>R/qMeth.R</code></a></small>
     <div class="hidden name"><code>qMeth.Rd</code></div>
     </div>
 
@@ -72,25 +72,27 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>proj</dt>
+
+
+<dl><dt id="arg-proj">proj<a class="anchor" aria-label="anchor" href="#arg-proj"></a></dt>
 <dd><p>A <code>qProject</code> object from a bisulfite sequencing experiment</p></dd>
 
 
-<dt>query</dt>
+<dt id="arg-query">query<a class="anchor" aria-label="anchor" href="#arg-query"></a></dt>
 <dd><p>A <code>GRanges</code> object with the regions to be
 quantified. If <code>NULL</code>, all available target sequences (e.g. the
 whole genome) will be analyzed. Available target sequences are
 extracted from the header of the first bam file.</p></dd>
 
 
-<dt>reportLevel</dt>
+<dt id="arg-reportlevel">reportLevel<a class="anchor" aria-label="anchor" href="#arg-reportlevel"></a></dt>
 <dd><p>Report results combined for C's
 (<code>reportLevel</code>=“C”), the default) or individually for single
 alignments (<code>reportLevel</code>=“alignment”). The latter imposes
 further restrictions on some arguments (see ‘Details’).</p></dd>
 
 
-<dt>mode</dt>
+<dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
 <dd><p>Cytosine quantification mode, one of:</p><dl><dt><code>CpGcomb</code></dt>
 <dd><p>: only C's in CpG context (strands combined)</p></dd>
 
@@ -107,27 +109,27 @@ further restrictions on some arguments (see ‘Details’).</p></dd>
 </dl><p><code>CpGcomb</code> is the default.</p></dd>
 
 
-<dt>collapseBySample</dt>
+<dt id="arg-collapsebysample">collapseBySample<a class="anchor" aria-label="anchor" href="#arg-collapsebysample"></a></dt>
 <dd><p>If <code>TRUE</code>, combine (sum) counts from
 bamfiles with the same sample name.</p></dd>
 
 
-<dt>collapseByQueryRegion</dt>
+<dt id="arg-collapsebyqueryregion">collapseByQueryRegion<a class="anchor" aria-label="anchor" href="#arg-collapsebyqueryregion"></a></dt>
 <dd><p>If <code>TRUE</code>, combine (sum) counts for
 all cytosines contained in the same query region.</p></dd>
 
 
-<dt>asGRanges</dt>
+<dt id="arg-asgranges">asGRanges<a class="anchor" aria-label="anchor" href="#arg-asgranges"></a></dt>
 <dd><p>If <code>TRUE</code>, return results as a <code>GRanges</code> object;
 if <code>FALSE</code>, the results are returned as a <code>data.frame</code>.</p></dd>
 
 
-<dt>mask</dt>
+<dt id="arg-mask">mask<a class="anchor" aria-label="anchor" href="#arg-mask"></a></dt>
 <dd><p>An optional <code>GRanges</code> object with genomic regions to
 be masked, i.e. excluded from the analysis (e.g. unmappable regions).</p></dd>
 
 
-<dt>reference</dt>
+<dt id="arg-reference">reference<a class="anchor" aria-label="anchor" href="#arg-reference"></a></dt>
 <dd><p>Source of bam files; can be either “genome”
 (then the alignments against the genome are used) or the name of an
 auxiliary target sequence (then alignments against this target
@@ -136,67 +138,53 @@ name contained in the auxiliary file refered by the
 <code>auxiliaryFile</code> argument of <code><a href="qAlign.html">qAlign</a></code>.</p></dd>
 
 
-<dt>keepZero</dt>
+<dt id="arg-keepzero">keepZero<a class="anchor" aria-label="anchor" href="#arg-keepzero"></a></dt>
 <dd><p>If <code>FALSE</code>, only cytosines covered by at least
 one alignment will be returned; <code>keepZero</code> must be <code>TRUE</code>
 if multiple samples have the same sample name and
 <code>collapseBySample</code> is <code>TRUE</code>.</p></dd>
 
 
-<dt>mapqMin</dt>
+<dt id="arg-mapqmin">mapqMin<a class="anchor" aria-label="anchor" href="#arg-mapqmin"></a></dt>
 <dd><p>Minimal mapping quality of alignments to be included when
 counting (mapping quality must be greater than or equal to
 <code>mapqMin</code>). Valid values are between 0 and 255. The default (0)
 will include all alignments.</p></dd>
 
 
-<dt>mapqMax</dt>
+<dt id="arg-mapqmax">mapqMax<a class="anchor" aria-label="anchor" href="#arg-mapqmax"></a></dt>
 <dd><p>Maximal mapping quality of alignments to be included when
 counting (mapping quality must be less than or equal to <code>mapqMax</code>).
 Valid values are between 0 and 255. The default (255) will include
 all alignments.</p></dd>
 
 
-<dt>clObj</dt>
+<dt id="arg-clobj">clObj<a class="anchor" aria-label="anchor" href="#arg-clobj"></a></dt>
 <dd><p>A cluster object to be used for parallel processing of
 multiple files (see ‘Details’).</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>For <code>reportLevel</code>=“C”, a <code>GRanges</code> object if
+    <p>For <code>reportLevel</code>=“C”, a <code>GRanges</code> object if
 <code>asGRanges</code>=<code>TRUE</code>, otherwise a <code>data.frame</code>.</p>
-
-
 <p>Each row contains the coordinates of individual cytosines for
 <code>collapseByQueryRegion</code>=<code>FALSE</code> or query regions
 for <code>collapseByQueryRegion</code>=<code>TRUE</code>.</p>
-
-
 <p>In addition to the coordinates columns (or <code>seqnames</code>,
 <code>ranges</code> and <code>strand</code> slots for <code>GRanges</code> objects),
 each row contains per bam file:</p>
-
-
 <p>Two values (total and methylated events, with suffixes _T and _M), or
 if the <code>qProject</code> object was created including a SNP table,
 six values (total and methylated events for Reference, Unknown and
 Alternative genotypes, with suffixed _TR, _TU, _TA, _MR, _MU and _MA).
 In the latter case, C's or CpG's that overlap with SNPs in the table
 are removed.</p>
-
-
 <p>If <code>collapseBySample</code>=<code>TRUE</code>, groups of bam files with
 identical sample name are combined (summed) and will be represented by
 a single set of total and methylated count columns.</p>
-
-
 <p>If <code>mode</code>=“var”, the _T and _M columns correspond to total
 and matching alignments overlapping the guanine paired to the cytosine.</p>
-
-
 <p>For <code>reportLevel</code>=“alignment”, a <code>list</code> with one
 element per bam file or sample (depending on <code>collapseBySample</code>).
 Each list element is another list with the elements:</p><dl><dt><code>aid</code></dt>
@@ -292,7 +280,7 @@ not be split into multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 1 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an RbowtieCtoT index for /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an RbowtieCtoT index for /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -300,9 +288,9 @@ not be split into multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1716039977668.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1723011710682.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 1 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/QuasR_log_4c664f8b7933.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/QuasR_log_2e75122b0f61.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">proj</span></span></span>
@@ -313,14 +301,14 @@ not be split into multiple chunks.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              bisulfite       : dir</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              snpFile         : none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              geneAnnotation  : none</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Aligner   : Rbowtie v1.44.0 (parameters: -k 2 --best --strata -v 2)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Genome    : /private/var/folders/2f/8t5k6yr535sdw0s4glnpxr.../hg19sub.fa (file)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Aligner   : Rbowtie v1.45.0 (parameters: -k 2 --best --strata -v 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Genome    : /private/var/folders/m_/cksx93ys47x4621g0zbw_m.../hg19sub.fa (file)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Reads     : 1 file, 1 sample (fasta format):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1.fa.bz2  Sample1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Genome alignments: directory: same as reads</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1_4c664dc22c11.bam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1. bis_1_1_2e7548feb298.bam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Aux. alignments: none</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -359,15 +347,15 @@ not be split into multiple chunks.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

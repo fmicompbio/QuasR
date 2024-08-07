@@ -4,7 +4,7 @@ of the &amp;#8216;QuasR&amp;#8217; project."><!-- mathjax --><script src="https:
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -18,7 +18,7 @@ of the &amp;#8216;QuasR&amp;#8217; project."><!-- mathjax --><script src="https:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.2</span>
       </span>
     </div>
 
@@ -32,20 +32,20 @@ of the &amp;#8216;QuasR&amp;#8217; project."><!-- mathjax --><script src="https:
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>QuasR wig file export</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/HEAD/R/qExportWig.R" class="external-link"><code>R/qExportWig.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/devel/R/qExportWig.R" class="external-link"><code>R/qExportWig.R</code></a></small>
     <div class="hidden name"><code>qExportWig.Rd</code></div>
     </div>
 
@@ -81,11 +81,13 @@ of the ‘QuasR’ project.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>proj</dt>
+
+
+<dl><dt id="arg-proj">proj<a class="anchor" aria-label="anchor" href="#arg-proj"></a></dt>
 <dd><p>A <code>qProject</code> object as returned by <code>qAlign</code>.</p></dd>
 
 
-<dt>file</dt>
+<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>A character vector with the name(s) for the wig or bigWig
 file(s) to be generated. Either <code>NULL</code> or a vector of the same
 length as the number of bam files (for <code>collapseBySample=FALSE</code>)
@@ -95,17 +97,17 @@ from the names of the genomic bam files or unique sample names with an
 added “.wig.gz” or “.bw” extension.</p></dd>
 
 
-<dt>collapseBySample</dt>
+<dt id="arg-collapsebysample">collapseBySample<a class="anchor" aria-label="anchor" href="#arg-collapsebysample"></a></dt>
 <dd><p>If <code>TRUE</code>, genomic bam files with identical
 sample name will be combined (summed) into a single track.</p></dd>
 
 
-<dt>binsize</dt>
+<dt id="arg-binsize">binsize<a class="anchor" aria-label="anchor" href="#arg-binsize"></a></dt>
 <dd><p>A numerical value defining the bin and step size for the
 wig or bigWig file(s). <code>binsize</code> will be coerced to <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>.</p></dd>
 
 
-<dt>shift</dt>
+<dt id="arg-shift">shift<a class="anchor" aria-label="anchor" href="#arg-shift"></a></dt>
 <dd><p>Either a vector or a scalar value defining the read shift (e.g.
 half of fragment length, see ‘Details’). If <code>length(shift)&gt;1</code>,
 the length must match the number of bam files in ‘proj’, and
@@ -115,73 +117,73 @@ paired-end alignments, <code>shift</code> will be ignored, and a warning
 will be issued if it is set to a non-zero value (see ‘Details’).</p></dd>
 
 
-<dt>strand</dt>
+<dt id="arg-strand">strand<a class="anchor" aria-label="anchor" href="#arg-strand"></a></dt>
 <dd><p>Only count alignments of <code>strand</code>. The default
 (“*”) will count all alignments.</p></dd>
 
 
-<dt>scaling</dt>
+<dt id="arg-scaling">scaling<a class="anchor" aria-label="anchor" href="#arg-scaling"></a></dt>
 <dd><p>If TRUE or a numerical value, the output values in the wig
 or bigWig file(s) will be linearly scaled by the total number of aligned
 reads per sample to improve comparability (see ‘Details’).</p></dd>
 
 
-<dt>tracknames</dt>
+<dt id="arg-tracknames">tracknames<a class="anchor" aria-label="anchor" href="#arg-tracknames"></a></dt>
 <dd><p>A character vector with the names of the tracks to appear
 in the track header. If <code>NULL</code>, the sample names in <code>proj</code>
 will be used.</p></dd>
 
 
-<dt>log2p1</dt>
+<dt id="arg-log-p-">log2p1<a class="anchor" aria-label="anchor" href="#arg-log-p-"></a></dt>
 <dd><p>If <code>TRUE</code>, the number of alignments <code>x</code> per bin will
 be transformed using the formula <code>log2(x+1)</code>.</p></dd>
 
 
-<dt>colors</dt>
+<dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>A character vector with R color names to be used for the tracks.</p></dd>
 
 
-<dt>includeSecondary</dt>
+<dt id="arg-includesecondary">includeSecondary<a class="anchor" aria-label="anchor" href="#arg-includesecondary"></a></dt>
 <dd><p>If <code>TRUE</code> (the default), include alignments
 with the secondary bit (0x0100) set in the <code>FLAG</code>.</p></dd>
 
 
-<dt>mapqMin</dt>
+<dt id="arg-mapqmin">mapqMin<a class="anchor" aria-label="anchor" href="#arg-mapqmin"></a></dt>
 <dd><p>Minimal mapping quality of alignments to be included
 (mapping quality must be greater than or equal to <code>mapqMin</code>).
 Valid values are between 0 and 255. The default (0) will include all
 alignments.</p></dd>
 
 
-<dt>mapqMax</dt>
+<dt id="arg-mapqmax">mapqMax<a class="anchor" aria-label="anchor" href="#arg-mapqmax"></a></dt>
 <dd><p>Maximal mapping quality of alignments to be included
 (mapping quality must be less than or equal to <code>mapqMax</code>).
 Valid values are between 0 and 255. The default (255) will include all
 alignments.</p></dd>
 
 
-<dt>absIsizeMin</dt>
+<dt id="arg-absisizemin">absIsizeMin<a class="anchor" aria-label="anchor" href="#arg-absisizemin"></a></dt>
 <dd><p>For paired-end experiments, minimal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid
 values are greater than 0 or <code>NULL</code> (default), which will not
 apply any minimum insert size filtering.</p></dd>
 
 
-<dt>absIsizeMax</dt>
+<dt id="arg-absisizemax">absIsizeMax<a class="anchor" aria-label="anchor" href="#arg-absisizemax"></a></dt>
 <dd><p>For paired-end experiments, maximal absolute insert
 size (TLEN field in SAM Spec v1.4) of alignments to be included. Valid
 values are greater than 0 or <code>NULL</code> (default), which will not apply
 any maximum insert size filtering.</p></dd>
 
 
-<dt>createBigWig</dt>
+<dt id="arg-createbigwig">createBigWig<a class="anchor" aria-label="anchor" href="#arg-createbigwig"></a></dt>
 <dd><p>If <code>TRUE</code>, first a temporary wig file will be
 created and then converted to BigWig format (file extension “.bw”)
 using the <code><a href="https://rdrr.io/pkg/rtracklayer/man/wigToBigWig.html" class="external-link">wigToBigWig</a></code> function from
 package <span class="pkg">rtracklayer</span>.</p></dd>
 
 
-<dt>useRead</dt>
+<dt id="arg-useread">useRead<a class="anchor" aria-label="anchor" href="#arg-useread"></a></dt>
 <dd><p>For paired-end experiments, selects the read mate whose
 alignments should be counted, one of:</p><dl><dt><code>any</code> (default)</dt>
 <dd><p>: count all alignments</p></dd>
@@ -201,7 +203,7 @@ read as if it would come from a single-read experiment (see
 ‘Details’).</p></dd>
 
 
-<dt>pairedAsSingle</dt>
+<dt id="arg-pairedassingle">pairedAsSingle<a class="anchor" aria-label="anchor" href="#arg-pairedassingle"></a></dt>
 <dd><p>If <code>TRUE</code>, treat paired-end data single read
 data, which means that instead of calculating fragment mid-points for
 each read pair, the 5-prime ends of the reads is used. This is for example
@@ -209,16 +211,14 @@ useful when analyzing paired-end DNAse-seq or ATAC-seq data, in which
 the read starts are informative for chromatin accessibility.</p></dd>
 
 
-<dt>clObj</dt>
+<dt id="arg-clobj">clObj<a class="anchor" aria-label="anchor" href="#arg-clobj"></a></dt>
 <dd><p>A cluster object to be used for parallel processing of multiple
 samples.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>(invisible) The file name of the generated wig or bigWig file(s).</p>
+    <p>(invisible) The file name of the generated wig or bigWig file(s).</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -294,9 +294,9 @@ for uploading as a custom track to your favorite genome browser
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1716039977668.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1723011710682.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/RtmpoWPsq2/file4c66217f0cdf/reference/QuasR_log_4c662a65838d.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/QuasR_log_2e75121525f4.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -323,15 +323,15 @@ for uploading as a custom track to your favorite genome browser
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

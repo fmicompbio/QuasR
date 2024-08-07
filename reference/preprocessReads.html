@@ -4,7 +4,7 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -18,7 +18,7 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.45.2</span>
       </span>
     </div>
 
@@ -32,20 +32,20 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files."
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/fmicompbio/QuasR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Preprocess Short Reads</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/HEAD/R/preprocessReads.R" class="external-link"><code>R/preprocessReads.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/QuasR/blob/devel/R/preprocessReads.R" class="external-link"><code>R/preprocessReads.R</code></a></small>
     <div class="hidden name"><code>preprocessReads.Rd</code></div>
     </div>
 
@@ -78,73 +78,75 @@ quality or low complexity sequences from (compressed) 'fasta' or 'fastq' files.<
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>filename</dt>
+
+
+<dl><dt id="arg-filename">filename<a class="anchor" aria-label="anchor" href="#arg-filename"></a></dt>
 <dd><p>the name(s) of the input sequence file(s).</p></dd>
 
 
-<dt>outputFilename</dt>
+<dt id="arg-outputfilename">outputFilename<a class="anchor" aria-label="anchor" href="#arg-outputfilename"></a></dt>
 <dd><p>the name(s) of the output sequence file(s).</p></dd>
 
 
-<dt>filenameMate</dt>
+<dt id="arg-filenamemate">filenameMate<a class="anchor" aria-label="anchor" href="#arg-filenamemate"></a></dt>
 <dd><p>for paired-end experiments, the name(s) of the
 input sequence file(s) containing the second read (mate) of each pair.</p></dd>
 
 
-<dt>outputFilenameMate</dt>
+<dt id="arg-outputfilenamemate">outputFilenameMate<a class="anchor" aria-label="anchor" href="#arg-outputfilenamemate"></a></dt>
 <dd><p>for paired-end experiments, the name(s) of the
 output sequence file(s) containing the second read (mate) of each pair.</p></dd>
 
 
-<dt>truncateStartBases</dt>
+<dt id="arg-truncatestartbases">truncateStartBases<a class="anchor" aria-label="anchor" href="#arg-truncatestartbases"></a></dt>
 <dd><p>integer(1): the number of bases to be truncated
 (removed) from the beginning of each sequence.</p></dd>
 
 
-<dt>truncateEndBases</dt>
+<dt id="arg-truncateendbases">truncateEndBases<a class="anchor" aria-label="anchor" href="#arg-truncateendbases"></a></dt>
 <dd><p>integer(1): the number of bases to be truncated
 (removed) from the end of each sequence.</p></dd>
 
 
-<dt>Lpattern</dt>
+<dt id="arg-lpattern">Lpattern<a class="anchor" aria-label="anchor" href="#arg-lpattern"></a></dt>
 <dd><p>character(1): the left (5'-end) adapter sequence.</p></dd>
 
 
-<dt>Rpattern</dt>
+<dt id="arg-rpattern">Rpattern<a class="anchor" aria-label="anchor" href="#arg-rpattern"></a></dt>
 <dd><p>character(1): the right (3'-end) adapter sequence.</p></dd>
 
 
-<dt>max.Lmismatch</dt>
+<dt id="arg-max-lmismatch">max.Lmismatch<a class="anchor" aria-label="anchor" href="#arg-max-lmismatch"></a></dt>
 <dd><p>mismatch tolerance when searching for matches of
 <code>Lpattern</code> (see ‘Details’).</p></dd>
 
 
-<dt>max.Rmismatch</dt>
+<dt id="arg-max-rmismatch">max.Rmismatch<a class="anchor" aria-label="anchor" href="#arg-max-rmismatch"></a></dt>
 <dd><p>mismatch tolerance when searching for matches of
 <code>Rpattern</code> (see ‘Details’).</p></dd>
 
 
-<dt>with.Lindels</dt>
+<dt id="arg-with-lindels">with.Lindels<a class="anchor" aria-label="anchor" href="#arg-with-lindels"></a></dt>
 <dd><p>if <code>TRUE</code>, indels are allowed in the alignments of
 the suffixes of <code>Lpattern</code> with the subject, at its beginning
 (see ‘Details’).</p></dd>
 
 
-<dt>with.Rindels</dt>
+<dt id="arg-with-rindels">with.Rindels<a class="anchor" aria-label="anchor" href="#arg-with-rindels"></a></dt>
 <dd><p>same as <code>with.Lindels</code> but for alignments of the
 prefixes of <code>Rpattern</code> with the subject, at its end (see
 ‘Details’).</p></dd>
 
 
-<dt>minLength</dt>
+<dt id="arg-minlength">minLength<a class="anchor" aria-label="anchor" href="#arg-minlength"></a></dt>
 <dd><p>integer(1): the minimal allowed sequence length.</p></dd>
 
 
-<dt>nBases</dt>
+<dt id="arg-nbases">nBases<a class="anchor" aria-label="anchor" href="#arg-nbases"></a></dt>
 <dd><p>integer(1): the maximal number of Ns allowed per sequence.</p></dd>
 
 
-<dt>complexity</dt>
+<dt id="arg-complexity">complexity<a class="anchor" aria-label="anchor" href="#arg-complexity"></a></dt>
 <dd><p><code>NULL</code> (default) or numeric(1): If not <code>NULL</code>,
 the minimal sequence complexity, as a fraction of the average complexity
 in the human genome (~3.9bits). For example, <code>complexity = 0.5</code> will
@@ -152,20 +154,18 @@ filter out sequences that do not have at least half the complexity of the
 human genome. See ‘Details’ on how the complexity is calculated.</p></dd>
 
 
-<dt>nrec</dt>
+<dt id="arg-nrec">nrec<a class="anchor" aria-label="anchor" href="#arg-nrec"></a></dt>
 <dd><p>integer(1): the number of sequence records to read at a time.</p></dd>
 
 
-<dt>clObj</dt>
+<dt id="arg-clobj">clObj<a class="anchor" aria-label="anchor" href="#arg-clobj"></a></dt>
 <dd><p>a cluster object to be used for parallel processing of multiple
 files (see ‘Details’).</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A matrix with summary statistics on the processed sequences, containing:</p><ul><li><p>One column per input file (or pair of input files for paired-end
+    <p>A matrix with summary statistics on the processed sequences, containing:</p><ul><li><p>One column per input file (or pair of input files for paired-end
                                    experiments).</p></li>
 <li><p>The number of sequences or sequence pairs in rows:</p><dl><dt><code>totalSequences</code></dt>
 <dd><p>- the total number in the input</p></dd>
@@ -189,7 +189,7 @@ files (see ‘Details’).</p></dd>
 <dd><p>- the number of sequences/sequence pairs
       that pass all filtering criteria and were written to the output file(s).</p></dd>
 
-  
+
 </dl></li>
 </ul></div>
     <div id="details">
@@ -295,15 +295,15 @@ multiple files will be processed in parallel using
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 
