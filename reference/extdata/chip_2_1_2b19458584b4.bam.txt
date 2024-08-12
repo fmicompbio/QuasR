@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/extdata/chip_2_1.fq.bz2
+reads.FileName1	/private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpVe9GZq/file2b196b748e96/reference/extdata/chip_2_1.fq.bz2
 reads.FileName2	NA
 reads.md5subsum1	bcd5419b4bbf5219555c0717d5e658e2
 reads.md5subsum2	NA
 samplesFormat	fastq
-genome	/private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpZeisFS/file2e75387bf8a0/reference/extdata/hg19sub.fa
+genome	/private/var/folders/m_/cksx93ys47x4621g0zbw_m4m0000gn/T/RtmpVe9GZq/file2b196b748e96/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
