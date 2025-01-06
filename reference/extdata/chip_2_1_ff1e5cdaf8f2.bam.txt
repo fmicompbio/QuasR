@@ -1,12 +1,12 @@
-reads.FileName1	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/chip_2_1.fq.bz2
+reads.FileName1	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/chip_2_1.fq.bz2
 reads.FileName2	NA
 reads.md5subsum1	bcd5419b4bbf5219555c0717d5e658e2
 reads.md5subsum2	NA
 samplesFormat	fastq
-genome	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/hg19sub.fa
+genome	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
-aux	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/NC_001422.1.fa
+aux	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/NC_001422.1.fa
 aux.md5	351e5e3e83799cea5cd439ccbb2ba161
 aligner	Rbowtie
 aligner.version	1.47.0

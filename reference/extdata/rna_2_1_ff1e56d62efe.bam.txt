@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/rna_2_1.fq.bz2
-reads.FileName2	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/rna_2_2.fq.bz2
+reads.FileName1	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/rna_2_1.fq.bz2
+reads.FileName2	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/rna_2_2.fq.bz2
 reads.md5subsum1	05d61f5d0110b5fe87b9749c09c4d176
 reads.md5subsum2	0807fb6c798f53486a4a6edbbb819ddc
 samplesFormat	fastq
-genome	/private/var/folders/0w/4z5l9vds32nbkz7l22n8j6s80000gn/T/RtmpmNuc4q/file1006d777c17a5/reference/extdata/hg19sub.fa
+genome	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
