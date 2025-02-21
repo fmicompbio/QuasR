@@ -40,32 +40,32 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
     int *mm_dist;
     // separate mm_dist vector for read 1 and 2
     if ((b->core.flag & BAM_FREAD2) == 0)
-	mm_dist = fparam->mm_dist;
+        mm_dist = fparam->mm_dist;
     else
-	mm_dist = fparam->mm_dist2;
+        mm_dist = fparam->mm_dist2;
     int start = fparam->start;
     int end = fparam->end;
     const char *ref = fparam->ref;
 
     if(start <= (int)b->core.pos && ((int)bam_calend(&b->core, bam1_cigar(b))) < end){
-	uint8_t *seq = bam1_seq(b);
-	uint32_t *cigar = bam1_cigar(b);
-	int i = 0; // current position of cigar operations
-	int j; // j count of current cigar operation
-	int l; // l number of current cigar operation
-	int x; // leftmost coordinate of the current cigar operation in reference string
-	int y; // leftmost coordinate of the current cigar operation in read
-	int z; // current position of the read sequence
-	int u = 0; // count of matched position since last mismatch
-	int op; // current cigar operation type
-	int c1, c2; // current base int value of reference and read
-	int32_t nm = 0; // number of mismatch
-	int qlen = 0; // length of the query sequence
-	int isize = 0; // fragment size
+        uint8_t *seq = bam1_seq(b);
+        uint32_t *cigar = bam1_cigar(b);
+        int i = 0; // current position of cigar operations
+        int j; // j count of current cigar operation
+        int l; // l number of current cigar operation
+        int x; // leftmost coordinate of the current cigar operation in reference string
+        int y; // leftmost coordinate of the current cigar operation in read
+        int z; // current position of the read sequence
+        // int u = 0; // count of matched position since last mismatch
+        int op; // current cigar operation type
+        int c1, c2; // current base int value of reference and read
+        int32_t nm = 0; // number of mismatch
+        int qlen = 0; // length of the query sequence
+        int isize = 0; // fragment size
 
-	// 4-bit encoding to index value
-	// NACNGNNNTNNNNNNN -> A=0, C=1, G=2, T=3, N=4
-	static int bit2idx[16] = { 4, 0, 1, 4, 2, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4 };
+        // 4-bit encoding to index value
+        // NACNGNNNTNNNNNNN -> A=0, C=1, G=2, T=3, N=4
+        static int bit2idx[16] = { 4, 0, 1, 4, 2, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4 };
 
         // save position and isize in string --> uniqueness
         if(((b->core.flag & BAM_FREAD2) == 0) && (fparam->count_aln < fparam->chunk_size)){
@@ -75,61 +75,63 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
             fparam->count_aln++;
         }
 
-	// get length of the query sequence
-	qlen = bam_cigar2qlen(b->core.n_cigar, cigar);
-	if(fparam->len < qlen)
-	    fparam->len = qlen;
-	qlen = qlen - 1; // vector index starts with 0
+        // get length of the query sequence
+        qlen = bam_cigar2qlen(b->core.n_cigar, cigar);
+        if(fparam->len < qlen)
+            fparam->len = qlen;
+        qlen = qlen - 1; // vector index starts with 0
 
-	// get length of the fragment
-	isize = llabs((int)b->core.isize);
-	if((b->core.flag & BAM_FREAD1) && isize != 0){
-	    if(isize < (fparam->frag_dist_len)) // check vector overflow
-	    	fparam->frag_dist[isize - 1] += 1;
-	    else
-	    	// fragment size is bigger than vector length
-		// use last vector element for counting
-	    	fparam->frag_dist[fparam->frag_dist_len - 1] += 1;
-	}
+        // get length of the fragment
+        isize = llabs((int)b->core.isize);
+        if((b->core.flag & BAM_FREAD1) && isize != 0){
+            if(isize < (fparam->frag_dist_len)) // check vector overflow
+                fparam->frag_dist[isize - 1] += 1;
+            else
+                // fragment size is bigger than vector length
+                // use last vector element for counting
+                fparam->frag_dist[fparam->frag_dist_len - 1] += 1;
+        }
 
         // parse cigar string
-	for (i = y = 0, x = b->core.pos-start; i < b->core.n_cigar; ++i) {
-	    l = cigar[i]>>4, op = cigar[i]&0xf;
-	    if (op == BAM_CMATCH || op == BAM_CEQUAL || op == BAM_CDIFF) {
-		for (j = 0; j < l; ++j) {
-		    z = y + j;
-		    c1 = bam1_seqi(seq, z), c2 = bam_nt16_table[(int)ref[x+j]];
-		    if (ref[x+j] == 0) break; // out of boundary
-		    // calculate index position in the mm_dist vector
-		    // c1 und c2 in the 4-bit encoding space
-		    // A->1, C->2, G->4, T->8
-		    if (bam1_strand(b) == 0)
-			mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*z ] += 1;
-		    else
-			mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*(qlen-z) ] += 1;
-		    // check if match or mismatch
-		    if ((c1 == c2 && c1 != 15 && c2 != 15) || c1 == 0) { // a match
-			++u;
-		    } else {
-			u = 0; ++nm;
-		    }
-		}
-		if (j < l) break;
-		x += l; y += l;
-	    } else if (op == BAM_CDEL) {
-		for (j = 0; j < l; ++j) {
-		    if (ref[x+j] == 0) break;
-		}
-		u = 0;
-		if (j < l) break;
-		x += l; nm += l;
-	    } else if (op == BAM_CINS || op == BAM_CSOFT_CLIP) {
-		y += l;
-		if (op == BAM_CINS) nm += l;
-	    } else if (op == BAM_CREF_SKIP) {
-		x += l;
-	    }
-	}
+        for (i = y = 0, x = b->core.pos-start; i < b->core.n_cigar; ++i) {
+            l = cigar[i]>>4, op = cigar[i]&0xf;
+            if (op == BAM_CMATCH || op == BAM_CEQUAL || op == BAM_CDIFF) {
+                for (j = 0; j < l; ++j) {
+                    z = y + j;
+                    c1 = bam1_seqi(seq, z), c2 = bam_nt16_table[(int)ref[x+j]];
+                    if (ref[x+j] == 0) break; // out of boundary
+                    // calculate index position in the mm_dist vector
+                    // c1 und c2 in the 4-bit encoding space
+                    // A->1, C->2, G->4, T->8
+                    if (bam1_strand(b) == 0)
+                        mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*z ] += 1;
+                    else
+                        mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*(qlen-z) ] += 1;
+                    // check if match or mismatch
+                    if ((c1 == c2 && c1 != 15 && c2 != 15) || c1 == 0) { // a match
+                        // ++u;
+                        ;
+                    } else {
+                        // u = 0;
+                        ++nm;
+                    }
+                }
+                if (j < l) break;
+                x += l; y += l;
+            } else if (op == BAM_CDEL) {
+                for (j = 0; j < l; ++j) {
+                    if (ref[x+j] == 0) break;
+                }
+                // u = 0;
+                if (j < l) break;
+                x += l; nm += l;
+            } else if (op == BAM_CINS || op == BAM_CSOFT_CLIP) {
+                y += l;
+                if (op == BAM_CINS) nm += l;
+            } else if (op == BAM_CREF_SKIP) {
+                x += l;
+            }
+        }
     }
 
     return 0;
