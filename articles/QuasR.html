@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.47.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.47.3</span>
       </span>
     </div>
 
@@ -326,9 +326,9 @@ as to store the resulting alignments (see section @ref(qAlign)).</p>
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 2 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba2815aa4e.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d153b83b88.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span></span></code></pre></div>
@@ -347,8 +347,8 @@ as to store the resulting alignments (see section @ref(qAlign)).</p>
 <span><span class="co">##    2. chip_2_1.fq.bz2  Sample2 (phred33)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Genome alignments: directory: same as reads</span></span>
-<span><span class="co">##    1. chip_1_1_87ba265ffb71.bam</span></span>
-<span><span class="co">##    2. chip_2_1_87ba6774cb65.bam</span></span>
+<span><span class="co">##    1. chip_1_1_61d1644c88a8.bam</span></span>
+<span><span class="co">##    2. chip_2_1_61d15ca00109.bam</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Aux. alignments: none</span></span></code></pre>
 <p>The <code>proj</code> object keeps track of all the information of a
@@ -1059,10 +1059,10 @@ the reads using <code>qAlign</code>:</p>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span></code></pre>
 <pre><code><span><span class="co">## nodeNames</span></span>
-<span><span class="co">## Mac-1740132352321.local </span></span>
+<span><span class="co">## Mac-1740133007481.local </span></span>
 <span><span class="co">##                       1</span></span></code></pre>
 <pre><code><span><span class="co">## Performing auxiliary alignments for 2 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba7510cab6.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d155a86fbf.txt</span></span>
 <span><span class="co">## Auxiliary alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj1</span></span></code></pre></div>
@@ -1081,13 +1081,13 @@ the reads using <code>qAlign</code>:</p>
 <span><span class="co">##    2. chip_2_1.fq.bz2  Sample2 (phred33)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Genome alignments: directory: same as reads</span></span>
-<span><span class="co">##    1. chip_1_1_87ba265ffb71.bam</span></span>
-<span><span class="co">##    2. chip_2_1_87ba6774cb65.bam</span></span>
+<span><span class="co">##    1. chip_1_1_61d1644c88a8.bam</span></span>
+<span><span class="co">##    2. chip_2_1_61d15ca00109.bam</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Aux. alignments: 1 file, directory: same as reads</span></span>
 <span><span class="co">##    a. /Users/runner/work/QuasR/QuasR/vignettes/extdata/NC_001422.1.fa    phiX174</span></span>
-<span><span class="co">##      1. chip_1_1_87ba216caec5.bam</span></span>
-<span><span class="co">##      2. chip_2_1_87ba664618a7.bam</span></span></code></pre>
+<span><span class="co">##      1. chip_1_1_61d125409088.bam</span></span>
+<span><span class="co">##      2. chip_2_1_61d131d0e3d3.bam</span></span></code></pre>
 <p><code>qAlign</code> will build alignment indices if they do not yet
 exist (by default, if the genome and auxiliary sequences are given in
 the form of <code>fasta</code> files, they will be stored in the same
@@ -1102,8 +1102,8 @@ Our <code>auxFile</code> contains a single auxiliary target sequence, so
 we expect two <code>bam</code> files per input sequence file:</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern <span class="op">=</span> <span class="st">".bam$"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "chip_1_1_87ba216caec5.bam"     "chip_1_1_87ba265ffb71.bam"    </span></span>
-<span><span class="co">## [3] "chip_2_1_87ba664618a7.bam"     "chip_2_1_87ba6774cb65.bam"    </span></span>
+<pre><code><span><span class="co">## [1] "chip_1_1_61d125409088.bam"     "chip_1_1_61d1644c88a8.bam"    </span></span>
+<span><span class="co">## [3] "chip_2_1_61d131d0e3d3.bam"     "chip_2_1_61d15ca00109.bam"    </span></span>
 <span><span class="co">## [5] "phiX_paired_withSecondary.bam"</span></span></code></pre>
 <p>The <code>bam</code> file names consist of the base name of the
 sequence file with an added random string. The random suffix makes sure
@@ -1113,8 +1113,8 @@ genome. Each alignment file is accompanied by two additional files with
 suffixes <code>.bai</code> and <code>.txt</code>:</p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"extdata"</span>, pattern <span class="op">=</span> <span class="st">"^chip_1_1_"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "chip_1_1_87ba216caec5.bam"     "chip_1_1_87ba216caec5.bam.bai"</span></span>
-<span><span class="co">## [3] "chip_1_1_87ba216caec5.bam.txt"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "chip_1_1_61d125409088.bam"     "chip_1_1_61d125409088.bam.bai"</span></span>
+<span><span class="co">## [3] "chip_1_1_61d125409088.bam.txt"</span></span></code></pre>
 <p>The <code>.bai</code> file is the <code>bam</code> index used for
 fast access by genomic coordinate. The <code>.txt</code> file contains
 all the parameters used to generate the corresponding <code>bam</code>
@@ -1479,9 +1479,9 @@ the current working directly, into a subfolder called
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 2 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba407c68a8.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d1370fa069.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj2</span></span></code></pre></div>
@@ -1500,8 +1500,8 @@ the current working directly, into a subfolder called
 <span><span class="co">##    2. rna_2_1.fq.bz2  rna_2_2.fq.bz2  Sample2 (phred33)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Genome alignments: directory: same as reads</span></span>
-<span><span class="co">##    1. rna_1_1_87ba27bb0eab.bam</span></span>
-<span><span class="co">##    2. rna_2_1_87ba69c010ed.bam</span></span>
+<span><span class="co">##    1. rna_1_1_61d162ec69bc.bam</span></span>
+<span><span class="co">##    2. rna_2_1_61d1f11e861.bam </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Aux. alignments: none</span></span></code></pre>
 <p>Aligning the reads with <code>splicedAlignment=TRUE</code> will allow
@@ -1515,9 +1515,9 @@ deletion (the intron) relative to the reference genome.</p>
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 2 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba2b0c5647.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d1769c5e40.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj2</span><span class="op">)</span></span></code></pre></div>
@@ -1792,9 +1792,9 @@ genome assembly according to mirBase19.</p>
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 1 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba732bce62.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d1579a69f1.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj3</span><span class="op">)</span></span></code></pre></div>
@@ -1922,9 +1922,9 @@ in <code>qAlign</code> by setting <code>bisulfite</code> to
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 1 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba7500b728.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d144c99b6a.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb184"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj4</span></span></code></pre></div>
@@ -1942,7 +1942,7 @@ in <code>qAlign</code> by setting <code>bisulfite</code> to
 <span><span class="co">##    1. bis_1_1.fa.bz2  Sample1</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Genome alignments: directory: same as reads</span></span>
-<span><span class="co">##    1. bis_1_1_87ba1f8df1b.bam</span></span>
+<span><span class="co">##    1. bis_1_1_61d1ffa6f6e.bam</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Aux. alignments: none</span></span></code></pre>
 <p>The resulting alignments are not different from those of non-Bis-seq
@@ -2143,9 +2143,9 @@ ChIP-seq workflow (section @ref(ChIPseq)), but this time using a
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 2 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba3fd3e68a.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d13eb8cbeb.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb217"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj1SNP</span></span></code></pre></div>
@@ -2164,8 +2164,8 @@ ChIP-seq workflow (section @ref(ChIPseq)), but this time using a
 <span><span class="co">##    2. chip_2_1.fq.bz2  Sample2 (phred33)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Genome alignments: directory: same as reads</span></span>
-<span><span class="co">##    1. chip_1_1_87ba70c48ec2.bam</span></span>
-<span><span class="co">##    2. chip_2_1_87ba78789c64.bam</span></span>
+<span><span class="co">##    1. chip_1_1_61d15653d178.bam</span></span>
+<span><span class="co">##    2. chip_2_1_61d118dd498f.bam</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Aux. alignments: none</span></span></code></pre>
 <p>Instead of one count per promoter region and sample,
@@ -2219,9 +2219,9 @@ of two counts per feature and sample:</p>
 <pre><code><span><span class="co">## Testing the compute nodes...OK</span></span>
 <span><span class="co">## Loading QuasR on the compute nodes...preparing to run on 1 nodes...done</span></span>
 <span><span class="co">## Available cores:</span></span>
-<span><span class="co">## Mac-1740132352321.local: 1</span></span>
+<span><span class="co">## Mac-1740133007481.local: 1</span></span>
 <span><span class="co">## Performing genomic alignments for 1 samples. See progress in the log file:</span></span>
-<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_87ba3b631a0e.txt</span></span>
+<span><span class="co">## /Users/runner/work/QuasR/QuasR/vignettes/QuasR_log_61d11f8ef2c2.txt</span></span>
 <span><span class="co">## Genomic alignments have been created successfully</span></span></code></pre>
 <div class="sourceCode" id="cb234"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/qMeth.html">qMeth</a></span><span class="op">(</span><span class="va">proj4SNP</span>, mode <span class="op">=</span> <span class="st">"CpGcomb"</span>, collapseBySample <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -2465,13 +2465,13 @@ workflow:</p>
 <code class="sourceCode R"><span><span class="co"># using bam files</span></span>
 <span><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                           seqlength mapped unmapped</span></span>
-<span><span class="co">## chip_1_1_87ba265ffb71.bam     95000   2339      258</span></span>
-<span><span class="co">## chip_2_1_87ba6774cb65.bam     95000   3609      505</span></span></code></pre>
+<span><span class="co">## chip_1_1_61d1644c88a8.bam     95000   2339      258</span></span>
+<span><span class="co">## chip_2_1_61d15ca00109.bam     95000   3609      505</span></span></code></pre>
 <div class="sourceCode" id="cb238"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="../reference/qProject-class.html">alignments</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span><span class="op">$</span><span class="va">aux</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                           seqlength mapped unmapped</span></span>
-<span><span class="co">## chip_1_1_87ba216caec5.bam      5386    251        0</span></span>
-<span><span class="co">## chip_2_1_87ba664618a7.bam      5386    493        0</span></span></code></pre>
+<span><span class="co">## chip_1_1_61d125409088.bam      5386    251        0</span></span>
+<span><span class="co">## chip_2_1_61d131d0e3d3.bam      5386    493        0</span></span></code></pre>
 <div class="sourceCode" id="cb240"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># using a qProject object</span></span>
 <span><span class="fu"><a href="../reference/alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="va">proj1</span><span class="op">)</span></span></code></pre></div>
@@ -2760,7 +2760,7 @@ overlap a sequence polymorphism will not be quantified.</p>
 <span><span class="co">##  [1] Gviz_1.51.0            txdbmaker_1.3.1        GenomicFeatures_1.59.1</span></span>
 <span><span class="co">##  [4] AnnotationDbi_1.69.0   Biobase_2.67.0         Rsamtools_2.23.1      </span></span>
 <span><span class="co">##  [7] BSgenome_1.75.1        rtracklayer_1.67.1     BiocIO_1.17.1         </span></span>
-<span><span class="co">## [10] Biostrings_2.75.3      XVector_0.47.2         QuasR_1.47.2          </span></span>
+<span><span class="co">## [10] Biostrings_2.75.3      XVector_0.47.2         QuasR_1.47.3          </span></span>
 <span><span class="co">## [13] Rbowtie_1.47.0         GenomicRanges_1.59.1   GenomeInfoDb_1.43.4   </span></span>
 <span><span class="co">## [16] IRanges_2.41.3         S4Vectors_0.45.4       BiocGenerics_0.53.6   </span></span>
 <span><span class="co">## [19] generics_0.1.3         BiocStyle_2.35.0      </span></span>

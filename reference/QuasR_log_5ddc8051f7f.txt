@@ -1,0 +1,10 @@
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 1/2): Number of threads available: 1
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local)  - Executing bowtie using 1 cores. Parameters:
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local)    '/private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpHtA1jk/file5ddc16c1b3df/reference/extdata/NC_001422.1.fa.Rbowtie/bowtieIndex' '/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_1_1_5ddc61d5c573.bam61934c37d20bfastq' -m 1 --best --strata --phred33-quals -S -p 1 '/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_1_1.fq.bz2619364bef744.sam'
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 1/2): Converting sam file to sorted bam file: /var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_1_1.fq.bz2619364bef744.sam
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 1/2): Auxiliary alignments 1 for sample 1 (Sample1) have been successfully created
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 2/2): Number of threads available: 1
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local)  - Executing bowtie using 1 cores. Parameters:
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local)    '/private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpHtA1jk/file5ddc16c1b3df/reference/extdata/NC_001422.1.fa.Rbowtie/bowtieIndex' '/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_2_1_5ddc19963333.bam61931be4ab96fastq' -m 1 --best --strata --phred33-quals -S -p 1 '/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_2_1.fq.bz2619341bd1328.sam'
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 2/2): Converting sam file to sorted bam file: /var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T//RtmpdgxdfA/chip_2_1.fq.bz2619341bd1328.sam
+[2025-02-21 10:35:58 UTC] (runner@pid24979/Mac-1740133007481.local) (Task 2/2): Auxiliary alignments 1 for sample 2 (Sample2) have been successfully created

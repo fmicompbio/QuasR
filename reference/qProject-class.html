@@ -19,7 +19,7 @@ with a high-throughput sequencing experiment analyzed with QuasR."><!-- mathjax 
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.47.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.47.3</span>
       </span>
     </div>
 
@@ -204,7 +204,7 @@ information on a high-throughput sequencing experiment analyzed with
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, auxiliaryFile<span class="op">=</span><span class="va">auxFile</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 auxiliary alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpoYtHgI/file811a96dd7af/reference/extdata/NC_001422.1.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpHtA1jk/file5ddc16c1b3df/reference/extdata/NC_001422.1.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -213,10 +213,10 @@ information on a high-throughput sequencing experiment analyzed with
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> nodeNames</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mac-1740132352321.local </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mac-1740133007481.local </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       1 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing auxiliary alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpoYtHgI/file811a96dd7af/reference/QuasR_log_811a3e319d0a.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpHtA1jk/file5ddc16c1b3df/reference/QuasR_log_5ddc8051f7f.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Auxiliary alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">proj</span></span></span>
@@ -235,13 +235,13 @@ information on a high-throughput sequencing experiment analyzed with
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2. chip_2_1.fq.bz2  Sample2 (phred33)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Genome alignments: directory: same as reads</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1. chip_1_1_811a2a6f36b5.bam</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2. chip_2_1_811a6b70bad6.bam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1. chip_1_1_5ddc61d5c573.bam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2. chip_2_1_5ddc19963333.bam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Aux. alignments: 1 file, directory: same as reads</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    a. /private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_.../NC_001422.1.fa  phiX174</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1. chip_1_1_811a2b3d1b6c.bam</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2. chip_2_1_811a38d365a1.bam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1. chip_1_1_5ddc856cef6.bam </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2. chip_2_1_5ddc7b2d7cc0.bam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># alignment statistics using a qProject</span></span></span>
@@ -255,12 +255,12 @@ information on a high-throughput sequencing experiment analyzed with
 <span class="r-in"><span><span class="co"># alignment statistics using bam files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu">alignments</span><span class="op">(</span><span class="va">proj</span><span class="op">)</span><span class="op">$</span><span class="va">genome</span><span class="op">$</span><span class="va">FileName</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           seqlength mapped unmapped</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chip_1_1_811a2a6f36b5.bam     95000   2339      258</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chip_2_1_811a6b70bad6.bam     95000   3609      505</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chip_1_1_5ddc61d5c573.bam     95000   2339      258</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chip_2_1_5ddc19963333.bam     95000   3609      505</span>
 <span class="r-in"><span><span class="fu"><a href="alignmentStats.html">alignmentStats</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">alignments</span><span class="op">(</span><span class="va">proj</span><span class="op">)</span><span class="op">$</span><span class="va">aux</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           seqlength mapped unmapped</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chip_1_1_811a2b3d1b6c.bam      5386    251        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chip_2_1_811a38d365a1.bam      5386    493        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chip_1_1_5ddc856cef6.bam       5386    251        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chip_2_1_5ddc7b2d7cc0.bam      5386    493        0</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
