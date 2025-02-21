@@ -1,9 +1,9 @@
-reads.FileName1	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/chip_1_1.fq.bz2
+reads.FileName1	/private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpoYtHgI/file811a96dd7af/reference/extdata/chip_1_1.fq.bz2
 reads.FileName2	NA
 reads.md5subsum1	653105d10a200f5663ceb174027e4eb9
 reads.md5subsum2	NA
 samplesFormat	fastq
-genome	/private/var/folders/95/0ydz4d79163427j3k5crp3fh0000gn/T/Rtmp6SRB65/fileff1e19054aa3/reference/extdata/hg19sub.fa
+genome	/private/var/folders/2s/h6hvv9ps03xgz_krkkstvq_r0000gn/T/RtmpoYtHgI/file811a96dd7af/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
 aux	NA
