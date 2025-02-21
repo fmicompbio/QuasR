@@ -1,8 +1,8 @@
-#include "count_junctions.h"
 //#include <sstream>
 #include <string>
 #include <map>
 #include <set>
+#include "count_junctions.h"
 
 using namespace std;
 
@@ -47,7 +47,7 @@ static int _addJunction(const bam1_t *hit, void *data){
     // skip alignment if secondary and skipSecondary==true
     if((hit->core.flag & BAM_FSECONDARY) && jinfo->skipSecondary)
         return 0;
-    
+
     //ostringstream ss;
     //static string jid; // junction identifier, of the form "chromosome:first_intronic_base:last_intronic_base:strand"
     static char strbuffer[1024];
@@ -84,7 +84,7 @@ static int _addJunction(const bam1_t *hit, void *data){
 	    Rf_error("'%c' is not a valid XV tag value; should be one of 'U','R' or 'A'", bam_aux2A(xv_ptr));
 	}
     }
-    
+
     // loop over cigar operations
     x = hit->core.pos;
     for (i = y = 0; i < hit->core.n_cigar; ++i) {
@@ -166,7 +166,7 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic,
         Rf_error("BAM header missing or empty of file: '%s'", Rf_translateChar(STRING_ELT(bamfile, 0)));
     }
     // open bam index
-    bam_index_t *idx = 0; 
+    bam_index_t *idx = 0;
     idx = bam_index_load(Rf_translateChar(STRING_ELT(bamfile, 0)));
     if (idx == 0){
         samclose(fin);
@@ -188,7 +188,7 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic,
 
     // select bam_fetch callback function
     bam_fetch_f fetch_func = _addJunction;
-    
+
     // loop over query regions
     int num_regions = Rf_length(tid);
     for(int i = 0; i < num_regions; i++){
@@ -196,7 +196,7 @@ SEXP count_junctions(SEXP bamfile, SEXP tid, SEXP start, SEXP end, SEXP allelic,
 	jinfo.tname = fin->header->target_name[INTEGER(tid)[i]];
 
         // process alignments that overlap region
-        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i], 
+        bam_fetch(fin->x.bam, idx, INTEGER(tid)[i],
                   INTEGER(start)[i], // 0-based inclusive start
                   INTEGER(end)[i],   // 0-based exclusive end
                   &jinfo, fetch_func);
