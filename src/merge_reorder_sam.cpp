@@ -5,9 +5,9 @@
 #include <map>
 
 using namespace std;
-#define MAX_NM 10000 // nm tag value if read is not mapped 
+#define MAX_NM 10000 // nm tag value if read is not mapped
 
-class idLine { // stores a single alignment with integer identifier, flag and boolean isMapped 
+class idLine { // stores a single alignment with integer identifier, flag and boolean isMapped
 public:
     int id;        // integer id prefix
     int bisQueue;  // which queue did the alignment come from (0..3)
@@ -175,48 +175,48 @@ int SAMFile::getNextAln() {
 int SAMFile::advance(int id) {
     //cout << "advancing(" << id << "), top: " << (queue.empty() ? -1 : queue.top().id) << endl;
 
-    static int nr;
+    //static int nr;
     static streampos filePos;
 
     if(!fh.eof() && (queue.empty() || queue.top().id != id)) {
-	// do nothing if EOF reached or id is already on queue.top()
+        // do nothing if EOF reached or id is already on queue.top()
 
-	readid = -1;
-	nr = 0;
-	while (readid != id) {
-	    // read next alignment
-	    if(this->getNextAln())
-		break;
+        readid = -1;
+        //nr = 0;
+        while (readid != id) {
+            // read next alignment
+            if(this->getNextAln())
+                break;
 
-	    // store in queue
-	    queue.push(idLine(readid, readIsMapped, readbuffer, readbuffer2));
-	    //cout << "\tjust stored " << readid << endl;
-	    nr++;
-	}
+            // store in queue
+            queue.push(idLine(readid, readIsMapped, readbuffer, readbuffer2));
+            //cout << "\tjust stored " << readid << endl;
+            //nr++;
+        }
 
-	// read all alignments with that id
-	while (readid == id) {
-	    // read next alignment
-	    filePos = fh.tellg();
-	    if(this->getNextAln())
-		break;
+        // read all alignments with that id
+        while (readid == id) {
+            // read next alignment
+            filePos = fh.tellg();
+            if(this->getNextAln())
+                break;
 
-	    if(readid == id) { // same id
-		// store in queue
-		queue.push(idLine(readid, readIsMapped, readbuffer, readbuffer2));
-		//cout << "\tjust stored " << readid << endl;
-		nr++;
+            if(readid == id) { // same id
+                // store in queue
+                queue.push(idLine(readid, readIsMapped, readbuffer, readbuffer2));
+                //cout << "\tjust stored " << readid << endl;
+                //nr++;
 
-	    } else {
-		// next id found; undo last getline
-		//cout << "\tjust ignored " << readid << endl;
-		fh.seekg(filePos);
-		if(fh.fail() || fh.bad())
-		    Rf_error("failed to seek to new position in sam file");
-	    }
-	}
-    } else {
-	nr = 0;
+            } else {
+                // next id found; undo last getline
+                //cout << "\tjust ignored " << readid << endl;
+                fh.seekg(filePos);
+                if(fh.fail() || fh.bad())
+                    Rf_error("failed to seek to new position in sam file");
+            }
+        }
+    // } else {
+    //     nr = 0;
     }
 
     //cout << "\t" << nr << " alignments parsed, new top: " << (queue.empty() ? -1 : queue.top().id) << endl;
@@ -261,7 +261,7 @@ int SAMFile::flush_simple(int id, ofstream &outfh, map<int, string> &unmapped) {
    it is assumed that the library was --fr and has been changed to --ff for alignment, therefore:
    - for paired alignments, first reads: change strand of next fragment in flag
    - for paired alignments, second reads: change strand of fragment in flag, reverse-complement the sequence  */
-int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<idLine> &mapped, bool addId) { 
+int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<idLine> &mapped, bool addId) {
     static int numberFlushed;
     numberFlushed = 0;
     static idLine currenttop;
@@ -279,7 +279,7 @@ int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<
 	}
 
 	_fix_FLAGs_and_sequences(currenttop);
-	
+
 	// output
 	if(currenttop.isMapped) {
 	    // ... to file
@@ -292,7 +292,7 @@ int flush_bisulfite(int id, ofstream &outfh, map<int, string> &unmapped, vector<
 		if(! currenttop.line2.empty())
 		    outfh << currenttop.line2 << '\n';
 	    }
-	    numberFlushed++;	
+	    numberFlushed++;
 	}
     }
 
@@ -317,7 +317,7 @@ int flush_allele(int id, ofstream &outfh, map<int, string> &unmapped, idLine &cu
 }
 
 // output unmapped for 'id' and remove from memory (just once per read)
-// NOTE: The parameter 'id' is unused currently. The parameter 'unmapped' contains 
+// NOTE: The parameter 'id' is unused currently. The parameter 'unmapped' contains
 //       always only one element, which correspond to the current id.
 //       The 'id' parameter exist because of historical reason.
 //       It could be removed but we keep it in case we change the algorithm.
@@ -473,7 +473,7 @@ void _replace_sequence(string &line, bool revcomp) {
 
 // void _remove_MD_tag(string &line) {
 //     static size_t start_pos, end_pos;
-// 
+//
 //     start_pos = line.rfind("MD:Z:", string::npos, 5);
 //     if(start_pos != string::npos && line[start_pos-1] == '\t') {
 // 	end_pos = line.find('\t', start_pos+5);
@@ -495,7 +495,7 @@ void _fix_FLAGs_and_sequences(idLine &currenttop) {
     snprintf(tagbuffer, 64, "\tXQ:i:%i", currenttop.bisQueue);
     currenttop.line += tagbuffer;
 
-    if(! currenttop.line2.empty()) { 
+    if(! currenttop.line2.empty()) {
 	currenttop.line2 += tagbuffer;
 	_replace_sequence(currenttop.line2, revcomp);
     }
@@ -511,7 +511,7 @@ int _fix_identical_locus(vector<idLine> &mapped){
     static int j, comp;
     static string rname, pos, rname2, pos2;
     string key;
-    static bool rm_first = false; // remove first of identical locus 
+    static bool rm_first = false; // remove first of identical locus
     idLine curr;
 
     // get locus to create the key
@@ -546,7 +546,7 @@ int _fix_identical_locus(vector<idLine> &mapped){
 	    if(comp == 0){
 		if(pos.compare(pos2) <= 0)
 		    key = rname+pos+rname2+pos2;
-		else 
+		else
 		    key = rname2+pos2+rname+pos;
 	    } else if(comp < 0){
 		key = rname+pos+rname2+pos2;
@@ -740,12 +740,12 @@ int writeOutput_bisulfite_core(int id, SAMFile **samf, int nsamf, ofstream &outf
     for(i=0; i<nsamf; i++){
 	curr_nm = samf[i]->get_nm_tag(id);
 	if(curr_nm < min_nm){
-	    // better mapped alignments found empty vector 
+	    // better mapped alignments found empty vector
 	    min_nm = curr_nm;
 	    mapped.clear();
-	    samf[i]->get_alignments_bisulfite(id, i, mapped, unmapped, true, addId);	    
+	    samf[i]->get_alignments_bisulfite(id, i, mapped, unmapped, true, addId);
 	} else if(curr_nm == min_nm){
-	    // equal mapped alignments add them to the vector 
+	    // equal mapped alignments add them to the vector
 	    samf[i]->get_alignments_bisulfite(id, i, mapped, unmapped, true, addId);
 	} else {
 	    // worse mapped alignments to not output
@@ -759,8 +759,8 @@ int writeOutput_bisulfite_core(int id, SAMFile **samf, int nsamf, ofstream &outf
 
     // fix halfmapper not needed for bisulfit (no halfmapper generated by bowtie1)
 
-    count =  (int)mapped.size();    
-    // if there are mapped alignments then output 
+    count =  (int)mapped.size();
+    // if there are mapped alignments then output
     if(count > 0){
 	if(!addId && count > maxhits){ // if addId = true then before allele. output all best mapped read
 	    if(unmapped.count(id) == 0){
@@ -840,10 +840,10 @@ int writeOutput_allele(int id, SAMFile **samf, int nsamf, ofstream &outfh, map<i
 		n += flush_allele(id, outfh, unmapped, mappedR[(unsigned long)(unif_rand()*countR)], 'U');
 	    else
 		n += flush_allele(id, outfh, unmapped, mappedA[(unsigned long)(unif_rand()*countA)], 'U');
-	    allele = !allele; // switch allele 
+	    allele = !allele; // switch allele
 	}
     }
- 
+
     return n;
 }
 
@@ -876,7 +876,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
     // copy header from first input file
     if(_copy_header(fnin[0], outfile))
 	Rf_error("error copying header from %s\n", fnin[0]);
-    
+
     // open sam files
     SAMFile **samfiles = new SAMFile*[nin];
     for(i=0; i<nin; i++)
@@ -899,7 +899,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 
 	// output or delete unmapped
 	SAMFile::flush_unmapped(id, outfile, unmapped, n);
-	
+
 	// increase current identifier
 	id++;
     }
@@ -921,7 +921,7 @@ int _merge_reorder_sam(const char** fnin, int nin, const char* fnout, int mode, 
 
 	// output or delete unmapped
 	SAMFile::flush_unmapped(id, outfile, unmapped, n);
-	
+
 	// increase current identifier
 	id++;
     }
