@@ -13,7 +13,7 @@ SEXP remove_unmapped_from_sam_and_convert_to_bam(SEXP inSam, SEXP outBam)
     if(!Rf_isString(inSam) || 1 != Rf_length(inSam)){
         Rf_error("'inSam' must be character(1)");
     }
-    
+
     if(!Rf_isString(outBam) || 1 < Rf_length(outBam)){
         Rf_error("'outBam' must be character(1).");
     }
@@ -30,14 +30,15 @@ SEXP remove_unmapped_from_sam_and_convert_to_bam(SEXP inSam, SEXP outBam)
     if(fout == 0)
         Rf_error("Error in opening the output file %s", Rf_translateChar(STRING_ELT(outBam, 0)));
 
-    int r, count = 0;
+    int r;
+    // int count = 0;
     bam1_t *aln = bam_init1();
 
     while (0 <= (r = samread(fin, aln))){
         //check if mapped or corresponding mate is mapped
         if((aln->core.flag & BAM_FUNMAP) == 0 || ((aln->core.flag & BAM_FPAIRED) != 0  && (aln->core.flag & BAM_FMUNMAP) == 0))
             samwrite(fout, aln);
-        count++;
+        // count++;
     }
 
     // clean up
