@@ -59,7 +59,7 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
         // int u = 0; // count of matched position since last mismatch
         int op; // current cigar operation type
         int c1, c2; // current base int value of reference and read
-        int32_t nm = 0; // number of mismatch
+        // int32_t nm = 0; // number of mismatch
         int qlen = 0; // length of the query sequence
         int isize = 0; // fragment size
 
@@ -107,14 +107,14 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
                         mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*z ] += 1;
                     else
                         mm_dist[ bit2idx[c2] + 5*bit2idx[c1] + 25*(qlen-z) ] += 1;
-                    // check if match or mismatch
-                    if ((c1 == c2 && c1 != 15 && c2 != 15) || c1 == 0) { // a match
-                        // ++u;
-                        ;
-                    } else {
-                        // u = 0;
-                        ++nm;
-                    }
+                    // // check if match or mismatch
+                    // if ((c1 == c2 && c1 != 15 && c2 != 15) || c1 == 0) { // a match
+                    //     // ++u;
+                    //     ;
+                    // } else {
+                    //     // u = 0;
+                    //     // ++nm;
+                    // }
                 }
                 if (j < l) break;
                 x += l; y += l;
@@ -124,10 +124,11 @@ static int _nucleotide_alignment_frequencies(const bam1_t *b, void *data)
                 }
                 // u = 0;
                 if (j < l) break;
-                x += l; nm += l;
+                x += l;
+                // nm += l;
             } else if (op == BAM_CINS || op == BAM_CSOFT_CLIP) {
                 y += l;
-                if (op == BAM_CINS) nm += l;
+                // if (op == BAM_CINS) nm += l;
             } else if (op == BAM_CREF_SKIP) {
                 x += l;
             }
