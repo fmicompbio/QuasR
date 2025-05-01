@@ -1,8 +1,8 @@
 Package: QuasR
 Type: Package
 Title: Quantify and Annotate Short Reads in R
-Version: 1.49.0
-Date: 2025-02-21
+Version: 1.49.1
+Date: 2025-05-01
 Authors@R: c(person("Anita", "Lerch", role = c("aut")),
              person("Adam Alexander Thil", "SMITH", role = c("aut"), 
                     email = "alex.smith@fmi.ch", 
@@ -44,6 +44,7 @@ Suggests:
     Gviz,
     BiocStyle,
     GenomicAlignments,
+    GenomeInfoDbData,
     Rhisat2,
     knitr,
     rmarkdown,
