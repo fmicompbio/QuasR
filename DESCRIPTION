@@ -43,6 +43,7 @@ Imports:
 Suggests: 
     Gviz,
     BiocStyle,
+    GenomeInfoDbData,
     GenomicAlignments,
     Rhisat2,
     knitr,
