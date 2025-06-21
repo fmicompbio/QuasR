@@ -222,10 +222,10 @@ qMeth <- function(proj,
     if (!inherits(proj, "qProject", which = FALSE))
         stop("'proj' must be an object of type 'qProject' (returned by 'qAlign')")
     if (proj@bisulfite == "no")
-        stop("'proj' is not a bisufite-seq project")
+        stop("'proj' is not a bisulfite-seq project")
     if (proj@splicedAlignment)
-        stop("'spliceAlignment==TRUE' is not supported by qMeth")
-    if (proj@aligner == "Rhisat2")
+        stop("'splicedAlignment==TRUE' is not supported by qMeth")
+    if (!is.na(proj@aligner) && proj@aligner == "Rhisat2")
         stop("Rhisat2 is not supported by qMeth")
 
     samples <- proj@alignments$SampleName
@@ -265,7 +265,7 @@ qMeth <- function(proj,
 
     if (!keepZero && ((collapseBySample && length(unique(samples)) > 1) ||
                       (!collapseBySample && length(samples) > 1)))
-        stop("'keepZero' must be TRUE if there are multiple non-collapsable samples")
+        stop("'keepZero' must be TRUE if there are multiple non-collapsible samples")
 
     if (mode == "var" && collapseByQueryRegion)
         stop("'collapseByQueryRegion' must be FALSE for variant detection mode")
@@ -422,7 +422,7 @@ qMeth <- function(proj,
         names(resL) <- sampleNames
 
         if (any(unlist(lapply(resL, nrow), use.names = FALSE) != nrow(resL[[1]])))
-            stop("error while combining partial results (chunks are incompatable)")
+            stop("error while combining partial results (chunks are incompatible)")
 
         # ...cbind T/M columns for different samples
         res <- cbind(resL[[1]][, c("chr", "start", "end", "strand")],
