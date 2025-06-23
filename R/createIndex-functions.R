@@ -50,7 +50,7 @@ buildIndexPackage <- function(genome, aligner, alnModeID, cacheDir, lib.loc) {
 #' @keywords internal
 #' @importFrom utils read.table
 #' @importFrom Rsamtools scanFaIndex scanFa indexFa
-#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Seqinfo seqnames
 #' @importFrom Biostrings masks injectHardMask replaceLetterAt DNAStringSet
 #'   writeXStringSet
 buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat, 
@@ -86,10 +86,10 @@ buildIndexSNP <- function(snpFile, indexPath, genome, genomeFormat,
         
         if (genomeFormat == "file") {
             idx <- Rsamtools::scanFaIndex(genome)
-            allChrs <- as.character(GenomeInfoDb::seqnames(idx))
+            allChrs <- as.character(Seqinfo::seqnames(idx))
         } else {
             genomeObj <- get(genome) # access the BSgenome
-            allChrs <- GenomeInfoDb::seqnames(genomeObj)
+            allChrs <- Seqinfo::seqnames(genomeObj)
         }
         if (!all(names(snpsL) %in% allChrs)) {
             stop("The snpFile contains chromosomes that are not present in the genome",
@@ -393,13 +393,13 @@ buildIndex_RbowtieCs <- function(seqFile, indexPath) {
 #' @keywords internal
 #' @importFrom methods is
 #' @importFrom Biostrings masks DNAStringSet writeXStringSet injectHardMask
-#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Seqinfo seqnames
 BSgenomeSeqToFasta <- function(bsgenome, outFile) {
     if (!methods::is(bsgenome, "BSgenome")) {
         stop("The variable 'bsgenome' is not a BSgenome")
     }
     append <- FALSE
-    for (chrT in GenomeInfoDb::seqnames(bsgenome)) {
+    for (chrT in Seqinfo::seqnames(bsgenome)) {
         if (is.null(Biostrings::masks(bsgenome[[chrT]])))
             chrSeq <- Biostrings::DNAStringSet(bsgenome[[chrT]])
         else
@@ -417,32 +417,32 @@ BSgenomeSeqToFasta <- function(bsgenome, outFile) {
 #' @keywords internal
 #' @importFrom S4Vectors metadata
 #' @importFrom utils packageVersion
-#' @importFrom GenomeInfoDb bsgenomeName provider releaseDate organism 
+#' @importFrom Seqinfo bsgenomeName provider releaseDate organism 
 #'   commonName
 createSeedList <- function(genome, aligner, indexPackageName) {
     pv <- S4Vectors::metadata(genome)$genome
     seed <- list(##package seeds
-        PKGTITLE = paste(aligner, "Index of", GenomeInfoDb::bsgenomeName(genome)),
-        PKGDESCRIPTION = paste(aligner, "Index of", GenomeInfoDb::bsgenomeName(genome)),
+        PKGTITLE = paste(aligner, "Index of", Seqinfo::bsgenomeName(genome)),
+        PKGDESCRIPTION = paste(aligner, "Index of", Seqinfo::bsgenomeName(genome)),
         PKGVERSION = "1.0",
         DATE = format(Sys.time(), "%Y-%M-%d"),
         AUTHOR = "QuasR",
         MAINTAINER = "This package was automatically created <yourfault@somewhere.net>",
-        LIC = paste("see", GenomeInfoDb::bsgenomeName(genome)),
+        LIC = paste("see", Seqinfo::bsgenomeName(genome)),
         PKGDETAILS = "Storing genome index for BSgenome which is needed for alignments.",
         PKGEXAMPLES = "No examples",
         
         ##genome seeds
-        GENOMENAME = GenomeInfoDb::bsgenomeName(genome),
-        PROVIDER = GenomeInfoDb::provider(genome),
+        GENOMENAME = Seqinfo::bsgenomeName(genome),
+        PROVIDER = Seqinfo::provider(genome),
         PROVIDERVERSION = ifelse(!is.null(pv) && is.character(pv) && 
                                      length(pv) == 1L, pv, "not_available"),
-        RELEASEDATE = GenomeInfoDb::releaseDate(genome),
+        RELEASEDATE = Seqinfo::releaseDate(genome),
         RELEASENAME = "not_available",
-        ORGANISM = GenomeInfoDb::organism(genome),
-        SPECIES = GenomeInfoDb::commonName(genome),
-        SRCDATAFILES = GenomeInfoDb::bsgenomeName(genome),
-        ORGANISMBIOCVIEW = gsub(" ", "_", GenomeInfoDb::organism(genome)),
+        ORGANISM = Seqinfo::organism(genome),
+        SPECIES = Seqinfo::commonName(genome),
+        SRCDATAFILES = Seqinfo::bsgenomeName(genome),
+        ORGANISMBIOCVIEW = gsub(" ", "_", Seqinfo::organism(genome)),
         
         #aligner seeds
         ALIGNER = aligner,

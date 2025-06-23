@@ -56,7 +56,7 @@ calcQaInformation <- function(filename, label, filetype, chunkSize) {
 #' @importFrom Rsamtools FaFile scanFaIndex getSeq
 #' @importFrom IRanges IRanges breakInChunks
 #' @importFrom GenomicRanges GRanges GRangesList seqnames
-#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom Seqinfo seqlengths
 #' @importFrom BSgenome getSeq
 #' @importFrom BiocGenerics unlist match start
 #' @importFrom methods is
@@ -73,12 +73,12 @@ calcMmInformation <- function(filename, genome, chunkSize) {
     if (methods::is(genome, "BSgenome")) {
         # BSgenome
         ref <- genome
-        seqlen <- GenomeInfoDb::seqlengths(ref)[selChr]
+        seqlen <- Seqinfo::seqlengths(ref)[selChr]
     } else {
         # Fasta File
         ref <- Rsamtools::FaFile(genome)
         seqInfo <- Rsamtools::scanFaIndex(ref)
-        seqlen <- GenomeInfoDb::seqlengths(seqInfo)[selChr]
+        seqlen <- Seqinfo::seqlengths(seqInfo)[selChr]
     }
 
     # if no mapped alignments then return array of NAs
@@ -289,7 +289,7 @@ calcMmInformation <- function(filename, genome, chunkSize) {
 #' @importFrom Rsamtools scanFaIndex FaFile BamFile
 #' @importFrom methods is
 #' @importFrom graphics par
-#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom Seqinfo seqlengths
 #'
 #' @examples
 #' # copy example data to current working directory
@@ -429,16 +429,16 @@ qQCReport <- function(input, pdfFilename = NULL, chunkSize = 1e6L,
 
         # get bamfile index statistics for all bam files
         seqLen_bam_compatL <- lapply(alnFilename, function(x)
-            GenomeInfoDb::seqlengths(Rsamtools::BamFile(x)))
+            Seqinfo::seqlengths(Rsamtools::BamFile(x)))
 
         # get sequence length of the genome
         if (methods::is(genome, "BSgenome")) {
             # BSgenome
-            seqlen_genome_compat <- GenomeInfoDb::seqlengths(genome)
+            seqlen_genome_compat <- Seqinfo::seqlengths(genome)
         } else {
             # Fasta File
             seqlen_genome_compat <-
-                GenomeInfoDb::seqlengths(Rsamtools::scanFaIndex(Rsamtools::FaFile(genome)))
+                Seqinfo::seqlengths(Rsamtools::scanFaIndex(Rsamtools::FaFile(genome)))
         }
 
         # test if all sequence lengths in all bam files as well as the

@@ -195,7 +195,7 @@ setMethod("length", "qProject", function(x) nrow(x@reads))
 #    x
 #})
 
-#' @importFrom GenomeInfoDb genome
+#' @importFrom Seqinfo genome
 #' @export
 setMethod("genome", signature(x = "qProject"), function(x) {
     y <- x@genome

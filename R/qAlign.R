@@ -282,7 +282,7 @@ qAlign <- function(sampleFile, genome, auxiliaryFile = NULL, aligner = "Rbowtie"
 
 # inspect the qProject and give an overview of all the files that need to be computed
 #' @keywords internal
-#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom Seqinfo seqlengths
 #' @importFrom Rsamtools scanBamHeader
 #' @importFrom utils flush.console installed.packages
 #' @importFrom stats na.omit
@@ -340,7 +340,7 @@ missingFilesMessage <- function(proj, checkOnly) {
     ## bam files are consistent with BSgenome reference
     if (proj@samplesFormat != "bam" && any(!is.na(proj@alignments$FileName)) &&
         proj@genomeFormat == "BSgenome") {
-        refchrs <- GenomeInfoDb::seqlengths(get(proj@genome))
+        refchrs <- Seqinfo::seqlengths(get(proj@genome))
         refchrs <- refchrs[order(names(refchrs))]
         bamchrsL <- lapply(Rsamtools::scanBamHeader(
             stats::na.omit(proj@alignments$FileName)),
@@ -1231,7 +1231,7 @@ createQProject <- function(sampleFile, genome, auxiliaryFile, aligner,
 #' @keywords internal
 #' @importFrom Biostrings fasta.seqlengths
 #' @importFrom Rsamtools indexFa scanFaIndex
-#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Seqinfo seqnames
 #' @importFrom tools md5sum
 #' @importFrom utils write.table
 createReferenceSequenceIndices <- function(proj) {
@@ -1261,7 +1261,7 @@ createReferenceSequenceIndices <- function(proj) {
                      call. = FALSE)
             }
         } else {
-            faiSeqNames <- as.character(GenomeInfoDb::seqnames(
+            faiSeqNames <- as.character(Seqinfo::seqnames(
                 Rsamtools::scanFaIndex(proj@genome)))
             if (length(unique(faiSeqNames)) != length(faiSeqNames)) {
                 stop("Sequence names in the file: ", proj@genome,

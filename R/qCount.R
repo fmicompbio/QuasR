@@ -314,7 +314,7 @@
 #' res5
 #'
 #' @importFrom Rsamtools scanBamHeader
-#' @importFrom GenomeInfoDb seqlevels seqlevelsInUse seqlengths
+#' @importFrom Seqinfo seqlevels seqlevelsInUse seqlengths
 #' @importFrom parallel clusterMap clusterEvalQ splitIndices
 #' @importFrom GenomicRanges GRanges reduce findOverlaps seqnames
 #' @importFrom IRanges IRanges ranges
@@ -393,13 +393,13 @@ qCount <- function(proj,
     trCommon <- names(trTab)[trTab == length(bamfiles)]
     queryseqs <- NULL
     if (inherits(query, c("GRanges","GRangesList"))) {
-        queryseqs <- GenomeInfoDb::seqlevelsInUse(query)
+        queryseqs <- Seqinfo::seqlevelsInUse(query)
     } else if (inherits(query,"TxDb")) { # only use active sequences
-        queryseqs <- GenomeInfoDb::seqlevels(query) # isActiveSeq is deprecated; no seqlevelsInUse for TxDb yet
+        queryseqs <- Seqinfo::seqlevels(query) # isActiveSeq is deprecated; no seqlevelsInUse for TxDb yet
     }
     if (!is.null(query) && any(f <- !(queryseqs %in% trCommon)))
         stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
-                     paste(GenomeInfoDb::seqlevels(query)[f], collapse = ", ")))
+                     paste(Seqinfo::seqlevels(query)[f], collapse = ", ")))
 
     ## 'query' is correct type?
     if (reportLevel == "junction") {
@@ -651,7 +651,7 @@ qCount <- function(proj,
                                seqnames = GenomicRanges::seqnames(flatquery)[as.numeric(as.character(GenomicRanges::seqnames(SD)))],
                                ranges = IRanges::ranges(SD),
                                strand = GenomicRanges::strand(flatquery)[as.numeric(as.character(GenomicRanges::seqnames(SD)))],
-                               seqlengths = GenomeInfoDb::seqlengths(flatquery)),
+                               seqlengths = Seqinfo::seqlengths(flatquery)),
                            ignore.mcols = TRUE)
             querynames <- querynames[c(notOverlappingMaskInd, as.numeric(as.character(GenomicRanges::seqnames(SD))))]
             querylengths <- BiocGenerics::width(flatquery)

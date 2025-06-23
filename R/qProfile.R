@@ -200,7 +200,7 @@
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @importFrom BiocGenerics start end strand
-#' @importFrom GenomeInfoDb seqnames seqlevels
+#' @importFrom Seqinfo seqnames seqlevels
 #' @importFrom parallel clusterEvalQ clusterMap
 #'
 qProfile <- function(proj,
@@ -291,9 +291,9 @@ qProfile <- function(proj,
     trTab <- table(unlist(lapply(Rsamtools::scanBamHeader(bamfiles),
                                  function(bh) names(bh$targets))))
     trCommon <- names(trTab)[trTab == length(bamfiles)]
-    if (any(f <- !(GenomeInfoDb::seqlevels(query) %in% trCommon)))
+    if (any(f <- !(Seqinfo::seqlevels(query) %in% trCommon)))
         stop(sprintf("sequence levels in 'query' not found in alignment files: %s",
-                     paste(GenomeInfoDb::seqlevels(query)[f], collapse = ", ")))
+                     paste(Seqinfo::seqlevels(query)[f], collapse = ", ")))
 
     ## 'useRead' set but not a paired-end experiment?
     if (useRead != "any" && proj@paired == "no")
@@ -349,7 +349,7 @@ qProfile <- function(proj,
         refpos <- ifelse(plusStrand, BiocGenerics::start(query),
                          BiocGenerics::end(query))
         queryWin <- GenomicRanges::GRanges(
-            GenomeInfoDb::seqnames(query),
+            Seqinfo::seqnames(query),
             IRanges::IRanges(
               start = pmax(1, ifelse(plusStrand,
                                      refpos - upstream, refpos - downstream)),
@@ -484,7 +484,7 @@ qProfile <- function(proj,
 ## return a numeric vector with maxWidth elements corresponding to the positions within the query regions
 #' @keywords internal
 #' @importFrom Rsamtools scanBamHeader
-#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Seqinfo seqnames
 #' @importFrom BiocGenerics start end strand match as.vector
 profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
                               selectReadPosition, orientation, useRead,
@@ -498,7 +498,7 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
         seqnamesBamHeader <- names(Rsamtools::scanBamHeader(bamfile)[[1]]$targets)
 
         # prepare region vectors
-        tid <- BiocGenerics::as.vector(BiocGenerics::match(GenomeInfoDb::seqnames(regions),
+        tid <- BiocGenerics::as.vector(BiocGenerics::match(Seqinfo::seqnames(regions),
                                                            seqnamesBamHeader) - 1L)
         s <- BiocGenerics::start(regions) - 1L # Samtools library has 0-based inclusive start
         e <- BiocGenerics::end(regions) # Samtools library has 0-based exclusive end
@@ -551,7 +551,7 @@ profileAlignments <- function(bamfile, queryids, regions, refpos, shift,
         reg <- regions[c(1, length(regions))]
         emsg <- paste("Internal error on ", Sys.info()['nodename'],
                       ", bamfile ", bamfile," with regions\n\t",
-                      paste(GenomeInfoDb::seqnames(reg), ":",
+                      paste(Seqinfo::seqnames(reg), ":",
                             BiocGenerics::start(reg), "-" , BiocGenerics::end(reg),
                             ":", BiocGenerics::strand(reg), sep = "",
                             collapse = "\n\t...\n\t"),

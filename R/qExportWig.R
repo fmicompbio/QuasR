@@ -165,7 +165,7 @@
 #' @aliases qExportWig
 #'
 #' @importFrom Rsamtools scanBamHeader
-#' @importFrom GenomeInfoDb Seqinfo
+#' @importFrom Seqinfo Seqinfo
 #' @importFrom grDevices col2rgb colorRampPalette
 #' @importFrom rtracklayer wigToBigWig
 #' @importFrom methods is
@@ -357,7 +357,7 @@ qExportWig <- function(proj,
                                             "") else file
     if (createBigWig) {
         tmp <- Rsamtools::scanBamHeader(bamfiles[[1]][1])[[1]]$targets
-        si <- GenomeInfoDb::Seqinfo(names(tmp), tmp)
+        si <- Seqinfo::Seqinfo(names(tmp), tmp)
     }
 
     # digest clObj
