@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.3</span>
       </span>
     </div>
 
@@ -421,11 +421,11 @@ multiple chunks.</p>
 <span class="r-in"><span><span class="co"># create alignments (paired-end experiment)</span></span></span>
 <span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span></span>
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/Rtmp6EuWbe/file537157fca62a/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/Rtmp6EuWbe/file537157fca62a/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -433,9 +433,9 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1750496976955.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1751261719888.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/Rtmp6EuWbe/file537157fca62a/reference/QuasR_log_53714f85ade8.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/QuasR_log_59e748efc19a.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -500,7 +500,7 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     supportedUCSCFeatureDbTables, supportedUCSCFeatureDbTracks,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     supportedUCSCtables</span>
 <span class="r-in"><span><span class="va">genomeRegion</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanFa.html" class="external-link">scanFaIndex</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">chrominfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">chrominfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Seqinfo/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/start.html" class="external-link">end</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        is_circular<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu">makeTxDbFromGFF</span><span class="op">(</span><span class="va">annotationFile</span>,</span></span>
