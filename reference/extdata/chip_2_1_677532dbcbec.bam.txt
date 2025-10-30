@@ -1,12 +1,12 @@
-reads.FileName1	/private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/extdata/chip_2_1.fq.bz2
+reads.FileName1	/private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/extdata/chip_2_1.fq.bz2
 reads.FileName2	NA
 reads.md5subsum1	bcd5419b4bbf5219555c0717d5e658e2
 reads.md5subsum2	NA
 samplesFormat	fastq
-genome	/private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/extdata/hg19sub.fa
+genome	/private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/extdata/hg19sub.fa
 genome.md5	6cf516257ac32f9f881ef384add30864
 genomeFormat	file
-aux	/private/var/folders/y6/nj790rtn62lfktb1sh__79hc0000gn/T/RtmpdLZwJS/file59e71a95f9b0/reference/extdata/NC_001422.1.fa
+aux	/private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/extdata/NC_001422.1.fa
 aux.md5	351e5e3e83799cea5cd439ccbb2ba161
 aligner	Rbowtie
 aligner.version	1.49.0
@@ -20,4 +20,4 @@ alignmentParameter	-m 1 --best --strata
 geneAnnotation	NA
 geneAnnotationFormat	NA
 geneAnnotation.md5	NA
-QuasR.version	1.49.3
+QuasR.version	1.51.0
