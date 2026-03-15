@@ -99,6 +99,14 @@ jobs:
           Write-Host "::add-path::C:\ProgramData\chocolatey\bin"
           Write-Host "::set-env name=LIBRARY_PATH::C:\ProgramData\chocolatey\lib\curl\tools:$($env:LIBRARY_PATH)"
 
+      - name: Install data.table manually
+        if: runner.os == 'macOS'
+        run: |
+          brew install gettext
+          export PKG_CPPFLAGS="-I$(brew --prefix gettext)/include"
+          export PKG_LIBS="-L$(brew --prefix gettext)/lib -lintl"
+          R -e 'install.packages("data.table", type="source")'
+
       - name: Install R package dependencies
         run: |
           local_deps <- remotes::local_package_deps(dependencies = TRUE)
