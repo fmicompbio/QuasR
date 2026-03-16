@@ -103,6 +103,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install gettext
+          brew install libomp
           export PKG_CPPFLAGS="-I$(brew --prefix gettext)/include"
           export PKG_LIBS="-L$(brew --prefix gettext)/lib -lintl"
           R -e 'install.packages("data.table", type="source")'
