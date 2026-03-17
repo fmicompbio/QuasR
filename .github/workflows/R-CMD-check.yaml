@@ -103,12 +103,9 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install gettext
-          brew install libomp
           export PKG_CPPFLAGS="-I$(brew --prefix gettext)/include"
           export PKG_LIBS="-L$(brew --prefix gettext)/lib -lintl"
-          echo "LDFLAGS += -L$(brew --prefix libomp)/lib -lomp" >> ~/.R/Makevars
-          echo "CPPFLAGS += -I$(brew --prefix libomp)/include" >> ~/.R/Makevars
-          echo "SHLIB_OPENMP_CFLAGS=-fopenmp" >> ~/.R/Makevars
+          echo "SHLIB_OPENMP_CFLAGS=" >> ~/.R/Makevars
           R -e 'install.packages("data.table", type="source")'
 
       - name: Install R package dependencies
