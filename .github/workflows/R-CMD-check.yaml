@@ -105,8 +105,7 @@ jobs:
           brew install gettext
           export PKG_CPPFLAGS="-I$(brew --prefix gettext)/include"
           export PKG_LIBS="-L$(brew --prefix gettext)/lib -lintl"
-          echo "SHLIB_OPENMP_CFLAGS=" >> ~/.R/Makevars
-          R -e 'install.packages("data.table", type="source")'
+          R -e 'install.packages("data.table", type="binary")'
 
       - name: Install R package dependencies
         run: |
