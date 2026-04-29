@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">QuasR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.51.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.53.0</span>
       </span>
     </div>
 
@@ -421,11 +421,11 @@ multiple chunks.</p>
 <span class="r-in"><span><span class="co"># create alignments (paired-end experiment)</span></span></span>
 <span class="r-in"><span><span class="va">sampleFile</span> <span class="op">&lt;-</span> <span class="st">"extdata/samples_rna_paired.txt"</span></span></span>
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="fu"><a href="qAlign.html">qAlign</a></span><span class="op">(</span><span class="va">sampleFile</span>, <span class="va">genomeFile</span>, splicedAlignment<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating .fai file for: /private/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/RtmpRIcpyo/file98da5f0f92aa/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> alignment files missing - need to:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create alignment index for the genome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     create 2 genomic alignment(s)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/extdata/hg19sub.fa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating an Rbowtie index for /private/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/RtmpRIcpyo/file98da5f0f92aa/reference/extdata/hg19sub.fa</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished creating index</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Testing the compute nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> OK</span>
@@ -433,9 +433,9 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing to run on 1 nodes...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Available cores:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Mac-1761831615261.local: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> sjc22-bm206-35936183-b61e-45d4-b308-d58c975ca0f6-E654BBFA41AE.local: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing genomic alignments for 2 samples. See progress in the log file:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/xc/cl1fyykn2pj4ryhdw6r1mqtc0000gn/T/RtmppUFZk5/file6775775f0b30/reference/QuasR_log_677578eec72a.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /private/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/RtmpRIcpyo/file98da5f0f92aa/reference/QuasR_log_98da3df8897b.txt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Genomic alignments have been created successfully</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -487,23 +487,11 @@ multiple chunks.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     Vignettes contain introductory material; view with</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     'browseVignettes()'. To cite Bioconductor, see</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     'citation("Biobase")', and for packages 'citation("pkgname")'.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘txdbmaker’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:GenomicFeatures’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     UCSCFeatureDbTableSchema, browseUCSCtrack, getChromInfoFromBiomart,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     makeFDbPackageFromUCSC, makeFeatureDbFromUCSC, makePackageName,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     makeTxDb, makeTxDbFromBiomart, makeTxDbFromEnsembl,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     makeTxDbFromGFF, makeTxDbFromGRanges, makeTxDbFromUCSC,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     makeTxDbPackage, makeTxDbPackageFromBiomart,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     makeTxDbPackageFromUCSC, supportedMiRBaseBuildValues,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     supportedUCSCFeatureDbTables, supportedUCSCFeatureDbTracks,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     supportedUCSCtables</span>
 <span class="r-in"><span><span class="va">genomeRegion</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/scanFa.html" class="external-link">scanFaIndex</a></span><span class="op">(</span><span class="va">genomeFile</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">chrominfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Seqinfo/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/start.html" class="external-link">end</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        is_circular<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">genomeRegion</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu">makeTxDbFromGFF</span><span class="op">(</span><span class="va">annotationFile</span>,</span></span>
+<span class="r-in"><span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/txdbmaker/man/makeTxDbFromGFF.html" class="external-link">makeTxDbFromGFF</a></span><span class="op">(</span><span class="va">annotationFile</span>,</span></span>
 <span class="r-in"><span>                        format<span class="op">=</span><span class="st">"gtf"</span>,</span></span>
 <span class="r-in"><span>                        chrominfo<span class="op">=</span><span class="va">chrominfo</span>,</span></span>
 <span class="r-in"><span>                        dataSource<span class="op">=</span><span class="st">"Ensembl modified"</span>,</span></span>
@@ -574,7 +562,7 @@ multiple chunks.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>
