@@ -121,9 +121,9 @@ qProjectUpdate <- function(proj, quiet = TRUE) {
 #' @author Anita Lerch, Dimos Gaidatzis and Michael Stadler
 #'
 #' @aliases show,qProject-method [,qProject,ANY,missing,missing-method
-#'   alignments,qProject-method alignments auxiliaries,qProject-method auxiliaries
-#'   genome,qProject-method length,qProject-method qProject qProject-class
-#'   class:qProject
+#' @aliases alignments,qProject-method alignments auxiliaries,qProject-method auxiliaries
+#' @aliases genome,qProject-method length,qProject-method qProject qProject-class
+#' @aliases class:qProject
 #'
 #' @name qProject-class
 #' @docType class

@@ -319,7 +319,7 @@
 #' @importFrom GenomicRanges GRanges reduce findOverlaps seqnames
 #' @importFrom IRanges IRanges ranges
 #' @importFrom S4Vectors mcols elementNROWS endoapply Rle subjectHits queryHits
-#'   split
+#' @importFrom S4Vectors split
 #' @importFrom BiocGenerics width strand end start setdiff unlist
 #' @importFrom GenomicFeatures exons promoters exonsBy
 qCount <- function(proj,

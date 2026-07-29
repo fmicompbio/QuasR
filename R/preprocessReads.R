@@ -268,7 +268,7 @@ preprocessReads <- function(filename, outputFilename = NULL,
 
 #' @keywords internal
 #' @importFrom ShortRead readFasta writeFastq FastqStreamer yield narrow
-#'   SRFilterResult
+#' @importFrom ShortRead SRFilterResult
 #' @importFrom Biostrings trimLRPatterns
 #' @importFrom S4Vectors evalSeparately
 #' @importFrom BiocGenerics width start end

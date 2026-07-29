@@ -67,5 +67,5 @@ biocViews: Genetics, Preprocessing, Sequencing, ChIPSeq, RNASeq,
     MethylSeq, Coverage, Alignment, QualityControl, ImmunoOncology
 Archs: x64
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
 BugReports: https://github.com/fmicompbio/QuasR/issues
+Config/roxygen2/version: 8.0.0
