@@ -257,7 +257,7 @@ calcMmInformation <- function(filename, genome, chunkSize) {
 #'
 #' @seealso
 #' \code{\linkS4class{qProject}}, \code{\link{qAlign}},
-#' \code{\link[ShortRead:ShortReadBase-package]{ShortRead}} package
+#' \code{\link[ShortRead:ShortRead-package]{ShortRead}} package
 #'
 #' @keywords methods
 #'

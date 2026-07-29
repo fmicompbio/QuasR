@@ -144,7 +144,7 @@ FastQC quality control tool at
 }
 \seealso{
 \code{\linkS4class{qProject}}, \code{\link{qAlign}},
-\code{\link[ShortRead:ShortReadBase-package]{ShortRead}} package
+\code{\link[ShortRead:ShortRead-package]{ShortRead}} package
 }
 \author{
 Anita Lerch, Dimos Gaidatzis and Michael Stadler
