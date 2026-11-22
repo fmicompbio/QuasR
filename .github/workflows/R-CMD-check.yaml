@@ -80,7 +80,7 @@ jobs:
       - name: Install macOS system dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install curl-openssl
+          brew install curl
           brew install harfbuzz
           brew install fribidi
           brew install jpeg fftw
@@ -155,8 +155,10 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/devel' && matrix.config.covr == 'yes'
         run: |
           install.packages("covr")
-          covr::codecov(token = "${{secrets.CODECOV_TOKEN}}")
+          covr::codecov(quiet = FALSE)
         shell: Rscript {0}
+        env: 
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Deploy
         if: github.event_name == 'push' && github.ref == 'refs/heads/devel' && matrix.config.pkgdown == 'yes'
